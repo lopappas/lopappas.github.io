@@ -1,92 +1,68 @@
-@import url('https://fonts.googleapis.com/css2?family=Cause:wght@100..900&display=swap');
-
-@import url('https://fonts.googleapis.com/css2?family=Amarante&display=swap');
-
 * {
-    font-family: Cause;
-    line-height: 1.6em;
-    letter-spacing: .06em;
     margin: 0;
     padding: 0;
-    /* background-color: rgb(82, 255, 197); */
-    /* z-index: 2; */
+    box-sizing: border-box;
+    line-height: 1.6em;
 }
-
 body {
-    background-color: rgb(231, 245, 255);
+    background-color: rgb(75, 168, 230);
+    background-image: url("/public/water.jpg");
 }
 
 
-
-header {
-    justify-content: center;
-    align-items: center;
-    display: flex;
-    margin: auto;
-    height: 80px;
-    width: 100%;
-    background-color: rgb(82, 255, 197);
-}
-
-.icon {
-    background-image: url("/public/turtle.jpeg");
-    height: 32px;
-    width: 32px;
-    background-size: 32px;
-}
-
-h1 {
-    font-size: 3em;
-    padding-right: 20px;
-}
-
-
-.container {
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-article {
+.vid-container {
     position: relative;
-    padding-top: 20px;
-    box-sizing: border-box;
+    width: 80%;
+    max-width: 1000px;
+    margin: 2rem auto;
 }
 
-article h2 {
-    font-family: Amarante;
-    display: inline-block;
-    font-style: italic;
-    box-sizing: border-box;
-    border: solid 5px black;
-    width: 420px;
-}
-
-
-.hero-img {
-    width: 420px;
-    align-self: center;
-    border: solid 5px black;
-    box-sizing: border-box;
-}
-
-small {
-    
-    display: inline-block;
-    padding: 4px;
-    border: solid 5px black;
-    box-sizing: border-box;
-    width: 420px;
-    max-width: 420px;
-    font-size: 1em;
-
-}
-
-footer {
-    position: absolute;
+.main-vid {
+    /* display: block; */
     width: 100%;
-    background-color: rgb(82, 255, 197);
-    padding-bottom: 300px;
+    height: auto;
+    border: solid gold 20px;
+}
+
+.video-overlay {
+    flex: 1 0 28%;
+    flex-wrap: wrap;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: space-around;
+    /* align-items: flex-start; */
+    gap: 1rem;
+    padding: 20px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.video-overlay img {
+    width: clamp(80px, 18vw, 150px);
+    /* max-height: calc(100% - 40px); */
+    height: auto;
+    object-fit: contain;
+}
+
+
+.top {
+    padding-top: 4%;
+    min-width: 24%;
+    z-index: 1000;
+    align-self: flex-start;
+
+}
+
+.bottom {
+    padding-bottom: 4%;
+    min-width: 27%;
+    z-index: 1000;
+    /* align-self: flex-end; */
+
+}
+
+@media (max-width: 780px) {
+
     
 }
