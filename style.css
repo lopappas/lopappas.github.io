@@ -4,17 +4,24 @@
     box-sizing: border-box;
     line-height: 1.6em;
 }
+
+html {
+    /* pointer-events: none; */
+}
+
 body {
     background-color: rgb(75, 168, 230);
     background-image: url("/public/water.jpg");
+    /* pointer-events: none; */
 }
 
 
 .vid-container {
     position: relative;
     width: 80%;
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 2rem auto;
+    /* pointer-events: none; */
 }
 
 .main-vid {
@@ -22,6 +29,7 @@ body {
     width: 100%;
     height: auto;
     border: solid gold 20px;
+    pointer-events: none;
 }
 
 .video-overlay {
@@ -34,20 +42,21 @@ body {
     /* align-items: flex-start; */
     gap: 1rem;
     padding: 20px;
-    pointer-events: none;
     z-index: 2;
 }
 
+/* Clamp is so powerful! Minimum, preffered, max */
 .video-overlay img {
-    width: clamp(80px, 18vw, 150px);
+    width: clamp(52px, 18vw, 150px);
     /* max-height: calc(100% - 40px); */
     height: auto;
     object-fit: contain;
+    /* padding-bottom: 4%; */
 }
 
 
 .top {
-    padding-top: 4%;
+    padding-top: .5%;
     min-width: 24%;
     z-index: 1000;
     align-self: flex-start;
@@ -55,7 +64,8 @@ body {
 }
 
 .bottom {
-    padding-bottom: 4%;
+    /* margin-bottom: 10px; */
+    /* padding-bottom: 12%; */
     min-width: 27%;
     z-index: 1000;
     /* align-self: flex-end; */
@@ -63,6 +73,41 @@ body {
 }
 
 @media (max-width: 780px) {
-
+    .main-vid {
+        border: solid gold 10px;
+    }
     
+}
+
+@media (max-width: 375px) {
+    .main-vid {
+        border: solid gold 6px;
+    }
+    
+}
+
+/* 1. Initial image styling */
+.jiggle-target {
+    width: 200px;
+    height: auto;
+    cursor: pointer;
+    display: inline-block;
+    transition: transform 0.1s ease;
+}
+
+/* 2. Define the jiggle animation steps */
+@keyframes jiggle {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    15% { transform: translate(-4px, 2px) rotate(-3deg); }
+    30% { transform: translate(4px, -1px) rotate(3deg); }
+    45% { transform: translate(-3px, -2px) rotate(-2deg); }
+    60% { transform: translate(3px, 2px) rotate(2deg); }
+    75% { transform: translate(-1px, 1px) rotate(-1deg); }
+    90% { transform: translate(1px, -1px) rotate(1deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* 3. Class added by JavaScript to run the animation */
+.animate-jiggle {
+    animation: jiggle 0.4s ease-in-out;
 }

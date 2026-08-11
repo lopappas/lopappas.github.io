@@ -13,15 +13,36 @@
     <div class="vid-container">
         <video class="main-vid" src="/public/sea.mp4" autoplay loop muted></video>
         <div class="video-overlay">
-            <img class="top" src="/public/wingull.png" alt="wingull">
-            <img class="top" src="/public/cloud.png" alt="cloud">
-            <img class="top" src="/public/ho-oh.png" alt="ho-oh">
+            <img id="wingull" class="top image" src="/public/wingull.png" alt="wingull">
+            <img class="top image" src="/public/cloud.png" alt="cloud">
+            <img class="top image" src="/public/ho-oh.png" alt="ho-oh">
 
-            <img class="bottom" src="/public/relicanth.png" alt="relicanth">
-            <img class="bottom" src="/public/leviathan.png" alt="leviathan">
-            <img class="bottom" src="/public/wailord.webp" alt="wailord">
+            <img class="bottom image" src="/public/relicanth.png" alt="relicanth">
+            <img class="bottom image" src="/public/leviathan.png" alt="leviathan">
+            <img class="bottom image" src="/public/wailord.webp" alt="wailord">
         </div>
     </div>
+
+    <script>
+
+    // 1. Select all elements sharing the target class
+    const images = document.querySelectorAll('.image');
+
+    // 2. Loop through each item and bind individual click events
+    images.forEach(img => {
+      img.addEventListener('click', () => {
+        // Apply animation to the specific element clicked
+        img.classList.add('animate-jiggle');
+        
+        // Remove class after 400ms to allow re-clicking
+        setTimeout(() => {
+          img.classList.remove('animate-jiggle');
+        }, 400); 
+      });
+    });
+
+        
+    </script>
 
 
 
