@@ -1,54 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lo Flexboxxy</title>
     <link rel="stylesheet" href="style.css">
-    <title>Day at sea</title>
 </head>
-
 <body>
 
-    <div class="vid-container">
-        <video class="main-vid" src="/public/sea.mp4" playsinline  autoplay loop muted></video>
-        <div class="video-overlay">
-            <img id="wingull" class="top image" src="/public/wingull.png" alt="wingull">
-            <img class="top image" src="/public/cloud.png" alt="cloud">
-            <img class="top image" src="/public/ho-oh.png" alt="ho-oh">
+    <header>
+        <p>Select your server:</p>
+    </header>
 
-            <img class="bottom image" src="/public/relicanth.png" alt="relicanth">
-            <img class="bottom image" src="/public/leviathan.png" alt="leviathan">
-            <img class="bottom image" src="/public/wailord.webp" alt="wailord">
-        </div>
+
+    <div class="container">
+        <div class="item">Item 1</div>
+        <div class="item">Item 2</div>
+        <div class="item">Item 3</div>
+        <div class="item">Item 4</div>
+        <div class="item">Item 5</div>
+        <div class="item">Item 6</div>
+        <div class="item">Item 7</div>
+        <div class="item">Item 8</div>
+        <div class="item">Item 9</div>
+        <div class="item">Item 10</div>
+        <div class="item">Item 11</div>
+        <div class="item">Item 12</div>
+        <div class="item">Item 13</div>
+        <div class="item">Item 14</div>
+        <div class="item">Item 15</div>
+        <div class="item">Item 16</div>
+        <div class="item">Item 17</div>
+        <div class="item">Item 18</div>
+        <div class="item">Item 19</div>
+        <div class="item">Item 20</div>
+        <div class="item">Item 21</div>
+        <div class="item">Item 22</div>
+        <div class="item">Item 23</div>
+        <div class="item">Item 24</div>
+        <div class="item">Item 25</div>
+        <div class="item">Item 26</div>
+        <div class="item">Item 27</div>
+        <div class="item">Item 28</div>
+        <div class="item">Item 29</div>
+        <div class="item">Item 30</div>
+        <div class="item">Item 31</div>
+        <div class="item">Item 32</div>
+        <div class="item">Item 33</div>
+        <div class="item">Item 34</div>
+        <div class="item">Item 35</div>
+        <div class="item">Item 36</div>
+        <div class="item">Item 37</div>
+        <div class="item">Item 38</div>
+        <div class="item">Item 39</div>
+        <div class="item">Item 40</div>
+        <div class="item">Item 41</div>
+        <div class="item">Item 42</div>
+        <div class="item">Item 43</div>
+        <div class="item">Item 44</div>
+        <div class="item">Item 45</div>
+        <div class="item">Item 46</div>
+        <div class="item">Item 47</div>
+        <div class="item">Item 48</div>
+        
     </div>
-
-    <script>
-
-    // 1. Select all elements sharing the target class
-    const images = document.querySelectorAll('.image');
-
-    // 2. Loop through each item and bind individual click events
-    images.forEach(img => {
-      img.addEventListener('click', () => {
-        // Apply animation to the specific element clicked
-        img.classList.add('animate-jiggle');
-        
-        // Remove class after 400ms to allow re-clicking
-        setTimeout(() => {
-          img.classList.remove('animate-jiggle');
-        }, 400); 
-      });
-    });
-
-        
-    </script>
-
-
-
-
-
-
+    
 </body>
-
 </html>

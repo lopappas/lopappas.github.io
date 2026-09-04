@@ -1,113 +1,102 @@
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    line-height: 1.6em;
-}
-
-html {
-    /* pointer-events: none; */
+    font-family: 'Courier New', Courier, monospace;
 }
 
 body {
-    background-color: rgb(75, 168, 230);
-    background-image: url("/public/water.jpg");
-    /* pointer-events: none; */
+    background: #ff9a3b;
+    background: linear-gradient(90deg, rgba(255, 154, 59, 1) 0%, rgba(255, 117, 117, 1) 50%, rgba(246, 150, 255, 1) 100%);
 }
 
-
-.vid-container {
-    position: relative;
-    width: 80%;
-    max-width: 1200px;
-    margin: 2rem auto;
-    /* pointer-events: none; */
-}
-
-.main-vid {
-    /* display: block; */
-    width: 100%;
-    height: auto;
-    border: solid gold 20px;
-    pointer-events: none;
-}
-
-.video-overlay {
-    flex: 1 0 28%;
-    flex-wrap: wrap;
-    position: absolute;
-    inset: 0;
+header {
+    background-color: rgb(158, 158, 158);
     display: flex;
-    justify-content: space-around;
+    height: 60px;
+    /* margin: auto; */
+    /* text-align: center; */
+    /* margin: auto; */
+    justify-content: center;
+    align-items: center;
+    /* bottom: 20px; */
+    border: black 3px solid;
+}
+
+header p {
+    color: yellow;
+    font-weight: bold;
+    font-size: 1.4em;
+     text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000,
+               1px 1px #000, -1px -1px #000, 1px -1px #000, -1px 1px #000;
+}
+
+.container {
+    margin-top: 30px;
+    /* padding-top: 40px; */
+    /* background-color: antiquewhite; */
+    height: 600px;
+    display: flex;
     /* align-items: flex-start; */
-    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    flex-direction: column;
+    text-align: center;
+
+}
+
+.item {
+    border: 3px solid black;
     padding: 20px;
-    z-index: 2;
-}
-
-/* Clamp is so powerful! Minimum, preffered, max */
-.video-overlay img {
-    width: clamp(52px, 18vw, 150px);
-    /* max-height: calc(100% - 40px); */
-    height: auto;
-    object-fit: contain;
-    /* padding-bottom: 4%; */
-}
-
-
-.top {
-    padding-top: .5%;
-    min-width: 24%;
-    z-index: 1000;
-    align-self: flex-start;
-
-}
-
-.bottom {
-    /* margin-bottom: 10px; */
-    /* padding-bottom: 12%; */
-    min-width: 27%;
-    z-index: 1000;
-    /* align-self: flex-end; */
-
-}
-
-@media (max-width: 780px) {
-    .main-vid {
-        border: solid gold 10px;
-    }
-    
-}
-
-@media (max-width: 375px) {
-    .main-vid {
-        border: solid gold 6px;
-    }
-    
-}
-
-/* 1. Initial image styling */
-.jiggle-target {
+    margin: 1px;
     width: 200px;
-    height: auto;
+    /* margin: auto; */
+    /* text-align: center; */
+    /* align-self: center; */
+    /* margin: 3px; */
     cursor: pointer;
-    display: inline-block;
-    transition: transform 0.1s ease;
+    background-color: orchid;
+    font-size: 1.2em;
+    font-weight: bold;
+
 }
 
-/* 2. Define the jiggle animation steps */
-@keyframes jiggle {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    15% { transform: translate(-4px, 2px) rotate(-3deg); }
-    30% { transform: translate(4px, -1px) rotate(3deg); }
-    45% { transform: translate(-3px, -2px) rotate(-2deg); }
-    60% { transform: translate(3px, 2px) rotate(2deg); }
-    75% { transform: translate(-1px, 1px) rotate(-1deg); }
-    90% { transform: translate(1px, -1px) rotate(1deg); }
-    100% { transform: translate(0, 0) rotate(0deg); }
+@media (max-width: 600px) {
+
+    header {
+        height: 48px;
+    }
+
+    .container {
+        height: 1800px;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .item {
+        padding: 12px;
+        width: 120px;
+    }
+
+
 }
 
-/* 3. Class added by JavaScript to run the animation */
-.animate-jiggle {
-    animation: jiggle 0.4s ease-in-out;
+@media (min-width: 600px) and (max-width: 1260px) {
+
+    header {
+        height: 48px;
+    }
+
+    .container {
+        height: 1200px;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .item {
+        padding: 16px;
+        width: 160px;
+    }
+
+
 }
