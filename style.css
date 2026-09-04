@@ -14,12 +14,8 @@ header {
     background-color: rgb(158, 158, 158);
     display: flex;
     height: 60px;
-    /* margin: auto; */
-    /* text-align: center; */
-    /* margin: auto; */
     justify-content: center;
     align-items: center;
-    /* bottom: 20px; */
     border: black 3px solid;
 }
 
@@ -33,15 +29,13 @@ header p {
 
 .container {
     margin-top: 30px;
-    /* padding-top: 40px; */
-    /* background-color: antiquewhite; */
     height: 600px;
     display: flex;
-    /* align-items: flex-start; */
     flex-wrap: wrap;
     justify-content: flex-start;
     flex-direction: column;
     text-align: center;
+    align-content: space-around;
 
 }
 
@@ -50,10 +44,6 @@ header p {
     padding: 20px;
     margin: 1px;
     width: 200px;
-    /* margin: auto; */
-    /* text-align: center; */
-    /* align-self: center; */
-    /* margin: 3px; */
     cursor: pointer;
     background-color: orchid;
     font-size: 1.2em;
