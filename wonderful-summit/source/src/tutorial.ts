@@ -1,4 +1,4 @@
-import {newBattle,stepBattle,spellDamage,CONTACT_X,CONTACT_DAMAGE,type Battle} from './battle.ts';
+import {newBattle,stepBattle,spellDamage,CONTACT_X,CONTACT_DAMAGE,type Battle,type Potion} from './battle.ts';
 import {newRun,type Run} from './run.ts';
 import {SPELLS,type SpellId} from './magic.ts';
 
@@ -6,11 +6,11 @@ export type TutorialCheckpoint={battle:Battle;ink:number;lastCast?:{spellId:Spel
 export const TUTORIAL_LESSONS=['book','clear','elements','resistances','remember','heal','refill','quality','finish'] as const;
 export type TutorialLesson=typeof TUTORIAL_LESSONS[number];
 const isInfoLesson=(lesson:TutorialLesson)=>lesson==='remember'||lesson==='resistances';
-export type TutorialAction='book'|'draw'|'clear'|'cast'|'refill'|'heal'|'freeze'|'ink';
+export type TutorialAction='book'|'draw'|'clear'|'cast'|'refill'|Potion;
 type LessonProgress={bookOpened:boolean;viewedSpell:SpellId|null;studiedSpell:SpellId|null;healed:boolean};
 const emptyProgress=():LessonProgress=>({bookOpened:false,viewedSpell:null,studiedSpell:null,healed:false});
 export type TutorialState={phase:'briefing'|'active'|'paused'|'settling';settleMs:number;lastCast?:TutorialCheckpoint['lastCast'];lesson:TutorialLesson;progress:LessonProgress;feedback:string|null;checkpoint:TutorialCheckpoint;attempt:number};
-export type TutorialEvent={type:'book-opened'}|{type:'spell-viewed';spellId:SpellId}|{type:'book-closed';spellId:SpellId}|{type:'drawing-cleared';hadDrawing:boolean}|{type:'potion-impact';potion:'heal'|'freeze'|'ink';healing:number}|{type:'potion-finished';potion:'heal'|'freeze'|'ink'}|{type:'settling-tick';deltaMs:number}|{type:'refilled'}|{type:'spell-hit';spellId:SpellId;quality:number}|{type:'fizzle'};
+export type TutorialEvent={type:'book-opened'}|{type:'spell-viewed';spellId:SpellId}|{type:'book-closed';spellId:SpellId}|{type:'drawing-cleared';hadDrawing:boolean}|{type:'potion-impact';potion:Potion;healing:number}|{type:'potion-finished';potion:Potion}|{type:'settling-tick';deltaMs:number}|{type:'refilled'}|{type:'spell-hit';spellId:SpellId;quality:number}|{type:'fizzle'};
 
 export function tutorialCounter(battle:Battle){const element=battle.enemies[0].element;return SPELLS.find(s=>s.id===(element==='Fire'?'water':element==='Water'?'nature':'fire'))!;}
 export function tutorialLessonInfo(lesson:TutorialLesson,battle:Battle,studiedSpell?:SpellId|null){

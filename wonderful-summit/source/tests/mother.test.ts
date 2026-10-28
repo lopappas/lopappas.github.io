@@ -20,16 +20,16 @@ test('Mother waits two seconds after direct death, splits once at her death loca
  let b=slain();assert.equal(b.phase,'active');assert.equal(presentEnemies(b).length,0);assert.equal(nearestEnemy(b),undefined);assert.equal(b.motherSplit?.at,7);assert.equal(b.motherSplit?.x,401);
  const paused=stepBattle({...b,phase:'ready'},.1);assert.equal(paused.time,7);assert.equal(paused.motherSplit?.spawned,false);
  b=advance(b,1.99);assert.equal(b.enemies.length,1);b=stepBattle(b,.01);assert.equal(b.enemies.length,4);assert.equal(b.phase,'active');
- const kids=presentEnemies(b);assert.equal(kids.length,3);assert.deepEqual(kids.map(e=>e.element),['Fire','Water','Nature']);for(const e of kids){assert.equal(e.x,401);assert.equal(e.hp,100);assert.equal(e.spawnAt,9);assert.equal(e.readyAt,13);}
- b=advance(b,3.99);assert.equal(b.playerHP,100);for(const e of presentEnemies(b)){assert.equal(e.x,401);assert.equal(e.clock,0);assert.equal(e.attackAt,null);}
- b=advance(b,.03);assert.ok(presentEnemies(b).every(e=>e.x<401));assert.equal(b.enemies.length,4);
+ const kids=presentEnemies(b);assert.equal(kids.length,3);assert.deepEqual(kids.map(e=>e.element),['Fire','Water','Nature']);assert.deepEqual(kids.map(e=>e.x),[365,401,437]);for(const e of kids){assert.equal(e.hp,100);assert.equal(e.spawnAt,9);assert.equal(e.readyAt,13);}
+ b=advance(b,3.99);assert.equal(b.playerHP,100);for(const e of presentEnemies(b)){assert.equal(e.x,365+(e.id-2)*36);assert.equal(e.clock,0);assert.equal(e.attackAt,null);}
+ b=advance(b,.03);assert.ok(presentEnemies(b).every(e=>e.x<365+(e.id-2)*36));assert.equal(b.enemies.length,4);
  for(const e of b.enemies)b={...b,enemies:b.enemies.map(x=>({...x,hp:x.id===e.id?0:x.hp}))};b=stepBattle(b,.01);assert.equal(b.phase,'victory');
 });
 test('offspring at contact cannot attack before their four-second pause ends',()=>{
  let b=slain();b={...b,motherSplit:{...b.motherSplit!,x:CONTACT_X}};b=advance(b,5.99);assert.equal(b.playerHP,100);assert.ok(presentEnemies(b).every(e=>e.attackAt===null));b=advance(b,.5);assert.ok(b.playerHP<100);
 });
 test('burn death triggers the same delayed split and children inherit remaining Chronos',()=>{
- let b=newBattle('active','mother',()=>.4);b=hitWithSpell(b,100,'chronos');b.enemies[0]={...b.enemies[0],hp:1,x:440,burn:{damage:1,nextTick:1,ticks:1}};b=advance(b,1);assert.equal(b.phase,'active');assert.ok(Math.abs(b.motherSplit!.at-1)<1e-8);b=advance(b,2);assert.equal(presentEnemies(b).length,3);for(const e of presentEnemies(b)){assert.equal(e.stunUntil,18);assert.equal(e.x,440);}b=advance(b,5);assert.ok(presentEnemies(b).every(e=>e.x===440));assert.equal(b.enemies.length,4);
+ let b=newBattle('active','mother',()=>.4);b=hitWithSpell(b,100,'chronos');b.enemies[0]={...b.enemies[0],hp:1,x:440,burn:{damage:1,nextTick:1,ticks:1}};b=advance(b,1);assert.equal(b.phase,'active');assert.ok(Math.abs(b.motherSplit!.at-1)<1e-8);b=advance(b,2);assert.equal(presentEnemies(b).length,3);for(const e of presentEnemies(b)){assert.equal(e.stunUntil,18);assert.equal(e.x,404+(e.id-2)*36);}b=advance(b,5);assert.ok(presentEnemies(b).every(e=>e.x===404+(e.id-2)*36));assert.equal(b.enemies.length,4);
 });
 test('children can be targeted during their arrival pause and final victory requires all three deaths',()=>{
  let b=advance(slain(),2);for(let i=0;i<2;i++){const e=presentEnemies(b)[0];b.enemies=b.enemies.map(x=>x.id===e.id?{...x,hp:1}:x);b=hitWithSpell(b,100,'chronos');b=hitWithSpell(b,100,'water');assert.equal(b.phase,'active');}

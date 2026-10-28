@@ -9,24 +9,28 @@ export const PLAYER_HIT_PUSH=ENEMY_RUNWAY_SIZE/3;
 export const ENEMY_APPROACH_DELAY=5;
 export type BattlePhase='ready'|'active'|'victory'|'defeat';
 export type Encounter='slime'|'pack'|'elite'|'rock'|'shieldPack'|'mother';
-export type Potion='heal'|'freeze'|'ink';
+export type Potion='heal'|'freeze'|'ink'|'rejection'|'spellBottle';
+export type PotionCounts=Record<'heal'|'freeze'|'ink',number>&Partial<Record<'rejection'|'spellBottle',number>>;
+export type BottledSpell={spellId:SpellId|null;quality:number};
+export const POTION_IDS:Potion[]=['heal','freeze','ink','rejection','spellBottle'];
+export function enemyElementColor(element:Enemy['element']){return element==='Fire'?'#ef9c70':element==='Water'?'#7ccbd6':element==='Nature'?'#99bf76':'#8b9099';}
 export const ENCOUNTERS:Record<Encounter,string>={slime:'Meadow slime',pack:'Elemental pack',elite:'Elite goblin',rock:'Rock slime',shieldPack:'Woodland barricade',mother:'Slime Mother'};
-export const FREEZE_SECONDS=4,UNLIMITED_INK_SECONDS=15;
-export const POTIONS:Record<Potion,{name:string;icon:string;detail:string}>={heal:{name:'Healing',icon:'♥',detail:'Restore 30 health'},freeze:{name:'Freeze',icon:'❄',detail:`Freeze all enemies for ${FREEZE_SECONDS} seconds`},ink:{name:'Endless ink',icon:'◒',detail:`Refill ink to 100% and gain ${UNLIMITED_INK_SECONDS} seconds of unlimited ink`}};
+export const FREEZE_SECONDS=6,UNLIMITED_INK_SECONDS=15;
+export const POTIONS:Record<Potion,{name:string;icon:string;detail:string}>={heal:{name:'Healing',icon:'♥',detail:'Restore 30 health'},freeze:{name:'Freeze',icon:'❄',detail:`Freeze all enemies for ${FREEZE_SECONDS} seconds`},ink:{name:'Endless ink',icon:'◒',detail:`Refill ink to 100% and gain ${UNLIMITED_INK_SECONDS} seconds of unlimited ink`},rejection:{name:'Rejection',icon:'✧',detail:'Imbue your skin with a powerful repelling force for 15 seconds. Attackers get sent soaring and deal less damage.'},spellBottle:{name:'Spell in a bottle',icon:'✎',detail:'Draw one spell to seal its shape and quality into this bottle. Release it in combat.'}};
 export const POTION_FLIGHT_SECONDS=.65,POTION_BREAK_SECONDS=.35;
-export type PotionFlight={id:number;potion:Potion;started:number;toX:number;toY:number;applied:boolean};
+export type PotionFlight={spell?:BottledSpell;id:number;potion:Potion;started:number;toX:number;toY:number;applied:boolean};
 export type Burn={damage:number;nextTick:number;ticks:number};
 export type Push={from:number;to:number;started:number;ends:number};
 export type Enemy={id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
 export type Projectile={started:number;duration:number;quality:number;color:string;spellId:SpellId;targetId:number};
-export type Battle={phase:BattlePhase;encounter:Encounter;time:number;approachAt:number;playerHP:number;enemies:Enemy[];playerHurtUntil:number;playerHits:number;casts:number;projectile:Projectile|null;potions:Record<Potion,number>;freezeUntil:number;unlimitedUntil:number;potionFlights:PotionFlight[];potionSerial:number;upgrades:Partial<Record<SpellId,number>>;damageBonus:number;pushBonus:number;firstHitPush:number;difficulty:number;motherSplit:{at:number;x:number;element:Enemy['element'];spawned:boolean}|null;chronosFields:{quality:number;kind:'slow'|'stun';started:number;until:number}[];chronosPulse:{started:number;strong:boolean}|null;amulets:{sun:boolean;moon:boolean;twilight:boolean}};
+export type Battle={phase:BattlePhase;encounter:Encounter;time:number;approachAt:number;playerHP:number;enemies:Enemy[];playerHurtUntil:number;playerHits:number;casts:number;projectile:Projectile|null;potions:PotionCounts;bottledSpells:BottledSpell[];rejectionUntil:number;freezeUntil:number;unlimitedUntil:number;potionFlights:PotionFlight[];potionSerial:number;upgrades:Partial<Record<SpellId,number>>;damageBonus:number;pushBonus:number;firstHitPush:number;difficulty:number;motherSplit:{at:number;x:number;element:Enemy['element'];spawned:boolean}|null;chronosFields:{quality:number;kind:'slow'|'stun';started:number;until:number}[];chronosPulse:{started:number;strong:boolean}|null;amulets:{sun:boolean;moon:boolean;twilight:boolean}};
 function enemy(id:number,element:Enemy['element'],x:number,kind:Enemy['kind']='slime',rocky=false):Enemy{return{id,kind,initialElement:element,readyAt:0,rocky,shield:null,chronosStartedAt:0,stunStartedAt:0,spawnAt:0,element,hp:rocky?150:kind==='goblin'?200:kind==='mother'?300:SLIME_MAX_HP,maxHP:rocky?150:kind==='goblin'?200:kind==='mother'?300:SLIME_MAX_HP,x,clock:0,attackAt:null,nextAttackAt:0,hurtUntil:0,push:null,leafSlows:[],slowUntil:0,rootUntil:0,chronosSlowUntil:0,stunUntil:0,burn:null};}
 const ELEMENTS:Element[]=['Fire','Water','Nature'];
 export function newBattle(phase:BattlePhase='ready',encounter:Encounter='slime',random:()=>number=Math.random):Battle{
  const first=ELEMENTS[Math.min(2,Math.floor(random()*3))];
  const remaining=ELEMENTS.filter(e=>e!==first);
  const second=encounter==='pack'?remaining[Math.min(1,Math.floor(random()*2))]:encounter==='shieldPack'?ELEMENTS[Math.min(2,Math.floor(random()*3))]:first;
- return{phase,encounter,time:0,approachAt:ENEMY_APPROACH_DELAY,playerHP:PLAYER_MAX_HP,enemies:encounter==='mother'?[enemy(1,first,580,'mother')]:encounter==='shieldPack'?[{...enemy(1,first,580),shield:woodenShield()},{...enemy(2,second,ENEMY_BACK_X),shield:woodenShield()},{...enemy(3,'Neutral',ENEMY_BACK_X,'slime',true),spawnAt:13.5}]:encounter==='pack'?[enemy(1,first,580),enemy(2,second,ENEMY_BACK_X)]:encounter==='elite'?[enemy(1,'Neutral',580,'goblin')]:encounter==='rock'?[enemy(1,'Neutral',SLIME_START_X,'slime',true)]:[enemy(1,first,SLIME_START_X)],playerHurtUntil:0,playerHits:0,casts:0,projectile:null,potions:{heal:1,freeze:1,ink:1},freezeUntil:0,unlimitedUntil:0,potionFlights:[],potionSerial:0,upgrades:{},damageBonus:1,pushBonus:1,firstHitPush:0,difficulty:1,motherSplit:null,chronosFields:[],chronosPulse:null,amulets:{sun:false,moon:false,twilight:false}};
+ return{phase,encounter,time:0,approachAt:ENEMY_APPROACH_DELAY,playerHP:PLAYER_MAX_HP,enemies:encounter==='mother'?[enemy(1,first,580,'mother')]:encounter==='shieldPack'?[{...enemy(1,first,580),shield:woodenShield()},{...enemy(2,second,ENEMY_BACK_X),shield:woodenShield()},{...enemy(3,'Neutral',ENEMY_BACK_X,'slime',true),spawnAt:13.5}]:encounter==='pack'?[enemy(1,first,580),enemy(2,second,ENEMY_BACK_X)]:encounter==='elite'?[enemy(1,'Neutral',580,'goblin')]:encounter==='rock'?[enemy(1,'Neutral',SLIME_START_X,'slime',true)]:[enemy(1,first,SLIME_START_X)],playerHurtUntil:0,playerHits:0,casts:0,projectile:null,potions:{heal:1,freeze:1,ink:1},bottledSpells:[],rejectionUntil:0,freezeUntil:0,unlimitedUntil:0,potionFlights:[],potionSerial:0,upgrades:{},damageBonus:1,pushBonus:1,firstHitPush:0,difficulty:1,motherSplit:null,chronosFields:[],chronosPulse:null,amulets:{sun:false,moon:false,twilight:false}};
 }
 export function presentEnemies(state:Battle){return state.enemies.filter(e=>e.hp>0&&e.spawnAt<=state.time+1e-9);}
 export function nearestEnemy(state:Battle){return presentEnemies(state).sort((a,b)=>a.x-b.x||a.id-b.id)[0];}
@@ -94,7 +98,7 @@ function resolveMother(state:Battle):Battle{
  if(split&&!split.spawned&&next.time+1e-9>=split.at+2){
   const spawnAt=split.at+2;
   const children=ELEMENTS.map((element,i)=>{
-   let child={...enemy(i+2,element,split.x),spawnAt,readyAt:spawnAt+4};
+   let child={...enemy(i+2,element,Math.max(CONTACT_X,Math.min(ENEMY_BACK_X-72,split.x-36))+i*36),spawnAt,readyAt:spawnAt+4};
    for(const field of next.chronosFields??[])if(field.until>spawnAt)child=applyChronos(child,field,spawnAt);
    return child;
   });
@@ -113,10 +117,11 @@ export function stepBattle(state:Battle,delta:number):Battle{
  const dt=Math.min(delta,.1),time=state.time+dt;
  let next=resolveMother({...state,time});
  if(next.phase==='victory')return next;
- next.potionFlights=state.potionFlights.map(f=>{if(!f.applied&&time-f.started>=POTION_FLIGHT_SECONDS){if(f.potion==='heal')next.playerHP=Math.min(100,next.playerHP+30);if(f.potion==='freeze')next.freezeUntil=time+FREEZE_SECONDS;if(f.potion==='ink')next.unlimitedUntil=time+UNLIMITED_INK_SECONDS;return{...f,applied:true};}return f;}).filter(f=>time-f.started<POTION_FLIGHT_SECONDS+POTION_BREAK_SECONDS);
+ const potionFlights=state.potionFlights.map(f=>{if(!f.applied&&time-f.started>=POTION_FLIGHT_SECONDS){if(f.potion==='heal')next.playerHP=Math.min(100,next.playerHP+30);if(f.potion==='freeze')next.freezeUntil=time+FREEZE_SECONDS;if(f.potion==='ink')next.unlimitedUntil=time+UNLIMITED_INK_SECONDS;if(f.potion==='rejection')next.rejectionUntil=time+15;if(f.potion==='spellBottle'&&f.spell?.spellId)next=hitWithSpell(next,f.spell.quality,f.spell.spellId);return{...f,applied:true};}return f;}).filter(f=>time-f.started<POTION_FLIGHT_SECONDS+POTION_BREAK_SECONDS);
+ next.potionFlights=potionFlights;
  const frozen=state.time<next.freezeUntil;
  const groupSpeed=presentEnemies(next).length>=2?.8:1;
- next.chronosFields=(state.chronosFields??[]).filter(f=>f.until>time);
+ next.chronosFields=(next.chronosFields??[]).filter(f=>f.until>time);
  next.enemies=next.enemies.map(original=>{
   let old=original;
   if(old.spawnAt>state.time&&old.spawnAt<=time+1e-9)for(const field of state.chronosFields??[])if(field.until>old.spawnAt)old=applyChronos(old,field,old.spawnAt);
@@ -132,7 +137,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
   e.x=Math.max(CONTACT_X,e.x-speed*groupSpeed*state.difficulty*(1-Math.max(state.time<e.chronosSlowUntil?.55:0,...old.leafSlows.filter(f=>f.until>state.time).map(f=>f.amount),state.time<e.slowUntil&&old.leafSlows.length===0?.55:0))*actionDelta);
   if(e.x>CONTACT_X)e.attackAt=null;
   else if(e.attackAt===null){if(e.clock>=e.nextAttackAt)e.attackAt=e.clock+(e.kind==='goblin'?.65:ATTACK_WINDUP);}
-  else if(e.clock>=e.attackAt){next.playerHP=Math.max(0,next.playerHP-Math.round((e.kind==='mother'?20:(e.kind==='goblin'?18:CONTACT_DAMAGE)*state.difficulty)));next.playerHurtUntil=time+.25;next.playerHits++;e.push={from:e.x,to:Math.min(ENEMY_BACK_X,e.x+(PLAYER_HIT_PUSH+(next.playerHits===1?state.firstHitPush:0))*shieldProtection(e.shield,time)),started:time,ends:time+PUSH_DURATION};e.attackAt=null;e.nextAttackAt=e.clock+(e.kind==='goblin'?2:ATTACK_COOLDOWN);}
+  else if(e.clock>=e.attackAt){next.playerHP=Math.max(0,next.playerHP-Math.round((e.kind==='mother'?20:(e.kind==='goblin'?18:CONTACT_DAMAGE)*state.difficulty)*(next.rejectionUntil>time?.5:1)));next.playerHurtUntil=time+.25;next.playerHits++;e.push={from:e.x,to:Math.min(ENEMY_BACK_X,e.x+(PLAYER_HIT_PUSH+(next.playerHits===1?state.firstHitPush:0)+(next.rejectionUntil>time?100:0))*shieldProtection(e.shield,time)),started:time,ends:time+PUSH_DURATION};e.attackAt=null;e.nextAttackAt=e.clock+(e.kind==='goblin'?2:ATTACK_COOLDOWN);}
   return e;
  });
  next=resolveMother(next);
@@ -141,14 +146,15 @@ export function stepBattle(state:Battle,delta:number):Battle{
  if(next.projectile&&time-next.projectile.started>=next.projectile.duration){const p=next.projectile;next.projectile=null;next=hitWithSpell(next,p.quality,p.spellId,p.targetId);}
  return next;
 }
-export function drinkPotion(state:Battle,potion:Potion):Battle{
- if(state.phase!=='active'||state.potions[potion]<=0)return state;
- const live=presentEnemies(state),toX=potion==='freeze'?(live.length?live.reduce((n,e)=>n+e.x,0)/live.length:ENEMY_BACK_X):245,toY=potion==='freeze'?435:395;
- return{...state,potions:{...state.potions,[potion]:state.potions[potion]-1},potionSerial:state.potionSerial+1,potionFlights:[...state.potionFlights,{id:state.potionSerial+1,potion,started:state.time,toX,toY,applied:false}]};
+export function drinkPotion(state:Battle,potion:Potion,bottleIndex=0):Battle{
+ if(state.phase!=='active'||(state.potions[potion]??0)<=0)return state;
+ const spell=potion==='spellBottle'?state.bottledSpells[bottleIndex]:undefined;if(potion==='spellBottle'&&!spell)return state;
+ const live=presentEnemies(state),toX=(potion==='freeze'||potion==='spellBottle')?(live.length?live.reduce((n,e)=>n+e.x,0)/live.length:ENEMY_BACK_X):245,toY=(potion==='freeze'||potion==='spellBottle')?435:395;
+ return{...state,bottledSpells:potion==='spellBottle'?state.bottledSpells.filter((_,i)=>i!==bottleIndex):state.bottledSpells,potions:{...state.potions,[potion]:(state.potions[potion]??0)-1},potionSerial:state.potionSerial+1,potionFlights:[...state.potionFlights,{id:state.potionSerial+1,potion,spell,started:state.time,toX,toY,applied:false}]};
 }
 
 // Impact begins the bottle's breaking animation; each flight reports once.
 export function potionImpactIds(previous:Battle,next:Battle){
- if(previous===next||next.phase!=='active')return[];
+ if(previous===next||(next.phase!=='active'&&next.phase!=='victory'))return[];
  return next.potionFlights.filter(f=>f.applied&&previous.potionFlights.some(old=>old.id===f.id&&!old.applied)).map(f=>f.id);
 }

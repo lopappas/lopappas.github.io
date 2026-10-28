@@ -8,7 +8,7 @@ test('merchant always rolls two distinct options per category, preferring unowne
  for(const roll of [0,.25,.5,.85,.999])for(const complete of [false,true]){
   const run:Run={...newRun(),screen:'map',node:2,relics:complete?Object.keys(RELICS) as Run['relics']:[],spells:complete?SPELLS.map(s=>s.id):['water','fire','nature']};
   const shop=enterNode(run,()=>roll);assert.equal(shop.stock.length,6);
-  for(const kind of ['potion','spell','relic']){const items=shop.stock.filter(s=>s.kind===kind);assert.equal(items.length,2);assert.equal(new Set(items.map(s=>s.item)).size,2);}
+  for(const kind of ['potion','spell','relic']){const items=shop.stock.filter(s=>s.kind===kind);const expected=kind==='potion'&&complete?4:kind==='spell'&&complete?0:2;assert.equal(items.length,expected);assert.equal(new Set(items.map(s=>s.item)).size,expected);}
   if(!complete)assert.ok(shop.stock.filter(s=>s.kind==='spell').every(s=>!run.spells.includes(s.item as any)));
   assert.equal(enterNode(shop,()=>0),shop); // purchases never reroll stock
   if(complete)for(const item of shop.stock.filter(s=>s.kind!=='potion')){const rich={...shop,gold:1000};assert.equal(buy(rich,item.id),rich);}
