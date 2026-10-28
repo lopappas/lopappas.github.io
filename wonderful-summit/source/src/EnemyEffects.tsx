@@ -1,10 +1,11 @@
 import React from 'react';
+import {PaletteGroup} from './PaletteGroup';
 import type {Enemy} from './battle';
 
 /** Follow combat time so effects stop naturally while the game is paused. */
 export function EnemyEffects({enemy,time}:{enemy:Enemy;time:number}){
  const rooted=enemy.rootUntil>time,growth=Math.min(1,Math.max(0,(1.5-enemy.rootUntil+time)/.25));
- return <g pointerEvents="none">
+ return <PaletteGroup pointerEvents="none">
 
   {enemy.burn&&<g aria-label="Burning enemy">{Array.from({length:7},(_,i)=>{
    const t=(time*.95+i/7)%1,x=-25+i*8+Math.sin(t*6+i)*5,y=12-t*70;
@@ -18,5 +19,5 @@ export function EnemyEffects({enemy,time}:{enemy:Enemy;time:number}){
    <path d="M-42 5q17-9 22-24l7-11M42 5q-17-9-22-24l-7-11M-28 4q12-15 28-11T28 4M-33 0q16-7 28 2t34-2" fill="none" stroke="#a3b873" strokeWidth="3" strokeLinecap="round"/>
    <path d="M-25-18q-12-13-14-2 4 7 14 2M25-18q12-13 14-2-4 7-14 2" fill="#83ad67"/>
   </g>}
- </g>;
+ </PaletteGroup>;
 }
