@@ -34,7 +34,7 @@ test('same-element spells cannot burn or slow; normal resistance preserves full 
  }
  assert.equal(burnDamage(100,'Fire'),0);assert.equal(burnDamage(100,'Water'),16);assert.equal(burnDamage(100,'Nature'),24);assert.equal(burnDamage(100,'Neutral'),16);
  const b=newBattle('active');b.enemies[0]={...b.enemies[0],element:'Fire'};
- assert.equal(hitWithSpell(b,60,'leaf').enemies[0].slowUntil,4.6);
+ assert.equal(hitWithSpell(b,60,'leaf').enemies[0].slowUntil,4.1);
  const frozen=drinkPotion(b,'freeze');let next=frozen;for(let i=0;i<70;i++)next=stepBattle(next,.01);assert.ok(next.freezeUntil>next.time);
 });
 
@@ -53,7 +53,7 @@ test('goblin elites are neutral and receive full damage, knockback, burn and slo
    assert.equal(goblin.hp-enemy.hp,spellDamage({element:'Neutral'},60,spell.id));
    assert.ok(Math.abs(enemy.push!.to-330-spellKnockback(60,spell.id))<1e-8);
    if(spell.id==='bolt')assert.equal(enemy.burn!.damage,burnDamage(60,'Neutral'));
-   if(spell.id==='leaf')assert.equal(enemy.slowUntil,4.6);
+   if(spell.id==='leaf')assert.equal(enemy.slowUntil,4.1);
   }
  }
 });
@@ -62,12 +62,12 @@ test('normal resistance reduces direct damage and push but preserves full slow a
  const fire=newBattle('active','slime',()=>0);fire.approachAt=0;fire.enemies[0].x=400;
  let slowed=hitWithSpell(fire,100,'leaf');
  assert.equal(slowed.enemies[0].hp,64); // 48 base leaf damage, reduced to 36.
- assert.equal(slowed.enemies[0].slowUntil,10);
+ assert.equal(slowed.enemies[0].slowUntil,8);
  assert.ok(Math.abs(slowed.enemies[0].push!.to-400-160*.85)<1e-8);
- // Once the push ends, movement still uses the full 90% speed reduction.
+ // Once the push ends, movement still uses the full 80% speed reduction.
  for(let i=0;i<30;i++)slowed=stepBattle(slowed,.01);
  const start=slowed.enemies[0].x;slowed=stepBattle(slowed,.1);
- assert.ok(Math.abs(start-slowed.enemies[0].x-18*.1*.1)<1e-8);
+ assert.ok(Math.abs(start-slowed.enemies[0].x-18*.2*.1)<1e-8);
  const water=newBattle('active','slime',()=>.4);water.enemies[0].hp=1000;water.enemies[0].maxHP=1000;
  let burning=hitWithSpell(water,100,'bolt');assert.equal(burning.enemies[0].burn!.ticks,3);assert.equal(burning.enemies[0].burn!.damage,16);
  const afterDirect=burning.enemies[0].hp;for(let i=0;i<310;i++)burning=stepBattle(burning,.01);

@@ -56,7 +56,7 @@ test('rocky Faint immunity never applies or refreshes statuses, and does not cle
  const strong=hitWithSpell(hitWithSpell(b,70,'bolt'),70,'leaf',1,()=>0);
  strong.time=.1;
  for(const s of SPELLS){const e=hitWithSpell(strong,59,s.id,1,()=>0).enemies[0];assert.deepEqual(e.burn,strong.enemies[0].burn);assert.equal(e.slowUntil,strong.enemies[0].slowUntil);assert.equal(e.rootUntil,strong.enemies[0].rootUntil);}
- for(const q of [60,69,70]){assert.ok(hitWithSpell(b,q,'bolt').enemies[0].burn);assert.equal(hitWithSpell(b,q,'leaf',1,()=>0).enemies[0].rootUntil,1.5);assert.equal(hitWithSpell(b,q,'leaf').enemies[0].slowUntil,q===60?4.6:q===69?6:6.1);}
+ for(const q of [60,69,70]){assert.ok(hitWithSpell(b,q,'bolt').enemies[0].burn);assert.equal(hitWithSpell(b,q,'leaf',1,()=>0).enemies[0].rootUntil,1.5);assert.equal(hitWithSpell(b,q,'leaf').enemies[0].slowUntil,q===60?4.1:q===69?5:5.1);}
  assert.equal(burnDamage(60,'Neutral',true),Math.round(power(60)*.25*.75));
 });
 test('rock slimes move 10 percent slower than regular slimes at the same difficulty, including while slowed',()=>{

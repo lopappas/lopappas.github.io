@@ -5,8 +5,8 @@ import {woodenShield,igniteShield,shieldProtection} from '../src/shields.ts';
 import {SPELLS} from '../src/magic.ts';
 import {newRun,battleForRun,ROUTE} from '../src/run.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
-test('shield encounter starts two 100 HP elemental shield slimes and reveals a 150 HP rock slime at eight seconds',()=>{
- const seen=new Set<string>();for(const a of [0,.4,.8])for(const c of [0,.4,.8]){let i=0;const b=newBattle('active','shieldPack',()=>i++?c:a);seen.add(b.enemies.slice(0,2).map(e=>e.element).join('/'));assert.equal(presentEnemies(b).length,2);assert.equal(b.enemies[0].hp,100);assert.equal(b.enemies[1].hp,100);assert.ok(b.enemies[0].shield&&b.enemies[1].shield);assert.equal(b.enemies[2].hp,150);assert.equal(b.enemies[2].rocky,true);assert.equal(b.enemies[2].shield,null);assert.equal(b.enemies[2].spawnAt,8);b.time=8;assert.equal(presentEnemies(b).length,3);}
+test('shield encounter starts two 100 HP elemental shield slimes and reveals a 150 HP rock slime at 13.5 seconds',()=>{
+ const seen=new Set<string>();for(const a of [0,.4,.8])for(const c of [0,.4,.8]){let i=0;const b=newBattle('active','shieldPack',()=>i++?c:a);seen.add(b.enemies.slice(0,2).map(e=>e.element).join('/'));assert.equal(presentEnemies(b).length,2);assert.equal(b.enemies[0].hp,100);assert.equal(b.enemies[1].hp,100);assert.ok(b.enemies[0].shield&&b.enemies[1].shield);assert.equal(b.enemies[2].hp,150);assert.equal(b.enemies[2].rocky,true);assert.equal(b.enemies[2].shield,null);assert.equal(b.enemies[2].spawnAt,13.5);b.time=13.5;assert.equal(presentEnemies(b).length,3);}
  assert.equal(seen.size,9);const node=ROUTE.findIndex(n=>n.kind==='battle'&&n.encounter==='shieldPack');assert.ok(node>=0);assert.equal(battleForRun({...newRun(),node}).encounter,'shieldPack');
 });
 test('wooden shields halve damage and knockback before rounding for every damage spell and enemy element',()=>{
@@ -33,5 +33,5 @@ test('unburned shields reduce contact ward knockback and accept control effects;
  b=drinkPotion(hitWithSpell(b,48,'fire'),'freeze');b=advance(b,2.01);assert.equal(b.enemies[0].shield,null);assert.ok(b.freezeUntil>b.time);
 });
 test('reinforcement prevents early victory and cannot be targeted, controlled or damaged before its arrival',()=>{
- let b=newBattle('active','shieldPack');b.enemies[0].hp=0;b.enemies[1].hp=0;b=advance(b,7.99);assert.equal(b.phase,'active');assert.equal(nearestEnemy(b),undefined);assert.equal(hitWithSpell(b,100,'chronos'),b);assert.equal(b.enemies[2].hp,150);b=advance(b,.02);assert.equal(nearestEnemy(b)?.id,3);assert.equal(presentEnemies(b).length,1);
+ let b=newBattle('active','shieldPack');b.enemies[0].hp=0;b.enemies[1].hp=0;b=advance(b,13.49);assert.equal(b.phase,'active');assert.equal(nearestEnemy(b),undefined);assert.equal(hitWithSpell(b,100,'chronos'),b);assert.equal(b.enemies[2].hp,150);b=advance(b,.02);assert.equal(nearestEnemy(b)?.id,3);assert.equal(presentEnemies(b).length,1);
 });

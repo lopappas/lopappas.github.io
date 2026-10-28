@@ -62,7 +62,7 @@ test('dead enemies are skipped, and killing one pack member does not end combat'
  let s=newBattle('active','pack');s.enemies[0].hp=1;s=hitWithSpell(s,100);assert.equal(s.phase,'active');assert.equal(s.enemies[0].hp,0);assert.equal(nearestEnemy(s)?.id,2);s=launchSpell(s,100,'#abc');assert.equal(s.projectile?.targetId,2);
 });
 test('advanced spells trade damage and knockback and leaf applies timed slow',()=>{
- const base=firstEnemy(newBattle('active'),{x:400});const normal=hitWithSpell(base,100),wave=hitWithSpell(base,100,'wave'),bolt=hitWithSpell(base,100,'bolt'),leaf=hitWithSpell(base,100,'leaf');assert.ok(wave.enemies[0].hp>normal.enemies[0].hp);assert.ok(wave.enemies[0].push!.to>normal.enemies[0].push!.to);assert.ok(bolt.enemies[0].hp<normal.enemies[0].hp);assert.equal(leaf.enemies[0].slowUntil,10);
+ const base=firstEnemy(newBattle('active'),{x:400});const normal=hitWithSpell(base,100),wave=hitWithSpell(base,100,'wave'),bolt=hitWithSpell(base,100,'bolt'),leaf=hitWithSpell(base,100,'leaf');assert.ok(wave.enemies[0].hp>normal.enemies[0].hp);assert.ok(wave.enemies[0].push!.to>normal.enemies[0].push!.to);assert.ok(bolt.enemies[0].hp<normal.enemies[0].hp);assert.equal(leaf.enemies[0].slowUntil,8);
  const slowed=firstEnemy(base,{slowUntil:4}),regular=advance(base,1),slow=advance(slowed,1);assert.ok(slow.enemies[0].x>regular.enemies[0].x);assert.ok(advance(slowed,5).enemies[0].x<slow.enemies[0].x);
 });
 test('healing applies on bottle impact, is single-use, and cannot exceed max health',()=>{

@@ -4,7 +4,7 @@ import {SPELLS,recognize,power} from '../src/magic.ts';
 import {brambleEffect,newBattle,hitWithSpell,spellDamage,spellKnockback,stepBattle,chronosEffect} from '../src/battle.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 test('Bramble interpolates duration and slowdown at all eight endpoints',()=>{
- for(const [q,duration,amount] of [[48,3.8,.5],[59,4.5,.6],[60,4.6,.61],[69,6,.7],[70,6.1,.71],[79,8,.78],[80,8.1,.79],[100,10,.9]])assert.deepEqual(brambleEffect(q),{duration,amount});
+ for(const [q,duration,amount] of [[48,3,.4],[59,4,.5],[60,4.1,.51],[69,5,.6],[70,5.1,.61],[79,6,.66],[80,6.1,.67],[100,8,.8]])assert.deepEqual(brambleEffect(q),{duration,amount});
  assert.deepEqual(brambleEffect(47),{duration:0,amount:0});
  for(let q=49;q<=100;q++){assert.ok(brambleEffect(q).duration>=brambleEffect(q-1).duration);assert.ok(brambleEffect(q).amount>=brambleEffect(q-1).amount);}
  assert.ok(!SPELLS.find(s=>s.id==='leaf')!.description.includes('seconds'));
@@ -14,7 +14,7 @@ test('Bramble strength actually changes movement and coexists with Chronos witho
   let b=newBattle('active','elite');b.approachAt=0;b.enemies[0].hp=10000;b=hitWithSpell(b,q,'leaf');b.enemies[0].push=null;const x=b.enemies[0].x;b=stepBattle(b,.1);
   assert.ok(Math.abs(x-b.enemies[0].x-22*(1-brambleEffect(q).amount)*.1)<1e-8);
  }
- let b=newBattle('active','elite');b.approachAt=0;b.enemies[0].hp=10000;b=hitWithSpell(b,100,'leaf');b=hitWithSpell(b,48,'leaf');b=hitWithSpell(b,69,'chronos');b.enemies[0].push=null;b=advance(b,5.1);const x=b.enemies[0].x;b=stepBattle(b,.1);assert.ok(Math.abs(x-b.enemies[0].x-22*.1*.1)<1e-8);
+ let b=newBattle('active','elite');b.approachAt=0;b.enemies[0].hp=10000;b=hitWithSpell(b,100,'leaf');b=hitWithSpell(b,48,'leaf');b=hitWithSpell(b,69,'chronos');b.enemies[0].push=null;b=advance(b,5.1);const x=b.enemies[0].x;b=stepBattle(b,.1);assert.ok(Math.abs(x-b.enemies[0].x-22*.2*.1)<1e-8);
  b=advance(b,5);const end=b.enemies[0].x;b=stepBattle(b,.1);assert.ok(Math.abs(end-b.enemies[0].x-22*.1)<1e-8);
 });
 test('Riptide uses the fin reference at all sizes, new damage, and Faint push endpoints',()=>{
