@@ -17,16 +17,16 @@ export const POTION_FLIGHT_SECONDS=.65,POTION_BREAK_SECONDS=.35;
 export type PotionFlight={id:number;potion:Potion;started:number;toX:number;toY:number;applied:boolean};
 export type Burn={damage:number;nextTick:number;ticks:number};
 export type Push={from:number;to:number;started:number;ends:number};
-export type Enemy={id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin';spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
+export type Enemy={id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin';spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
 export type Projectile={started:number;duration:number;quality:number;color:string;spellId:SpellId;targetId:number};
-export type Battle={phase:BattlePhase;encounter:Encounter;time:number;approachAt:number;playerHP:number;enemies:Enemy[];playerHurtUntil:number;playerHits:number;casts:number;projectile:Projectile|null;potions:Record<Potion,number>;freezeUntil:number;unlimitedUntil:number;potionFlights:PotionFlight[];potionSerial:number;upgrades:Partial<Record<SpellId,number>>;damageBonus:number;pushBonus:number;firstHitPush:number;difficulty:number;chronosPulse:{started:number;strong:boolean}|null;amulets:{sun:boolean;moon:boolean;twilight:boolean}};
-function enemy(id:number,element:Enemy['element'],x:number,kind:Enemy['kind']='slime',rocky=false):Enemy{return{id,kind,rocky,shield:null,chronosStartedAt:0,stunStartedAt:0,spawnAt:0,element,hp:rocky?150:kind==='goblin'?200:SLIME_MAX_HP,maxHP:rocky?150:kind==='goblin'?200:SLIME_MAX_HP,x,clock:0,attackAt:null,nextAttackAt:0,hurtUntil:0,push:null,slowUntil:0,rootUntil:0,chronosSlowUntil:0,stunUntil:0,burn:null};}
+export type Battle={phase:BattlePhase;encounter:Encounter;time:number;approachAt:number;playerHP:number;enemies:Enemy[];playerHurtUntil:number;playerHits:number;casts:number;projectile:Projectile|null;potions:Record<Potion,number>;freezeUntil:number;unlimitedUntil:number;potionFlights:PotionFlight[];potionSerial:number;upgrades:Partial<Record<SpellId,number>>;damageBonus:number;pushBonus:number;firstHitPush:number;difficulty:number;chronosFields:{quality:number;kind:'slow'|'stun';started:number;until:number}[];chronosPulse:{started:number;strong:boolean}|null;amulets:{sun:boolean;moon:boolean;twilight:boolean}};
+function enemy(id:number,element:Enemy['element'],x:number,kind:Enemy['kind']='slime',rocky=false):Enemy{return{id,kind,rocky,shield:null,chronosStartedAt:0,stunStartedAt:0,spawnAt:0,element,hp:rocky?150:kind==='goblin'?200:SLIME_MAX_HP,maxHP:rocky?150:kind==='goblin'?200:SLIME_MAX_HP,x,clock:0,attackAt:null,nextAttackAt:0,hurtUntil:0,push:null,leafSlows:[],slowUntil:0,rootUntil:0,chronosSlowUntil:0,stunUntil:0,burn:null};}
 const ELEMENTS:Element[]=['Fire','Water','Nature'];
 export function newBattle(phase:BattlePhase='ready',encounter:Encounter='slime',random:()=>number=Math.random):Battle{
  const first=ELEMENTS[Math.min(2,Math.floor(random()*3))];
  const remaining=ELEMENTS.filter(e=>e!==first);
  const second=encounter==='pack'?remaining[Math.min(1,Math.floor(random()*2))]:encounter==='shieldPack'?ELEMENTS[Math.min(2,Math.floor(random()*3))]:first;
- return{phase,encounter,time:0,approachAt:ENEMY_APPROACH_DELAY,playerHP:PLAYER_MAX_HP,enemies:encounter==='shieldPack'?[{...enemy(1,first,580),shield:woodenShield()},{...enemy(2,second,ENEMY_BACK_X),shield:woodenShield()},{...enemy(3,'Neutral',ENEMY_BACK_X,'slime',true),spawnAt:8}]:encounter==='pack'?[enemy(1,first,580),enemy(2,second,ENEMY_BACK_X)]:encounter==='elite'?[enemy(1,'Neutral',580,'goblin')]:encounter==='rock'?[enemy(1,'Neutral',SLIME_START_X,'slime',true)]:[enemy(1,first,SLIME_START_X)],playerHurtUntil:0,playerHits:0,casts:0,projectile:null,potions:{heal:1,freeze:1,ink:1},freezeUntil:0,unlimitedUntil:0,potionFlights:[],potionSerial:0,upgrades:{},damageBonus:1,pushBonus:1,firstHitPush:0,difficulty:1,chronosPulse:null,amulets:{sun:false,moon:false,twilight:false}};
+ return{phase,encounter,time:0,approachAt:ENEMY_APPROACH_DELAY,playerHP:PLAYER_MAX_HP,enemies:encounter==='shieldPack'?[{...enemy(1,first,580),shield:woodenShield()},{...enemy(2,second,ENEMY_BACK_X),shield:woodenShield()},{...enemy(3,'Neutral',ENEMY_BACK_X,'slime',true),spawnAt:8}]:encounter==='pack'?[enemy(1,first,580),enemy(2,second,ENEMY_BACK_X)]:encounter==='elite'?[enemy(1,'Neutral',580,'goblin')]:encounter==='rock'?[enemy(1,'Neutral',SLIME_START_X,'slime',true)]:[enemy(1,first,SLIME_START_X)],playerHurtUntil:0,playerHits:0,casts:0,projectile:null,potions:{heal:1,freeze:1,ink:1},freezeUntil:0,unlimitedUntil:0,potionFlights:[],potionSerial:0,upgrades:{},damageBonus:1,pushBonus:1,firstHitPush:0,difficulty:1,chronosFields:[],chronosPulse:null,amulets:{sun:false,moon:false,twilight:false}};
 }
 export function presentEnemies(state:Battle){return state.enemies.filter(e=>e.hp>0&&e.spawnAt<=state.time+1e-9);}
 export function nearestEnemy(state:Battle){return presentEnemies(state).sort((a,b)=>a.x-b.x||a.id-b.id)[0];}
@@ -39,21 +39,32 @@ export function elementalMatchup(element:Element,target:Enemy['element']){
  return{damage:1.5,knockback:1,immuneEffects:false};
 }
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
-export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='chronos')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.4:spellId==='wave'?.8:spellId==='leaf'?.75:1;return Math.round(power(quality)*factor*damageBonus*(1+Math.max(0,Math.min(1,upgrade))*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time));}
-export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0){if(spellId==='chronos')return 0;return shieldProtection(shield,time)*rockyDefense(rocky,quality).knockback*knockback(quality)*(spellId==='wave'?1.7:spellId==='bolt'?.65:1)*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
+export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='chronos')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='wave'?.9:spellId==='leaf'?.75:1;return Math.round(power(quality)*factor*damageBonus*(1+Math.max(0,Math.min(1,upgrade))*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time));}
+export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0){if(spellId==='chronos')return 0;const base=spellId==='wave'&&quality>=48&&quality<60?40+14*(quality-48)/11:knockback(quality)*(spellId==='wave'?1.7:spellId==='bolt'?.65:1);return shieldProtection(shield,time)*rockyDefense(rocky,quality).knockback*base*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 export function eliteRush(e:Enemy){if(e.kind!=='goblin')return 'none';const cycle=e.clock%10;return cycle>=6&&cycle<7?'warning':cycle>=7&&cycle<9?'rush':'none';}
 export function chronosEffect(quality:number,upgrade=0){
  if(!Number.isFinite(quality)||quality<48)return{kind:'slow' as const,duration:0};
  const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,1,2.4]:q<70?[60,69,2.5,5]:q<80?[70,79,5.1,9]:[80,100,9.1,18];
  return{kind:q<70?'slow' as const:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*(1+.2*Math.max(0,Math.min(1,upgrade)))*1000)/1000};
 }
+export function brambleEffect(quality:number){
+ if(!Number.isFinite(quality)||quality<48)return{duration:0,amount:0};
+ const q=Math.min(100,quality),[lo,hi,d0,d1,a0,a1]=q<60?[48,59,3.8,4.5,.5,.6]:q<70?[60,69,4.6,6,.61,.7]:q<80?[70,79,6.1,8,.71,.78]:[80,100,8.1,10,.79,.9];
+ const t=(q-lo)/(hi-lo);return{duration:Math.round((d0+(d1-d0)*t)*1000)/1000,amount:Math.round((a0+(a1-a0)*t)*1000)/1000};
+}
+function applyChronos(e:Enemy,field:Battle['chronosFields'][number],time:number):Enemy{
+ if(e.hp<=0||rockyDefense(e.rocky,field.quality).immuneEffects)return e;
+ const started=Math.max(field.started,e.spawnAt);
+ return field.kind==='slow'?{...e,chronosStartedAt:Math.max(e.chronosSlowUntil,e.stunUntil)>time?e.chronosStartedAt:started,slowUntil:Math.max(e.slowUntil,field.until),chronosSlowUntil:Math.max(e.chronosSlowUntil,field.until)}:{...e,chronosStartedAt:Math.max(e.chronosSlowUntil,e.stunUntil)>time?e.chronosStartedAt:started,stunStartedAt:e.stunUntil>time?e.stunStartedAt:started,stunUntil:Math.max(e.stunUntil,field.until),attackAt:null};
+}
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random):Battle{
  if(state.phase!=='active')return state;
  if(spellId==='chronos'){
   const effect=chronosEffect(quality,state.upgrades.chronos??0);if(!effect.duration)return state;
   const live=new Set(presentEnemies(state).map(e=>e.id));if(!live.size)return state;
-  const enemies=state.enemies.map(e=>!live.has(e.id)||rockyDefense(e.rocky,quality).immuneEffects?e:effect.kind==='slow'?{...e,chronosStartedAt:Math.max(e.chronosSlowUntil,e.stunUntil)>state.time?e.chronosStartedAt:state.time,slowUntil:Math.max(e.slowUntil,state.time+effect.duration),chronosSlowUntil:Math.max(e.chronosSlowUntil,state.time+effect.duration)}:{...e,chronosStartedAt:Math.max(e.chronosSlowUntil,e.stunUntil)>state.time?e.chronosStartedAt:state.time,stunStartedAt:e.stunUntil>state.time?e.stunStartedAt:state.time,stunUntil:Math.max(e.stunUntil,state.time+effect.duration),attackAt:null});
-  return{...state,enemies,casts:state.casts+1,chronosPulse:{started:state.time,strong:quality>=70}};
+  const field={quality,kind:effect.kind,started:state.time,until:state.time+effect.duration};
+  const enemies=state.enemies.map(e=>live.has(e.id)?applyChronos(e,field,state.time):e);
+  return{...state,enemies,chronosFields:[...(state.chronosFields??[]).filter(f=>f.until>state.time),field],casts:state.casts+1,chronosPulse:{started:state.time,strong:quality>=70}};
  }
  const target=presentEnemies(state).find(e=>e.id===targetId)??nearestEnemy(state);if(!target)return state;
  const q=Math.max(0,Math.min(100,quality)),element=SPELLS.find(s=>s.id===spellId)!.element;
@@ -68,7 +79,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   const shield=igniteShield(updateShield(e.shield,state.time),element,q,state.time),shieldBurning=(shield?.burnUntil??0)>state.time;
   // Sun adds 30% of the resisted direct hit over three seconds, alongside Flare Bolt's burn.
   const burnTick=(spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky):0)+(steady&&element==='Fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null},q,spellId,bonus,level,state.time)*.3)/3:0);
-  return{...e,shield,hp:Math.max(0,e.hp-damage),push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,state.pushBonus*(moon?1.15:1),e.element,e.rocky,e.shield,state.time)),started:state.time,ends:state.time+PUSH_DURATION},attackAt:!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,slowUntil:spellId==='leaf'&&!immuneEffects?state.time+4:e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
+  return{...e,shield,hp:Math.max(0,e.hp-damage),push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,state.pushBonus*(moon?1.15:1),e.element,e.rocky,e.shield,state.time)),started:state.time,ends:state.time+PUSH_DURATION},attackAt:!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q).duration,amount:brambleEffect(q).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
  });
  return{...state,enemies,casts:state.casts+1,phase:enemies.every(e=>e.hp===0)?'victory':'active'};
 }
@@ -84,16 +95,19 @@ export function stepBattle(state:Battle,delta:number):Battle{
  next.potionFlights=state.potionFlights.map(f=>{if(!f.applied&&time-f.started>=POTION_FLIGHT_SECONDS){if(f.potion==='heal')next.playerHP=Math.min(100,next.playerHP+30);if(f.potion==='freeze')next.freezeUntil=time+FREEZE_SECONDS;if(f.potion==='ink')next.unlimitedUntil=time+UNLIMITED_INK_SECONDS;return{...f,applied:true};}return f;}).filter(f=>time-f.started<POTION_FLIGHT_SECONDS+POTION_BREAK_SECONDS);
  const frozen=state.time<next.freezeUntil;
  const groupSpeed=presentEnemies(next).length>=2?.8:1;
- next.enemies=state.enemies.map(old=>{
+ next.chronosFields=(state.chronosFields??[]).filter(f=>f.until>time);
+ next.enemies=state.enemies.map(original=>{
+  let old=original;
+  if(old.spawnAt>state.time&&old.spawnAt<=time+1e-9)for(const field of state.chronosFields??[])if(field.until>old.spawnAt)old=applyChronos(old,field,old.spawnAt);
   if(old.hp<=0||old.spawnAt>time+1e-9)return old;
   // Only advance the portion of this frame after the opening pause / arrival.
   const actionDelta=Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.rootUntil,old.stunUntil,old.shield?.burnUntil??0));
-  const e={...old,shield:updateShield(old.shield,time),clock:old.clock+(frozen?0:actionDelta)};
+  const e={...old,leafSlows:old.leafSlows.filter(f=>f.until>time),shield:updateShield(old.shield,time),clock:old.clock+(frozen?0:actionDelta)};
   if(e.burn){let burn={...e.burn};while(burn.ticks>0&&time+1e-9>=burn.nextTick){e.hp=Math.max(0,e.hp-Math.round((Math.round(burn.damage*burn.ticks)-Math.round(burn.damage*(burn.ticks-1)))*shieldProtection(old.shield,burn.nextTick)));e.hurtUntil=time+.15;burn.ticks--;burn.nextTick+=1;}e.burn=burn.ticks>0&&e.hp>0?burn:null;if(e.hp===0){e.push=null;e.attackAt=null;return e;}}
   if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=p.from+(p.to-p.from)*(1-(1-t)**3);e.attackAt=null;if(t>=1)e.push=null;return e;}
   if(frozen||actionDelta<=1e-9)return e;
   const rush=eliteRush(e);const speed=e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.rocky?.9:1);
-  e.x=Math.max(CONTACT_X,e.x-speed*groupSpeed*state.difficulty*(state.time<e.slowUntil?.45:1)*actionDelta);
+  e.x=Math.max(CONTACT_X,e.x-speed*groupSpeed*state.difficulty*(1-Math.max(state.time<e.chronosSlowUntil?.55:0,...old.leafSlows.filter(f=>f.until>state.time).map(f=>f.amount),state.time<e.slowUntil&&old.leafSlows.length===0?.55:0))*actionDelta);
   if(e.x>CONTACT_X)e.attackAt=null;
   else if(e.attackAt===null){if(e.clock>=e.nextAttackAt)e.attackAt=e.clock+(e.kind==='goblin'?.65:ATTACK_WINDUP);}
   else if(e.clock>=e.attackAt){next.playerHP=Math.max(0,next.playerHP-Math.round((e.kind==='goblin'?18:CONTACT_DAMAGE)*state.difficulty));next.playerHurtUntil=time+.25;next.playerHits++;e.push={from:e.x,to:Math.min(ENEMY_BACK_X,e.x+(PLAYER_HIT_PUSH+(next.playerHits===1?state.firstHitPush:0))*shieldProtection(e.shield,time)),started:time,ends:time+PUSH_DURATION};e.attackAt=null;e.nextAttackAt=e.clock+(e.kind==='goblin'?2:ATTACK_COOLDOWN);}

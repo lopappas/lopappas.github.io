@@ -22,7 +22,7 @@ test('new trail encounter spawns one neutral rocky slime with 150 HP and opening
 test('rocky trait halves Faint damage for every spell and removes all Faint knockback, even with bonuses',()=>{
  for(const spell of SPELLS.filter(s=>s.id!=='chronos'))for(const quality of [48,59,60,69,70,79,80,100]){
   const b=newBattle('active','rock');b.enemies[0].x=350;
-  const hit=hitWithSpell(b,quality,spell.id),rock=hit.enemies[0];const factor=spell.id==='bolt'?1.4:spell.id==='wave'?.8:spell.id==='leaf'?.75:1;
+  const hit=hitWithSpell(b,quality,spell.id),rock=hit.enemies[0];const factor=spell.id==='bolt'?1.3:spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
   assert.equal(b.enemies[0].hp-rock.hp,Math.round(power(quality)*factor*(quality<60?.5:quality<70?.75:1)));
   if(quality<60){assert.equal(rock.push,null);assert.equal(spellKnockback(quality,spell.id,9,'Neutral',true),0);}else assert.ok(rock.push&&rock.push.to>350);
  }
@@ -46,7 +46,7 @@ test('Steady rocky defense reduces damage and knockback by exactly 25 percent be
   const hit=hitWithSpell(b,q,spell.id),mult=q<70?.75:1;
   const expected=spellKnockback(q,spell.id,1,'Neutral')*mult;
   assert.ok(Math.abs(hit.enemies[0].push!.to-e.x-expected)<1e-8);
-  const factor=spell.id==='bolt'?1.4:spell.id==='wave'?.8:spell.id==='leaf'?.75:1;
+  const factor=spell.id==='bolt'?1.3:spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
   assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(power(q)*factor*1.15*1.25*mult));
  }
 });
@@ -56,7 +56,7 @@ test('rocky Faint immunity never applies or refreshes statuses, and does not cle
  const strong=hitWithSpell(hitWithSpell(b,70,'bolt'),70,'leaf',1,()=>0);
  strong.time=.1;
  for(const s of SPELLS){const e=hitWithSpell(strong,59,s.id,1,()=>0).enemies[0];assert.deepEqual(e.burn,strong.enemies[0].burn);assert.equal(e.slowUntil,strong.enemies[0].slowUntil);assert.equal(e.rootUntil,strong.enemies[0].rootUntil);}
- for(const q of [60,69,70]){assert.ok(hitWithSpell(b,q,'bolt').enemies[0].burn);assert.equal(hitWithSpell(b,q,'leaf',1,()=>0).enemies[0].rootUntil,1.5);assert.equal(hitWithSpell(b,q,'leaf').enemies[0].slowUntil,4);}
+ for(const q of [60,69,70]){assert.ok(hitWithSpell(b,q,'bolt').enemies[0].burn);assert.equal(hitWithSpell(b,q,'leaf',1,()=>0).enemies[0].rootUntil,1.5);assert.equal(hitWithSpell(b,q,'leaf').enemies[0].slowUntil,q===60?4.6:q===69?6:6.1);}
  assert.equal(burnDamage(60,'Neutral',true),Math.round(power(60)*.25*.75));
 });
 test('rock slimes move 10 percent slower than regular slimes at the same difficulty, including while slowed',()=>{

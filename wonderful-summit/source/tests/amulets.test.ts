@@ -24,7 +24,7 @@ test('Twilight rolls once at 50 percent, roots for 1.5 seconds, and Nature resis
  const pushed=advance(hit,.4),held=advance(pushed,1.09);assert.equal(held.enemies[0].x,pushed.enemies[0].x);assert.equal(held.enemies[0].clock,pushed.enemies[0].clock);assert.ok(advance(held,.1).enemies[0].x<held.enemies[0].x);
  assert.equal(hitWithSpell(b,60,id,1,()=>.5).enemies[0].rootUntil,0);
  const nature=hitWithSpell(setup('Nature'),60,id,1,()=>0);assert.equal(nature.enemies[0].rootUntil,0);assert.equal(nature.enemies[0].hp,1000-spellDamage({element:'Nature'},60,id,1.15));
- const fire=hitWithSpell(setup('Fire'),60,id,1,()=>0);assert.equal(fire.enemies[0].rootUntil,1.5);if(id==='leaf')assert.equal(fire.enemies[0].slowUntil,4);
+ const fire=hitWithSpell(setup('Fire'),60,id,1,()=>0);assert.equal(fire.enemies[0].rootUntil,1.5);if(id==='leaf')assert.equal(fire.enemies[0].slowUntil,4.6);
  }
 });
 test('new amulets carry into combat and can be offered by shops and elite rewards',()=>{
