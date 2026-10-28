@@ -84,7 +84,11 @@ export function buy(run:Run,id:string):Run{const item=run.stock.find(s=>s.id===i
  if(item.kind==='potion')return{...next,pendingBottle:item.item==='spellBottle',potions:{...run.potions,[item.item]:(run.potions[item.item as Potion]??0)+1}};
  if(item.kind==='spell')return{...next,spells:[...run.spells,item.item as SpellId]};return{...next,relics:[...run.relics,item.item as RelicId]};
 }
-export function discardPotion(run:Run,id:Potion):Run{if(run.pendingBottle||run.screen!=='shop'||(run.potions[id]??0)<=0)return run;return{...run,bottledSpells:id==='spellBottle'?run.bottledSpells.slice(1):run.bottledSpells,potions:{...run.potions,[id]:(run.potions[id]??0)-1}};}
+export function discardPotion(run:Run,id:Potion,bottleIndex=0):Run{
+ if(run.pendingBottle||!['sister','map','rewards','shop','camp','complete','defeat'].includes(run.screen)||(run.potions[id]??0)<=0)return run;
+ if(id==='spellBottle'&&(!Number.isInteger(bottleIndex)||bottleIndex<0||bottleIndex>=(run.potions[id]??0)))return run;
+ return{...run,bottledSpells:id==='spellBottle'?run.bottledSpells.filter((_,index)=>index!==bottleIndex):run.bottledSpells,potions:{...run.potions,[id]:(run.potions[id]??0)-1}};
+}
 export function camp(run:Run,spell?:SpellId):Run{if(run.screen!=='camp'||run.campUsed||spell&&!run.spells.includes(spell))return run;
  if(spell&&((run.upgrades[spell]??0)>=1))return run;
  return spell?{...run,campUsed:true,upgrades:{...run.upgrades,[spell]:(run.upgrades[spell]??0)+1}}:{...run,campUsed:true,health:Math.min(100,run.health+70)};

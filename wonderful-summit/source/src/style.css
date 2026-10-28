@@ -191,3 +191,21 @@
 .bottle-capture{display:flex;flex-direction:column;background:#263e33;padding-bottom:env(safe-area-inset-bottom)}.bottle-intro{text-align:center;padding:14px 16px;color:#e9d9b5}.bottle-intro>span{font-size:40px;color:#d7b5ed}.bottle-intro h1{font-size:22px;margin:6px}.bottle-intro p,.bottle-capture footer p{font-size:12px;line-height:1.4;color:#c6c9ae}.bottle-paper{position:relative;flex:1;min-height:180px;margin:0 14px;background:#e9ddbd;border:1px solid #bdaa7e;border-radius:8px;box-shadow:inset 0 0 25px #9d7e3b22}.bottle-paper canvas{position:absolute;width:100%;height:100%;inset:0;touch-action:none}.bottle-charge{position:absolute;inset:-3px;border:3px solid;border-radius:10px;pointer-events:none;box-shadow:0 0 14px var(--charge-color)}.bottle-capture footer{padding:8px 14px 14px;text-align:center}.bottle-capture footer .cast-button{width:100%;position:relative;min-height:52px}.rejection-aura{animation:rejectionGlow 1.2s ease-in-out infinite alternate}@keyframes rejectionGlow{to{opacity:.3;stroke-width:4px}}.potion-rejection{color:#fff!important}.potion-spellBottle{color:#dab5f3!important}
 
 .fury-border{position:absolute;inset:1px;border:3px solid #8e1635;border-radius:7px;pointer-events:none;z-index:7;animation:furyBreath 2s ease-in-out infinite;box-shadow:0 0 7px #b7254566,inset 0 0 8px #8e163555}@keyframes furyBreath{0%,100%{opacity:.45;border-color:#7b1837;box-shadow:0 0 6px #85173755,inset 0 0 5px #85173733}50%{opacity:1;border-color:#db3b58;box-shadow:0 0 22px #cb244caa,inset 0 0 13px #cb244c66}}.potion-fury{color:#ed8495!important}@media(prefers-reduced-motion:reduce){.fury-border{animation:none;opacity:.8}}
+
+/* Potion inventory in the journey stats bar. */
+.run-stats{align-items:center;position:relative;z-index:12;padding-top:5px;padding-bottom:5px;min-height:44px}
+.run-potions{position:relative}
+.run-potions-trigger{display:flex;align-items:center;gap:5px;min-height:44px;padding:0 8px;border:1px solid #83916b;border-radius:7px;background:#344b3b;color:#dfd9b8;font-size:13px}
+.run-potions-trigger[aria-expanded="true"]{background:#4a5540;border-color:#d9c18d}
+.run-potions-trigger>span{color:#b8c5a6}
+.run-potion-inventory{position:absolute;top:calc(100% + 10px);right:0;width:min(320px,calc(100vw - 40px));max-height:calc(100svh - 140px);overflow-y:auto;border:1px solid #a0a47b;border-radius:12px;padding:18px;background:#2b4035;color:#dfd9b8;box-shadow:0 12px 35px #10271ed9;text-align:left}
+.run-potion-inventory h2{font-size:18px;font-weight:500;margin:0 30px 8px 0}
+.run-potion-inventory p{font-size:12px;line-height:1.6;color:#c0ceaf;margin:8px 0 12px}
+.run-potion-inventory .close-modal{color:#d8d2b0;min-width:44px;min-height:44px;top:3px;right:3px}
+.inventory-potion-slots{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.inventory-potion{height:44px;width:44px;border:1px solid #83916b;border-radius:8px;background:#354d3d;color:#e5c4dd;font-size:23px}
+.inventory-potion:disabled{border-style:dashed;color:#96a68b;background:transparent}
+.inventory-potion-detail{border-top:1px solid #728362;padding-top:12px}
+.inventory-potion-detail h3{font-size:16px;font-weight:500;margin:0 0 8px;color:#e8dfc3}
+.inventory-potion-detail .inventory-sealed-spell{color:#dcc6eb}
+.drop-potion{min-height:44px;width:100%;border:1px solid #ba8e88;border-radius:7px;padding:10px;background:#58413c;color:#f1d2c3;font-size:13px}
