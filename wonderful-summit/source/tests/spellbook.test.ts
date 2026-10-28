@@ -33,10 +33,10 @@ test('upgrade previews preserve the campsite choice until confirmation and match
  }
 });
 
-test('rest fully restores health, consumes one campsite action, and keeps spells unchanged',()=>{
+test('rest restores up to 70 health, consumes one campsite action, and keeps spells unchanged',()=>{
  for(const health of [1,45,99,100]){
   const run:Run={...newRun(),screen:'camp',health,upgrades:{fire:1}};
-  const rested=camp(run);assert.equal(rested.health,100);assert.equal(rested.campUsed,true);assert.deepEqual(rested.upgrades,run.upgrades);
+  const rested=camp(run);assert.equal(rested.health,Math.min(100,health+70));assert.equal(rested.campUsed,true);assert.deepEqual(rested.upgrades,run.upgrades);
   assert.strictEqual(camp(rested,'water'),rested);
  }
  const maxed:Run={...newRun(),screen:'camp',upgrades:{fire:2}};

@@ -30,10 +30,10 @@ test('Fury activates on potion impact and consumes on release, doubling only the
  b=advance(b,.3);b=launchSpell(b,69,'#fff',id);assert.equal(b.projectile?.damageMultiplier,1);
  }
 });
-test('fizzles, cancelled/blocked launches, and an earlier in-flight spell never consume a newly acquired Fury',()=>{
- let b=setup();b.furyReady=true;assert.equal(launchSpell(b,47,'#fff'),b);assert.equal(launchSpell({...b,phase:'ready'},80,'#fff').furyReady,true);assert.equal(launchSpell({...b,enemies:[]},80,'#fff').furyReady,true);
+test('fizzles consume Fury while cancelled/blocked launches and earlier in-flight spells preserve it',()=>{
+ let b=setup();b.furyReady=true;assert.equal(launchSpell(b,47,'#fff').furyReady,false);assert.equal(launchSpell({...b,phase:'ready'},80,'#fff').furyReady,true);assert.equal(launchSpell({...b,enemies:[]},80,'#fff').furyReady,false);
  b=launchSpell(setup(),60,'#fff');b.potions.fury=1;b=drinkPotion(b,'fury');b=advance(b,.66);assert.equal(b.furyReady,true);assert.equal(10000-b.enemies[0].hp,spellDamage({element:'Neutral'},60,'water'));
- b.potions.spellBottle=1;b.bottledSpells=[{spellId:null,quality:15}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,true);
+ b.potions.spellBottle=1;b.bottledSpells=[{spellId:null,quality:15}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,false);
 });
 test('Fury works with a stored spell and is consumed by zero-damage Chronos without increasing durations',()=>{
  let b=setup();b.furyReady=true;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'fire',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,false);assert.equal(10000-b.enemies[0].hp,spellDamage({element:'Neutral'},60,'fire')*2);

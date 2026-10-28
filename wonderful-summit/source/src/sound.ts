@@ -1,15 +1,15 @@
 import type {Element} from './magic';
 
 export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start';
-export type UISound='bottle'|'learn'|'stone'|'upgrade';
-export const UI_SOUND_VOLUME:Record<UISound,number>={bottle:.24,learn:.32,stone:.29,upgrade:.36};
+export type UISound='bottle'|'learn'|'stone'|'upgrade'|'rest';
+export const UI_SOUND_VOLUME:Record<UISound,number>={bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
 type SoundKind=CastSound|UISound;
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}
 
 // Original synthesized effects: no downloads, microphone access, or audio assets.
 export function soundSamples(kind:SoundKind):Float32Array{
- const duration=kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
+ const duration=kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
  const samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
  let seed=19,low=0;
  const noise=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2147483648-1;};
@@ -18,7 +18,9 @@ export function soundSamples(kind:SoundKind):Float32Array{
   const attack=Math.min(1,t/.012),end=Math.min(1,(duration-t)/.04);
   const n=noise();low+=.12*(n-low);
   let value=0;
-  if(kind==='bottle'){
+  if(kind==='rest'){
+   for(const [j,f] of [261.63,329.63,392,329.63,261.63].entries()){const a=t-j*.16;if(a>=0)value+=(Math.sin(2*Math.PI*f*a)+.12*Math.sin(2*Math.PI*f*2*a))*Math.exp(-a*6)*Math.min(1,a/.025)*.28;}
+  }else if(kind==='bottle'){
    value=(Math.sin(2*Math.PI*1260*t)+.3*Math.sin(2*Math.PI*2070*t))*Math.exp(-t*24)*.5+low*.2*Math.exp(-t*40);
    const a=t-.06;if(a>=0)value+=Math.sin(2*Math.PI*(490*a+700*a*a))*Math.exp(-a*35)*Math.min(1,a/.008)*.25;
   }else if(kind==='learn'){

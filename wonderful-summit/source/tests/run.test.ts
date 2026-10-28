@@ -25,7 +25,7 @@ test('complete route has seven combats, merchant, camp and final victory',()=>{
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,25);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
- r=won(enterNode(leaveNode(first),rng));r=claimPotion(claimGold(r));assert.deepEqual(r.reward?.offers,['wave','bolt','leaf','chronos']);assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
+ r=won(enterNode(leaveNode(first),rng));r=claimPotion(claimGold(r));assert.deepEqual(r.reward?.offers,['wave','bolt','leaf']);assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
 });
 test('potion drop boundary is 35 percent and capacity never exceeds three',()=>{
  const active=enterNode(start(),rng),battle={...battleForRun(active),phase:'victory' as const};
@@ -54,7 +54,7 @@ test('first spell reward lets each intermediate be chosen and never offers a beg
  for(const id of ['wave','bolt','leaf','chronos'] as const){
   let r=collect(won(enterNode(start(),rng)));
   r=won(enterNode(r,()=>.99));
-  assert.deepEqual(r.reward!.offers,['wave','bolt','leaf','chronos']);
+  if(!r.reward!.offers.includes(id))r=finishBattle({...r,screen:'battle',combats:1},{...battleForRun(r),phase:'victory'},()=>.99);assert.equal(r.reward!.offers.length,3);assert.ok(r.reward!.offers.includes(id));
   r=learnReward(r,id);
   assert.deepEqual(r.spells,['water','fire','nature',id]);
   for(const known of r.spells){const spell=SPELLS.find(s=>s.id===known)!;assert.equal(recognize(spell.strokes,r.spells).spell?.id,known);}
@@ -96,7 +96,7 @@ test('only the first two-slime encounter delays its second enemy until combat se
  assert.ok(Math.abs(b.enemies[0].x-(580-18*4.99))<1e-6); // Hidden slime does not slow the first.
  b=stepBattle(b,.01);assert.equal(presentEnemies(b).length,2);assert.equal(b.enemies[1].x,back);
  const moving=stepBattle(b,.02);assert.ok(Math.abs(back-moving.enemies[1].x-18*.8*.02)<1e-6);
- const final=battleForRun({...run,node:5},rng);assert.equal(presentEnemies(final).length,2);assert.equal(final.approachAt,5);assert.ok(final.enemies.every(e=>e.spawnAt===0));
+ const final=battleForRun({...run,node:5},rng);assert.equal(presentEnemies(final).length,1);assert.equal(final.approachAt,5);assert.equal(final.enemies[1].spawnAt,7);assert.ok(final.enemies[1].shield);
 });
 test('a hidden reinforcement cannot be targeted or damaged and prevents early victory',()=>{
  let b=battleForRun({...start(),node:1},rng);

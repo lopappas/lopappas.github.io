@@ -8,7 +8,7 @@ function shop(){return {...newRun(),screen:'shop' as const,gold:100,stock:[{id:'
 test('second merchant and a fresh Mossy grove campsite sit between barricade and boss',()=>{
  assert.deepEqual(ROUTE.slice(-4).map(n=>n.name),['Woodland barricade','Sea Merchant','Mossy grove campsite','Slime Mother']);
  assert.equal(merchantDialogue(8),"I'm saving money to buy a cozy sweater for winter. How are you staying warm?");
- const r=enterNode({...newRun(),screen:'map',node:9,campUsed:true,health:13});assert.equal(r.campUsed,false);assert.equal(camp(r).health,100);assert.equal(leaveNode(camp(r)).node,10);
+ const r=enterNode({...newRun(),screen:'map',node:9,campUsed:true,health:13});assert.equal(r.campUsed,false);assert.equal(camp(r).health,83);assert.equal(leaveNode(camp(r)).node,10);
 });
 test('both shops replace unavailable spell slots with extra potions while keeping six unique stock entries',()=>{
  for(const node of [2,8])for(const missing of [0,1,2,4])for(const roll of [0,.4,.99]){
@@ -46,7 +46,7 @@ test('Rejection applies on impact for 15 seconds: half contact damage and 100 ex
 });
 test('Freeze lasts six seconds and caret colors follow elemental identity',()=>{
  assert.equal(FREEZE_SECONDS,6);let b=advance(drinkPotion(newBattle('active'),'freeze'),.66);assert.ok(Math.abs(b.freezeUntil-b.time-6)<.02);const x=b.enemies[0].x;b=advance(b,5.98);assert.equal(b.enemies[0].x,x);b=advance(b,.1);assert.ok(b.enemies[0].x<x);
- assert.equal(enemyElementColor('Fire'),'#ef9c70');assert.equal(enemyElementColor('Water'),'#7ccbd6');assert.equal(enemyElementColor('Nature'),'#99bf76');assert.equal(enemyElementColor('Neutral'),'#8b9099');
+ assert.equal(enemyElementColor('Fire'),'#ef9c70');assert.equal(enemyElementColor('Water'),'#7ccbd6');assert.equal(enemyElementColor('Nature'),'#99bf76');assert.equal(enemyElementColor('Neutral'),'#45474c');
 });
 test('offspring spread around the death location without leaving the runway, keeping a clear nearest target',()=>{
  for(const x of [CONTACT_X,401,640]){let b=newBattle('active','mother');b.enemies[0]={...b.enemies[0],hp:0,x};b=advance(b,2.01);const children=presentEnemies(b);assert.equal(children.length,3);assert.equal(new Set(children.map(e=>e.x)).size,3);assert.ok(children.every(e=>e.x>=CONTACT_X&&e.x<=640));assert.equal(children[1].x-children[0].x,36);assert.equal(children[2].x-children[1].x,36);}
