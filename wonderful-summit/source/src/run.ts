@@ -1,5 +1,5 @@
 import {SPELLS,type SpellId} from './magic.ts';
-import {newBattle,POTION_IDS,type BottledSpell,type PotionCounts,type Battle,type Potion,type Encounter} from './battle.ts';
+import {newBattle,COMMON_POTIONS,RARE_POTIONS,potionPrice,rollRewardPotion,POTION_IDS,type BottledSpell,type PotionCounts,type Battle,type Potion,type Encounter} from './battle.ts';
 export type RelicId='amber'|'moss'|'feather'|'bell'|'moon'|'sunAmulet'|'moonAmulet'|'twilightAmulet'|'twillyScarf'|'birkinStock';
 export const RELICS:Record<RelicId,{name:string;icon:string;description:string}>={amber:{name:'Amber Charm',icon:'◆',description:'Spells deal 15% more direct damage.'},moss:{name:'Moss Locket',icon:'❧',description:'Recover 8 health after every victory.'},feather:{name:'Feather Quill',icon:'⌁',description:'Drawing consumes 20% less ink.'},bell:{name:'Glass Bell',icon:'♧',description:'The first enemy to hit you each battle is pushed back an extra 80 units.'},moon:{name:'Moon Thread',icon:'☾',description:'Spells push enemies 25% farther.'},sunAmulet:{name:'Sun Amulet',icon:'☀',description:'Steady or better Fire spells deal an additional 30% of hit damage as burn over 3 seconds. Fire enemies cannot be burned.'},moonAmulet:{name:'Moon Amulet',icon:'☽',description:'Steady or better Water spells deal 15% more damage and knockback. Elemental resistances still apply.'},twilightAmulet:{name:'Twilight Amulet',icon:'✺',description:'Steady or better Nature spells deal 15% more damage and have a 50% chance to root enemies for 1.5 seconds. Nature enemies are immune to roots.'},twillyScarf:{name:"Belladora's Twilly Scarf",icon:'⋈',description:'Every combat victory offers a potion reward.'},birkinStock:{name:'Birkin-stock',icon:'▣',description:'Belladora holds 2 additional potions. Each potion takes its own slot, for a total capacity of 5.'}};
 export const BEGINNER_SPELLS:SpellId[]=['water','fire','nature'];
@@ -8,8 +8,8 @@ export const ROUTE=[{kind:'battle',name:'Meadow crossing',icon:'sword',encounter
 export type RunScreen='opening'|'menu'|'tutorial'|'sister'|'map'|'battle'|'rewards'|'shop'|'camp'|'complete'|'defeat';
 export type Stock={id:string;kind:'spell'|'potion'|'relic';item:SpellId|Potion|RelicId;price:number;sold:boolean};
 export type Reward={gold:number;potion:Potion|null;offers:SpellId[];relic:RelicId|null;goldClaimed:boolean;potionStatus:'pending'|'collected'|'skipped';relicClaimed:boolean;learned:SpellId|null};
-export type Run={screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
-export function newRun():Run{return{screen:'opening',node:0,health:100,gold:0,combats:0,spells:[...BEGINNER_SPELLS],upgrades:{},relics:[],potions:{heal:1,freeze:0,ink:0},bottledSpells:[],pendingBottle:false,reward:null,stock:[],campUsed:false};}
+export type Run={screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
+export function newRun():Run{return{screen:'opening',node:0,health:100,gold:0,combats:0,spells:[...BEGINNER_SPELLS],upgrades:{},relics:[],potions:{heal:1,freeze:0,ink:0},bottledSpells:[],pendingBottle:false,furyReady:false,reward:null,stock:[],campUsed:false};}
 export function finishOpening(run:Run):Run{return run.screen==='opening'?{...run,screen:'menu'}:run;}
 export function selectMode(run:Run,mode:'new'|'tutorial'):Run{return run.screen==='menu'?{...newRun(),screen:mode==='new'?'sister':'tutorial'}:run;}
 export function returnToMenu():Run{return{...newRun(),screen:'menu'};}
@@ -27,25 +27,25 @@ export function enterNode(run:Run,random:()=>number=Math.random):Run{
  const allSpells=SPELLS.map(s=>s.id),allRelics=Object.keys(RELICS) as RelicId[];
  // Prefer unowned items, but keep the six-card layout when a collection is complete.
  const chooseTwo=<T,>(all:T[],unowned:T[])=>{const result:T[]=[];while(result.length<2){const preferred=unowned.filter(x=>!result.includes(x)),pool=preferred.length?preferred:all.filter(x=>!result.includes(x));result.push(pick(pool,random));}return result;};
- const stock:Stock[]=chooseTwo(POTION_IDS,POTION_IDS).map(item=>({id:`potion-${item}`,kind:'potion',item,price:12,sold:false}));
+ const stock:Stock[]=[pick(COMMON_POTIONS,random),pick(RARE_POTIONS,random)].map(item=>({id:`potion-${item}`,kind:'potion',item,price:potionPrice(item),sold:false}));
  const unlearned=allSpells.filter(id=>!run.spells.includes(id));
  for(let slot=0;slot<2;slot++){
   if(unlearned.length){const item=pick(unlearned,random);unlearned.splice(unlearned.indexOf(item),1);stock.push({id:`spell-${item}`,kind:'spell',item,price:28,sold:false});}
-  else {const available=POTION_IDS.filter(id=>!stock.some(s=>s.kind==='potion'&&s.item===id)),item=pick(available.length?available:POTION_IDS,random);stock.push({id:`potion-extra-${slot}`,kind:'potion',item,price:12,sold:false});}
+  else {const available=POTION_IDS.filter(id=>!stock.some(s=>s.kind==='potion'&&s.item===id)),item=pick(available.length?available:POTION_IDS,random);stock.push({id:`potion-extra-${slot}`,kind:'potion',item,price:potionPrice(item),sold:false});}
  }
  for(const item of chooseTwo(allRelics,allRelics.filter(id=>!run.relics.includes(id))))stock.push({id:`relic-${item}`,kind:'relic',item,price:45,sold:false});
  return{...run,screen:'shop',stock};
 }
 export function battleForRun(run:Run,random:()=>number=Math.random):Battle{
  const node=ROUTE[run.node];const battle=newBattle('active',node.kind==='battle'?node.encounter as Encounter:'slime',random);
- return{...battle,amulets:{sun:run.relics.includes('sunAmulet'),moon:run.relics.includes('moonAmulet'),twilight:run.relics.includes('twilightAmulet')},enemies:battle.enemies.map(e=>run.node===1&&e.id===2?{...e,spawnAt:10}:e),playerHP:run.health,potions:{...run.potions},bottledSpells:run.bottledSpells.map(s=>({...s})),upgrades:{...run.upgrades},damageBonus:run.relics.includes('amber')?1.15:1,pushBonus:run.relics.includes('moon')?1.25:1,firstHitPush:run.relics.includes('bell')?80:0,difficulty:run.node>=5?1.2:1};
+ return{...battle,furyReady:run.furyReady,amulets:{sun:run.relics.includes('sunAmulet'),moon:run.relics.includes('moonAmulet'),twilight:run.relics.includes('twilightAmulet')},enemies:battle.enemies.map(e=>run.node===1&&e.id===2?{...e,spawnAt:10}:e),playerHP:run.health,potions:{...run.potions},bottledSpells:run.bottledSpells.map(s=>({...s})),upgrades:{...run.upgrades},damageBonus:run.relics.includes('amber')?1.15:1,pushBonus:run.relics.includes('moon')?1.25:1,firstHitPush:run.relics.includes('bell')?80:0,difficulty:run.node>=5?1.2:1};
 }
 export function finishBattle(run:Run,battle:Battle,random:()=>number=Math.random):Run{
  if(run.screen!=='battle'||!['victory','defeat'].includes(battle.phase))return run;
- const carried={...run,health:battle.playerHP,potions:{...battle.potions},bottledSpells:battle.bottledSpells.map(s=>({...s}))};
+ const carried={...run,furyReady:battle.furyReady,health:battle.playerHP,potions:{...battle.potions},bottledSpells:battle.bottledSpells.map(s=>({...s}))};
  if(battle.phase==='defeat')return{...carried,screen:'defeat'};
  const combats=run.combats+1,gold=run.node===3?40:run.node>=5?35:run.node===1?30:25;
- const potion=(run.relics.includes('twillyScarf')||random()<.35)?pick(POTION_IDS,random):null;
+ const potion=(run.relics.includes('twillyScarf')||random()<.35)?rollRewardPotion(random):null;
  const unknown=SPELLS.filter(s=>!run.spells.includes(s.id)).map(s=>s.id),offers:SpellId[]=[];
  if(combats===2)offers.push(...unknown);
  else if(combats%2===0)for(let i=0;i<2&&unknown.length;i++){const id=pick(unknown,random);unknown.splice(unknown.indexOf(id),1);offers.push(id);}
