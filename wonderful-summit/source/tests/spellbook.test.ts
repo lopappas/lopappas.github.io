@@ -18,7 +18,7 @@ test('travel and combat books can show only known spells without duplicating ent
 });
 
 test('upgrade previews preserve the campsite choice until confirmation and match actual battle damage',()=>{
- for(const spell of SPELLS.filter(s=>s.id!=='chronos'))for(const level of [0,1])for(const amber of [false,true]){
+ for(const spell of SPELLS.filter(s=>s.id!=='chronos'))for(const level of [0])for(const amber of [false,true]){
   const run:Run={...newRun(),screen:'camp',node:4,health:27,spells:SPELLS.map(s=>s.id),relics:amber?['amber']:[],upgrades:{[spell.id]:level}};
   const before=structuredClone(run),preview=spellUpgradePreview(spell.id,level,amber?1.15:1)!;
   assert.deepEqual(run,before);assert.equal(run.campUsed,false);
@@ -40,6 +40,6 @@ test('rest fully restores health, consumes one campsite action, and keeps spells
   assert.strictEqual(camp(rested,'water'),rested);
  }
  const maxed:Run={...newRun(),screen:'camp',upgrades:{fire:2}};
- assert.equal(spellName('fire',1),'Hearthspark+');assert.equal(spellName('fire',2),'Hearthspark++');
+ assert.equal(spellName('fire',1),'Hearthspark+');assert.equal(spellName('fire',2),'Hearthspark+');
  assert.equal(spellUpgradePreview('fire',2),null);assert.strictEqual(camp(maxed,'fire'),maxed);assert.equal(camp(maxed).campUsed,true);
 });

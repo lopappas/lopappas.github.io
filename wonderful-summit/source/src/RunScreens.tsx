@@ -7,6 +7,7 @@ import {TravelSpellbook} from './Spellbook';
 import {LessonText} from './LessonText';
 import {TitleMountain,AuroraSky} from './TitleMountain';
 import {SisterDialogue} from './SisterDialogue';
+import {CombatRelics} from './CombatRelics';
 import {SeaMerchant} from './SeaMerchant';
 import {TutorialSession} from './TutorialSession';
 import {useDeveloperTarget} from './Developer';
@@ -57,9 +58,9 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
   :run.screen==='camp'?{label:'Continue',disabled:!run.campUsed,action:()=>update(leaveNode)}
   :run.screen==='rewards'&&reward?{label:'Continue',disabled:!rewardsComplete(reward),action:()=>update(leaveNode)}:null;
  const stats=<div className="run-stats"><span>♡ {run.health}/100</span><span>◈ {run.gold}</span><span>⚗ {potionCount(run)}/{potionCapacity(run)}</span></div>;
- return <main className={`app run-app${confirmation?' has-confirmation':''}`}><header className="topbar"><span className="brand">☾ Wonderful Summit</span><TravelSpellbook known={run.spells} upgrades={run.upgrades}/></header>{stats}<div key={`${run.screen}-${run.node}`} ref={contentRef} className="run-content">
+ return <main className={`app run-app${confirmation?' has-confirmation':''}`}><header className="topbar"><span className="brand">☾ Wonderful Summit</span><TravelSpellbook known={run.spells} upgrades={run.upgrades}/></header>{stats}{run.screen==='map'&&<CombatRelics relics={run.relics} variant="trail"/>}<div key={`${run.screen}-${run.node}`} ref={contentRef} className="run-content">
  {run.screen==='sister'&&<section className="run-panel"><figure className="sister-portrait"><figcaption className="sister-name">Theodora</figcaption><Sister/></figure><h1>Before you climb…</h1><SisterDialogue potionIcon={<PotionIcon potion="heal"/>}/><h2>Choose a keepsake</h2><div className="choice-list">{STARTER_RELICS.map(id=><button key={id} className={relic===id?'selected':''} onClick={()=>setRelic(id)}><b>{RELICS[id].icon} {RELICS[id].name}</b><small>{RELICS[id].description}</small></button>)}</div></section>}
- {run.screen==='map'&&<section className="trail-panel"><h1>The Summit skirt</h1><div className="trail">{ROUTE.map((node,i)=><button key={i} disabled={i!==run.node} className={`trail-node${i===run.node?' current':''}${i<run.node?' complete':''}`} onClick={()=>update(r=>enterNode(r))}><span className="trail-symbol">{i<run.node?'✓':<TrailSymbol symbol={node.icon}/>}</span><span><strong>{node.name}</strong><small>{i<run.node?'Visited':i===run.node?'Continue':node.kind==='battle'?'Encounter':node.kind==='shop'?'Merchant':'Rest or upgrade'}</small></span></button>)}</div><div className="run-relics">{run.relics.map(id=><span key={id} title={RELICS[id].description}>{RELICS[id].icon} {RELICS[id].name}</span>)}</div></section>}
+ {run.screen==='map'&&<section className="trail-panel"><h1>The Summit skirt</h1><div className="trail">{ROUTE.map((node,i)=><button key={i} disabled={i!==run.node} className={`trail-node${i===run.node?' current':''}${i<run.node?' complete':''}`} onClick={()=>update(r=>enterNode(r))}><span className="trail-symbol">{i<run.node?'✓':<TrailSymbol symbol={node.icon}/>}</span><span><strong>{node.name}</strong><small>{i<run.node?'Visited':i===run.node?'Continue':node.kind==='battle'?'Encounter':node.kind==='shop'?'Merchant':'Rest or upgrade'}</small></span></button>)}</div></section>}
  {run.screen==='rewards'&&reward&&<section className="run-panel">
   <span className="scene-emblem">✦</span><h1>Clearing complete</h1>
   <div className="reward-pickups">

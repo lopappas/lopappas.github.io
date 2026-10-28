@@ -153,7 +153,7 @@ test('accuracy curve flows through direct hits, spell push modifiers and burn',(
  assert.equal(spellKnockback(100,'wave'),160*1.7);
  assert.equal(spellKnockback(100,'bolt',1.25),160*.65*1.25);
  assert.equal(burnDamage(59,'Neutral'),3);assert.equal(burnDamage(100,'Neutral'),16);
- assert.equal(spellDamage({...base.enemies[0],element:'Nature'},100,'bolt',1.15,2),232);
+ assert.equal(spellDamage({...base.enemies[0],element:'Nature'},100,'bolt',1.15,2),193);
 });
 
 test('contact push covers one-third of the runway for every enemy and only the first hit gets bell bonus',()=>{
