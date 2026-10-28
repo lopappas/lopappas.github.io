@@ -41,15 +41,15 @@ export function rockyDefense(rocky:boolean,quality:number){return !rocky||qualit
 export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0){if(spellId==='chronos')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.4:spellId==='wave'?.8:spellId==='leaf'?.75:1;return Math.round(power(quality)*factor*damageBonus*(1+upgrade*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage);}
 export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false){if(spellId==='chronos')return 0;return rockyDefense(rocky,quality).knockback*knockback(quality)*(spellId==='wave'?1.7:spellId==='bolt'?.65:1)*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 export function eliteRush(e:Enemy){if(e.kind!=='goblin')return 'none';const cycle=e.clock%10;return cycle>=6&&cycle<7?'warning':cycle>=7&&cycle<9?'rush':'none';}
-export function chronosEffect(quality:number){
+export function chronosEffect(quality:number,upgrade=0){
  if(!Number.isFinite(quality)||quality<48)return{kind:'slow' as const,duration:0};
  const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,1,2.4]:q<70?[60,69,2.5,5]:q<80?[70,79,5.1,9]:[80,100,9.1,18];
- return{kind:q<70?'slow' as const:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*1000)/1000};
+ return{kind:q<70?'slow' as const:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*(1+.3*Math.max(0,Math.min(2,upgrade)))*1000)/1000};
 }
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random):Battle{
  if(state.phase!=='active')return state;
  if(spellId==='chronos'){
-  const effect=chronosEffect(quality);if(!effect.duration)return state;
+  const effect=chronosEffect(quality,state.upgrades.chronos??0);if(!effect.duration)return state;
   const live=new Set(presentEnemies(state).map(e=>e.id));if(!live.size)return state;
   const enemies=state.enemies.map(e=>!live.has(e.id)||rockyDefense(e.rocky,quality).immuneEffects?e:effect.kind==='slow'?{...e,slowUntil:Math.max(e.slowUntil,state.time+effect.duration)}:{...e,stunUntil:Math.max(e.stunUntil,state.time+effect.duration),attackAt:null});
   return{...state,enemies,casts:state.casts+1};

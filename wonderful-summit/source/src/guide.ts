@@ -6,8 +6,9 @@ export const GUIDE_COOLDOWN_MS=8000;
 export class GuideCooldown {
  private active=false;
  private readyAt=-Infinity;
+ isReady(now:number):boolean{return !this.active&&now>=this.readyAt;}
  tryStart(now:number):boolean{
-  if(this.active||now<this.readyAt)return false;
+  if(!this.isReady(now))return false;
   this.active=true;
   return true;
  }

@@ -29,3 +29,12 @@ test('a delayed preview completion still receives eight full seconds of cooldown
  assert.equal(gate.tryStart(9000),false);
  assert.equal(gate.tryStart(9900),true);
 });
+
+test('Ready border can query readiness repeatedly without starting or extending the trace cooldown',()=>{
+ const gate=new GuideCooldown();
+ for(let i=0;i<20;i++)assert.equal(gate.isReady(i),true);
+ assert.equal(gate.tryStart(100),true);assert.equal(gate.isReady(100),false);
+ gate.finish(1600);for(const now of [1600,2000,9599])assert.equal(gate.isReady(now),false);
+ for(let i=0;i<20;i++)assert.equal(gate.isReady(9600),true);
+ assert.equal(gate.tryStart(9600),true);assert.equal(gate.isReady(9600),false);
+});
