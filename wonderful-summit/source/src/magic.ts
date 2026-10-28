@@ -1,7 +1,7 @@
 export type Point = {x:number;y:number};
 export type Strokes = Point[][];
-export type Element = 'Water'|'Fire'|'Nature';
-export type SpellId = 'water'|'fire'|'nature'|'wave'|'bolt'|'leaf';
+export type Element = 'Water'|'Fire'|'Nature'|'Neutral';
+export type SpellId = 'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos';
 export type Spell = {id:SpellId;name:string;element:Element;color:string;description:string;path:string;strokes:Strokes};
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
@@ -11,7 +11,8 @@ export const SPELLS:Spell[]=[
  {id:'nature',name:'Little Sprout',element:'Nature',color:'#9bbe72',description:'Draw a simple Y: two upward branches meeting a straight stem. No leaf outlines needed.',path:'M20 20 L50 50 L80 20 M50 50 L50 88',strokes:[[{x:20,y:20},{x:50,y:50},{x:80,y:20}],[{x:50,y:50},{x:50,y:88}]]},
  {id:'wave',name:'Tidal Push',element:'Water',color:'#69c2d6',description:'Draw a W in one stroke. Lower damage, but much stronger knockback.',path:'M12 25 L30 78 L50 40 L70 78 L88 25',strokes:[[{x:12,y:25},{x:30,y:78},{x:50,y:40},{x:70,y:78},{x:88,y:25}]]},
  {id:'bolt',name:'Flare Bolt',element:'Fire',color:'#f0a068',description:'Draw a lightning bolt: down-left, right, then down-left. Higher damage, lighter knockback, and 3 seconds of burn damage that scales with drawing quality.',path:'M65 10 L25 50 L55 50 L35 90',strokes:[[{x:65,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]},
- {id:'leaf',name:'Bramble Leaf',element:'Nature',color:'#9bbe72',description:'Draw a closed diamond. Slows the nearest enemy for 4 seconds, with lower damage.',path:'M50 10 L85 50 L50 90 L15 50 Z',strokes:[[{x:50,y:10},{x:85,y:50},{x:50,y:90},{x:15,y:50},{x:50,y:10}]]}
+ {id:'leaf',name:'Bramble Leaf',element:'Nature',color:'#9bbe72',description:'Draw a closed diamond. Slows the nearest enemy for 4 seconds, with lower damage.',path:'M50 10 L85 50 L50 90 L15 50 Z',strokes:[[{x:50,y:10},{x:85,y:50},{x:50,y:90},{x:15,y:50},{x:50,y:10}]]},
+ {id:'chronos',name:'Chronos Denalis',element:'Neutral',color:'#8b9099',description:'Draw a circle with a straight line from its center to the top. Deals no damage or knockback. Slows all enemies by 55% on Faint (0.5–1s) or Steady (1.1–2.4s); stuns on Beautiful (2.4–3.6s) or Wonderful (3.7–7s). Rocky enemies ignore Faint effects.',path:'M50 10 C72.091 10 90 27.909 90 50 C90 72.091 72.091 90 50 90 C27.909 90 10 72.091 10 50 C10 27.909 27.909 10 50 10 Z M50 50 L50 10',strokes:[shape([50,10],[[72.091,10,90,27.909,90,50],[90,72.091,72.091,90,50,90],[27.909,90,10,72.091,10,50],[10,27.909,27.909,10,50,10]]),[{x:50,y:50},{x:50,y:10}]]}
 
 
 ];
@@ -31,7 +32,7 @@ const meanNearest=(a:Point[],b:Point[])=>a.reduce((sum,p)=>sum+Math.min(...b.map
 export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id)){
  const normalized=normalize(strokes),points=sample(normalized);if(points.length<5)return{spell:null,quality:0,candidates:[],reason:'Draw a complete sigil first.'};
  const len=strokeLength(normalized);
- const candidates=SPELLS.filter(s=>known.includes(s.id)).map(spell=>{const ref=normalize(spell.strokes),target=sample(ref);const error=(meanNearest(points,target)+meanNearest(target,points))/2;const ratio=len/strokeLength(ref);const lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);const quality=Math.round(100*Math.exp(-error*13)*lengthPenalty);return{spell,quality,error};}).sort((a,b)=>b.quality-a.quality);
+ const candidates=SPELLS.filter(s=>known.includes(s.id)).map(spell=>{const ref=normalize(spell.strokes),target=sample(ref);const error=(meanNearest(points,target)+meanNearest(target,points))/2;const ratio=len/strokeLength(ref);const lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);const handPenalty=spell.id==='chronos'?Math.exp(-Math.max(0,Math.min(...points.map(p=>Math.hypot(p.x,p.y)))-.1)*9):1;const quality=Math.round(100*Math.exp(-error*13)*lengthPenalty*handPenalty);return{spell,quality,error};}).sort((a,b)=>b.quality-a.quality);
  if(!candidates.length)return{spell:null,quality:0,candidates,reason:'No spells learned yet.'};
  const top=candidates[0],margin=top.quality-(candidates[1]?.quality??0);
  const accepted=top.quality>=48&&margin>=7;

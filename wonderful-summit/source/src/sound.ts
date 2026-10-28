@@ -52,6 +52,8 @@ export function soundSamples(kind:SoundKind):Float32Array{
   }else if(kind==='water'){
    for(let j=0;j<6;j++){const age=t-j*.065;if(age>=0&&age<.19){const f=430+j*92;value+=Math.sin(2*Math.PI*(f*age+900*age*age))*Math.exp(-age*26)*Math.min(1,age/.007)*.45;}}
    value+=low*.16*Math.sin(Math.PI*u);
+  }else if(kind==='neutral'){
+   value=(Math.sin(2*Math.PI*440*t)*.4+Math.sin(2*Math.PI*660*t)*.15)*Math.exp(-t*7);
   }else if(kind==='nature'){
    value=low*.7*Math.sin(Math.PI*u)*Math.exp(-t*2);
    for(const [j,f] of [523.25,659.25,783.99].entries()){const age=t-j*.085;if(age>=0)value+=(Math.sin(2*Math.PI*f*age)+.18*Math.sin(2*Math.PI*f*2*age))*Math.exp(-age*9)*Math.min(1,age/.009)*.25;}

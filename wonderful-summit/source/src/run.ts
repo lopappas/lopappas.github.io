@@ -82,6 +82,6 @@ export function buy(run:Run,id:string):Run{const item=run.stock.find(s=>s.id===i
 }
 export function discardPotion(run:Run,id:Potion):Run{if(run.screen!=='shop'||run.potions[id]<=0)return run;return{...run,potions:{...run.potions,[id]:run.potions[id]-1}};}
 export function camp(run:Run,spell?:SpellId):Run{if(run.screen!=='camp'||run.campUsed||spell&&!run.spells.includes(spell))return run;
- if(spell&&(run.upgrades[spell]??0)>=2)return run;
+ if(spell&&(spell==='chronos'||(run.upgrades[spell]??0)>=2))return run;
  return spell?{...run,campUsed:true,upgrades:{...run.upgrades,[spell]:(run.upgrades[spell]??0)+1}}:{...run,campUsed:true,health:100};
 }

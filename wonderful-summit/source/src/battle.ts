@@ -16,10 +16,10 @@ export const POTION_FLIGHT_SECONDS=.65,POTION_BREAK_SECONDS=.35;
 export type PotionFlight={id:number;potion:Potion;started:number;toX:number;toY:number;applied:boolean};
 export type Burn={damage:number;nextTick:number;ticks:number};
 export type Push={from:number;to:number;started:number;ends:number};
-export type Enemy={id:number;rocky:boolean;kind:'slime'|'goblin';spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;slowUntil:number;rootUntil:number;burn:Burn|null};
+export type Enemy={id:number;rocky:boolean;kind:'slime'|'goblin';spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;slowUntil:number;rootUntil:number;stunUntil:number;burn:Burn|null};
 export type Projectile={started:number;duration:number;quality:number;color:string;spellId:SpellId;targetId:number};
 export type Battle={phase:BattlePhase;encounter:Encounter;time:number;approachAt:number;playerHP:number;enemies:Enemy[];playerHurtUntil:number;playerHits:number;casts:number;projectile:Projectile|null;potions:Record<Potion,number>;freezeUntil:number;unlimitedUntil:number;potionFlights:PotionFlight[];potionSerial:number;upgrades:Partial<Record<SpellId,number>>;damageBonus:number;pushBonus:number;firstHitPush:number;difficulty:number;amulets:{sun:boolean;moon:boolean;twilight:boolean}};
-function enemy(id:number,element:Enemy['element'],x:number,kind:Enemy['kind']='slime',rocky=false):Enemy{return{id,kind,rocky,spawnAt:0,element,hp:rocky?150:kind==='goblin'?200:SLIME_MAX_HP,maxHP:rocky?150:kind==='goblin'?200:SLIME_MAX_HP,x,clock:0,attackAt:null,nextAttackAt:0,hurtUntil:0,push:null,slowUntil:0,rootUntil:0,burn:null};}
+function enemy(id:number,element:Enemy['element'],x:number,kind:Enemy['kind']='slime',rocky=false):Enemy{return{id,kind,rocky,spawnAt:0,element,hp:rocky?150:kind==='goblin'?200:SLIME_MAX_HP,maxHP:rocky?150:kind==='goblin'?200:SLIME_MAX_HP,x,clock:0,attackAt:null,nextAttackAt:0,hurtUntil:0,push:null,slowUntil:0,rootUntil:0,stunUntil:0,burn:null};}
 const ELEMENTS:Element[]=['Fire','Water','Nature'];
 export function newBattle(phase:BattlePhase='ready',encounter:Encounter='slime',random:()=>number=Math.random):Battle{
  const first=ELEMENTS[Math.min(2,Math.floor(random()*3))];
@@ -32,17 +32,28 @@ export function nearestEnemy(state:Battle){return presentEnemies(state).sort((a,
 export function targetedEnemy(state:Battle){return presentEnemies(state).find(e=>e.id===state.projectile?.targetId)??nearestEnemy(state);}
 export function advantage(element:Element,target:Enemy['element']){return(element==='Water'&&target==='Fire')||(element==='Fire'&&target==='Nature')||(element==='Nature'&&target==='Water');}
 export function elementalMatchup(element:Element,target:Enemy['element']){
- if(target==='Neutral')return{damage:1,knockback:1,immuneEffects:false};
+ if(element==='Neutral'||target==='Neutral')return{damage:1,knockback:1,immuneEffects:false};
  if(element===target)return{damage:.5,knockback:.7,immuneEffects:true};
  if(advantage(target,element))return{damage:.75,knockback:.85,immuneEffects:false};
  return{damage:1.5,knockback:1,immuneEffects:false};
 }
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
-export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0){const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.4:spellId==='wave'?.8:spellId==='leaf'?.75:1;return Math.round(power(quality)*factor*damageBonus*(1+upgrade*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage);}
-export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false){return rockyDefense(rocky,quality).knockback*knockback(quality)*(spellId==='wave'?1.7:spellId==='bolt'?.65:1)*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
+export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0){if(spellId==='chronos')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.4:spellId==='wave'?.8:spellId==='leaf'?.75:1;return Math.round(power(quality)*factor*damageBonus*(1+upgrade*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage);}
+export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false){if(spellId==='chronos')return 0;return rockyDefense(rocky,quality).knockback*knockback(quality)*(spellId==='wave'?1.7:spellId==='bolt'?.65:1)*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 export function eliteRush(e:Enemy){if(e.kind!=='goblin')return 'none';const cycle=e.clock%10;return cycle>=6&&cycle<7?'warning':cycle>=7&&cycle<9?'rush':'none';}
+export function chronosEffect(quality:number){
+ if(!Number.isFinite(quality)||quality<48)return{kind:'slow' as const,duration:0};
+ const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,.5,1]:q<70?[60,69,1.1,2.4]:q<80?[70,79,2.4,3.6]:[80,100,3.7,7];
+ return{kind:q<70?'slow' as const:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*1000)/1000};
+}
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random):Battle{
  if(state.phase!=='active')return state;
+ if(spellId==='chronos'){
+  const effect=chronosEffect(quality);if(!effect.duration)return state;
+  const live=new Set(presentEnemies(state).map(e=>e.id));if(!live.size)return state;
+  const enemies=state.enemies.map(e=>!live.has(e.id)||rockyDefense(e.rocky,quality).immuneEffects?e:effect.kind==='slow'?{...e,slowUntil:Math.max(e.slowUntil,state.time+effect.duration)}:{...e,stunUntil:Math.max(e.stunUntil,state.time+effect.duration),attackAt:null});
+  return{...state,enemies,casts:state.casts+1};
+ }
  const target=presentEnemies(state).find(e=>e.id===targetId)??nearestEnemy(state);if(!target)return state;
  const q=Math.max(0,Math.min(100,quality)),element=SPELLS.find(s=>s.id===spellId)!.element;
  const immuneEffects=elementalMatchup(element,target.element).immuneEffects||rockyDefense(target.rocky,q).immuneEffects;
@@ -73,7 +84,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
  next.enemies=state.enemies.map(old=>{
   if(old.hp<=0||old.spawnAt>time+1e-9)return old;
   // Only advance the portion of this frame after the opening pause / arrival.
-  const actionDelta=Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.rootUntil));
+  const actionDelta=Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.rootUntil,old.stunUntil));
   const e={...old,clock:old.clock+(frozen?0:actionDelta)};
   if(e.burn){let burn={...e.burn};while(burn.ticks>0&&time+1e-9>=burn.nextTick){e.hp=Math.max(0,e.hp-(Math.round(burn.damage*burn.ticks)-Math.round(burn.damage*(burn.ticks-1))));e.hurtUntil=time+.15;burn.ticks--;burn.nextTick+=1;}e.burn=burn.ticks>0&&e.hp>0?burn:null;if(e.hp===0){e.push=null;e.attackAt=null;return e;}}
   if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=p.from+(p.to-p.from)*(1-(1-t)**3);e.attackAt=null;if(t>=1)e.push=null;return e;}

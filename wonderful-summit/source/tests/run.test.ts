@@ -25,7 +25,7 @@ test('complete route has five combats, merchant, camp and final victory',()=>{
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,25);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
- r=won(enterNode(leaveNode(first),rng));r=claimPotion(claimGold(r));assert.deepEqual(r.reward?.offers,['wave','bolt','leaf']);assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
+ r=won(enterNode(leaveNode(first),rng));r=claimPotion(claimGold(r));assert.deepEqual(r.reward?.offers,['wave','bolt','leaf','chronos']);assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
 });
 test('potion drop boundary is 35 percent and capacity never exceeds three',()=>{
  const active=enterNode(start(),rng),battle={...battleForRun(active),phase:'victory' as const};
@@ -51,10 +51,10 @@ test('moss locket heals after victories and glass bell affects only first incomi
 });
 
 test('first spell reward lets each intermediate be chosen and never offers a beginner',()=>{
- for(const id of ['wave','bolt','leaf'] as const){
+ for(const id of ['wave','bolt','leaf','chronos'] as const){
   let r=collect(won(enterNode(start(),rng)));
   r=won(enterNode(r,()=>.99));
-  assert.deepEqual(r.reward!.offers,['wave','bolt','leaf']);
+  assert.deepEqual(r.reward!.offers,['wave','bolt','leaf','chronos']);
   r=learnReward(r,id);
   assert.deepEqual(r.spells,['water','fire','nature',id]);
   for(const known of r.spells){const spell=SPELLS.find(s=>s.id===known)!;assert.equal(recognize(spell.strokes,r.spells).spell?.id,known);}

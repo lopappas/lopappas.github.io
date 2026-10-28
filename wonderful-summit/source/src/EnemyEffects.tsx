@@ -5,6 +5,7 @@ import type {Enemy} from './battle';
 export function EnemyEffects({enemy,time}:{enemy:Enemy;time:number}){
  const rooted=enemy.rootUntil>time,growth=Math.min(1,Math.max(0,(1.5-enemy.rootUntil+time)/.25));
  return <g pointerEvents="none">
+  {enemy.stunUntil>time&&<g aria-label="Stunned enemy">{[0,1,2].map(i=>{const a=time*3+i*Math.PI*2/3;return <path key={i} d="m0-5 2 3 3 2-3 2-2 3-2-3-3-2 3-2z" transform={`translate(${Math.cos(a)*24} ${-76+Math.sin(a)*5})`} fill="#d7dae0"/>;})}</g>}
   {enemy.burn&&<g aria-label="Burning enemy">{Array.from({length:7},(_,i)=>{
    const t=(time*.95+i/7)%1,x=-25+i*8+Math.sin(t*6+i)*5,y=12-t*70;
    return <g key={i} transform={`translate(${x} ${y}) scale(${1-t*.65})`} opacity={Math.sin(t*Math.PI)*.95}>
