@@ -30,9 +30,9 @@ export function newBattle(phase:BattlePhase='ready',encounter:Encounter='slime',
 export function presentEnemies(state:Battle){return state.enemies.filter(e=>e.hp>0&&e.spawnAt<=state.time+1e-9);}
 export function nearestEnemy(state:Battle){return presentEnemies(state).sort((a,b)=>a.x-b.x||a.id-b.id)[0];}
 export function targetedEnemy(state:Battle){return presentEnemies(state).find(e=>e.id===state.projectile?.targetId)??nearestEnemy(state);}
-export function advantage(element:Element,target:Enemy['element']){return(element==='Water'&&target==='Fire')||(element==='Fire'&&target==='Nature')||(element==='Nature'&&target==='Water');}
+export function advantage(element:Enemy['element'],target:Enemy['element']){return(element==='Water'&&target==='Fire')||(element==='Fire'&&target==='Nature')||(element==='Nature'&&target==='Water');}
 export function elementalMatchup(element:Element,target:Enemy['element']){
- if(element==='Neutral'||target==='Neutral')return{damage:1,knockback:1,immuneEffects:false};
+ if(element==='Ancient'||target==='Neutral')return{damage:1,knockback:1,immuneEffects:false};
  if(element===target)return{damage:.5,knockback:.7,immuneEffects:true};
  if(advantage(target,element))return{damage:.75,knockback:.85,immuneEffects:false};
  return{damage:1.5,knockback:1,immuneEffects:false};
@@ -43,7 +43,7 @@ export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target
 export function eliteRush(e:Enemy){if(e.kind!=='goblin')return 'none';const cycle=e.clock%10;return cycle>=6&&cycle<7?'warning':cycle>=7&&cycle<9?'rush':'none';}
 export function chronosEffect(quality:number){
  if(!Number.isFinite(quality)||quality<48)return{kind:'slow' as const,duration:0};
- const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,.5,1]:q<70?[60,69,1.1,2.4]:q<80?[70,79,2.4,3.6]:[80,100,3.7,7];
+ const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,1,2.4]:q<70?[60,69,2.5,5]:q<80?[70,79,5.1,9]:[80,100,9.1,18];
  return{kind:q<70?'slow' as const:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*1000)/1000};
 }
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random):Battle{
