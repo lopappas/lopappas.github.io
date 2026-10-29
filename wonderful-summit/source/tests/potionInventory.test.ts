@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {newRun,discardPotion,buy,claimPotion,potionCount,type Run,type RunScreen} from '../src/run.ts';
+import {newRun,discardPotion,drinkTrailHealing,buy,claimPotion,potionCount,type Run,type RunScreen} from '../src/run.ts';
 
 test('dropping one potion works throughout the journey without changing other inventory or rewards',()=>{
  for(const screen of ['sister','map','rewards','shop','camp','complete','defeat'] as RunScreen[]){
@@ -26,4 +26,14 @@ test('dropping from full inventory immediately allows shop purchases and reward 
  const bought=buy(discardPotion(shop,'heal'),'freeze');assert.equal(bought.potions.freeze,1);assert.equal(potionCount(bought),3);assert.equal(bought.gold,12);
  const reward:Run={...shop,screen:'rewards',reward:{gold:25,potion:'freeze',offers:[],relic:null,goldClaimed:false,potionStatus:'pending',relicClaimed:true,learned:null}};
  const claimed=claimPotion(discardPotion(reward,'heal'));assert.equal(claimed.reward?.potionStatus,'collected');assert.equal(potionCount(claimed),3);
+});
+
+
+test('trail healing restores 30 HP up to the cap and consumes exactly one carried potion',()=>{
+ for(const health of [1,45,80,99]){const run:Run={...newRun(),screen:'map',health,gold:43,potions:{heal:2,freeze:1,ink:0,spellBottle:1},bottledSpells:[{spellId:'fire',quality:87}]};const healed=drinkTrailHealing(run);assert.equal(healed.health,Math.min(100,health+30));assert.equal(healed.potions.heal,1);assert.equal(healed.potions.freeze,1);assert.deepEqual(healed.bottledSpells,run.bottledSpells);assert.equal(healed.gold,43);assert.equal(healed.screen,'map');assert.equal(healed.node,run.node);assert.equal(run.potions.heal,2);}
+});
+test('trail healing cannot waste a potion at full health, revive a lost run, or be used on other screens',()=>{
+ const run:Run={...newRun(),screen:'map',health:50};
+ for(const blocked of [{...run,health:100},{...run,health:0},{...run,pendingBottle:true},{...run,potions:{heal:0,freeze:1,ink:1}}])assert.equal(drinkTrailHealing(blocked),blocked);
+ for(const screen of ['opening','menu','tutorial','sister','battle','rewards','shop','camp','event','complete','defeat'] as RunScreen[]){const blocked={...run,screen};assert.equal(drinkTrailHealing(blocked),blocked);}
 });
