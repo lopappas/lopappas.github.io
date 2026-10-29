@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {COMMON_POTIONS,RARE_POTIONS,potionImpactIds,POTION_IDS,POTIONS,FREEZE_SECONDS,newBattle,drinkPotion,stepBattle,spellDamage,CONTACT_X,PLAYER_HIT_PUSH,enemyElementColor,presentEnemies,type Potion} from '../src/battle.ts';
 import {ROUTE,newRun,enterNode,buy,sealBottle,leaveNode,camp,potionCount,potionSlots,battleForRun,finishBattle,claimPotion,discardPotion,merchantDialogue} from '../src/run.ts';
-import {SPELLS,recognize} from '../src/magic.ts';
+import {SPELLS,PLAYER_SPELLS,recognize} from '../src/magic.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 function shop(){return {...newRun(),screen:'shop' as const,gold:100,stock:[{id:'bottle',kind:'potion' as const,item:'spellBottle' as const,price:12,sold:false}]};}
 test('second merchant and a fresh Mossy grove campsite sit between barricade and boss',()=>{
@@ -12,7 +12,7 @@ test('second merchant and a fresh Mossy grove campsite sit between barricade and
 });
 test('both shops replace unavailable spell slots with extra potions while keeping six unique stock entries',()=>{
  for(const node of ROUTE.flatMap((n,i)=>n.kind==='shop'?[i]:[]))for(const missing of [0,1,2,4])for(const roll of [0,.4,.99]){
-  const known=SPELLS.slice(0,SPELLS.length-missing).map(s=>s.id),r=enterNode({...newRun(),screen:'map',node,spells:known},()=>roll);
+  const known=PLAYER_SPELLS.slice(0,PLAYER_SPELLS.length-missing).map(s=>s.id),r=enterNode({...newRun(),screen:'map',node,spells:known},()=>roll);
   assert.equal(r.stock.length,6);assert.equal(new Set(r.stock.map(s=>s.id)).size,6);assert.equal(r.stock.filter(s=>s.kind==='relic').length,2);assert.equal(r.stock.filter(s=>s.kind==='spell').length,Math.min(missing,2));assert.equal(r.stock.filter(s=>s.kind==='potion').length,4-Math.min(missing,2));assert.ok(r.stock.filter(s=>s.kind==='spell').every(s=>!known.includes(s.item as any)));
  }
 });

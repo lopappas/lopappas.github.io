@@ -5,7 +5,7 @@ import {BestDrawing} from './BestDrawing';
 import React,{useEffect,useLayoutEffect,useRef,useState,type ComponentType} from 'react';
 import {SPELLS,isCheckmark,type Spell,type Point} from './magic';
 import {POTIONS,type Battle,type Potion} from './battle';
-import {castTrailEvent,isEliteNode,sealBottle,merchantDialogue,newRun,finishOpening,selectMode,returnToMenu,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,discardPotion,drinkTrailHealing,camp,potionCount,potionCapacity,RELICS,STARTER_RELICS,ROUTE,type Run,type RelicId,type Stock} from './run';
+import {selectTrailNode,unlockDeveloperTrail,castTrailEvent,isEliteNode,sealBottle,merchantDialogue,newRun,finishOpening,selectMode,returnToMenu,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,discardPotion,drinkTrailHealing,camp,potionCount,potionCapacity,RELICS,STARTER_RELICS,ROUTE,type Run,type RelicId,type Stock} from './run';
 import {unlockSpellAudio,installSpellAudio,playSpellSound,playUISound,type UISound} from './sound';
 import {TravelSpellbook} from './Spellbook';
 import {LessonText} from './LessonText';
@@ -40,7 +40,7 @@ function stockOwned(run:Run,s:Stock){return s.kind==='spell'?run.spells.includes
 function stockName(s:Stock){return s.kind==='spell'?SPELLS.find(x=>x.id===s.item)!.name:s.kind==='potion'?`${POTIONS[s.item as Potion].name}${s.item==='spellBottle'?'':' potion'}`:RELICS[s.item as RelicId].name;}
 export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  const [run,setRun]=useState<Run>(()=>newRun()),[relic,setRelic]=useState<RelicId>('amber'),[replacingPotion,setReplacingPotion]=useState(false),[bottleReturning,setBottleReturning]=useState(false);
- useDeveloperTarget(command=>{const next=applyDeveloperCommand(run,command);setRun(next);if(next===run&&command.type==='potion')return 'Purse is full.';});
+ useDeveloperTarget(command=>{const next=applyDeveloperCommand(run,command);setRun(next);if(next===run&&command.type==='potion')return 'Purse is full.';if(next===run&&command.type==='travel')return 'Return to the trail and finish any bottle first.';},0,{canTravel:run.screen==='map'&&!run.pendingBottle,onOpen:()=>setRun(unlockDeveloperTrail)});
  const contentRef=useRef<HTMLDivElement>(null);
  const update=(fn:(r:Run)=>Run,sound?:UISound)=>{const next=fn(run);if(next===run)return;setRun(next);if(sound)playUISound(sound);};
  useEffect(()=>{if(!bottleReturning)return;const timer=setTimeout(()=>setBottleReturning(false),350);return()=>clearTimeout(timer);},[bottleReturning]);
@@ -70,7 +70,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
 
  return <main className={`app run-app${bottleReturning?' bottle-returned':''}${confirmation?' has-confirmation':''}`}><header className="topbar"><span className="brand">☾ Wonderful Summit</span><div className="header-actions"><SettingsButton/><TravelSpellbook known={run.spells} upgrades={run.upgrades}/></div></header>{stats}{run.screen==='map'&&<CombatRelics relics={run.relics} variant="trail" broken={run.shaleContacts>=3?['impossibleShale']:[]}/>}<div key={`${run.screen}-${run.node}`} ref={contentRef} className={`run-content${run.screen==='event'?' event-content':''}`}>
  {run.screen==='sister'&&<section className="run-panel"><figure className="sister-portrait"><figcaption className="sister-name">Theodora</figcaption><Sister/></figure><h1>Before you climb…</h1><SisterDialogue potionIcon={<PotionIcon potion="heal"/>}/><h2>Choose a keepsake</h2><div className="choice-list">{STARTER_RELICS.map(id=><button key={id} className={relic===id?'selected':''} onClick={()=>setRelic(id)}><b>{RELICS[id].icon} {RELICS[id].name}</b><small>{RELICS[id].description}</small></button>)}</div></section>}
- {run.screen==='map'&&<section className="trail-panel"><h1>The Summit skirt</h1><div className="trail">{ROUTE.map((node,i)=><button key={i} disabled={i!==run.node} className={`trail-node${i===run.node?' current':''}${i<run.node?' complete':''}`} onClick={()=>update(r=>enterNode(r))}><span className="trail-symbol">{i<run.node?'✓':<TrailSymbol symbol={node.icon}/>}</span><span><strong>{node.name}</strong><small>{i<run.node?'Visited':i===run.node?'Continue':node.kind==='battle'?(isEliteNode(i)?'Elite encounter':'Encounter'):node.kind==='shop'?'Merchant':node.kind==='event'?'Event':'Rest or upgrade'}</small></span></button>)}</div></section>}
+ {run.screen==='map'&&<section className="trail-panel"><h1>The Summit skirt</h1><div className="trail">{ROUTE.map((node,i)=><button key={i} disabled={i!==run.node&&!run.developerTrailUnlocked} className={`trail-node${i===run.node?' current':''}${i<run.node?' complete':''}`} onClick={()=>update(r=>selectTrailNode(r,i))}><span className="trail-symbol">{i<run.node?'✓':<TrailSymbol symbol={node.icon}/>}</span><span><strong>{node.name}</strong><small>{i<run.node?'Visited':i===run.node?'Continue':node.kind==='battle'?(isEliteNode(i)?'Elite encounter':'Encounter'):node.kind==='shop'?'Merchant':node.kind==='event'?'Event':'Rest or upgrade'}</small></span></button>)}</div></section>}
  {run.screen==='rewards'&&reward&&<section className="run-panel">
   <span className="scene-emblem">✦</span><h1>Clearing complete</h1>
   <div className="reward-pickups">

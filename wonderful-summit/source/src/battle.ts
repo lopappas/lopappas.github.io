@@ -1,5 +1,5 @@
 import type {PlayerDrawing} from './drawings.ts';
-import {power,knockback,SPELLS,type SpellId,type Element} from './magic.ts';
+import {power,knockback,SPELLS,isUpgradableSpell,type SpellId,type Element} from './magic.ts';
 import {woodenShield,shieldProtection,igniteShield,updateShield,type EnemyShield} from './shields.ts';
 export const PLAYER_MAX_HP=100,SLIME_MAX_HP=100;
 export const CONTACT_X=325,SLIME_START_X=580,SLIME_SPEED=18;
@@ -49,8 +49,8 @@ export function elementalMatchup(element:Element,target:Enemy['element']){
  return{damage:1.5,knockback:1,immuneEffects:false};
 }
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
-export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='chronos')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='wave'?.9:spellId==='leaf'?.75:1;return Math.round(power(quality)*factor*damageBonus*(1+Math.max(0,Math.min(1,upgrade))*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time));}
-export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0){if(spellId==='chronos')return 0;const base=spellId==='wave'&&quality>=48&&quality<60?40+14*(quality-48)/11:knockback(quality)*(spellId==='wave'?1.7:spellId==='bolt'?.65:1);return shieldProtection(shield,time)*rockyDefense(rocky,quality).knockback*base*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
+export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='chronos')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='wave'?.9:spellId==='leaf'?.75:1;return Math.round((spellId==='ender'?(Number.isFinite(quality)&&quality>=48?1000:0):power(quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)?Math.max(0,Math.min(1,upgrade)):0)*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time));}
+export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0){if(spellId==='chronos'||spellId==='ender')return 0;const base=spellId==='wave'&&quality>=48&&quality<60?40+14*(quality-48)/11:knockback(quality)*(spellId==='wave'?1.7:spellId==='bolt'?.65:1);return shieldProtection(shield,time)*rockyDefense(rocky,quality).knockback*base*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 export function eliteRush(e:Enemy){if(e.kind!=='goblin')return 'none';const cycle=e.clock%10;return cycle>=6&&cycle<7?'warning':cycle>=7&&cycle<9?'rush':'none';}
 export function chronosEffect(quality:number,upgrade=0){
  if(!Number.isFinite(quality)||quality<48)return{kind:'slow' as const,duration:0};
@@ -75,7 +75,7 @@ export function midnightBonus(inkUsed:number){
 }
 export function fizzleSpell(state:Battle):Battle{return state.phase==='active'&&state.furyReady?{...state,furyReady:false}:state;}
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random,damageMultiplier=1,inkUsed=0):Battle{
- if(state.phase!=='active')return state;
+ if(state.phase!=='active'||spellId==='ender'&&(!Number.isFinite(quality)||quality<48))return state;
  if(spellId==='chronos'){
   const effect=chronosEffect(quality,state.upgrades.chronos??0);if(!effect.duration)return state;
   const live=new Set(presentEnemies(state).map(e=>e.id));if(!live.size)return state;
@@ -97,7 +97,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   const shield=igniteShield(updateShield(e.shield,state.time),element,q,state.time),shieldBurning=(shield?.burnUntil??0)>state.time;
   // Sun adds 30% of the resisted direct hit over three seconds, alongside Flare Bolt's burn.
   const burnTick=(spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier:0)+(steady&&element==='Fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0);
-  return{...e,shield,hp:Math.max(0,e.hp-damage),push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,state.pushBonus*(moon?1.15:1),e.element,e.rocky,e.shield,state.time)*(e.kind==='mother'?.8:1)),started:state.time,ends:state.time+PUSH_DURATION},attackAt:!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q).duration,amount:brambleEffect(q).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
+  return{...e,shield,hp:Math.max(0,e.hp-damage),push:spellId==='ender'?e.push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,state.pushBonus*(moon?1.15:1),e.element,e.rocky,e.shield,state.time)*(e.kind==='mother'?.8:1)),started:state.time,ends:state.time+PUSH_DURATION},attackAt:spellId==='ender'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q).duration,amount:brambleEffect(q).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
  });
  return resolveMother({...state,enemies,casts:state.casts+1});
 }

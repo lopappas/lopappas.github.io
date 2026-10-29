@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {newBattle,hitWithSpell,chronosEffect,spellDamage} from '../src/battle.ts';
 import {chronosAffected,chronosVisuals,enemyStatusLabel} from '../src/timeVisuals.ts';
 import {newRun,camp} from '../src/run.ts';
-import {SPELLS} from '../src/magic.ts';
+import {PLAYER_SPELLS,SPELLS} from '../src/magic.ts';
 import {spellName,spellUpgradePreview} from '../src/spellbook.ts';
 test('weak Chronos flashes small and grayscales affected enemies only, for the actual slow duration',()=>{
  for(const q of [48,59,60,69]){
@@ -29,8 +29,8 @@ test('Chronos visuals do not suppress unrelated burn/freeze cues, and leaf Slow 
  b.enemies[0].burn={damage:2,nextTick:3,ticks:3};assert.equal(enemyStatusLabel(b.enemies[0],b),'Burn');
  b.freezeUntil=4;assert.equal(enemyStatusLabel(b.enemies[0],b),'❄');
 });
-test('every spell can be upgraded once; legacy second levels cannot increase effects or add a second plus',()=>{
- for(const spell of SPELLS){
+test('every natural spell can be upgraded once; legacy second levels cannot increase effects or add a second plus',()=>{
+ for(const spell of PLAYER_SPELLS){
   const run={...newRun(),screen:'camp' as const,spells:SPELLS.map(s=>s.id)},first=camp(run,spell.id),secondCamp={...first,campUsed:false};
   assert.equal(first.upgrades[spell.id],1);assert.equal(camp(secondCamp,spell.id),secondCamp);assert.equal(spellUpgradePreview(spell.id,1),null);assert.equal(spellName(spell.id,2),spell.name+'+');
   assert.equal(spellDamage({element:'Neutral'},80,spell.id,1,2),spellDamage({element:'Neutral'},80,spell.id,1,1));

@@ -234,3 +234,5 @@
 @media(prefers-reduced-motion:reduce){.menu-scene .menu-title,.menu-title.grade-wonderful .grade-letter{animation:none!important}}
 
 .run-stats>.run-stat{min-width:0;text-align:center;white-space:nowrap;font-size:clamp(10px,3.5vw,13px)}.run-potions-inline>.inventory-potion-slots{flex-wrap:nowrap}.run-app .topbar .brand,.bottle-capture .topbar .brand{font-size:clamp(14px,4vw,18px)}
+
+.run-stats>.run-stat:first-child{justify-self:start;text-align:left}.run-stats>.run-stat:last-child{justify-self:end;text-align:right}

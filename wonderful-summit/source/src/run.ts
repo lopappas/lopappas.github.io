@@ -1,6 +1,6 @@
 import {rollTrailEvent,forgottenCampsiteOutcome,type TrailEventState} from './events.ts';
 import {bestDrawing,type PlayerDrawing} from './drawings.ts';
-import {SPELLS,type SpellId} from './magic.ts';
+import {SPELLS,PLAYER_SPELLS,isUpgradableSpell,type SpellId} from './magic.ts';
 import {newBattle,COMMON_POTIONS,RARE_POTIONS,potionPrice,rollRewardPotion,POTION_IDS,type BottledSpell,type PotionCounts,type Battle,type Potion,type Encounter} from './battle.ts';
 export type RelicId='amber'|'moss'|'feather'|'bell'|'moon'|'sunAmulet'|'moonAmulet'|'twilightAmulet'|'twillyScarf'|'birkinStock'|'midnightStone'|'lotus'|'colorfulRock'|'impossibleShale';
 export const RELICS:Record<RelicId,{name:string;icon:string;description:string}>={lotus:{name:'Blooming Lotus',icon:'❀',description:'Your first offensive spell each combat deals 30% extra damage.'},colorfulRock:{name:'Colorful Rock',icon:'◈',description:'Spells deal 15% more damage when their element differs from your last played spell.'},impossibleShale:{name:'Impossible Shale',icon:'⬢',description:'Attackers are permanently cursed, taking 5 damage each second. Breaks after 3 contacts.'},midnightStone:{name:'Midnight stone',icon:'⬟',description:'This dark stone reacts to ink, giving spells more power the more ink used.'},amber:{name:"Madora’s Earring",icon:'◆',description:'Spells deal 15% more direct damage.'},moss:{name:'Moss Locket',icon:'❧',description:'Recover 12 health after every victory.'},feather:{name:'Heirloom inkwell',icon:'⌁',description:'Drawing consumes 20% less ink.'},bell:{name:'Glass Bell',icon:'♧',description:'The first enemy to hit you each battle is pushed back an extra 80 units.'},moon:{name:'Gravity Needle',icon:'☾',description:'All knockback increases by 15%.'},sunAmulet:{name:'Sun Amulet',icon:'☀',description:'Steady or better Fire spells deal an additional 30% of hit damage as burn over 3 seconds. Fire enemies cannot be burned.'},moonAmulet:{name:'Moon Amulet',icon:'☽',description:'Steady or better Water spells deal 15% more damage and knockback. Elemental resistances still apply.'},twilightAmulet:{name:'Twilight Amulet',icon:'✺',description:'Steady or better Nature spells deal 15% more damage and have a 50% chance to root enemies for 1.5 seconds. Nature enemies are immune to roots.'},twillyScarf:{name:"Belladora's Twilly Scarf",icon:'⋈',description:'Every combat victory offers a potion reward.'},birkinStock:{name:'Birkin-stock',icon:'▣',description:'Belladora holds 2 additional potions. Each potion takes its own slot, for a total capacity of 5.'}};
@@ -11,8 +11,8 @@ export function isEliteNode(node:number){const entry=ROUTE[node];return !!entry&
 export type RunScreen='opening'|'menu'|'tutorial'|'sister'|'map'|'battle'|'rewards'|'shop'|'camp'|'event'|'complete'|'defeat';
 export type Stock={id:string;kind:'spell'|'potion'|'relic';item:SpellId|Potion|RelicId;price:number;sold:boolean};
 export type Reward={gold:number;potion:Potion|null;offers:SpellId[];relic:RelicId|null;goldClaimed:boolean;potionStatus:'pending'|'collected'|'skipped';relicClaimed:boolean;learned:SpellId|null};
-export type Run={event:TrailEventState|null;bestDrawing:PlayerDrawing|null;shaleContacts:number;screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
-export function newRun():Run{return{event:null,bestDrawing:null,shaleContacts:0,screen:'opening',node:0,health:100,gold:0,combats:0,spells:[...BEGINNER_SPELLS],upgrades:{},relics:[],potions:{heal:1,freeze:0,ink:0},bottledSpells:[],pendingBottle:false,furyReady:false,reward:null,stock:[],campUsed:false};}
+export type Run={developerTrailUnlocked:boolean;event:TrailEventState|null;bestDrawing:PlayerDrawing|null;shaleContacts:number;screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
+export function newRun():Run{return{developerTrailUnlocked:false,event:null,bestDrawing:null,shaleContacts:0,screen:'opening',node:0,health:100,gold:0,combats:0,spells:[...BEGINNER_SPELLS],upgrades:{},relics:[],potions:{heal:1,freeze:0,ink:0},bottledSpells:[],pendingBottle:false,furyReady:false,reward:null,stock:[],campUsed:false};}
 export function finishOpening(run:Run):Run{return run.screen==='opening'?{...run,screen:'menu'}:run;}
 export function selectMode(run:Run,mode:'new'|'tutorial'):Run{return run.screen==='menu'?{...newRun(),screen:mode==='new'?'sister':'tutorial'}:run;}
 export function returnToMenu():Run{return{...newRun(),screen:'menu'};}
@@ -28,7 +28,7 @@ export function enterNode(run:Run,random:()=>number=Math.random):Run{
  if(node.kind==='battle')return{...run,screen:'battle'};
  if(node.kind==='event')return{...run,screen:'event',event:rollTrailEvent(random),campUsed:false};
  if(node.kind==='camp')return{...run,screen:'camp',campUsed:false};
- const allSpells=SPELLS.map(s=>s.id),allRelics=(Object.keys(RELICS) as RelicId[]).filter(id=>!STARTER_RELICS.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));
+ const allSpells=PLAYER_SPELLS.map(s=>s.id),allRelics=(Object.keys(RELICS) as RelicId[]).filter(id=>!STARTER_RELICS.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));
  // Prefer unowned items, but keep the six-card layout when a collection is complete.
  const chooseTwo=<T,>(all:T[],unowned:T[])=>{const result:T[]=[];while(result.length<2){const preferred=unowned.filter(x=>!result.includes(x)),pool=preferred.length?preferred:all.filter(x=>!result.includes(x));result.push(pick(pool,random));}return result;};
  const stock:Stock[]=[pick(COMMON_POTIONS,random),pick(RARE_POTIONS,random)].map(item=>({id:`potion-${item}`,kind:'potion',item,price:potionPrice(item),sold:false}));
@@ -50,7 +50,7 @@ export function finishBattle(run:Run,battle:Battle,random:()=>number=Math.random
  if(battle.phase==='defeat')return{...carried,screen:'defeat'};
  const combats=run.combats+1,gold=isEliteNode(run.node)?40:run.node>=5?35:run.node===1?30:25;
  const potion=(run.relics.includes('twillyScarf')||random()<.35)?rollRewardPotion(random):null;
- const unknown=SPELLS.filter(s=>!run.spells.includes(s.id)).map(s=>s.id),offers:SpellId[]=[];
+ const unknown=PLAYER_SPELLS.filter(s=>!run.spells.includes(s.id)).map(s=>s.id),offers:SpellId[]=[];
  if(combats%2===0)for(let i=0;i<3&&unknown.length;i++){const id=pick(unknown,random);unknown.splice(unknown.indexOf(id),1);offers.push(id);}
  const available=(Object.keys(RELICS) as RelicId[]).filter(id=>!STARTER_RELICS.includes(id)&&!run.relics.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));const relic=isEliteNode(run.node)&&available.length?pick(available,random):null;
  return{...carried,screen:'rewards',combats,health:Math.min(100,battle.playerHP+(run.relics.includes('moss')?12:0)),reward:{gold,potion,offers,relic,goldClaimed:false,potionStatus:potion?'pending':'skipped',relicClaimed:!relic,learned:null}};
@@ -97,7 +97,7 @@ export function drinkTrailHealing(run:Run):Run{
  if(run.screen!=='map'||run.pendingBottle||run.health<=0||run.health>=100||run.potions.heal<1)return run;
  return{...run,health:Math.min(100,run.health+30),potions:{...run.potions,heal:run.potions.heal-1}};
 }
-export function camp(run:Run,spell?:SpellId):Run{if(run.pendingBottle||!(run.screen==='camp'||run.screen==='event'&&run.event?.outcome==='lit')||run.campUsed||spell&&!run.spells.includes(spell))return run;
+export function camp(run:Run,spell?:SpellId):Run{if(run.pendingBottle||!(run.screen==='camp'||run.screen==='event'&&run.event?.outcome==='lit')||run.campUsed||spell&&(!run.spells.includes(spell)||!isUpgradableSpell(spell)))return run;
  if(spell&&((run.upgrades[spell]??0)>=1))return run;
  return spell?{...run,campUsed:true,upgrades:{...run.upgrades,[spell]:(run.upgrades[spell]??0)+1}}:{...run,campUsed:true,health:Math.min(100,run.health+70)};
 }
@@ -113,4 +113,10 @@ export function castTrailEvent(run:Run,spellId:SpellId|null,quality:number,drawi
  if(run.pendingBottle||run.screen!=='event'||!run.event||run.event.outcome!=='pending')return run;
  const known=spellId&&run.spells.includes(spellId)?spellId:null;
  return{...run,event:{...run.event,outcome:forgottenCampsiteOutcome(known,quality),quality:Math.max(0,Math.min(100,Number.isFinite(quality)?quality:0))},bestDrawing:bestDrawing(run.bestDrawing,drawing)};
+}
+
+export function unlockDeveloperTrail(run:Run):Run{return run.screen==='map'&&!run.pendingBottle&&!run.developerTrailUnlocked?{...run,developerTrailUnlocked:true}:run;}
+export function selectTrailNode(run:Run,node:number,random:()=>number=Math.random):Run{
+ if(run.screen!=='map'||run.pendingBottle||!Number.isInteger(node)||node<0||node>=ROUTE.length||node!==run.node&&!run.developerTrailUnlocked)return run;
+ return enterNode({...run,node},random);
 }

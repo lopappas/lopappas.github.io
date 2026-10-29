@@ -5,7 +5,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {TargetCaret} from '../src/TargetCaret.ts';
 import {midnightBonus,newBattle,hitWithSpell,launchSpell,stepBattle,fizzleSpell,drinkPotion,presentEnemies,enemyElementColor,spellDamage} from '../src/battle.ts';
 import {newRun,battleForRun,finishBattle,RELICS,enterNode,camp,sealBottle} from '../src/run.ts';
-import {SPELLS,inkCost} from '../src/magic.ts';
+import {SPELLS,PLAYER_SPELLS,inkCost} from '../src/magic.ts';
 import {soundSamples,SOUND_RATE} from '../src/sound.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 test('Midnight Stone follows every ink threshold, using a maximum of 25 flat damage',()=>{
@@ -37,7 +37,7 @@ test('Fury is spent by completed fizzles and non-damaging spells; cancellations 
 });
 test('every second combat offers three distinct unknown spells, or all remaining spells when fewer exist',()=>{
  for(const combats of [0,1,2,3,5,7])for(const remaining of [0,1,2,3,4]){
-  const r={...newRun(),screen:'battle' as const,combats,spells:SPELLS.slice(0,SPELLS.length-remaining).map(s=>s.id)},b={...battleForRun(r),phase:'victory' as const};const reward=finishBattle(r,b,()=>.4).reward!;assert.equal(reward.offers.length,(combats+1)%2===0?Math.min(3,remaining):0);assert.equal(new Set(reward.offers).size,reward.offers.length);assert.ok(reward.offers.every(s=>!r.spells.includes(s)));
+  const r={...newRun(),screen:'battle' as const,combats,spells:PLAYER_SPELLS.slice(0,PLAYER_SPELLS.length-remaining).map(s=>s.id)},b={...battleForRun(r),phase:'victory' as const};const reward=finishBattle(r,b,()=>.4).reward!;assert.equal(reward.offers.length,(combats+1)%2===0?Math.min(3,remaining):0);assert.equal(new Set(reward.offers).size,reward.offers.length);assert.ok(reward.offers.every(s=>!r.spells.includes(s)));
  }
 });
 test('both camps restore 70 HP capped at 100 and the cozy rest jingle is bounded',()=>{

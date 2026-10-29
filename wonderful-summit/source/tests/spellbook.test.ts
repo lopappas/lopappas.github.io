@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {spellbookColumns,spellName,spellUpgradePreview} from '../src/spellbook.ts';
-import {SPELLS,type SpellId} from '../src/magic.ts';
+import {SPELLS,PLAYER_SPELLS,type SpellId} from '../src/magic.ts';
 import {newRun,camp,battleForRun,type Run} from '../src/run.ts';
 import {hitWithSpell} from '../src/battle.ts';
 
@@ -18,7 +18,7 @@ test('travel and combat books can show only known spells without duplicating ent
 });
 
 test('upgrade previews preserve the campsite choice until confirmation and match actual battle damage',()=>{
- for(const spell of SPELLS.filter(s=>s.id!=='chronos'))for(const level of [0])for(const amber of [false,true]){
+ for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'))for(const level of [0])for(const amber of [false,true]){
   const run:Run={...newRun(),screen:'camp',node:4,health:27,spells:SPELLS.map(s=>s.id),relics:amber?['amber']:[],upgrades:{[spell.id]:level}};
   const before=structuredClone(run),preview=spellUpgradePreview(spell.id,level,amber?1.15:1)!;
   assert.deepEqual(run,before);assert.equal(run.campUsed,false);
