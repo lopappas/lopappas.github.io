@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {HoldGesture} from '../src/holdGesture.ts';
 import {applyDeveloperCommand,parseDeveloperCommand} from '../src/developerCommands.ts';
-import {newRun,RELICS,enterNode,finishBattle,type RelicId} from '../src/run.ts';
+import {newRun,RELICS,enterNode,finishBattle,STARTER_RELICS,type RelicId} from '../src/run.ts';
 import {newBattle} from '../src/battle.ts';
 test('local developer grants validate spell and relic IDs without requiring a network identity',()=>{
  for(const command of [{type:'gold'},{type:'spell',id:'wave'},{type:'relic',id:'twillyScarf'},{type:'relic',id:'birkinStock'}])assert.deepEqual(parseDeveloperCommand(command),command);
@@ -19,5 +19,5 @@ test('three-second hold fires once and consumes click; short and cancelled holds
 });
 test('ordinary shop and elite random rolls can select both new relics without excluding other relics',()=>{
  const shop=new Set<string>(),elite=new Set<string>();for(let i=0;i<100;i++){const random=()=>i/100;const stock=enterNode({...newRun(),screen:'map',node:2},random).stock;for(const item of stock)if(item.kind==='relic')shop.add(item.item);const reward=finishBattle({...newRun(),screen:'battle',node:3},{...newBattle('active'),phase:'victory'},random).reward;if(reward?.relic)elite.add(reward.relic);}
- for(const id of Object.keys(RELICS) as RelicId[]){assert.ok(shop.has(id),id+' in shop');assert.ok(elite.has(id),id+' in elite rewards');}
+ for(const id of Object.keys(RELICS) as RelicId[]){if(STARTER_RELICS.includes(id)){assert.ok(!shop.has(id));assert.ok(!elite.has(id));}else{assert.ok(shop.has(id),id+' in shop');assert.ok(elite.has(id),id+' in elite rewards');}}
 });

@@ -7,6 +7,7 @@ export function EnemyEffects({enemy,time}:{enemy:Enemy;time:number}){
  const rooted=enemy.rootUntil>time,growth=Math.min(1,Math.max(0,(1.5-enemy.rootUntil+time)/.25));
  return <PaletteGroup pointerEvents="none">
 
+  {enemy.curseTick!==null&&<g aria-label="Cursed enemy" opacity=".8"><ellipse cy="19" rx="34" ry="7" fill="none" stroke="#b393d9" strokeWidth="3" strokeDasharray="9 7"/><path d="m-23-40 4-7 4 7-4 7zM20-55l4-7 4 7-4 7z" fill="#b393d9"/></g>}
   {enemy.burn&&<g aria-label="Burning enemy">{Array.from({length:7},(_,i)=>{
    const t=(time*.95+i/7)%1,x=-25+i*8+Math.sin(t*6+i)*5,y=12-t*70;
    return <g key={i} transform={`translate(${x} ${y}) scale(${1-t*.65})`} opacity={Math.sin(t*Math.PI)*.95}>

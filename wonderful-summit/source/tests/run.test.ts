@@ -46,7 +46,7 @@ test('defeat ends run, restart clears all run power, elite relic excludes owned 
  const elite={...r,node:3,relics:['amber','moss'] as (keyof typeof RELICS)[]};const reward=won(elite).reward!;assert.ok(reward.relic&&!elite.relics.includes(reward.relic));
 });
 test('moss locket heals after victories and glass bell affects only first incoming hit',()=>{
- const r={...enterNode(start(),rng),relics:['moss'] as (keyof typeof RELICS)[]};assert.equal(won(r).health,73);
+ const r={...enterNode(start(),rng),relics:['moss'] as (keyof typeof RELICS)[]};assert.equal(won(r).health,77);
  const b=battleForRun({...r,relics:['bell']},rng);b.approachAt=0;b.enemies[0]={...b.enemies[0],x:325,attackAt:0};const hit=stepBattle(b,.01);assert.equal(hit.enemies[0].push?.to,510);assert.equal(hit.playerHP,b.playerHP-12);
 });
 

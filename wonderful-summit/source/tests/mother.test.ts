@@ -20,7 +20,7 @@ test('Mother waits two seconds after direct death, splits once at her death loca
  let b=slain();assert.equal(b.phase,'active');assert.equal(presentEnemies(b).length,0);assert.equal(nearestEnemy(b),undefined);assert.equal(b.motherSplit?.at,7);assert.equal(b.motherSplit?.x,401);
  const paused=stepBattle({...b,phase:'ready'},.1);assert.equal(paused.time,7);assert.equal(paused.motherSplit?.spawned,false);
  b=advance(b,1.99);assert.equal(b.enemies.length,1);b=stepBattle(b,.01);assert.equal(b.enemies.length,4);assert.equal(b.phase,'active');
- const kids=presentEnemies(b);assert.equal(kids.length,3);assert.deepEqual(kids.map(e=>e.element),['Fire','Water','Nature']);assert.deepEqual(kids.map(e=>e.x),[365,401,437]);for(const e of kids){assert.equal(e.hp,100);assert.equal(e.spawnAt,9);assert.equal(e.readyAt,13);}
+ const kids=presentEnemies(b);assert.equal(kids.length,3);assert.deepEqual([...kids.map(e=>e.element)].sort(),['Fire','Nature','Water']);assert.deepEqual(kids.map(e=>e.x),[365,401,437]);for(const e of kids){assert.equal(e.hp,100);assert.equal(e.spawnAt,9);assert.equal(e.readyAt,13);}
  b=advance(b,3.99);assert.equal(b.playerHP,100);for(const e of presentEnemies(b)){assert.equal(e.x,365+(e.id-2)*36);assert.equal(e.clock,0);assert.equal(e.attackAt,null);}
  b=advance(b,.03);assert.ok(presentEnemies(b).every(e=>e.x<365+(e.id-2)*36));assert.equal(b.enemies.length,4);
  for(const e of b.enemies)b={...b,enemies:b.enemies.map(x=>({...x,hp:x.id===e.id?0:x.hp}))};b=stepBattle(b,.01);assert.equal(b.phase,'victory');

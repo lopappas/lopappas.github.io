@@ -1,0 +1,8 @@
+import React,{useId,useRef} from 'react';
+import {SPELLS,grade} from './magic';
+import type {BottledSpell} from './battle';
+import {SpellGrade} from './SpellGrade';
+export function BottleReveal({bottle,onReady}:{bottle:BottledSpell;onReady:()=>void}){
+ const id=useId().replace(/:/g,''),finished=useRef(false),spell=SPELLS.find(s=>s.id===bottle.spellId),color=spell?.color??'#bca6ca';
+ return <main className="app bottle-reveal"><h1 style={{color}}>{spell?.name??'Spell in a bottle'}</h1><svg viewBox="0 0 180 225" role="img" aria-label={spell?`${spell.name} sigil sealed inside a bottle`:'A fizzled spell sealed inside a bottle'}><defs><clipPath id={id}><path d="M57 83h66l27 29v71q-60 30-120 0v-71z"/></clipPath></defs><path d="M65 18h50v35H65z" fill="#b49264" stroke="#4b423b" strokeWidth="4"/><path d="M61 48h58v35l34 31v73q-63 35-126 0v-73l34-31z" fill="#c2cfe1" fillOpacity=".2" stroke="#dfd9e6" strokeWidth="4"/><path d="M34 139q52-17 112 0v42q-56 28-112 0z" fill={color} opacity=".22"/><path d="M42 112v52M67 60v21" stroke="#fff6e5" strokeWidth="5" strokeLinecap="round" opacity=".6"/><g clipPath={`url(#${id})`}><g className="sealed-sigil" style={{color}}>{spell?<svg x="48" y="100" width="84" height="84" viewBox="0 0 100 100"><path pathLength="1" d={spell.path} fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/></svg>:<text x="90" y="150" textAnchor="middle" fill={color} fontSize="32">✧</text>}</g></g></svg><SpellGrade label={spell?grade(bottle.quality):'Fizzle'}/><small>{bottle.quality}%</small><button autoFocus className="primary-small" onClick={()=>{if(finished.current)return;finished.current=true;onReady();}}>Ready</button></main>;
+}

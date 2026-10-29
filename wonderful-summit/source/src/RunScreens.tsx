@@ -36,7 +36,7 @@ function stockOwned(run:Run,s:Stock){return s.kind==='spell'?run.spells.includes
 function stockName(s:Stock){return s.kind==='spell'?SPELLS.find(x=>x.id===s.item)!.name:s.kind==='potion'?`${POTIONS[s.item as Potion].name}${s.item==='spellBottle'?'':' potion'}`:RELICS[s.item as RelicId].name;}
 export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  const [run,setRun]=useState<Run>(()=>newRun()),[relic,setRelic]=useState<RelicId>('amber'),[replacingPotion,setReplacingPotion]=useState(false);
- useDeveloperTarget(command=>setRun(r=>applyDeveloperCommand(r,command)));
+ useDeveloperTarget(command=>{const next=applyDeveloperCommand(run,command);setRun(next);if(next===run&&command.type==='potion')return 'Purse is full.';});
  const contentRef=useRef<HTMLDivElement>(null);
  const update=(fn:(r:Run)=>Run,sound?:UISound)=>{const next=fn(run);if(next===run)return;setRun(next);if(sound)playUISound(sound);};
  useEffect(()=>installSpellAudio(),[]);
@@ -54,7 +54,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  if(run.screen==='opening')return <main className="app opening-shell"><div className="opening-book-access"><TravelSpellbook known={run.spells} upgrades={run.upgrades}/></div><Opening onStart={()=>update(finishOpening)}/></main>;
  if(run.screen==='menu')return <main className="app main-menu"><header className="topbar"><span className="brand">☾ Wonderful Summit</span><TravelSpellbook known={run.spells} upgrades={run.upgrades}/></header><div className="menu-scene"><span className="menu-moon" aria-hidden="true">☾</span><h1>Wonderful<br/><strong>Summit</strong></h1><TitleMountain/></div><footer className="screen-confirmation menu-actions"><button className="primary-small" onClick={()=>{setRelic('amber');update(r=>selectMode(r,'new'));}}>New game</button><button className="secondary-button" onClick={()=>update(r=>selectMode(r,'tutorial'))}>Tutorial</button></footer></main>;
  if(run.screen==='tutorial')return <TutorialSession Combat={Combat} onExit={()=>update(()=>returnToMenu())}/>;
- if(run.screen==='battle')return <Combat key={run.node} journey={run} onFinish={battle=>update(r=>finishBattle(r,battle))}/>;
+ if(run.screen==='battle')return <Combat key={run.node} journey={run} onDeveloperCommand={command=>setRun(r=>applyDeveloperCommand(r,command))} onFinish={battle=>update(r=>finishBattle(r,battle))}/>;
  const reward=run.reward;
  const confirmation=run.screen==='sister'?{label:'Begin the climb',disabled:false,action:()=>update(r=>startRun(r,relic))}
   :run.screen==='shop'?{label:'Continue',disabled:false,action:()=>update(leaveNode)}
