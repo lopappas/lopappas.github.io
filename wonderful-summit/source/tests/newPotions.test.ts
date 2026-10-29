@@ -7,11 +7,11 @@ function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Ma
 function shop(){return {...newRun(),screen:'shop' as const,gold:100,stock:[{id:'bottle',kind:'potion' as const,item:'spellBottle' as const,price:12,sold:false}]};}
 test('second merchant and a fresh Mossy grove campsite sit between barricade and boss',()=>{
  assert.deepEqual(ROUTE.slice(-4).map(n=>n.name),['Woodland barricade','Sea Merchant','Mossy grove campsite','Slime Mother']);
- assert.equal(merchantDialogue(8),"I'm saving money to buy a cozy sweater for winter. How are you staying warm?");
- const r=enterNode({...newRun(),screen:'map',node:9,campUsed:true,health:13});assert.equal(r.campUsed,false);assert.equal(camp(r).health,83);assert.equal(leaveNode(camp(r)).node,10);
+ assert.equal(merchantDialogue(ROUTE.findLastIndex(n=>n.kind==='shop')),"I'm saving money to buy a cozy sweater for winter. How are you staying warm?");
+ const node=ROUTE.findIndex(n=>n.name==='Mossy grove campsite');const r=enterNode({...newRun(),screen:'map',node,campUsed:true,health:13});assert.equal(r.campUsed,false);assert.equal(camp(r).health,83);assert.equal(leaveNode(camp(r)).node,node+1);
 });
 test('both shops replace unavailable spell slots with extra potions while keeping six unique stock entries',()=>{
- for(const node of [2,8])for(const missing of [0,1,2,4])for(const roll of [0,.4,.99]){
+ for(const node of ROUTE.flatMap((n,i)=>n.kind==='shop'?[i]:[]))for(const missing of [0,1,2,4])for(const roll of [0,.4,.99]){
   const known=SPELLS.slice(0,SPELLS.length-missing).map(s=>s.id),r=enterNode({...newRun(),screen:'map',node,spells:known},()=>roll);
   assert.equal(r.stock.length,6);assert.equal(new Set(r.stock.map(s=>s.id)).size,6);assert.equal(r.stock.filter(s=>s.kind==='relic').length,2);assert.equal(r.stock.filter(s=>s.kind==='spell').length,Math.min(missing,2));assert.equal(r.stock.filter(s=>s.kind==='potion').length,4-Math.min(missing,2));assert.ok(r.stock.filter(s=>s.kind==='spell').every(s=>!known.includes(s.item as any)));
  }

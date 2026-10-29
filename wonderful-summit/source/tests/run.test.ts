@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {newRun,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,camp,potionCount,battleForRun,RELICS,discardPotion,skipRewardPotion,type Run} from '../src/run.ts';
+import {ROUTE,newRun,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,camp,potionCount,battleForRun,RELICS,discardPotion,skipRewardPotion,type Run} from '../src/run.ts';
 import {SPELLS,isCheckmark,recognize,type SpellId} from '../src/magic.ts';
 import {hitWithSpell,stepBattle,launchSpell,nearestEnemy,targetedEnemy,presentEnemies,drinkPotion} from '../src/battle.ts';
 const rng=()=>.1;
@@ -17,11 +17,11 @@ test('every run starts with all three beginner spells and a valid starter relic'
 test('unlearned sigils do not cast, and learned spells remain recognizable',()=>{assert.equal(recognize(SPELLS[1].strokes,['fire']).spell?.id,'fire');assert.equal(recognize(SPELLS[3].strokes,['fire']).spell,null);});
 test('complete route has seven combats, merchant, camp and final victory',()=>{
  let r=start();const screens:string[]=[];
- for(let i=0;i<11;i++){
+ for(let i=0;i<ROUTE.length;i++){
   r=enterNode(r,rng);screens.push(r.screen);
-  if(r.screen==='battle')r=collect(won(r));else if(r.screen==='shop')r=leaveNode(r);else r=leaveNode(camp(r));
+  if(r.screen==='battle')r=collect(won(r));else if(r.screen==='shop'||r.screen==='event')r=leaveNode(r);else r=leaveNode(camp(r));
  }
- assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,240);assert.equal(r.relics.length,3);assert.equal(r.spells.length,6);
+ assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,240);assert.equal(r.relics.length,3);assert.equal(r.spells.length,6);
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,25);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
