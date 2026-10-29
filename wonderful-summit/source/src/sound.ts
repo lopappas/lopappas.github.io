@@ -1,3 +1,4 @@
+import {audioPreferences,audioChannelVolume,loadAudioPreferences} from './audioPreferences.ts';
 import type {Element} from './magic';
 
 export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start';
@@ -82,6 +83,8 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  let context:AudioContext|null=null,primed:AudioContext|null=null;
  let recycleOnGesture=false,needsWakeCycle=false,waking:AudioContext|null=null;
  const buffers=new Map<SoundKind,AudioBuffer>();
+ const activeGains=new Map<GainNode,number>();
+ function refreshVolume(){for(const [gain,base] of activeGains)gain.gain.value=base*audioChannelVolume('effects');}
  const visible=()=>environment.isVisible();
  function resume(ctx:AudioContext){if(ctx===context&&visible()&&ctx.state!=='running'&&ctx.state!=='closed')void ctx.resume().catch(()=>{});}
  function wake(){
@@ -108,7 +111,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
     // Create and prime the replacement synchronously within this user gesture.
     const previous=context,next=environment.createContext();
     if(next){
-     context=next;primed=null;buffers.clear();recycleOnGesture=false;needsWakeCycle=false;waking=null;
+     context=next;primed=null;buffers.clear();activeGains.clear();recycleOnGesture=false;needsWakeCycle=false;waking=null;
      next.onstatechange=()=>{if(next!==context)return;if(String(next.state)==='interrupted')recycleOnGesture=true;wake();};
      if(previous){previous.onstatechange=null;try{if(previous.state!=='closed')void previous.close().catch(()=>{});}catch{}}
     }
@@ -127,9 +130,10 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   let buffer=buffers.get(kind);
   if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
   const source=ctx.createBufferSource(),gain=ctx.createGain();
-  source.buffer=buffer;gain.gain.value=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:castVolume(quality);
+  source.buffer=buffer;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:castVolume(quality);
+  gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);
   source.connect(gain);gain.connect(ctx.destination);
-  source.onended=()=>{source.disconnect();gain.disconnect();};source.start();
+  source.onended=()=>{activeGains.delete(gain);source.disconnect();gain.disconnect();};source.start();
  }
  function play(kind:SoundKind,quality:number){
   try{
@@ -141,15 +145,17 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
    void ctx.resume().then(()=>{if(environment.now()-requested<=250)playNow(ctx,kind,quality);}).catch(()=>{});
   }catch{/* Do not interrupt game state if audio is blocked. */}
  }
- return{unlock,wake,sleep,play};
+ return{unlock,wake,sleep,play,refreshVolume};
 }
 const spellAudio=createSpellAudio();
+audioPreferences.subscribe(spellAudio.refreshVolume);
 export function unlockSpellAudio(){spellAudio.unlock();}
 export function playSpellSound(kind:SoundKind,quality:number){spellAudio.play(kind,quality);}
 
 export function playUISound(kind:UISound){spellAudio.unlock();spellAudio.play(kind,0);}
 
 export function installSpellAudio(){
+ loadAudioPreferences();
  // Native capture listeners run before React handlers and cover the opening
  // checkmark, menu choices, drawing, potions and keyboard activation alike.
  const gestures=['pointerdown','touchend','click','keydown'];

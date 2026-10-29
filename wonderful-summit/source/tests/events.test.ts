@@ -45,3 +45,9 @@ test('event uses normal recognition and preserves the actual successful drawing 
  const strokes=SPELLS.find(s=>s.id==='fire')!.strokes.map(s=>s.map(p=>({x:p.x*2+30,y:p.y*2+12}))),r=visit(),match=recognize(strokes,r.spells);assert.equal(match.spell?.id,'fire');
  const drawing=snapshotDrawing(match.spell!.id,match.quality,strokes,300,240),lit=castTrailEvent(r,match.spell!.id,match.quality,drawing);assert.equal(lit.event?.outcome,'lit');assert.deepEqual(lit.bestDrawing?.strokes,strokes);assert.equal(lit.bestDrawing?.width,300);
 });
+
+
+test('the event retains quality for successful, weak, non-fire and fizzled attempts',()=>{
+ for(const [id,quality] of [['fire',65],['fire',64],['fire',59],['water',93],[null,37],[null,0]] as const){const r=castTrailEvent(visit(),id,quality);assert.equal(r.event?.quality,quality);assert.equal(castTrailEvent(r,'fire',100).event?.quality,quality);}
+ assert.equal(castTrailEvent(visit(),null,NaN).event?.quality,0);
+});

@@ -108,5 +108,5 @@ export function merchantDialogue(node:number){return node>7?"I'm saving money to
 export function castTrailEvent(run:Run,spellId:SpellId|null,quality:number,drawing?:PlayerDrawing):Run{
  if(run.pendingBottle||run.screen!=='event'||!run.event||run.event.outcome!=='pending')return run;
  const known=spellId&&run.spells.includes(spellId)?spellId:null;
- return{...run,event:{...run.event,outcome:forgottenCampsiteOutcome(known,quality)},bestDrawing:bestDrawing(run.bestDrawing,drawing)};
+ return{...run,event:{...run.event,outcome:forgottenCampsiteOutcome(known,quality),quality:Math.max(0,Math.min(100,Number.isFinite(quality)?quality:0))},bestDrawing:bestDrawing(run.bestDrawing,drawing)};
 }

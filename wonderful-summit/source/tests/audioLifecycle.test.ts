@@ -1,10 +1,11 @@
+import {audioPreferences} from '../src/audioPreferences.ts';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createSpellAudio,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
 
 class DeviceAudio{
  state='suspended';sampleRate=48000;destination={};onstatechange:(()=>void)|null=null;
- resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
+ gains:{gain:{value:number}}[]=[];resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
  resumeAction=async()=>{this.state='running';};
  resume(){this.resumes++;return this.resumeAction();}
  suspend(){this.suspends++;this.state='suspended';return Promise.resolve();}
@@ -14,7 +15,7 @@ class DeviceAudio{
   const device=this;
   return{playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null,connect(){},disconnect(){},start(){assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);}};
  }
- createGain(){return{gain:{value:0},connect(){},disconnect(){}};}
+ createGain(){const gain={gain:{value:0},connect(){},disconnect(){}};this.gains.push(gain);return gain;}
 }
 function device(){
  const devices:DeviceAudio[]=[];let visible=true,now=0;
@@ -126,4 +127,15 @@ test('repeated background switches retire each old context only once and never i
   d.setVisible(true);d.audio.wake();d.audio.unlock();await flush();d.audio.unlock();d.audio.unlock();d.audio.play('hurt',0);
   assert.equal(d.devices.length,i+2);assert.equal(old.closes,1);assert.equal(old.onstatechange,null);assert.ok(d.devices.at(-1)!.starts.at(-1)!>1);
  }
+});
+
+
+test('master and effects sliders change playing and future effects, including after context recovery',async()=>{
+ const d=device();try{
+  d.audio.unlock();await flush();d.audio.play('water',80);const first=d.devices[0],base=first.gains[0].gain.value;
+  audioPreferences.set('master',.5);audioPreferences.set('effects',.4);d.audio.refreshVolume();assert.equal(first.gains[0].gain.value,base*.2);
+  audioPreferences.set('music',0);d.audio.play('water',80);assert.equal(first.gains[1].gain.value,base*.2);
+  d.setVisible(false);d.audio.sleep();d.setVisible(true);d.audio.unlock();await flush();d.audio.play('water',80);assert.equal(d.devices[1].gains[0].gain.value,base*.2);
+  audioPreferences.set('master',0);d.audio.refreshVolume();assert.equal(d.devices[1].gains[0].gain.value,0);d.audio.play('hurt',0);assert.equal(d.devices[1].gains[1].gain.value,0);
+ }finally{for(const key of ['master','music','effects'] as const)audioPreferences.set(key,1);}
 });
