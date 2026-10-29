@@ -16,6 +16,10 @@ export const SPELLS:Spell[]=[
 
 
 ];
+// Recognition-only alternatives; spellbook art and perfect traces use SPELLS unchanged.
+export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
+ fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]]
+};
 export const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function strokeLength(strokes:Strokes){return strokes.reduce((sum,s)=>sum+s.slice(1).reduce((n,p,i)=>n+distance(s[i],p),0),0);}
 export function inkCost(a:Point,b:Point,shortSide:number){return distance(a,b)/Math.max(1,shortSide)*(22/1.25);}
@@ -32,7 +36,15 @@ const meanNearest=(a:Point[],b:Point[])=>a.reduce((sum,p)=>sum+Math.min(...b.map
 export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id)){
  const normalized=normalize(strokes),points=sample(normalized);if(points.length<5)return{spell:null,quality:0,candidates:[],reason:'Draw a complete sigil first.'};
  const len=strokeLength(normalized);
- const candidates=SPELLS.filter(s=>known.includes(s.id)).map(spell=>{const ref=normalize(spell.strokes),target=sample(ref);const error=(meanNearest(points,target)+meanNearest(target,points))/2;const ratio=len/strokeLength(ref);const lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);const handPenalty=spell.id==='chronos'?Math.exp(-Math.max(0,Math.min(...points.map(p=>Math.hypot(p.x,p.y)))-.1)*9):1;const quality=Math.round(100*Math.exp(-error*13)*lengthPenalty*handPenalty);return{spell,quality,error};}).sort((a,b)=>b.quality-a.quality);
+ // Collapse every shape variation into one candidate per spell BEFORE ambiguity checks.
+ const candidates=SPELLS.filter(s=>known.includes(s.id)).map(spell=>{
+  const handPenalty=spell.id==='chronos'?Math.exp(-Math.max(0,Math.min(...points.map(p=>Math.hypot(p.x,p.y)))-.1)*9):1;
+  return [spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])].map(template=>{
+   const ref=normalize(template),target=sample(ref),error=(meanNearest(points,target)+meanNearest(target,points))/2;
+   const ratio=len/strokeLength(ref),lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);
+   return{spell,quality:Math.round(100*Math.exp(-error*13)*lengthPenalty*handPenalty),error};
+  }).reduce((best,current)=>current.quality>best.quality?current:best);
+ }).sort((a,b)=>b.quality-a.quality);
  if(!candidates.length)return{spell:null,quality:0,candidates,reason:'No spells learned yet.'};
  const top=candidates[0],margin=top.quality-(candidates[1]?.quality??0);
  const accepted=top.quality>=48&&margin>=7;
