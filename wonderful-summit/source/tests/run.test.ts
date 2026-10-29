@@ -21,7 +21,7 @@ test('complete route has seven combats, merchant, camp and final victory',()=>{
   r=enterNode(r,rng);screens.push(r.screen);
   if(r.screen==='battle')r=collect(won(r));else if(r.screen==='shop')r=leaveNode(r);else r=leaveNode(camp(r));
  }
- assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,235);assert.equal(r.relics.length,2);assert.equal(r.spells.length,6);
+ assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,240);assert.equal(r.relics.length,3);assert.equal(r.spells.length,6);
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,25);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);

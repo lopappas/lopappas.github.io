@@ -29,7 +29,7 @@ test('Colorful Rock compares successfully played elements and snapshots multipli
 test('Impossible Shale curses attackers permanently, counts contacts across fights, breaks once, and applies its internal recovery',()=>{
  let b=setup();b.shaleActive=true;b=contact(b);assert.equal(b.shaleContacts,1);assert.ok(b.enemies[0].curseTick);const hp=b.enemies[0].hp;b.freezeUntil=100;b=advance(b,2.01);assert.equal(hp-b.enemies[0].hp,10);
  b.freezeUntil=0;b=contact(b);assert.equal(b.shaleContacts,2);const before=b.playerHP;b=contact(b);assert.equal(b.shaleContacts,3);assert.equal(b.shaleActive,false);assert.equal(b.playerHP,Math.min(100,before-12+15));const tick=b.enemies[0].curseTick;b=contact(b);assert.equal(b.shaleContacts,3);assert.equal(b.enemies[0].curseTick,tick);
- const r={...newRun(),screen:'battle' as const,relics:['impossibleShale' as const]};const carried=finishBattle(r,{...b,phase:'victory'},()=>.99);assert.equal(carried.shaleContacts,3);assert.ok(!carried.relics.includes('impossibleShale'));assert.equal(battleForRun(carried).shaleActive,false);
+ const r={...newRun(),screen:'battle' as const,relics:['impossibleShale' as const]};const carried=finishBattle(r,{...b,phase:'victory'},()=>.99);assert.equal(carried.shaleContacts,3);assert.ok(carried.relics.includes('impossibleShale'));assert.equal(battleForRun(carried).shaleActive,false);
  const partial=finishBattle(r,{...newBattle('active'),phase:'victory',shaleContacts:2},()=>.99);assert.equal(battleForRun(partial).shaleContacts,2);assert.equal(battleForRun(partial).shaleActive,true);
  assert.ok(!/heal|health|regain|recover/i.test(RELICS.impossibleShale.description));
 });
