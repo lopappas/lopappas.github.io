@@ -80,24 +80,43 @@ function browserAudioContext(){
 }
 export function createSpellAudio(environment:AudioEnvironment={createContext:browserAudioContext,isVisible:()=>!document.hidden,now:()=>performance.now()}){
  let context:AudioContext|null=null,primed:AudioContext|null=null;
+ let recycleOnGesture=false,needsWakeCycle=false,waking:AudioContext|null=null;
  const buffers=new Map<SoundKind,AudioBuffer>();
  const visible=()=>environment.isVisible();
- function resume(ctx:AudioContext){if(ctx.state!=='running'&&ctx.state!=='closed')void ctx.resume().catch(()=>{});}
- function wake(){try{if(context&&visible())resume(context);}catch{/* A real touch will retry if automatic recovery is blocked. */}}
- function sleep(){try{if(context?.state==='running')void context.suspend().catch(()=>{});}catch{}}
+ function resume(ctx:AudioContext){if(ctx===context&&visible()&&ctx.state!=='running'&&ctx.state!=='closed')void ctx.resume().catch(()=>{});}
+ function wake(){
+  try{
+   const ctx=context;if(!ctx||!visible()||ctx.state==='closed'||waking===ctx)return;
+   if(needsWakeCycle){
+    // Safari can report running while its audio clock/output is frozen.
+    // A foreground suspend/resume cycle also resets an interrupted session.
+    needsWakeCycle=false;waking=ctx;
+    void ctx.suspend().then(()=>{if(ctx===context&&visible()&&ctx.state!=='closed')return ctx.resume();}).catch(()=>{}).finally(()=>{if(waking===ctx){waking=null;if(ctx===context&&visible()&&ctx.state!=='running')wake();}});
+   }else resume(ctx);
+  }catch{/* The next real interaction can replace a stranded audio context. */}
+ }
+ function sleep(){
+  const ctx=context;if(!ctx)return;
+  recycleOnGesture=true;needsWakeCycle=true;primed=null;
+  try{if(ctx.state!=='closed')void ctx.suspend().catch(()=>{});}catch{}
+ }
  function unlock(){
   try{
    if(!visible())return;
-   if(!context||context.state==='closed'){
-    if(context)context.onstatechange=null;
-    context=environment.createContext();primed=null;buffers.clear();
-    if(context)context.onstatechange=wake;
+   if(!context||context.state==='closed'||recycleOnGesture){
+    // Never await an old resume/close: on iOS those promises may never settle.
+    // Create and prime the replacement synchronously within this user gesture.
+    const previous=context,next=environment.createContext();
+    if(next){
+     context=next;primed=null;buffers.clear();recycleOnGesture=false;needsWakeCycle=false;waking=null;
+     next.onstatechange=()=>{if(next!==context)return;if(String(next.state)==='interrupted')recycleOnGesture=true;wake();};
+     if(previous){previous.onstatechange=null;try{if(previous.state!=='closed')void previous.close().catch(()=>{});}catch{}}
+    }
    }
    if(!context)return;
    const needsPrime=primed!==context||context.state!=='running';
    resume(context); // Includes Safari's interrupted state, not only suspended.
    if(needsPrime){
-    // Do this synchronously in the actual touch/key event, before the timed cast.
     const source=context.createBufferSource();source.buffer=context.createBuffer(1,1,context.sampleRate);
     source.connect(context.destination);source.onended=()=>source.disconnect();source.start();primed=context;
    }
@@ -138,10 +157,10 @@ export function installSpellAudio(){
  for(const name of gestures)document.addEventListener(name,unlockSpellAudio,options);
  const visibility=()=>document.hidden?spellAudio.sleep():spellAudio.wake();
  document.addEventListener('visibilitychange',visibility);
- window.addEventListener('focus',spellAudio.wake);window.addEventListener('pageshow',spellAudio.wake);
+ window.addEventListener('focus',spellAudio.wake);window.addEventListener('pageshow',spellAudio.wake);window.addEventListener('pagehide',spellAudio.sleep);
  return()=>{
   for(const name of gestures)document.removeEventListener(name,unlockSpellAudio,options);
   document.removeEventListener('visibilitychange',visibility);
-  window.removeEventListener('focus',spellAudio.wake);window.removeEventListener('pageshow',spellAudio.wake);
+  window.removeEventListener('focus',spellAudio.wake);window.removeEventListener('pageshow',spellAudio.wake);window.removeEventListener('pagehide',spellAudio.sleep);
  };
 }

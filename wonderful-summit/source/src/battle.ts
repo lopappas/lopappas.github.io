@@ -68,8 +68,9 @@ function applyChronos(e:Enemy,field:Battle['chronosFields'][number],time:number)
  return field.kind==='slow'?{...e,chronosStartedAt:Math.max(e.chronosSlowUntil,e.stunUntil)>time?e.chronosStartedAt:started,slowUntil:Math.max(e.slowUntil,field.until),chronosSlowUntil:Math.max(e.chronosSlowUntil,field.until)}:{...e,chronosStartedAt:Math.max(e.chronosSlowUntil,e.stunUntil)>time?e.chronosStartedAt:started,stunStartedAt:e.stunUntil>time?e.stunStartedAt:started,stunUntil:Math.max(e.stunUntil,field.until),attackAt:null};
 }
 export function midnightBonus(inkUsed:number){
- if(!Number.isFinite(inkUsed)||inkUsed<20)return 0;
- const thresholds=[[50,20],[45,15],[40,10],[35,7],[30,5],[25,3],[20,2]];
+ if(!Number.isFinite(inkUsed)||inkUsed<25)return 0;
+ if(inkUsed>54)return 25;
+ const thresholds=[[50,20],[45,15],[40,10],[35,5],[30,3],[25,2]];
  return thresholds.find(([ink])=>inkUsed>=ink)![1];
 }
 export function fizzleSpell(state:Battle):Battle{return state.phase==='active'&&state.furyReady?{...state,furyReady:false}:state;}

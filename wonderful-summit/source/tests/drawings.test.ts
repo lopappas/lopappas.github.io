@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {snapshotDrawing,bestDrawing} from '../src/drawings.ts';
-import {newRun,battleForRun,finishBattle,sealBottle,ROUTE,isEliteNode,RELICS} from '../src/run.ts';
+import {newRun,battleForRun,finishBattle,sealBottle,ROUTE,isEliteNode,RELICS,claimGold,claimRelic,leaveNode} from '../src/run.ts';
 import {newBattle} from '../src/battle.ts';
 const strokes=[[{x:17,y:23},{x:49,y:76},{x:94,y:29}],[{x:48,y:77},{x:48,y:113}]];
 test('best drawing saves the actual uneven player strokes, preserving position, size and stroke order',()=>{
@@ -24,4 +24,13 @@ test('Rocky clearing has elite rewards and icon while retaining the original 150
 });
 test('broken Impossible Shale remains owned and disabled across encounters',()=>{
  const run={...newRun(),screen:'battle' as const,relics:['impossibleShale' as const]};const r=finishBattle(run,{...newBattle('active'),shaleContacts:3,phase:'victory'},()=>.99);assert.ok(r.relics.includes('impossibleShale'));assert.equal(r.shaleContacts,3);assert.equal(battleForRun(r).shaleActive,false);
+});
+
+
+test('finishing the act carries the highest original drawing through boss rewards to completion',()=>{
+ const earlier=snapshotDrawing('nature',84,strokes,320,240),bossStrokes=[[{x:9,y:51},{x:80,y:19},{x:61,y:143},{x:9,y:51}]],boss=snapshotDrawing('fire',91,bossStrokes,210,260);
+ const run={...newRun(),screen:'battle' as const,node:ROUTE.length-1,combats:6,bestDrawing:earlier};
+ const result=finishBattle(run,{...battleForRun(run),phase:'victory',bestDrawing:boss},()=>.99);
+ const complete=leaveNode(claimRelic(claimGold(result)));assert.equal(complete.screen,'complete');assert.equal(complete.bestDrawing?.quality,91);assert.deepEqual(complete.bestDrawing?.strokes,bossStrokes);assert.equal(complete.bestDrawing?.width,210);assert.equal(complete.bestDrawing?.height,260);
+ const lower=finishBattle(run,{...battleForRun(run),phase:'victory',bestDrawing:snapshotDrawing('fire',71,bossStrokes,210,260)},()=>.99);assert.deepEqual(leaveNode(claimGold(lower)).bestDrawing?.strokes,strokes);
 });

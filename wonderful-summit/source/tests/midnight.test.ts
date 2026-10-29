@@ -8,19 +8,19 @@ import {newRun,battleForRun,finishBattle,RELICS,enterNode,camp,sealBottle} from 
 import {SPELLS,inkCost} from '../src/magic.ts';
 import {soundSamples,SOUND_RATE} from '../src/sound.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
-test('Midnight Stone follows every ink threshold, using a maximum of 20 flat damage',()=>{
- for(const [ink,damage] of [[0,0],[19.99,0],[20,2],[24.99,2],[25,3],[29.99,3],[30,5],[35,7],[40,10],[45,15],[50,20],[100,20]])assert.equal(midnightBonus(ink),damage);
+test('Midnight Stone follows every ink threshold, using a maximum of 25 flat damage',()=>{
+ for(const [ink,damage] of [[0,0],[20,0],[24.99,0],[25,2],[29.99,2],[30,3],[34.99,3],[35,5],[39.99,5],[40,10],[44.99,10],[45,15],[49.99,15],[50,20],[54,20],[54.001,25],[55,25],[100,25]])assert.equal(midnightBonus(ink),damage);
  assert.equal(midnightBonus(NaN),0);assert.equal(midnightBonus(-3),0);
- const normal=inkCost({x:0,y:0},{x:150,y:0},100);assert.equal(midnightBonus(normal),3);assert.equal(midnightBonus(normal*.8),2);
+ const normal=inkCost({x:0,y:0},{x:150,y:0},100);assert.equal(midnightBonus(normal),2);assert.equal(midnightBonus(normal*.8),0);
 });
 test('flat damage is added once after shields, rocky/elemental defenses, upgrades, relics and Fury',()=>{
- for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const quality of [48,60,80])for(const rocky of [false,true]){
+ for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const quality of [48,60,80])for(const rocky of [false,true])for(const [ink,flat] of [[25,2],[35,5],[50,20],[55,25]]){
   const b=newBattle('active','shieldPack');b.damageBonus=1.15;b.upgrades.fire=1;b.enemies[0]={...b.enemies[0],element,rocky,hp:10000,maxHP:10000};
-  const plain=hitWithSpell(b,quality,'fire',1,()=>0,2,50);b.midnightStone=true;const stone=hitWithSpell(b,quality,'fire',1,()=>0,2,50);assert.equal(plain.enemies[0].hp-stone.enemies[0].hp,20);assert.deepEqual(stone.enemies[0].burn,plain.enemies[0].burn);assert.deepEqual(stone.enemies[0].push,plain.enemies[0].push);
+  const plain=hitWithSpell(b,quality,'fire',1,()=>0,2,ink);b.midnightStone=true;const stone=hitWithSpell(b,quality,'fire',1,()=>0,2,ink);assert.equal(plain.enemies[0].hp-stone.enemies[0].hp,flat);assert.deepEqual(stone.enemies[0].burn,plain.enemies[0].burn);assert.deepEqual(stone.enemies[0].push,plain.enemies[0].push);
  }
 });
 test('Midnight can give Chronos flat damage to each present foe without changing its control effects',()=>{
- const b=newBattle('active','pack');b.midnightStone=true;const hit=hitWithSpell(b,70,'chronos',undefined,()=>0,2,35);assert.ok(hit.enemies.every(e=>e.hp===93&&e.stunUntil===5.1));
+ const b=newBattle('active','pack');b.midnightStone=true;const hit=hitWithSpell(b,70,'chronos',undefined,()=>0,2,35);assert.ok(hit.enemies.every(e=>e.hp===95&&e.stunUntil===5.1));
 });
 test('ink usage is preserved on a projectile and individually stored bottles',()=>{
  let b=newBattle('active');b.midnightStone=true;b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=launchSpell(b,60,'#fff','water',45);assert.equal(b.projectile?.inkUsed,45);b=advance(b,.33);assert.equal(1000-b.enemies[0].hp,spellDamage({element:'Neutral'},60,'water')+15);

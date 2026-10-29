@@ -4,10 +4,11 @@ import {createSpellAudio,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RA
 
 class DeviceAudio{
  state='suspended';sampleRate=48000;destination={};onstatechange:(()=>void)|null=null;
- resumes=0;starts:number[]=[];buffers=0;
+ resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
  resumeAction=async()=>{this.state='running';};
  resume(){this.resumes++;return this.resumeAction();}
- suspend(){this.state='suspended';return Promise.resolve();}
+ suspend(){this.suspends++;this.state='suspended';return Promise.resolve();}
+ close(){this.closes++;this.state='closed';return Promise.resolve();}
  createBuffer(_channels:number,length:number){this.buffers++;const samples=new Float32Array(length);return{length,owner:this,getChannelData:()=>samples};}
  createBufferSource(){
   const device=this;
@@ -20,7 +21,7 @@ function device(){
  const audio=createSpellAudio({createContext:()=>{const ctx=new DeviceAudio();devices.push(ctx);return ctx as unknown as AudioContext;},isVisible:()=>visible,now:()=>now});
  return{audio,devices,setVisible:(value:boolean)=>visible=value,setNow:(value:number)=>now=value};
 }
-const flush=async()=>{await Promise.resolve();await Promise.resolve();};
+const flush=async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
 
 test('remaining UI effects are distinct, bounded and brief, with silent sample boundaries',()=>{
  assert.deepEqual(Object.keys(UI_SOUND_VOLUME).sort(),['bottle','learn','rest','stone','upgrade']);
@@ -84,7 +85,7 @@ test('blocked resumes do not break input, and old sounds are discarded after a l
  const unavailable=createSpellAudio({createContext:()=>null,isVisible:()=>true,now:()=>0});assert.doesNotThrow(()=>{unavailable.unlock();unavailable.play('water',70);});
 });
 
-test('native startup listeners unlock touch, click and keyboard audio and clean up on unmount',()=>{
+test('native startup listeners unlock input, recover pagehide/pageshow and clean up on unmount',async()=>{
  const previousDocument=Object.getOwnPropertyDescriptor(globalThis,'document'),previousWindow=Object.getOwnPropertyDescriptor(globalThis,'window');
  const doc=Object.assign(new EventTarget(),{hidden:false});const contexts:DeviceAudio[]=[];
  class Context extends DeviceAudio{constructor(){super();contexts.push(this);}}
@@ -94,10 +95,35 @@ test('native startup listeners unlock touch, click and keyboard audio and clean 
   const cleanup=installSpellAudio();
   for(const event of ['pointerdown','touchend','click','keydown']){doc.dispatchEvent(new Event(event));assert.equal(contexts.length,1);}
   const ctx=contexts[0];assert.ok(ctx.resumes>=1);doc.hidden=true;doc.dispatchEvent(new Event('visibilitychange'));
-  doc.hidden=false;ctx.state='interrupted';const before=ctx.resumes;win.dispatchEvent(new Event('pageshow'));assert.equal(ctx.resumes,before+1);
-  cleanup();ctx.state='closed';doc.dispatchEvent(new Event('touchend'));assert.equal(contexts.length,1);
+  doc.hidden=false;ctx.state='interrupted';const before=ctx.resumes;win.dispatchEvent(new Event('pageshow'));await flush();assert.equal(ctx.resumes,before+1);
+  win.dispatchEvent(new Event('pagehide'));assert.equal(ctx.state,'suspended');win.dispatchEvent(new Event('pageshow'));await flush();doc.dispatchEvent(new Event('touchend'));assert.equal(contexts.length,2);assert.equal(ctx.closes,1);
+  cleanup();const live=contexts[1],suspends=live.suspends;live.state='closed';doc.dispatchEvent(new Event('touchend'));win.dispatchEvent(new Event('pagehide'));assert.equal(contexts.length,2);assert.equal(live.suspends,suspends);
  }finally{
   if(previousDocument)Object.defineProperty(globalThis,'document',previousDocument);else Reflect.deleteProperty(globalThis,'document');
   if(previousWindow)Object.defineProperty(globalThis,'window',previousWindow);else Reflect.deleteProperty(globalThis,'window');
+ }
+});
+
+
+test('a never-resolving foreground resume cannot strand audio after the next real interaction',async()=>{
+ const d=device();d.audio.unlock();await flush();d.audio.play('water',70);const old=d.devices[0],pending:(()=>void)[]=[];
+ old.state='interrupted';old.resumeAction=()=>new Promise(resolve=>{pending.push(()=>{old.state='running';resolve();});});
+ d.audio.play('fire',80);const oldStarts=old.starts.length;
+ d.setVisible(false);d.audio.sleep();d.setVisible(true);d.audio.wake();await flush();
+ d.audio.unlock();d.audio.play('nature',80);assert.equal(d.devices.length,2);assert.equal(old.closes,1);assert.equal(old.onstatechange,null);assert.ok(d.devices[1].starts.at(-1)!>1);
+ pending.forEach(finish=>finish());await flush();assert.equal(old.starts.length,oldStarts);assert.equal(d.devices[1].state,'running');
+});
+test('a context falsely reporting running is cycled on return and replaced in the next gesture',async()=>{
+ const d=device();d.audio.unlock();await flush();const old=d.devices[0];d.audio.play('water',70);
+ d.setVisible(false);d.audio.sleep();old.state='running'; // Safari may expose running even with a stopped audio clock.
+ const suspends=old.suspends;d.setVisible(true);d.audio.wake();assert.equal(old.suspends,suspends+1);await flush();
+ d.audio.unlock();d.audio.play('water',70);assert.equal(d.devices.length,2);assert.equal(old.closes,1);assert.equal(d.devices[1].buffers,2);assert.ok(d.devices[1].starts.at(-1)!>1);
+});
+test('repeated background switches retire each old context only once and never initialize audio while hidden',async()=>{
+ const d=device();d.setVisible(false);d.audio.unlock();assert.equal(d.devices.length,0);d.setVisible(true);d.audio.unlock();await flush();
+ for(let i=0;i<4;i++){
+  const old=d.devices.at(-1)!;d.setVisible(false);d.audio.sleep();d.audio.unlock();assert.equal(d.devices.length,i+1);
+  d.setVisible(true);d.audio.wake();d.audio.unlock();await flush();d.audio.unlock();d.audio.unlock();d.audio.play('hurt',0);
+  assert.equal(d.devices.length,i+2);assert.equal(old.closes,1);assert.equal(old.onstatechange,null);assert.ok(d.devices.at(-1)!.starts.at(-1)!>1);
  }
 });
