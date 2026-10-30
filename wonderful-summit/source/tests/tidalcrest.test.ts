@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {SPELLS,PLAYER_SPELLS,recognize,power,knockback,type SpellId} from '../src/magic.ts';
+import {SPELLS,SPELL_VARIATIONS,PLAYER_SPELLS,recognize,power,knockback,type SpellId} from '../src/magic.ts';
 import {newBattle,launchSpell,stepBattle,spellDamage,spellKnockback,drinkPotion,tidalWavePosition,TIDAL_TRAVEL_SECONDS,ENEMY_BACK_X,CONTACT_X,type Battle} from '../src/battle.ts';
 import {woodenShield} from '../src/shields.ts';
 import {newRun,enterNode,finishBattle,battleForRun,camp} from '../src/run.ts';
@@ -20,10 +20,20 @@ test('Aquaspout uses the approved droplet and caret; Tidalcrest inherits the old
  assert.equal(recognize(spout.strokes,['water','tidalcrest']).spell,null);
  assert.notEqual(recognize([spout.strokes[1]],['wave']).spell?.id,'wave');
 });
-test('Tidalcrest uses quality-scaled ×0.9 damage and ×1.5 knockback at every grade; Aquaspout keeps its old balance',()=>{
+test('the narrower fin scores perfectly as Tidalcrest without changing its book art or creating a second ambiguity candidate',()=>{
+ const spell=SPELLS.find(s=>s.id==='tidalcrest')!,narrow=spell.strokes.map(st=>st.map(p=>({x:50+(p.x-50)*.8,y:p.y})));
+ assert.deepEqual(SPELL_VARIATIONS.tidalcrest,[narrow]);
+ assert.equal(spell.path,'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z');
+ for(const shape of [spell.strokes,narrow])for(const scale of [.15,1,6]){
+  const moved=[...shape].reverse().map(st=>[...st].reverse().map(p=>({x:120+p.x*scale,y:-40+p.y*scale}))),result=recognize(moved);
+  assert.equal(result.spell,spell);assert.equal(result.quality,100);assert.equal(result.candidates.filter(c=>c.spell.id==='tidalcrest').length,1);
+  assert.equal(recognize(moved,['tidalcrest']).spell,spell);assert.equal(recognize(moved,['water','wave']).spell,null);
+ }
+});
+test('Tidalcrest uses quality-scaled ×1.1 damage and ×1.5 knockback at every grade; Aquaspout keeps its old balance',()=>{
  let last=0;
  for(let q=48;q<=100;q++){
-  assert.equal(spellDamage({element:'Neutral'},q,'tidalcrest'),Math.round(power(q)*.9));
+  assert.equal(spellDamage({element:'Neutral'},q,'tidalcrest'),Math.round(power(q)*1.1));
   assert.equal(spellDamage({element:'Neutral'},q,'wave'),Math.round(power(q)*.9));
   assert.equal(spellKnockback(q,'tidalcrest'),knockback(q)*1.5);assert.ok(spellKnockback(q,'tidalcrest')>=last);last=spellKnockback(q,'tidalcrest');
   if(q>=60)assert.equal(spellKnockback(q,'wave'),knockback(q)*1.7);

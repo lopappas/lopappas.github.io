@@ -34,7 +34,7 @@ test('potion drop boundary is 35 percent and capacity never exceeds three',()=>{
  assert.equal(r.screen,'battle');r=finishBattle({...active,potions:{heal:1,freeze:1,ink:1}},{...battle,potions:{heal:1,freeze:1,ink:1}},rng);assert.deepEqual(claimPotion(r),r);r=claimPotion(r,'freeze');assert.equal(potionCount(r),3);assert.equal(r.potions.freeze,0);assert.equal(r.potions.heal,2);
 });
 test('shop charges exact prices, cannot overspend or buy sold stock twice',()=>{
- let r={...start(),node:2,gold:55};r=enterNode(r,rng);const item=r.stock.find(s=>s.kind==='spell')!;const bought=buy(r,item.id);assert.equal(bought.gold,27);assert.ok(bought.spells.includes(item.item as SpellId));assert.deepEqual(buy(bought,item.id),bought);const relic=r.stock.find(s=>s.kind==='relic')!;assert.deepEqual(buy({...r,gold:0},relic.id),{...r,gold:0});
+ let r={...start(),node:2,gold:55};r=enterNode(r,rng);const item=r.stock.find(s=>s.kind==='spell')!;const bought=buy(r,item.id);assert.equal(bought.gold,15);assert.ok(bought.spells.includes(item.item as SpellId));assert.deepEqual(buy(bought,item.id),bought);const relic=r.stock.find(s=>s.kind==='relic')!;assert.deepEqual(buy({...r,gold:0},relic.id),{...r,gold:0});
  const full={...r,potions:{heal:1,freeze:1,ink:1}};const potion=r.stock.find(s=>s.kind==='potion')!;assert.deepEqual(buy(full,potion.id),full);assert.equal(potionCount(discardPotion(full,'heal')),2);
 });
 test('camp allows one heal OR one upgrade, and only for a known spell',()=>{const r={...start(),screen:'camp' as const,health:45};assert.equal(camp(r).health,100);assert.deepEqual(camp(camp(r),'fire'),camp(r));assert.equal(camp(r,'fire').upgrades.fire,1);assert.deepEqual(camp(r,'bolt'),r);assert.deepEqual(leaveNode(r),r);});

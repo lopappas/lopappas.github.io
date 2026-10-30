@@ -21,9 +21,9 @@ test('dropping a selected spell bottle removes only its stored spell',()=>{
 });
 
 test('dropping from full inventory immediately allows shop purchases and reward pickups',()=>{
- const shop:Run={...newRun(),screen:'shop',gold:24,potions:{heal:3,freeze:0,ink:0},stock:[{id:'freeze',kind:'potion',item:'freeze',price:12,sold:false}]};
+ const shop:Run={...newRun(),screen:'shop',gold:24,potions:{heal:3,freeze:0,ink:0},stock:[{id:'freeze',kind:'potion',item:'freeze',price:16,sold:false}]};
  assert.equal(buy(shop,'freeze'),shop);
- const bought=buy(discardPotion(shop,'heal'),'freeze');assert.equal(bought.potions.freeze,1);assert.equal(potionCount(bought),3);assert.equal(bought.gold,12);
+ const bought=buy(discardPotion(shop,'heal'),'freeze');assert.equal(bought.potions.freeze,1);assert.equal(potionCount(bought),3);assert.equal(bought.gold,8);
  const reward:Run={...shop,screen:'rewards',reward:{gold:25,potion:'freeze',offers:[],relic:null,goldClaimed:false,potionStatus:'pending',relicClaimed:true,learned:null}};
  const claimed=claimPotion(discardPotion(reward,'heal'));assert.equal(claimed.reward?.potionStatus,'collected');assert.equal(potionCount(claimed),3);
 });

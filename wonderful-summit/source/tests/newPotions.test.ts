@@ -4,7 +4,7 @@ import {COMMON_POTIONS,RARE_POTIONS,potionImpactIds,POTION_IDS,POTIONS,FREEZE_SE
 import {ROUTE,newRun,enterNode,buy,sealBottle,leaveNode,camp,potionCount,potionSlots,battleForRun,finishBattle,claimPotion,discardPotion,merchantDialogue} from '../src/run.ts';
 import {SPELLS,PLAYER_SPELLS,recognize} from '../src/magic.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
-function shop(){return {...newRun(),screen:'shop' as const,gold:100,stock:[{id:'bottle',kind:'potion' as const,item:'spellBottle' as const,price:12,sold:false}]};}
+function shop(){return {...newRun(),screen:'shop' as const,gold:100,stock:[{id:'bottle',kind:'potion' as const,item:'spellBottle' as const,price:32,sold:false}]};}
 test('second merchant and a fresh Mossy grove campsite sit between barricade and boss',()=>{
  assert.deepEqual(ROUTE.slice(-4).map(n=>n.name),['Woodland barricade','Sea Merchant','Mossy grove campsite','Slime Mother']);
  assert.equal(merchantDialogue(ROUTE.findLastIndex(n=>n.kind==='shop')),"I'm saving money to buy a cozy sweater for winter. How are you staying warm?");
@@ -22,7 +22,7 @@ test('new potions appear in shop and reward pools; each occupies one slot',()=>{
  assert.equal(POTIONS.rejection.detail,'Imbue your skin with a powerful repelling force for 15 seconds. Attackers get sent soaring and deal less damage.');
 });
 test('acquiring a bottle opens one mandatory attempt; sealing cannot repeat, and failure is preserved',()=>{
- const paid=buy(shop(),'bottle');assert.equal(paid.gold,88);assert.equal(paid.pendingBottle,true);assert.equal(leaveNode(paid),paid);assert.equal(buy(paid,'bottle'),paid);
+ const paid=buy(shop(),'bottle');assert.equal(paid.gold,68);assert.equal(paid.pendingBottle,true);assert.equal(leaveNode(paid),paid);assert.equal(buy(paid,'bottle'),paid);
  const template=SPELLS.find(s=>s.id==='water')!,match=recognize(template.strokes,paid.spells),sealed=sealBottle(paid,{spellId:match.spell!.id,quality:match.quality});assert.equal(sealed.pendingBottle,false);assert.deepEqual(sealed.bottledSpells,[{spellId:'water',quality:100}]);assert.equal(sealBottle(sealed,{spellId:'fire',quality:80}),sealed);assert.equal(leaveNode(sealed).screen,'map');
  const failed=sealBottle(paid,{spellId:null,quality:32});assert.deepEqual(failed.bottledSpells,[{spellId:null,quality:32}]);assert.equal(failed.potions.spellBottle,1);assert.equal(discardPotion(failed,'spellBottle').bottledSpells.length,0);
 });

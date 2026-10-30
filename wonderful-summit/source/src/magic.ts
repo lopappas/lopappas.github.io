@@ -15,7 +15,7 @@ export const SPELLS:Spell[]=[
  {id:'chronos',name:'Chronos Denalis',element:'Ancient',color:'#8b9099',description:'Draw a circle with a straight line from its center to the top. Temporarily deny the flow of time for all foes.',path:'M50 10 C72.091 10 90 27.909 90 50 C90 72.091 72.091 90 50 90 C27.909 90 10 72.091 10 50 C10 27.909 27.909 10 50 10 Z M50 50 L50 10',strokes:[shape([50,10],[[72.091,10,90,27.909,90,50],[90,72.091,72.091,90,50,90],[27.909,90,10,72.091,10,50],[10,27.909,27.909,10,50,10]]),[{x:50,y:50},{x:50,y:10}]]},
  {id:'ender',name:'Ender',element:'Ancient',color:'#8b9099',description:'Draw a capital K. Deals 1,000 base damage to the nearest enemy. No knockback.',path:'M20 10 L20 90 M80 10 L20 50 L80 90',strokes:[[{x:20,y:10},{x:20,y:90}],[{x:80,y:10},{x:20,y:50},{x:80,y:90}]],developerOnly:true,upgradable:false},
  {id:'firestorm',name:'Firestorm',element:'Fire',color:'#f0a068',description:'Draw a horizontal line above two matching downward triangles. Clouds roll in for 2 seconds, then rain fire on every foe: 2 damage every 0.5 seconds. Better shapes sustain the storm longer. No knockback. Recasting adds duration.',path:'M10 18 L90 18 M12 38 L44 38 L28 70 Z M56 38 L88 38 L72 70 Z',strokes:[[{x:10,y:18},{x:90,y:18}],[{x:12,y:38},{x:44,y:38},{x:28,y:70},{x:12,y:38}],[{x:56,y:38},{x:88,y:38},{x:72,y:70},{x:56,y:38}]]},
- {id:'tidalcrest',name:'Tidalcrest',element:'Water',color:'#69c2d6',description:'Draw a shark fin: a curved outer edge, an inward-curving side, and a flat base. A wave sweeps the runway, hitting each foe once for ×0.9 damage and ×1.5 knockback. Better shapes hit harder and push farther.',path:'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z',strokes:[shape([15,85],[[15,47,50,15,85,12],[61,36,61,60,88,85],[64,85,39,85,15,85]])]}
+ {id:'tidalcrest',name:'Tidalcrest',element:'Water',color:'#69c2d6',description:'Draw a shark fin: a curved outer edge, an inward-curving side, and a flat base. A wave sweeps the runway, hitting each foe once for ×1.1 damage and ×1.5 knockback. Better shapes hit harder and push farther.',path:'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z',strokes:[shape([15,85],[[15,47,50,15,85,12],[61,36,61,60,88,85],[64,85,39,85,15,85]])]}
 ];
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
@@ -23,7 +23,8 @@ export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]],
  firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]],
- nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]]
+ nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]],
+ tidalcrest:[SPELLS.find(s=>s.id==='tidalcrest')!.strokes.map(stroke=>stroke.map(p=>({x:50+(p.x-50)*.8,y:p.y})))]
 };
 export const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function strokeLength(strokes:Strokes){return strokes.reduce((sum,s)=>sum+s.slice(1).reduce((n,p,i)=>n+distance(s[i],p),0),0);}

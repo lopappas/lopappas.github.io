@@ -32,7 +32,7 @@ test('variations do not unlock unlearned spells or accept incomplete and flatten
  for(const shape of [[[{x:50,y:12},{x:85,y:82}]],[[{x:50,y:12},{x:85,y:32},{x:15,y:32},{x:50,y:12}]],[[{x:10,y:10}]]] as Strokes[])assert.equal(recognize(shape).spell,null);
 });
 test('recognition-only variation keeps all canonical spellbook and perfect-trace shapes intact',()=>{
- assert.deepEqual(Object.keys(SPELL_VARIATIONS),['fire','firestorm','nature']);assert.equal(SPELL_VARIATIONS.fire?.length,1);assert.equal(fire.path,'M50 12 L85 82 L15 82 Z');assert.deepEqual(fire.strokes,[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]);
+ assert.deepEqual(Object.keys(SPELL_VARIATIONS),['fire','firestorm','nature','tidalcrest']);assert.equal(SPELL_VARIATIONS.fire?.length,1);assert.equal(fire.path,'M50 12 L85 82 L15 82 Z');assert.deepEqual(fire.strokes,[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]);
  for(const spell of SPELLS){const result=recognize(spell.strokes);assert.equal(result.spell,spell);assert.equal(result.quality,100);}
 });
 test('recognized variation works in the campsite and bottle without replacing the player drawing',()=>{

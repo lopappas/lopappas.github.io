@@ -34,7 +34,7 @@ export function enterNode(run:Run,random:()=>number=Math.random):Run{
  const stock:Stock[]=[pick(COMMON_POTIONS,random),pick(RARE_POTIONS,random)].map(item=>({id:`potion-${item}`,kind:'potion',item,price:potionPrice(item),sold:false}));
  const unlearned=allSpells.filter(id=>!run.spells.includes(id));
  for(let slot=0;slot<2;slot++){
-  if(unlearned.length){const item=pick(unlearned,random);unlearned.splice(unlearned.indexOf(item),1);stock.push({id:`spell-${item}`,kind:'spell',item,price:28,sold:false});}
+  if(unlearned.length){const item=pick(unlearned,random);unlearned.splice(unlearned.indexOf(item),1);stock.push({id:`spell-${item}`,kind:'spell',item,price:40,sold:false});}
   else {const available=POTION_IDS.filter(id=>!stock.some(s=>s.kind==='potion'&&s.item===id)),item=pick(available.length?available:POTION_IDS,random);stock.push({id:`potion-extra-${slot}`,kind:'potion',item,price:potionPrice(item),sold:false});}
  }
  for(const item of chooseTwo(allRelics,allRelics.filter(id=>!run.relics.includes(id))))stock.push({id:`relic-${item}`,kind:'relic',item,price:45,sold:false});

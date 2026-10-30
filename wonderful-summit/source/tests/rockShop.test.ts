@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {newRun,enterNode,RELICS,ROUTE,battleForRun,buy,type Run} from '../src/run.ts';
 import {SPELLS,PLAYER_SPELLS,power} from '../src/magic.ts';
-import {newBattle,hitWithSpell,spellDamage,spellKnockback,stepBattle,burnDamage,CONTACT_X,drinkPotion} from '../src/battle.ts';
+import {newBattle,hitWithSpell,spellDamage,spellKnockback,stepBattle,burnDamage,CONTACT_X,drinkPotion,RARE_POTIONS,type Potion} from '../src/battle.ts';
 
 test('merchant always rolls two distinct options per category, preferring unowned items',()=>{
  for(const roll of [0,.25,.5,.85,.999])for(const complete of [false,true]){
@@ -14,6 +14,17 @@ test('merchant always rolls two distinct options per category, preferring unowne
   if(complete)for(const item of shop.stock.filter(s=>s.kind!=='potion')){const rich={...shop,gold:1000};assert.equal(buy(rich,item.id),rich);}
  }
 });
+test('both merchants charge 40 for spells, 16/32 for common/rare potions including replacements, and enforce exact purchase balances',()=>{
+ for(const node of ROUTE.flatMap((entry,i)=>entry.kind==='shop'?[i]:[]))for(const roll of [0,.5,.99])for(const complete of [false,true]){
+  const r=enterNode({...newRun(),screen:'map',node,gold:1000,potions:{heal:0,freeze:0,ink:0},spells:complete?SPELLS.map(s=>s.id):newRun().spells},()=>roll);
+  for(const item of r.stock){
+   const price=item.kind==='spell'?40:item.kind==='relic'?45:RARE_POTIONS.includes(item.item as Potion)?32:16;
+   assert.equal(item.price,price);
+   const paid=buy(r,item.id);assert.equal(paid.gold,1000-price);assert.equal(paid.stock.find(s=>s.id===item.id)?.sold,true);assert.equal(buy(paid,item.id),paid);
+   const poor={...r,gold:price-1};assert.equal(buy(poor,item.id),poor);
+  }
+ }
+});
 test('new trail encounter spawns one neutral rocky slime with 150 HP and opening grace',()=>{
  const node=ROUTE.findIndex(n=>n.kind==='battle'&&n.encounter==='rock');assert.ok(node>=0);
  const b=battleForRun({...newRun(),node},()=>0);assert.equal(b.enemies.length,1);assert.equal(b.enemies[0].element,'Neutral');assert.equal(b.enemies[0].hp,150);assert.equal(b.enemies[0].maxHP,150);assert.equal(b.enemies[0].rocky,true);assert.equal(b.approachAt,5);
@@ -22,7 +33,7 @@ test('new trail encounter spawns one neutral rocky slime with 150 HP and opening
 test('rocky trait halves Faint damage for every spell and removes all Faint knockback, even with bonuses',()=>{
  for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'&&s.id!=='firestorm'))for(const quality of [48,59,60,69,70,79,80,100]){
   const b=newBattle('active','rock');b.enemies[0].x=350;
-  const hit=hitWithSpell(b,quality,spell.id),rock=hit.enemies[0];const factor=spell.id==='bolt'?1.3:(spell.id==='wave'||spell.id==='tidalcrest')?.9:spell.id==='leaf'?.75:1;
+  const hit=hitWithSpell(b,quality,spell.id),rock=hit.enemies[0];const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?1.1:spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
   assert.equal(b.enemies[0].hp-rock.hp,Math.round(power(quality)*factor*(quality<60?.5:quality<70?.75:1)));
   if(quality<60){assert.equal(rock.push,null);assert.equal(spellKnockback(quality,spell.id,9,'Neutral',true),0);}else assert.ok(rock.push&&rock.push.to>350);
  }
@@ -46,7 +57,7 @@ test('Steady rocky defense reduces damage and knockback by exactly 25 percent be
   const hit=hitWithSpell(b,q,spell.id),mult=q<70?.75:1;
   const expected=spellKnockback(q,spell.id,1,'Neutral')*mult;
   assert.ok(Math.abs(hit.enemies[0].push!.to-e.x-expected)<1e-8);
-  const factor=spell.id==='bolt'?1.3:(spell.id==='wave'||spell.id==='tidalcrest')?.9:spell.id==='leaf'?.75:1;
+  const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?1.1:spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
   assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(power(q)*factor*1.15*1.25*mult));
  }
 });
