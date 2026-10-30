@@ -14,13 +14,14 @@ export const SPELLS:Spell[]=[
  {id:'leaf',name:'Bramble Leaf',element:'Nature',color:'#9bbe72',description:'Draw a closed diamond. Slows the nearest enemy, with lower damage.',path:'M50 10 L85 50 L50 90 L15 50 Z',strokes:[[{x:50,y:10},{x:85,y:50},{x:50,y:90},{x:15,y:50},{x:50,y:10}]]},
  {id:'chronos',name:'Chronos Denalis',element:'Ancient',color:'#8b9099',description:'Draw a circle with a straight line from its center to the top. Temporarily deny the flow of time for all foes.',path:'M50 10 C72.091 10 90 27.909 90 50 C90 72.091 72.091 90 50 90 C27.909 90 10 72.091 10 50 C10 27.909 27.909 10 50 10 Z M50 50 L50 10',strokes:[shape([50,10],[[72.091,10,90,27.909,90,50],[90,72.091,72.091,90,50,90],[27.909,90,10,72.091,10,50],[10,27.909,27.909,10,50,10]]),[{x:50,y:50},{x:50,y:10}]]},
  {id:'ender',name:'Ender',element:'Ancient',color:'#8b9099',description:'Draw a capital K. Deals 1,000 base damage to the nearest enemy. No knockback.',path:'M20 10 L20 90 M80 10 L20 50 L80 90',strokes:[[{x:20,y:10},{x:20,y:90}],[{x:80,y:10},{x:20,y:50},{x:80,y:90}]],developerOnly:true,upgradable:false},
- {id:'firestorm',name:'Firestorm',element:'Fire',color:'#f0a068',description:'Draw a horizontal line above two matching downward triangles. Clouds roll in for 2 seconds, then rain fire on every foe: 2 damage every 0.5 seconds. Better shapes sustain the storm longer. No knockback. Recasting adds duration.',path:'M10 18 L90 18 M12 30 L44 30 L28 62 Z M56 30 L88 30 L72 62 Z',strokes:[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]}
+ {id:'firestorm',name:'Firestorm',element:'Fire',color:'#f0a068',description:'Draw a horizontal line above two matching downward triangles. Clouds roll in for 2 seconds, then rain fire on every foe: 2 damage every 0.5 seconds. Better shapes sustain the storm longer. No knockback. Recasting adds duration.',path:'M10 18 L90 18 M12 38 L44 38 L28 70 Z M56 38 L88 38 L72 70 Z',strokes:[[{x:10,y:18},{x:90,y:18}],[{x:12,y:38},{x:44,y:38},{x:28,y:70},{x:12,y:38}],[{x:56,y:38},{x:88,y:38},{x:72,y:70},{x:56,y:38}]]}
 ];
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
 // Recognition-only alternatives; spellbook art and perfect traces use SPELLS unchanged.
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
- fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]]
+ fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]],
+ firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]]
 };
 export const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function strokeLength(strokes:Strokes){return strokes.reduce((sum,s)=>sum+s.slice(1).reduce((n,p,i)=>n+distance(s[i],p),0),0);}

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {SPELLS,PLAYER_SPELLS,recognize,type SpellId} from '../src/magic.ts';
+import {SPELLS,SPELL_VARIATIONS,PLAYER_SPELLS,recognize,type SpellId} from '../src/magic.ts';
 import {firestormDuration,firestormBaseDamage} from '../src/firestorm.ts';
 import {newBattle,launchSpell,hitWithSpell,stepBattle,firestormTickDamage,spellDamage,spellKnockback,releaseMultiplier,drinkPotion} from '../src/battle.ts';
 import {woodenShield} from '../src/shields.ts';
@@ -18,6 +18,19 @@ test('Firestorm has a symmetric three-stroke reference, recognizes independently
  const mirrored=left.slice(0,3).map(p=>`${100-p.x},${p.y}`).sort();assert.deepEqual(mirrored,right.slice(0,3).map(p=>`${p.x},${p.y}`).sort());
  for(const scale of [.15,1,6]){const strokes=[...spell.strokes].reverse().map(st=>[...st].reverse().map(p=>({x:321+p.x*scale,y:-80+p.y*scale})));const result=recognize(strokes);assert.equal(result.spell?.id,'firestorm');assert.equal(result.quality,100);}
  assert.notEqual(recognize([line,left]).spell?.id,'firestorm');assert.equal(recognize(spell.strokes,['fire','bolt']).spell,null);
+});
+test('approved lower triangles are canonical while the previous Firestorm remains a perfect recognition-only variation',()=>{
+ const spell=SPELLS.find(s=>s.id==='firestorm')!;
+ assert.equal(spell.path,'M10 18 L90 18 M12 38 L44 38 L28 70 Z M56 38 L88 38 L72 70 Z');
+ const oldShape=[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]];
+ assert.deepEqual(SPELL_VARIATIONS.firestorm,[oldShape]);
+ for(const shape of [oldShape,spell.strokes])for(const scale of [.15,1,6]){
+  const drawing=[...shape].reverse().map(st=>[...st].reverse().map(p=>({x:120+p.x*scale,y:-43+p.y*scale})));
+  const result=recognize(drawing);assert.equal(result.spell,spell);assert.equal(result.quality,100);
+  assert.equal(result.candidates.filter(c=>c.spell.id==='firestorm').length,1);
+  assert.equal(recognize(drawing,['firestorm']).spell,spell);
+  assert.equal(recognize(drawing,['water','fire','nature']).spell,null);
+ }
 });
 test('duration follows revised endpoints and interpolates monotonically within and between grades',()=>{
  for(const [q,seconds] of [[48,3.5],[59,4.5],[60,5],[69,7],[70,8],[79,10],[80,12],[100,16]])assert.equal(firestormDuration(q),seconds);

@@ -7,10 +7,24 @@ import {PetPurse} from './PetPurse';
 import {chronosAffected,chronosGrayAmount,chronosVisuals,enemyStatusLabel} from './timeVisuals';
 import {EnemyEffects} from './EnemyEffects';
 import {enemyElementColor,presentEnemies,projectilePosition,enemyY,targetedEnemy,potionPosition,POTION_FLIGHT_SECONDS,POTION_BREAK_SECONDS,type Battle} from './battle';
-export function World({burst,color,battle}:{burst:number;color:string;battle:Battle}){
-const [sad,setSad]=useState(false),[viewHeight,setViewHeight]=useState(410);
+export function World({burst,color,battle,hasRelics=false}:{burst:number;color:string;battle:Battle;hasRelics?:boolean}){
+const [sad,setSad]=useState(false),[viewHeight,setViewHeight]=useState(410),[cloudY,setCloudY]=useState(210);
 const worldRef=useRef<HTMLDivElement>(null);
-useEffect(()=>{const el=worldRef.current;if(!el)return;const observer=new ResizeObserver(()=>{const r=el.getBoundingClientRect();if(r.width)setViewHeight(Math.max(410,720*r.height/r.width));});observer.observe(el);return()=>observer.disconnect();},[]);
+useEffect(()=>{
+ const el=worldRef.current;if(!el)return;
+ const health=el.parentElement?.querySelector<HTMLElement>('.world-bottom');
+ const measure=()=>{
+  const r=el.getBoundingClientRect();if(!r.width)return;
+  const unitsPerPixel=720/r.width;
+  setViewHeight(Math.max(410,r.height*unitsPerPixel));
+  // Allow for the highest cloud's stepped top and bob: 55 SVG units.
+  // Anchor to the visible scene and actual HUD, including its scaled height.
+  const healthBottom=Math.max(0,(health?.getBoundingClientRect().bottom??r.top)-r.top);
+  setCloudY(510-r.height*unitsPerPixel+(healthBottom+10)*unitsPerPixel+55);
+ };
+ const observer=new ResizeObserver(measure);observer.observe(el);if(health)observer.observe(health);measure();
+ return()=>observer.disconnect();
+},[hasRelics]);
 useEffect(()=>{if(!battle.playerHits){setSad(false);return;}setSad(true);const timer=setTimeout(()=>setSad(false),2000);return()=>clearTimeout(timer);},[battle.playerHits]);
 const orb=projectilePosition(battle),target=targetedEnemy(battle),timeVisual=chronosVisuals(battle);
 const envPaint=(color:string)=>grayPaint(color,timeVisual.environmentAmount) as string;
@@ -32,7 +46,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 <g className="fireflies" fill="#f4e9aa"><circle cx="154" cy="290" r="2"/><circle cx="556" cy="324" r="2"/><circle cx="350" cy="358" r="2"/><circle cx="91" cy="346" r="1.5"/><circle cx="614" cy="214" r="2"/></g>
 <ellipse cx="235" cy="465" rx="47" ry="10" fill="#203d32" opacity=".35"/>
 </PaletteGroup>
-<FirestormArt storm={battle.firestorm} time={battle.time} gray={timeVisual.environmentAmount}/>
+<FirestormArt storm={battle.firestorm} time={battle.time} gray={timeVisual.environmentAmount} cloudY={cloudY}/>
 {battle.playerHits>0&&<g key={`ward-${battle.playerHits}`} transform="translate(295 410)" aria-label="Light blue magic flashes when Fila is hit"><g className="magic-hit-flash"><circle r="22" fill="#a9e7ff" opacity=".28"/><circle r="16" fill="none" stroke="#b4eeff" strokeWidth="3"/><path d="M0-29V-21M0 21v8M-29 0h8M21 0h8M-19-19l5 5M14 14l5 5M19-19l-5 5M-14 14l-5 5" fill="none" stroke="#d7f6ff" strokeWidth="3" strokeLinecap="round"/></g></g>}
 <g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" shapeRendering="crispEdges" transform="translate(190 320) scale(5)" aria-label="Fila, a little pixel witch holding a paintbrush">
 {battle.rejectionUntil>battle.time&&<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#fff" stroke="#fff" strokeWidth="3" opacity=".65" className="rejection-aura"/>}
