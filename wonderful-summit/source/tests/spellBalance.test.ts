@@ -17,8 +17,8 @@ test('Bramble strength actually changes movement and coexists with Chronos witho
  let b=newBattle('active','elite');b.approachAt=0;b.enemies[0].hp=10000;b=hitWithSpell(b,100,'leaf');b=hitWithSpell(b,48,'leaf');b=hitWithSpell(b,69,'chronos');b.enemies[0].push=null;b=advance(b,5.1);const x=b.enemies[0].x;b=stepBattle(b,.1);assert.ok(Math.abs(x-b.enemies[0].x-22*.2*.1)<1e-8);
  b=advance(b,5);const end=b.enemies[0].x;b=stepBattle(b,.1);assert.ok(Math.abs(end-b.enemies[0].x-22*.1)<1e-8);
 });
-test('Riptide uses the fin reference at all sizes, new damage, and Faint push endpoints',()=>{
- const fin=SPELLS.find(s=>s.id==='wave')!;assert.equal(fin.name,'Riptide Surge');
+test('Aquaspout uses its approved droplet-and-caret at all sizes, preserving damage and Faint push endpoints',()=>{
+ const fin=SPELLS.find(s=>s.id==='wave')!;assert.equal(fin.name,'Aquaspout');
  for(const scale of [.15,1,5]){const strokes=fin.strokes.map(st=>[...st].reverse().map(p=>({x:p.x*scale+23,y:p.y*scale-42})));assert.equal(recognize(strokes).spell?.id,'wave');assert.ok(recognize(strokes).quality>=98);}
  assert.equal(spellKnockback(48,'wave'),40);assert.equal(spellKnockback(59,'wave'),54);assert.equal(spellKnockback(60,'wave'),58*1.7);
  for(const q of [48,59,60,100]){assert.equal(spellDamage({element:'Neutral'},q,'wave'),Math.round(power(q)*.9));assert.equal(spellDamage({element:'Neutral'},q,'bolt'),Math.round(power(q)*1.3));}
