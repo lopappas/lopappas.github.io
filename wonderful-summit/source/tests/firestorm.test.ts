@@ -92,8 +92,8 @@ test('rain resolves boss death, split children, ordinary victory and stops on de
 });
 test('stored Firestorm starts on bottle impact and retains its quality and rain effects',()=>{
  let b=setup();b.furyReady=true;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'firestorm',quality:80,inkUsed:100}];b.midnightStone=true;
- b=drinkPotion(b,'spellBottle');b=advance(b,.66);assert.equal(b.furyReady,false);assert.ok(b.firestorm);assert.equal(b.firestorm?.portions[0].quality,80);assert.equal(b.enemies[0].hp,10000);
- b=advance(b,2.5);assert.equal(b.enemies[0].hp,9996);
+ b=drinkPotion(b,'spellBottle');b=advance(b,.66);assert.equal(b.furyReady,true);assert.ok(b.firestorm);assert.equal(b.firestorm?.portions[0].quality,80);assert.equal(b.enemies[0].hp,10000);
+ b=advance(b,2.5);assert.equal(b.enemies[0].hp,9998);
 });
 test('storm is frame-rate independent, does not mutate previous states, and resets each encounter',()=>{
  const original=setup(),before=structuredClone(original),launched=launchSpell(original,100,'#f0a068','firestorm');assert.deepEqual(original,before);

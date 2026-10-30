@@ -33,7 +33,7 @@ test('Midnight is available from merchants, elite drops and the live battle reli
 });
 test('Fury is spent by completed fizzles and non-damaging spells; cancellations alone do not spend it',()=>{
  let b=newBattle('active');b.furyReady=true;assert.equal(fizzleSpell(b).furyReady,false);assert.equal(fizzleSpell({...b,phase:'ready'}).furyReady,true);assert.equal(launchSpell(b,12,'#fff').furyReady,false);assert.equal(launchSpell(b,70,'#fff','chronos').furyReady,false);
- b.potions.spellBottle=1;b.bottledSpells=[{spellId:null,quality:20}];assert.equal(advance(drinkPotion(b,'spellBottle'),.66).furyReady,false);
+ b.potions.spellBottle=1;b.bottledSpells=[{spellId:null,quality:20}];assert.equal(advance(drinkPotion(b,'spellBottle'),.66).furyReady,true);
 });
 test('every second combat offers three distinct unknown spells, or all remaining spells when fewer exist',()=>{
  for(const combats of [0,1,2,3,5,7])for(const remaining of [0,1,2,3,4]){

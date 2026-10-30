@@ -32,11 +32,25 @@ test('variations do not unlock unlearned spells or accept incomplete and flatten
  for(const shape of [[[{x:50,y:12},{x:85,y:82}]],[[{x:50,y:12},{x:85,y:32},{x:15,y:32},{x:50,y:12}]],[[{x:10,y:10}]]] as Strokes[])assert.equal(recognize(shape).spell,null);
 });
 test('recognition-only variation keeps all canonical spellbook and perfect-trace shapes intact',()=>{
- assert.deepEqual(Object.keys(SPELL_VARIATIONS),['fire','firestorm']);assert.equal(SPELL_VARIATIONS.fire?.length,1);assert.equal(fire.path,'M50 12 L85 82 L15 82 Z');assert.deepEqual(fire.strokes,[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]);
+ assert.deepEqual(Object.keys(SPELL_VARIATIONS),['fire','firestorm','nature']);assert.equal(SPELL_VARIATIONS.fire?.length,1);assert.equal(fire.path,'M50 12 L85 82 L15 82 Z');assert.deepEqual(fire.strokes,[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]);
  for(const spell of SPELLS){const result=recognize(spell.strokes);assert.equal(result.spell,spell);assert.equal(result.quality,100);}
 });
 test('recognized variation works in the campsite and bottle without replacing the player drawing',()=>{
  const strokes=equilateral(),match=recognize(strokes,newRun().spells),drawing=snapshotDrawing(match.spell!.id,match.quality,strokes,300,240);
  const event=enterNode({...newRun(),screen:'map',node:ROUTE.findIndex(n=>n.kind==='event')});const lit=castTrailEvent(event,match.spell!.id,match.quality,drawing);assert.equal(lit.event?.outcome,'lit');assert.deepEqual(lit.bestDrawing?.strokes,strokes);
  const bottle=sealBottle({...newRun(),pendingBottle:true},{spellId:match.spell!.id,quality:match.quality,drawing});assert.equal(bottle.bottledSpells[0].spellId,'fire');assert.equal(bottle.bottledSpells[0].quality,100);assert.deepEqual(bottle.bottledSpells[0].drawing?.strokes,strokes);
+});
+test('steeper Little Sprout variation keeps the canonical book sigil and scores as one spell at every size and stroke order',()=>{
+ const sprout=SPELLS.find(s=>s.id==='nature')!;
+ const variation:Strokes=[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]];
+ assert.deepEqual(SPELL_VARIATIONS.nature,[variation]);
+ assert.equal(sprout.path,'M20 20 L50 50 L80 20 M50 50 L50 88');
+ assert.deepEqual(sprout.strokes,[[{x:20,y:20},{x:50,y:50},{x:80,y:20}],[{x:50,y:50},{x:50,y:88}]]);
+ for(const shape of [sprout.strokes,variation])for(const scale of [.15,1,6]){
+  const strokes=[...shape].reverse().map(st=>[...st].reverse().map(p=>({x:123+p.x*scale,y:-43+p.y*scale})));
+  const result=recognize(strokes);assert.equal(result.spell,sprout);assert.equal(result.quality,100);
+  assert.equal(result.candidates.filter(c=>c.spell.id==='nature').length,1);
+  assert.equal(recognize(strokes,['nature']).spell,sprout);
+  assert.equal(recognize(strokes,['fire','water']).spell,null);
+ }
 });

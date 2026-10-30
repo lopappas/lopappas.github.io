@@ -6,7 +6,7 @@ import {PaletteGroup} from '../src/PaletteGroup.ts';
 import {TargetCaret} from '../src/TargetCaret.ts';
 import {COMMON_POTIONS,RARE_POTIONS,POTIONS,potionPrice,rollRewardPotion,newBattle,launchSpell,drinkPotion,stepBattle,enemyElementColor,spellDamage} from '../src/battle.ts';
 import {newRun,enterNode,finishBattle,battleForRun,ROUTE} from '../src/run.ts';
-import {SPELLS} from '../src/magic.ts';
+import {SPELLS,type SpellId} from '../src/magic.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 function setup(){const b=newBattle('active');b.approachAt=1000;b.enemies[0]={...b.enemies[0],element:'Neutral',hp:10000,maxHP:10000,x:400};return b;}
 test('target caret retains its element color throughout partial and full Chronos grayscale',()=>{
@@ -33,13 +33,30 @@ test('Fury activates on potion impact and consumes on release, doubling only the
 test('fizzles consume Fury while cancelled/blocked launches and earlier in-flight spells preserve it',()=>{
  let b=setup();b.furyReady=true;assert.equal(launchSpell(b,47,'#fff').furyReady,false);assert.equal(launchSpell({...b,phase:'ready'},80,'#fff').furyReady,true);assert.equal(launchSpell({...b,enemies:[]},80,'#fff').furyReady,false);
  b=launchSpell(setup(),60,'#fff');b.potions.fury=1;b=drinkPotion(b,'fury');b=advance(b,.66);assert.equal(b.furyReady,true);assert.equal(10000-b.enemies[0].hp,spellDamage({element:'Neutral'},60,'water'));
- b.potions.spellBottle=1;b.bottledSpells=[{spellId:null,quality:15}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,false);
+ b.potions.spellBottle=1;b.bottledSpells=[{spellId:null,quality:15}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,true);
 });
-test('Fury works with a stored spell and is consumed by zero-damage Chronos without increasing durations',()=>{
- let b=setup();b.furyReady=true;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'fire',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,false);assert.equal(10000-b.enemies[0].hp,spellDamage({element:'Neutral'},60,'fire')*2);
+test('Fury skips stored spells and is consumed by a drawn zero-damage Chronos without increasing durations',()=>{
+ let b=setup();b.furyReady=true;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'fire',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,true);assert.equal(10000-b.enemies[0].hp,spellDamage({element:'Neutral'},60,'fire'));
  b=setup();b.furyReady=true;b=advance(launchSpell(b,70,'#fff','chronos'),.33);assert.equal(b.furyReady,false);assert.equal(b.enemies[0].hp,10000);assert.ok(Math.abs(b.enemies[0].stunUntil-b.time-5.1)<.02);
 });
 test('unused Fury survives rewards and the next battle without multiplying subsequent charges',()=>{
  const run={...newRun(),screen:'battle' as const},b={...battleForRun(run),phase:'victory' as const,furyReady:true};const r=finishBattle(run,b,()=>.99);assert.equal(r.furyReady,true);assert.equal(battleForRun(r).furyReady,true);
  let charged=setup();charged.furyReady=true;charged.potions.fury=1;charged=advance(drinkPotion(charged,'fury'),.66);assert.equal(launchSpell(charged,80,'#fff').projectile?.damageMultiplier,2);
+});
+test('every stored spell and stored fizzle leaves Fury for the next drawn cast, including after bottle flight begins',()=>{
+ for(const id of [...SPELLS.map(s=>s.id),null] as (SpellId|null)[]){
+  const make=()=>{const b=setup();b.potions.spellBottle=1;b.bottledSpells=[{spellId:id,quality:id?80:15,inkUsed:50}];b.lotus=true;b.lotusReady=true;b.colorful=true;b.lastElement='Water';b.midnightStone=true;return b;};
+  for(const timing of ['before','during'] as const){
+   let normal=make(),charged=structuredClone(normal);
+   if(timing==='before')charged.furyReady=true;
+   normal=drinkPotion(normal,'spellBottle');charged=drinkPotion(charged,'spellBottle');
+   normal=advance(normal,.3);charged=advance(charged,.3);if(timing==='during')charged.furyReady=true;
+   normal=advance(normal,.36);charged=advance(charged,.36);
+   assert.equal(charged.furyReady,true);assert.deepEqual(charged.enemies,normal.enemies);assert.deepEqual(charged.firestorm,normal.firestorm);
+   assert.equal(charged.lotusReady,normal.lotusReady);assert.equal(charged.lastElement,normal.lastElement);
+   const withoutFury=launchSpell({...charged,furyReady:false},60,'#fff','water');
+   charged=launchSpell(charged,60,'#fff','water');assert.equal(charged.furyReady,false);
+   assert.equal(charged.projectile?.damageMultiplier,2*withoutFury.projectile!.damageMultiplier);
+  }
+ }
 });

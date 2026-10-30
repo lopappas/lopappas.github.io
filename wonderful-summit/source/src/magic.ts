@@ -21,7 +21,8 @@ export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===
 // Recognition-only alternatives; spellbook art and perfect traces use SPELLS unchanged.
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]],
- firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]]
+ firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]],
+ nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]]
 };
 export const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function strokeLength(strokes:Strokes){return strokes.reduce((sum,s)=>sum+s.slice(1).reduce((n,p,i)=>n+distance(s[i],p),0),0);}

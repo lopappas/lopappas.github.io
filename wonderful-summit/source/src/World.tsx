@@ -17,10 +17,12 @@ useEffect(()=>{
   const r=el.getBoundingClientRect();if(!r.width)return;
   const unitsPerPixel=720/r.width;
   setViewHeight(Math.max(410,r.height*unitsPerPixel));
-  // Allow for the highest cloud's stepped top and bob: 55 SVG units.
-  // Anchor to the visible scene and actual HUD, including its scaled height.
-  const healthBottom=Math.max(0,(health?.getBoundingClientRect().bottom??r.top)-r.top);
-  setCloudY(510-r.height*unitsPerPixel+(healthBottom+10)*unitsPerPixel+55);
+  // Match the clouds' vertical center to the actual HP UI, including its scale.
+  // Keep the highest cloud's stepped top and bob inside the visible scene.
+  const healthRect=health?.getBoundingClientRect();
+  const healthCenter=Math.max(0,healthRect?(healthRect.top+healthRect.bottom)/2-r.top:28);
+  const visibleTop=510-r.height*unitsPerPixel;
+  setCloudY(Math.max(visibleTop+55,visibleTop+healthCenter*unitsPerPixel+10));
  };
  const observer=new ResizeObserver(measure);observer.observe(el);if(health)observer.observe(health);measure();
  return()=>observer.disconnect();

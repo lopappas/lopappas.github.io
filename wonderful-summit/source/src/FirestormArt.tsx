@@ -10,7 +10,7 @@ export function FirestormArt({storm,time,gray=0,cloudY=210}:{storm:Firestorm|nul
  const paint=(c:string)=>grayPaint(c,gray) as string;
  const rainAge=time-storm.rainAt;
  return <g pointerEvents="none" opacity={opacity} aria-label={rainAge<0?'Dark red storm clouds rolling in':'Firestorm raining fire across the enemy field'}>
-  {rainAge>=0&&<g>{Array.from({length:Math.round(42*1.2)},(_,i)=>{
+  {rainAge>=0&&<g>{Array.from({length:58},(_,i)=>{
    const cycle=.65+(i%5)*.09,offset=(i*.197)%cycle,elapsed=rainAge-offset;
    if(elapsed<0)return null;
    const t=(elapsed%cycle)/cycle,x=342+(i*67)%353,y=cloudY+28+t*(495-cloudY-28);
