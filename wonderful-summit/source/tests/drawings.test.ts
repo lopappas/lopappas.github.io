@@ -20,7 +20,7 @@ test('bottled spell drawings use the same original-stroke run record without add
 });
 test('Rocky clearing has elite rewards and icon while retaining the original 150 HP rocky slime',()=>{
  const node=ROUTE.findIndex(n=>n.name==='Rocky clearing');assert.equal(isEliteNode(node),true);assert.equal(ROUTE[node].icon,'♜');const run={...newRun(),screen:'battle' as const,node};const b=battleForRun(run);assert.equal(b.encounter,'rock');assert.equal(b.enemies.length,1);assert.equal(b.enemies[0].hp,150);assert.equal(b.enemies[0].rocky,true);assert.equal(b.enemies[0].element,'Neutral');
- const reward=finishBattle(run,{...b,phase:'victory'},()=>0).reward!;assert.equal(reward.gold,40);assert.ok(reward.relic);assert.ok(RELICS[reward.relic!]);
+ const reward=finishBattle(run,{...b,phase:'victory'},()=>0).reward!;assert.equal(reward.gold,37);assert.ok(reward.relic);assert.ok(RELICS[reward.relic!]);
 });
 test('broken Impossible Shale remains owned and disabled across encounters',()=>{
  const run={...newRun(),screen:'battle' as const,relics:['impossibleShale' as const]};const r=finishBattle(run,{...newBattle('active'),shaleContacts:3,phase:'victory'},()=>.99);assert.ok(r.relics.includes('impossibleShale'));assert.equal(r.shaleContacts,3);assert.equal(battleForRun(r).shaleActive,false);

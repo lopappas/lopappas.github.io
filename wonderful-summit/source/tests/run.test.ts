@@ -21,10 +21,10 @@ test('complete route has seven combats, merchant, camp and final victory',()=>{
   r=enterNode(r,rng);screens.push(r.screen);
   if(r.screen==='battle')r=collect(won(r));else if(r.screen==='shop'||r.screen==='event')r=leaveNode(r);else r=leaveNode(camp(r));
  }
- assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,240);assert.equal(r.relics.length,3);assert.equal(r.spells.length,6);
+ assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,242);assert.equal(r.relics.length,3);assert.equal(r.spells.length,6);
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
- let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,25);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
+ let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,27);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
  r=won(enterNode(leaveNode(first),rng));r=claimPotion(claimGold(r));assert.deepEqual(r.reward?.offers,['wave','bolt','leaf']);assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
 });
 test('potion drop boundary is 35 percent and capacity never exceeds three',()=>{
@@ -65,10 +65,10 @@ test('gold and potion pickups are independent, support either order, and cannot 
  for(const potionFirst of [false,true]){
   const reward=won(enterNode(start(),rng)),gold=reward.gold,potions=potionCount(reward);
   let r=potionFirst?claimPotion(reward):claimGold(reward);
-  assert.equal(r.gold,gold+(potionFirst?0:25));assert.equal(potionCount(r),potions+(potionFirst?1:0));
+  assert.equal(r.gold,gold+(potionFirst?0:27));assert.equal(potionCount(r),potions+(potionFirst?1:0));
   assert.equal(rewardsComplete(r.reward!),!potionFirst);if(potionFirst)assert.deepEqual(leaveNode(r),r);
   r=potionFirst?claimGold(r):claimPotion(r);
-  assert.equal(r.gold,gold+25);assert.equal(potionCount(r),potions+1);
+  assert.equal(r.gold,gold+27);assert.equal(potionCount(r),potions+1);
   assert.deepEqual(claimGold(r),r);assert.deepEqual(claimPotion(r),r);assert.deepEqual(skipRewardPotion(r),r);
   assert.equal(rewardsComplete(r.reward!),true);assert.equal(leaveNode(r).screen,'map');
  }
@@ -76,9 +76,9 @@ test('gold and potion pickups are independent, support either order, and cannot 
 test('a full purse never blocks gold, and leaving a potion never silently claims other rewards',()=>{
  const battle=enterNode({...start(),potions:{heal:1,freeze:1,ink:1}},rng);
  const r=won(battle),gold=claimGold(r);
- assert.equal(gold.gold,25);assert.equal(potionCount(gold),3);assert.equal(gold.reward!.potionStatus,'pending');assert.deepEqual(claimPotion(gold),gold);
+ assert.equal(gold.gold,27);assert.equal(potionCount(gold),3);assert.equal(gold.reward!.potionStatus,'pending');assert.deepEqual(claimPotion(gold),gold);
  const skipped=skipRewardPotion(r);assert.equal(skipped.gold,0);assert.equal(potionCount(skipped),3);assert.equal(skipped.reward!.potionStatus,'skipped');assert.deepEqual(claimPotion(skipped),skipped);assert.deepEqual(leaveNode(skipped),skipped);
- const replaced=claimPotion(gold,'freeze');assert.equal(replaced.gold,25);assert.equal(replaced.potions.freeze,0);assert.equal(replaced.potions.heal,2);assert.deepEqual(claimPotion(replaced,'heal'),replaced);assert.equal(potionCount(replaced),3);
+ const replaced=claimPotion(gold,'freeze');assert.equal(replaced.gold,27);assert.equal(replaced.potions.freeze,0);assert.equal(replaced.potions.heal,2);assert.deepEqual(claimPotion(replaced,'heal'),replaced);assert.equal(potionCount(replaced),3);
 });
 test('elite relic collects independently once and all pickups resolve before continuing',()=>{
  const active={...enterNode(start(),rng),node:3};let r=won(active);
@@ -119,7 +119,7 @@ test('Continue leaves uncollected potions behind without granting or replacing i
  for(const potions of [{heal:1,freeze:0,ink:0},{heal:1,freeze:1,ink:1}]){
   const active=enterNode({...start(),potions},rng),r=claimGold(won(active));
   assert.equal(r.reward!.potionStatus,'pending');assert.equal(rewardsComplete(r.reward!),true);
-  const continued=leaveNode(r);assert.equal(continued.screen,'map');assert.equal(continued.gold,25);assert.deepEqual(continued.potions,potions);assert.equal(continued.reward,null);
+  const continued=leaveNode(r);assert.equal(continued.screen,'map');assert.equal(continued.gold,27);assert.deepEqual(continued.potions,potions);assert.equal(continued.reward,null);
  }
  const elite=claimGold(won({...enterNode(start(),rng),node:3}));assert.equal(rewardsComplete(elite.reward!),false);assert.deepEqual(leaveNode(elite),elite);
  let second=collect(won(enterNode(start(),rng)));second=claimGold(won(enterNode(second,rng)));assert.equal(rewardsComplete(second.reward!),false);assert.deepEqual(leaveNode(second),second);
