@@ -6,7 +6,7 @@ import {newTutorial,beginTutorial,handleTutorialEvent,tutorialLessonInfo,TUTORIA
 
 test('all spells respect the complete elemental damage and knockback matrix, including neutral enemies',()=>{
  const beats={Water:'Fire',Fire:'Nature',Nature:'Water'} as const;
- for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'))for(const element of ['Water','Fire','Nature','Neutral'] as const){
+ for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'&&s.id!=='firestorm'))for(const element of ['Water','Fire','Nature','Neutral'] as const){
   const own=element===spell.element,weak=element!=='Neutral'&&beats[element]===spell.element;
   const factor=element==='Neutral'?1:own?.5:weak?.75:1.5;
   const base=spellDamage({element:'Neutral'},100,spell.id,1.15,2);
@@ -48,7 +48,7 @@ test('goblin elites are neutral and receive full damage, knockback, burn and slo
  for(const roll of [0,.4,.8]){
   const battle=newBattle('active','elite',()=>roll),goblin=battle.enemies[0];
   assert.equal(goblin.kind,'goblin');assert.equal(goblin.element,'Neutral');assert.equal(goblin.maxHP,200);
-  for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos')){
+  for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'&&s.id!=='firestorm')){
    const b={...battle,enemies:[{...goblin,x:330}]},hit=hitWithSpell(b,60,spell.id),enemy=hit.enemies[0];
    assert.equal(goblin.hp-enemy.hp,spellDamage({element:'Neutral'},60,spell.id));
    assert.ok(Math.abs(enemy.push!.to-330-spellKnockback(60,spell.id))<1e-8);

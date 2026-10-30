@@ -20,7 +20,7 @@ test('new trail encounter spawns one neutral rocky slime with 150 HP and opening
  for(const spell of SPELLS)assert.equal(spellDamage(b.enemies[0],80,spell.id),spellDamage({element:'Neutral'},80,spell.id));
 });
 test('rocky trait halves Faint damage for every spell and removes all Faint knockback, even with bonuses',()=>{
- for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'))for(const quality of [48,59,60,69,70,79,80,100]){
+ for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'&&s.id!=='firestorm'))for(const quality of [48,59,60,69,70,79,80,100]){
   const b=newBattle('active','rock');b.enemies[0].x=350;
   const hit=hitWithSpell(b,quality,spell.id),rock=hit.enemies[0];const factor=spell.id==='bolt'?1.3:spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
   assert.equal(b.enemies[0].hp-rock.hp,Math.round(power(quality)*factor*(quality<60?.5:quality<70?.75:1)));
@@ -41,7 +41,7 @@ test('any rocky enemy ignores Faint spell effects but still accepts potions',()=
 });
 
 test('Steady rocky defense reduces damage and knockback by exactly 25 percent before rounding',()=>{
- for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'))for(const q of [60,69,70,79,80,100]){
+ for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'&&s.id!=='firestorm'))for(const q of [60,69,70,79,80,100]){
   const b=newBattle('active','rock'),e=b.enemies[0];e.x=350;
   const hit=hitWithSpell(b,q,spell.id),mult=q<70?.75:1;
   const expected=spellKnockback(q,spell.id,1,'Neutral')*mult;

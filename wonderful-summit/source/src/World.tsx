@@ -1,3 +1,4 @@
+import {FirestormArt} from './FirestormArt';
 import React,{useEffect,useRef,useState} from 'react';
 import {TargetCaret} from './TargetCaret';
 import {PaletteGroup,grayPaint} from './PaletteGroup';
@@ -31,6 +32,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 <g className="fireflies" fill="#f4e9aa"><circle cx="154" cy="290" r="2"/><circle cx="556" cy="324" r="2"/><circle cx="350" cy="358" r="2"/><circle cx="91" cy="346" r="1.5"/><circle cx="614" cy="214" r="2"/></g>
 <ellipse cx="235" cy="465" rx="47" ry="10" fill="#203d32" opacity=".35"/>
 </PaletteGroup>
+<FirestormArt storm={battle.firestorm} time={battle.time} gray={timeVisual.environmentAmount}/>
 {battle.playerHits>0&&<g key={`ward-${battle.playerHits}`} transform="translate(295 410)" aria-label="Light blue magic flashes when Fila is hit"><g className="magic-hit-flash"><circle r="22" fill="#a9e7ff" opacity=".28"/><circle r="16" fill="none" stroke="#b4eeff" strokeWidth="3"/><path d="M0-29V-21M0 21v8M-29 0h8M21 0h8M-19-19l5 5M14 14l5 5M19-19l-5 5M-14 14l-5 5" fill="none" stroke="#d7f6ff" strokeWidth="3" strokeLinecap="round"/></g></g>}
 <g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" shapeRendering="crispEdges" transform="translate(190 320) scale(5)" aria-label="Fila, a little pixel witch holding a paintbrush">
 {battle.rejectionUntil>battle.time&&<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#fff" stroke="#fff" strokeWidth="3" opacity=".65" className="rejection-aura"/>}
@@ -62,7 +64,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>
 <rect x={e.kind==='mother'?-90:e.rocky?-62:-47} y={e.kind==='mother'?-130:e.kind==='goblin'?-83:-62} width={e.kind==='mother'?180:e.rocky?124:94} height="22" rx="5" fill="#233b32dd"/>
-<text y={e.kind==='mother'?-114:e.kind==='goblin'?-67:-46} textAnchor="middle" fill={color} fontSize="17" fontFamily="Fredoka">{e.kind==='mother'?'Slime Mother':e.rocky?'Rock slime':e.kind==='goblin'?'Elite':e.element==='Neutral'?'Slime':e.element} {e.hp}</text>
+<text y={e.kind==='mother'?-114:e.kind==='goblin'?-67:-46} textAnchor="middle" fill={color} fontSize="17" fontFamily="Fredoka">{e.kind==='mother'?'Slime Mother':e.rocky?'Rock slime':e.kind==='goblin'?'Elite':e.element==='Neutral'?'Slime':e.element} {Math.ceil(e.hp)}</text>
 <rect x="-39" y={e.kind==='mother'?-105:e.kind==='goblin'?-59:-38} width="78" height="6" rx="3" fill="#294034"/><rect x="-39" y={e.kind==='mother'?-105:e.kind==='goblin'?-59:-38} width={78*e.hp/e.maxHP} height="6" rx="3" fill="#d68c88"/>
 {e.kind==='mother'&&<text y={-84} textAnchor="middle" fill={color} fontSize="16" fontFamily="Fredoka">{e.element}</text>}
 {e.attackAt!==null&&<text x="45" y="-27" fill="#f4aa80" fontSize="30">!</text>}
