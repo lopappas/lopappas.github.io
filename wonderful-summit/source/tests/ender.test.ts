@@ -22,7 +22,7 @@ test('all valid Ender qualities deal 1000 base damage, with no upgrade, knockbac
 test('Ender respects rocky/shield defenses, damage relics, Fury and final Midnight Stone damage',()=>{
  for(const [q,rocky,shield,direct] of [[48,false,false,1150],[48,true,false,575],[60,true,false,863],[80,true,false,1150],[48,true,true,288],[60,true,true,431],[80,false,true,575]] as const){
   const b=newBattle('active','pack');b.midnightStone=true;b.damageBonus=1.15;b.lotus=true;b.lotusReady=true;b.colorful=true;b.lastElement='Fire';b.furyReady=true;b.enemies[0]={...b.enemies[0],hp:100000,maxHP:100000,element:'Fire',rocky,shield:shield?woodenShield():null};
-  const multiplier=2*1.3*1.15;const hit=hitWithSpell(b,q,'ender',1,()=>0,multiplier,55);assert.equal(100000-hit.enemies[0].hp,Math.round(direct*multiplier)+25);assert.equal(releaseMultiplier(b,'ender'),multiplier);assert.equal(hit.enemies[1].hp,b.enemies[1].hp);
+  const multiplier=2*1.3*1.15;const hit=hitWithSpell(b,q,'ender',1,()=>0,multiplier,55);assert.equal(100000-hit.enemies[0].hp,Math.round(direct*multiplier*1.2));assert.equal(releaseMultiplier(b,'ender'),multiplier);assert.equal(hit.enemies[1].hp,b.enemies[1].hp);
   const e=hit.enemies[0];assert.equal(e.push,null);assert.equal(e.burn,null);assert.equal(e.rootUntil,0);assert.equal(e.slowUntil,0);assert.equal(e.shield?.burnUntil??null,null);
  }
 });

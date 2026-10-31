@@ -71,8 +71,9 @@ function stormRain(state:Battle,time:number):Battle{
    const e=old.kind==='mother'?{...old,element:ELEMENTS[(ELEMENTS.indexOf(old.initialElement as Element)+Math.floor((tick+1e-9)/15))%3]}:old;
    const oldShield=updateShield(e.shield,tick);
    const damage=firestormTickDamage({...e,shield:oldShield},portion.quality,portion.damageBonus,portion.baseDamage===3?1:0,portion.multiplier,tick);
+   const boostedDamage=portion.midnightBonus?Math.floor(damage*(1+portion.midnightBonus)+1e-9):damage;
    const shield=igniteShield(oldShield,'Fire',portion.quality,tick),ignited=shield!==oldShield;
-   const hp=Math.max(0,Math.round((e.hp-damage)*1000000)/1000000);
+   const hp=Math.max(0,Math.round((e.hp-boostedDamage)*1000000)/1000000);
    return{...e,hp,shield:shield??e.shield,hurtUntil:time+.15,push:hp===0||ignited?null:e.push,attackAt:hp===0||ignited?null:e.attackAt};
   });
   nextTick+=FIRESTORM_TICK_SECONDS;
@@ -96,21 +97,20 @@ function applyChronos(e:Enemy,field:Battle['chronosFields'][number],time:number)
  return field.kind==='slow'?{...e,chronosStartedAt:Math.max(e.chronosSlowUntil,e.stunUntil)>time?e.chronosStartedAt:started,slowUntil:Math.max(e.slowUntil,field.until),chronosSlowUntil:Math.max(e.chronosSlowUntil,field.until)}:{...e,chronosStartedAt:Math.max(e.chronosSlowUntil,e.stunUntil)>time?e.chronosStartedAt:started,stunStartedAt:e.stunUntil>time?e.stunStartedAt:started,stunUntil:Math.max(e.stunUntil,field.until),attackAt:null};
 }
 export function midnightBonus(inkUsed:number){
- if(!Number.isFinite(inkUsed)||inkUsed<25)return 0;
- if(inkUsed>54)return 25;
- const thresholds=[[50,20],[45,15],[40,10],[35,5],[30,3],[25,2]];
+ if(!Number.isFinite(inkUsed)||inkUsed<30)return 0;
+ if(inkUsed>54)return .20;
+ const thresholds=[[50,.15],[45,.12],[40,.10],[35,.05],[30,.03]];
  return thresholds.find(([ink])=>inkUsed>=ink)![1];
 }
 export function fizzleSpell(state:Battle):Battle{return state.phase==='active'&&state.furyReady?{...state,furyReady:false}:state;}
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random,damageMultiplier=1,inkUsed=0,bonuses?:TidalWave['bonuses']):Battle{
  if(state.phase!=='active'||(spellId==='ender'||spellId==='firestorm'||spellId==='tidalcrest')&&(!Number.isFinite(quality)||quality<48))return state;
- if(spellId==='firestorm')return{...state,casts:state.casts+1,firestorm:extendFirestorm(state.firestorm,state.time,quality,state.upgrades.firestorm??0,state.damageBonus,damageMultiplier)};
+ if(spellId==='firestorm')return{...state,casts:state.casts+1,firestorm:extendFirestorm(state.firestorm,state.time,quality,state.upgrades.firestorm??0,state.damageBonus,damageMultiplier,state.midnightStone?midnightBonus(inkUsed):0)};
  if(spellId==='chronos'){
   const effect=chronosEffect(quality,state.upgrades.chronos??0);if(!effect.duration)return state;
   const live=new Set(presentEnemies(state).map(e=>e.id));if(!live.size)return state;
   const field={quality,kind:effect.kind,started:state.time,until:state.time+effect.duration};
-  const flat=state.midnightStone?midnightBonus(inkUsed):0;
-  const enemies=state.enemies.map(e=>live.has(e.id)?{...applyChronos(e,field,state.time),hp:Math.max(0,e.hp-flat),hurtUntil:flat?state.time+.25:e.hurtUntil}:e);
+  const enemies=state.enemies.map(e=>live.has(e.id)?applyChronos(e,field,state.time):e);
   return resolveMother({...state,enemies,chronosFields:[...(state.chronosFields??[]).filter(f=>f.until>state.time),field],casts:state.casts+1,chronosPulse:{started:state.time,strong:quality>=70}});
  }
  const target=presentEnemies(state).find(e=>e.id===targetId)??nearestEnemy(state);if(!target)return state;
@@ -123,7 +123,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   if(e.id!==target.id)return e;
   const rockyFaint=e.rocky&&q<60;
   const bonus=casting.damageBonus*(moon||twilight?1.15:1),level=casting.upgrade;
-  const damage=Math.round(spellDamage(e,q,spellId,bonus,level,state.time)*damageMultiplier)+(casting.midnightStone?midnightBonus(inkUsed):0);
+  const damage=Math.round(spellDamage(e,q,spellId,bonus,level,state.time)*damageMultiplier*(1+(casting.midnightStone?midnightBonus(inkUsed):0)));
   const shield=igniteShield(updateShield(e.shield,state.time),element,q,state.time),shieldBurning=(shield?.burnUntil??0)>state.time;
   // Sun adds 30% of the resisted direct hit over three seconds, alongside Flare Bolt's burn.
   const burnTick=(spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier:0)+(steady&&element==='Fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0);

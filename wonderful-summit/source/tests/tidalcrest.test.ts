@@ -79,13 +79,13 @@ test('Fury, Lotus, Colorful Rock, Moon Amulet, upgrades and Midnight are snapsho
  b=launchSpell(b,60,'#fff','tidalcrest',50);assert.equal(b.furyReady,false);assert.equal(b.lotusReady,false);assert.equal(b.lastElement,'Water');assert.equal(b.tidalWaves[0].damageMultiplier,multiplier);
  b.damageBonus=1;b.pushBonus=1;b.upgrades={};b.midnightStone=false;b.amulets.moon=false;
  b=advance(b,.9);
- for(let i=0;i<3;i++)assert.equal(b.enemies[i].hp,enemies[i].hp-Math.round(spellDamage(enemies[i],60,'tidalcrest',1.15*1.15,1)*multiplier)-20);
+ for(let i=0;i<3;i++)assert.equal(b.enemies[i].hp,enemies[i].hp-Math.round(spellDamage(enemies[i],60,'tidalcrest',1.15*1.15,1)*multiplier*1.15));
  assert.equal(b.casts,1);
 });
 test('a bottled Tidalcrest starts from the player on impact and preserves Fury for the next drawn cast',()=>{
  let b=setup();b.furyReady=true;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'tidalcrest',quality:60,inkUsed:50}];b.midnightStone=true;
  b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,true);assert.equal(b.tidalWaves.length,1);assert.equal(b.tidalWaves[0].damageMultiplier,1);assert.ok(b.enemies.every(e=>e.hp===1000));
- b=advance(b,.9);for(const e of b.enemies)assert.equal(e.hp,1000-spellDamage({element:'Neutral'},60,'tidalcrest')-20);assert.equal(b.casts,1);
+ b=advance(b,.9);for(const e of b.enemies)assert.equal(e.hp,1000-Math.round(spellDamage({element:'Neutral'},60,'tidalcrest')*1.15));assert.equal(b.casts,1);
  b=launchSpell(b,60,'#fff','water');assert.equal(b.furyReady,false);assert.equal(b.projectile?.damageMultiplier,2);
 });
 test('waves can overlap and run alongside an orb without cancelling either or duplicating a cast',()=>{
