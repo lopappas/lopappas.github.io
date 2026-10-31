@@ -7,8 +7,8 @@ import {snapshotDrawing} from '../src/drawings.ts';
 const eventNode=ROUTE.findIndex(n=>n.kind==='event');
 const visit=():Run=>enterNode({...newRun(),screen:'map',node:eventNode,health:20,combats:5,campUsed:true},()=>.99);
 
-test('Forgotten campsite is the only Act 1 event, immediately after Rocky clearing; both existing camps remain',()=>{
- assert.deepEqual(ACT_ONE_EVENTS,['forgottenCampsite']);assert.equal(ROUTE[eventNode].icon,'?');assert.equal(ROUTE[eventNode].name,'Forgotten campsite');assert.equal(ROUTE[eventNode-1].name,'Rocky clearing');assert.equal(ROUTE[eventNode+1].name,'Woodland barricade');assert.deepEqual(ROUTE.filter(n=>n.kind==='camp').map(n=>n.name),['Firefly campsite','Mossy grove campsite']);
+test('Forgotten Campsite is the only Act 1 event, immediately after Rocky clearing; both existing camps remain',()=>{
+ assert.deepEqual(ACT_ONE_EVENTS,['forgottenCampsite']);assert.equal(ROUTE[eventNode].icon,'?');assert.equal(ROUTE[eventNode].name,'Forgotten Campsite');assert.equal(ROUTE[eventNode-1].name,'Rocky clearing');assert.equal(ROUTE[eventNode+1].name,'Woodland barricade');assert.deepEqual(ROUTE.filter(n=>n.kind==='camp').map(n=>n.name),['Firefly campsite','Mossy grove campsite']);
  const r=visit();assert.equal(r.screen,'event');assert.deepEqual(r.event,{id:'forgottenCampsite',outcome:'pending'});assert.equal(r.campUsed,false);assert.equal(enterNode(r),r);
 });
 test('fire quality boundaries, non-fire spells and fizzles resolve to the specified outcomes',()=>{

@@ -17,7 +17,7 @@ export type BottledSpell={drawing?:PlayerDrawing;inkUsed?:number;spellId:SpellId
 export const POTION_IDS:Potion[]=['heal','freeze','ink','rejection','spellBottle','fury'];
 export const COMMON_POTIONS:Potion[]=['heal','freeze','ink'];
 export const RARE_POTIONS:Potion[]=['spellBottle','rejection','fury'];
-export function potionPrice(potion:Potion){return RARE_POTIONS.includes(potion)?32:16;}
+export function potionPrice(potion:Potion){return RARE_POTIONS.includes(potion)?36:18;}
 export function rollRewardPotion(random:()=>number=Math.random):Potion{const pool=random()<.7?COMMON_POTIONS:RARE_POTIONS;return pool[Math.min(pool.length-1,Math.floor(random()*pool.length))];}
 export function enemyElementColor(element:Enemy['element']){return element==='Fire'?'#ef9c70':element==='Water'?'#7ccbd6':element==='Nature'?'#99bf76':'#45474c';}
 export const ENCOUNTERS:Record<Encounter,string>={slime:'Meadow slime',pack:'Elemental pack',elite:'Elite goblin',rock:'Rock slime',shieldPack:'Woodland barricade',mother:'Slime Mother',upperMeadow:'The upper meadow'};
