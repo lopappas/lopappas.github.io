@@ -10,7 +10,7 @@ test('Chronos quality thresholds interpolate to every requested endpoint',()=>{
  assert.equal(chronosEffect(47).duration,0);assert.equal(chronosEffect(NaN).duration,0);assert.equal(chronosEffect(101).duration,18);
 });
 test('Chronos is recognizable at any size and location, with either stroke order and direction',()=>{
- const spell=SPELLS.find(s=>s.id==='chronos')!;assert.equal(spell.element,'Ancient');assert.equal(spell.description,'Draw a circle with a straight line from its center to the top. Temporarily deny the flow of time for all foes.');
+ const spell=SPELLS.find(s=>s.id==='chronos')!;assert.equal(spell.element,'Ancient');assert.equal(spell.description,'A lost spell that distorts time itself to hinder enemy movements. Strong casts make time stand still.');
  for(const scale of [.2,1,4]){const strokes=[...spell.strokes].reverse().map(st=>[...st].reverse().map(p=>({x:p.x*scale+100,y:p.y*scale+37})));const r=recognize(strokes);assert.equal(r.spell?.id,'chronos');assert.ok(r.quality>=98);}
  assert.equal(recognize(spell.strokes,['water','fire','nature']).spell,null);assert.notEqual(recognize([spell.strokes[0]],['chronos']).spell?.id,'chronos');
  assert.ok(spellbookColumns(['chronos']).some(c=>c.element==='Ancient'&&c.spells[0].id==='chronos'));

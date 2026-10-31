@@ -15,7 +15,7 @@ test('target caret retains its element color throughout partial and full Chronos
 test('each merchant guarantees a rare potion and prices all common/rare and fallback offers correctly',()=>{
  for(const node of ROUTE.flatMap((n,i)=>n.kind==='shop'?[i]:[]))for(const roll of [0,.2,.5,.7,.999])for(const all of [false,true]){const r=enterNode({...newRun(),screen:'map',node,spells:all?SPELLS.map(s=>s.id):newRun().spells},()=>roll);const bottles=r.stock.filter(s=>s.kind==='potion');assert.ok(bottles.some(s=>RARE_POTIONS.includes(s.item as any)));for(const s of bottles)assert.equal(s.price,RARE_POTIONS.includes(s.item as any)?36:18);assert.equal(r.stock.length,6);assert.equal(new Set(r.stock.map(s=>s.id)).size,6);}
  for(const id of COMMON_POTIONS)assert.equal(potionPrice(id),18);for(const id of RARE_POTIONS)assert.equal(potionPrice(id),36);
- assert.deepEqual([...RARE_POTIONS].sort(),['fury','rejection','spellBottle']);assert.equal(POTIONS.fury.detail,'Your next spell deals twice as much damage Make it count.');
+ assert.deepEqual([...RARE_POTIONS].sort(),['fury','rejection','spellBottle']);assert.equal(POTIONS.fury.detail,'Your next spell deals twice as much damage. Make it count.');
 });
 test('reward rarity is exactly 70 percent common / 30 percent rare; selection within each tier is uniform',()=>{
  let common=0,rare=0;for(let i=0;i<1000;i++){let call=0;const id=rollRewardPotion(()=>call++===0?(i+.5)/1000:.5);if(COMMON_POTIONS.includes(id))common++;else rare++;}assert.equal(common,700);assert.equal(rare,300);
