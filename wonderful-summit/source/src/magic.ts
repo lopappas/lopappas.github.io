@@ -17,7 +17,7 @@ export const SPELLS:Spell[]=[
  {id:'ender',rarity:'Legendary',name:'Ender',element:'Ancient',color:'#8b9099',description:'Draw a capital K. Deals 1,000 base damage to the nearest enemy. No knockback.',path:'M20 10 L20 90 M80 10 L20 50 L80 90',strokes:[[{x:20,y:10},{x:20,y:90}],[{x:80,y:10},{x:20,y:50},{x:80,y:90}]],developerOnly:true,upgradable:false},
  {id:'firestorm',rarity:'Uncommon',name:'Firestorm',element:'Fire',color:'#f0a068',description:'Bring about a relentless rain of fire. Damages all foes caught in its rain, with no knockback.',path:'M10 18 L90 18 M12 38 L44 38 L28 70 Z M56 38 L88 38 L72 70 Z',strokes:[[{x:10,y:18},{x:90,y:18}],[{x:12,y:38},{x:44,y:38},{x:28,y:70},{x:12,y:38}],[{x:56,y:38},{x:88,y:38},{x:72,y:70},{x:56,y:38}]]},
  {id:'tidalcrest',rarity:'Uncommon',name:'Tidalcrest',element:'Water',color:'#69c2d6',description:'Channel a mighty wave to washout all opponents.',path:'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z',strokes:[shape([15,85],[[15,47,50,15,85,12],[61,36,61,60,88,85],[64,85,39,85,15,85]])]},
- {id:'bog',rarity:'Uncommon',name:'Drudge Bog',element:'Nature',color:'#9bbe72',description:'Raise a shallow, murky swamp that damages and slows all foes. Recasting extends its duration.',path:'M9 24 L24 39 L39 24 M24 39 L24 58 M61 24 L76 39 L91 24 M76 39 L76 58 M10 70 L90 70',strokes:[[{x:9,y:24},{x:24,y:39},{x:39,y:24}],[{x:24,y:39},{x:24,y:58}],[{x:61,y:24},{x:76,y:39},{x:91,y:24}],[{x:76,y:39},{x:76,y:58}],[{x:10,y:70},{x:90,y:70}]]}
+ {id:'bog',rarity:'Uncommon',name:'Drudge Bog',element:'Nature',color:'#9bbe72',description:'Raise a shallow, murky swamp that damages and slows all foes. Recasting extends its duration.',path:'M50 12 C70.98682 12 88 29.01318 88 50 C88 70.98682 70.98682 88 50 88 C29.01318 88 12 70.98682 12 50 C12 29.01318 29.01318 12 50 12 Z M50 30 L67.5 50 L50 70 L32.5 50 Z',strokes:[shape([50,12],[[70.98682,12,88,29.01318,88,50],[88,70.98682,70.98682,88,50,88],[29.01318,88,12,70.98682,12,50],[12,29.01318,29.01318,12,50,12]]),[{x:50,y:30},{x:67.5,y:50},{x:50,y:70},{x:32.5,y:50},{x:50,y:30}]]}
 ];
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
@@ -28,18 +28,6 @@ export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]],
  tidalcrest:[SPELLS.find(s=>s.id==='tidalcrest')!.strokes.map(stroke=>stroke.map(p=>({x:50+(p.x-50)*.8,y:p.y})))]
 };
-// Named recognition-only Bog variants; original book art and perfect traces stay canonical.
-function bogVariation(steeperSprouts:boolean,extraGap:number):Strokes{
- const original=SPELLS.find(s=>s.id==='bog')!.strokes;
- const sprouts=steeperSprouts?[24,76].flatMap(center=>SPELL_VARIATIONS.nature![0].map(st=>st.map(p=>({x:center+(p.x-50)*.5,y:14+p.y*.5})))):original.slice(0,4).map(st=>st.map(p=>({...p})));
- return [...sprouts,original[4].map(p=>({...p,y:p.y+extraGap}))];
-}
-export const DRUDGE_BOG_VARIANTS={
- variant1:bogVariation(true,0),
- variant2:bogVariation(false,4),
- variant3:bogVariation(true,4)
-};
-SPELL_VARIATIONS.bog=Object.values(DRUDGE_BOG_VARIANTS);
 export const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function strokeLength(strokes:Strokes){return strokes.reduce((sum,s)=>sum+s.slice(1).reduce((n,p,i)=>n+distance(s[i],p),0),0);}
 export function inkCost(a:Point,b:Point,shortSide:number){return distance(a,b)/Math.max(1,shortSide)*(22/1.25);}
