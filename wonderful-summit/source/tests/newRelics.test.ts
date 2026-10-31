@@ -37,7 +37,7 @@ test('curse damage ignores elemental shields and ends combat when its final vict
  let b=setup();b.shaleActive=true;b.enemies[0].hp=5;b=contact(b);b.freezeUntil=100;b=advance(b,1.01);assert.equal(b.enemies[0].hp,0);assert.equal(b.phase,'victory');
 });
 test('developer potion grants validate IDs, honor purse capacity, and reserve bottle capture',()=>{
- for(const id of POTION_IDS){assert.deepEqual(parseDeveloperCommand({type:'potion',id}),{type:'potion',id});const granted=applyDeveloperCommand(newRun(),{type:'potion',id});assert.equal(granted.potions[id],id==='heal'?2:1);assert.equal(granted.pendingBottle,id==='spellBottle');}
+ for(const id of POTION_IDS){assert.deepEqual(parseDeveloperCommand({type:'potion',id}),{type:'potion',id});const granted=applyDeveloperCommand(newRun(),{type:'potion',id});assert.equal(granted.potions[id],id==='theodoraHeal'?2:1);assert.equal(granted.pendingBottle,id==='spellBottle');}
  assert.equal(parseDeveloperCommand({type:'potion',id:'unknown'}),null);const r={...newRun(),potions:{heal:3,freeze:0,ink:0}};assert.equal(applyDeveloperCommand(r,{type:'potion',id:'fury'}),r);
 });
 test('Slime Mother offspring have all six possible orders and deal exactly 12 damage at every difficulty',()=>{

@@ -4,7 +4,7 @@ import {SPELLS} from './magic';
 import {potionCapacity,potionCount,potionSlots,type Run} from './run';
 import {LessonText} from './LessonText';
 
-export function RunPotions({run,onDrop,onDrinkHealing,visibleSlots=false}:{run:Run;onDrinkHealing?:()=>void;visibleSlots?:boolean;onDrop:(id:Potion,bottleIndex:number)=>void}){
+export function RunPotions({run,onDrop,onDrinkHealing,visibleSlots=false}:{run:Run;onDrinkHealing?:(id:Potion)=>void;visibleSlots?:boolean;onDrop:(id:Potion,bottleIndex:number)=>void}){
  const [open,setOpen]=useState(false),[selected,setSelected]=useState<number|null>(null);
  const container=useRef<HTMLDivElement>(null),trigger=useRef<HTMLButtonElement>(null),panel=useRef<HTMLElement>(null);
  const slots=potionSlots(run.potions,potionCapacity(run));
@@ -33,7 +33,7 @@ export function RunPotions({run,onDrop,onDrinkHealing,visibleSlots=false}:{run:R
     <h3>{POTIONS[id].name}{id==='spellBottle'?'':' potion'}</h3>
     <p><LessonText text={POTIONS[id].detail}/></p>
     {stored&&<p className="inventory-sealed-spell">Sealed spell: <LessonText text={spell?.name??'Fizzle'}/> · {stored.quality}% quality</p>}
-    {visibleSlots&&run.screen==='map'&&id==='heal'&&onDrinkHealing&&<button className="drink-trail-potion" disabled={run.health>=100||run.health<=0||run.pendingBottle} onClick={()=>{onDrinkHealing();close();}}>Drink</button>}
+    {run.screen!=='battle'&&(id==='heal'||id==='theodoraHeal')&&onDrinkHealing&&<button className="drink-trail-potion" disabled={run.health>=100||run.health<=0||run.pendingBottle} onClick={()=>{onDrinkHealing(id);close();}}>Drink</button>}
     <button className="drop-potion" disabled={run.pendingBottle} aria-label={`Drop ${POTIONS[id].name}${id==='spellBottle'?'':' potion'}`} onClick={()=>{onDrop(id,bottleIndex);if(visibleSlots)close();else{setSelected(null);panel.current?.querySelector<HTMLButtonElement>('.close-modal')?.focus({preventScroll:true});}}}>Drop potion</button>
    </div>}
   </section>}

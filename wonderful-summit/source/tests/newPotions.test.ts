@@ -17,7 +17,7 @@ test('both shops replace unavailable spell slots with extra potions while keepin
  }
 });
 test('new potions appear in shop and reward pools; each occupies one slot',()=>{
- for(const id of POTION_IDS){const pool=COMMON_POTIONS.includes(id)?COMMON_POTIONS:RARE_POTIONS;let call=0;const reward=finishBattle({...newRun(),screen:'battle',relics:['twillyScarf']},{...battleForRun(newRun()),phase:'victory'},()=>call++===0?(COMMON_POTIONS.includes(id)?0:.8):(pool.indexOf(id)+.1)/3);assert.equal(reward.reward?.potion,id);const r=claimPotion(reward);assert.equal(potionCount(r),2);assert.equal(r.pendingBottle,id==='spellBottle');}
+ for(const id of POTION_IDS.filter(id=>id!=='theodoraHeal')){const pool=COMMON_POTIONS.includes(id)?COMMON_POTIONS:RARE_POTIONS;let call=0;const reward=finishBattle({...newRun(),screen:'battle',relics:['twillyScarf']},{...battleForRun(newRun()),phase:'victory'},()=>call++===0?(COMMON_POTIONS.includes(id)?0:.8):(pool.indexOf(id)+.1)/3);assert.equal(reward.reward?.potion,id);const r=claimPotion(reward);assert.equal(potionCount(r),2);assert.equal(r.pendingBottle,id==='spellBottle');}
  assert.deepEqual(potionSlots({heal:0,freeze:0,ink:0,rejection:1,spellBottle:2},3),['rejection','spellBottle','spellBottle']);
  assert.equal(POTIONS.rejection.detail,'Imbue your skin with a powerful repelling magic for 15 seconds. During this time, attackers get sent soaring on contact and deal reduced damage.');
 });

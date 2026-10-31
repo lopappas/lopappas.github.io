@@ -2,11 +2,11 @@ import React,{useEffect,useRef,useState,useSyncExternalStore} from 'react';
 import {createPortal} from 'react-dom';
 import {audioPreferences,DEFAULT_AUDIO_PREFERENCES,loadAudioPreferences,type AudioPreferences} from './audioPreferences';
 
-export function SettingsButton({onOpen}:{onOpen?:()=>void}){
+export function SettingsButton({onOpen,onClose}:{onOpen?:()=>void;onClose?:()=>void}){
  const [open,setOpen]=useState(false),[audio,setAudio]=useState(false),trigger=useRef<HTMLButtonElement>(null),dialog=useRef<HTMLElement>(null);
  const preferences=useSyncExternalStore(audioPreferences.subscribe,audioPreferences.getSnapshot,()=>DEFAULT_AUDIO_PREFERENCES);
  useEffect(()=>loadAudioPreferences(),[]);
- function close(){setOpen(false);trigger.current?.focus({preventScroll:true});}
+ function close(){setOpen(false);onClose?.();trigger.current?.focus({preventScroll:true});}
  useEffect(()=>{
   if(!open)return;
   const modal=dialog.current!;modal.querySelector<HTMLButtonElement>('button')?.focus({preventScroll:true});

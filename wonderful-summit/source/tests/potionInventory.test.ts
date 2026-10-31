@@ -33,7 +33,11 @@ test('trail healing restores 30 HP up to the cap and consumes exactly one carrie
  for(const health of [1,45,80,99]){const run:Run={...newRun(),screen:'map',health,gold:43,potions:{heal:2,freeze:1,ink:0,spellBottle:1},bottledSpells:[{spellId:'fire',quality:87}]};const healed=drinkTrailHealing(run);assert.equal(healed.health,Math.min(100,health+30));assert.equal(healed.potions.heal,1);assert.equal(healed.potions.freeze,1);assert.deepEqual(healed.bottledSpells,run.bottledSpells);assert.equal(healed.gold,43);assert.equal(healed.screen,'map');assert.equal(healed.node,run.node);assert.equal(run.potions.heal,2);}
 });
 test('trail healing cannot waste a potion at full health, revive a lost run, or be used on other screens',()=>{
- const run:Run={...newRun(),screen:'map',health:50};
+ const run:Run={...newRun(),screen:'map',health:50,potions:{heal:1,freeze:0,ink:0}};
  for(const blocked of [{...run,health:100},{...run,health:0},{...run,pendingBottle:true},{...run,potions:{heal:0,freeze:1,ink:1}}])assert.equal(drinkTrailHealing(blocked),blocked);
- for(const screen of ['opening','menu','tutorial','sister','battle','rewards','shop','camp','event','complete','defeat'] as RunScreen[]){const blocked={...run,screen};assert.equal(drinkTrailHealing(blocked),blocked);}
+ for(const screen of ['opening','menu','battle','defeat'] as RunScreen[]){const blocked={...run,screen};assert.equal(drinkTrailHealing(blocked),blocked);}
+});
+
+test('both healing potions work on every started non-combat screen and remain separate',()=>{
+ for(const screen of ['sister','map','rewards','shop','camp','event','complete'] as RunScreen[])for(const id of ['heal','theodoraHeal'] as const){const r:Run={...newRun(),screen,health:40,potions:{heal:1,theodoraHeal:1,freeze:0,ink:0}};const healed=drinkTrailHealing(r,id);assert.equal(healed.health,id==='heal'?70:75);assert.equal(healed.potions[id],0);assert.equal(healed.potions[id==='heal'?'theodoraHeal':'heal'],1);assert.equal(drinkTrailHealing(healed,id),healed);}
 });

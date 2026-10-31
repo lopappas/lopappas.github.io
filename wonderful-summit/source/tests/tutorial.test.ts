@@ -9,7 +9,7 @@ function advance(battle:Battle,seconds:number,paused=false){for(let i=0;i<Math.r
 test('checkmark leads to menu, and both mode choices are guarded and start fresh',()=>{
  const opening=newRun(),menu=finishOpening(opening);
  assert.equal(menu.screen,'menu');assert.deepEqual(selectMode(opening,'tutorial'),opening);assert.deepEqual(finishOpening(menu),menu);
- const normal=startRun(selectMode(menu,'new'),'moss');assert.equal(normal.screen,'map');assert.equal(normal.health,100);assert.deepEqual(normal.relics,['moss']);assert.deepEqual(normal.potions,{heal:1,freeze:0,ink:0});assert.equal(battleForRun(normal,()=>.2).enemies.length,1);
+ const normal=startRun(selectMode(menu,'new'),'moss');assert.equal(normal.screen,'map');assert.equal(normal.health,100);assert.deepEqual(normal.relics,['moss']);assert.deepEqual(normal.potions,{theodoraHeal:1,heal:0,freeze:0,ink:0});assert.equal(battleForRun(normal,()=>.2).enemies.length,1);
  assert.equal(selectMode(menu,'tutorial').screen,'tutorial');assert.deepEqual(selectMode(normal,'tutorial'),normal);
  const dirty={...menu,gold:999,health:1,potions:{heal:0,freeze:0,ink:3}};const fresh=selectMode(dirty,'new');assert.equal(fresh.gold,0);assert.equal(fresh.health,100);assert.deepEqual(fresh.spells,['water','fire','nature']);
 });
@@ -65,6 +65,6 @@ test('every random tutorial opponent is winnable using Steady counter spells and
    b=launchSpell(b,60,'#abc',spell);b=advance(b,2);
   }
   assert.equal(b.phase,'victory');assert.equal(b.enemies.length,1);assert.ok(b.playerHP>0);
-  const menu=returnToMenu(),normal=startRun(selectMode(menu,'new'),'amber');assert.equal(menu.screen,'menu');assert.equal(normal.health,100);assert.equal(normal.gold,0);assert.deepEqual(normal.potions,{heal:1,freeze:0,ink:0});assert.deepEqual(normal.upgrades,{});
+  const menu=returnToMenu(),normal=startRun(selectMode(menu,'new'),'amber');assert.equal(menu.screen,'menu');assert.equal(normal.health,100);assert.equal(normal.gold,0);assert.deepEqual(normal.potions,{theodoraHeal:1,heal:0,freeze:0,ink:0});assert.deepEqual(normal.upgrades,{});
  }
 });
