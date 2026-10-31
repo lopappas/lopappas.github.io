@@ -237,9 +237,20 @@
 
 .run-stats>.run-stat:first-child{justify-self:start;text-align:left}.run-stats>.run-stat:last-child{justify-self:end;text-align:right}
 
-.rarity-common{--rarity-border:#a6aaae}.rarity-uncommon{--rarity-border:#78b6e6}.rarity-rare{--rarity-border:#e6c363}.rarity-keepsake{--rarity-border:#b995e3}
+.rarity-common{--rarity-border:#a6aaae}.rarity-uncommon{--rarity-border:#78b6e6}.rarity-rare,.rarity-legendary{--rarity-border:#e6c363}.rarity-keepsake{--rarity-border:#b995e3}
 .item-rarity{border-color:var(--rarity-border)!important;border-width:2px!important}
 .item-rarity.selected{box-shadow:inset 0 0 0 1px var(--rarity-border),0 0 0 1px var(--rarity-border)}
 .item-rarity.relic-broken{--rarity-border:#646464;border-color:#646464!important}
 
 .item-rarity.relic-detail-broken{--rarity-border:#646464}
+
+/* Spell tiers use fine borders; relic borders retain their collected-item weight. */
+.spell-rarity{border-width:1px!important}
+.spell-rarity.selected{box-shadow:none}
+.rarity-label{display:block;font-size:11px;font-weight:400;font-style:italic;font-synthesis:style;line-height:1.3;letter-spacing:.15px}
+.book-rarity{margin:12px 0 4px;color:#7b7960}
+.book-rarity+.book-sigil-frame{margin-top:4px}
+.relic-detail .rarity-label{margin:-2px 0 7px}
+.reward-pickup .rarity-label{margin:3px 0}
+.developer-options .rarity-label{margin-top:4px}
+.relic-list .rarity-label{margin:3px 0}

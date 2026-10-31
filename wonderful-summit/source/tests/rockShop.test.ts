@@ -14,11 +14,11 @@ test('merchant always rolls two distinct options per category, preferring unowne
   if(complete)for(const item of shop.stock.filter(s=>s.kind!=='potion')){const rich={...shop,gold:1000};assert.equal(buy(rich,item.id),rich);}
  }
 });
-test('both merchants charge 40 for spells, 16/32 for common/rare potions including replacements, and enforce exact purchase balances',()=>{
+test('both merchants charge rarity-based spell and relic prices, keep potion prices, and enforce exact purchase balances',()=>{
  for(const node of ROUTE.flatMap((entry,i)=>entry.kind==='shop'?[i]:[]))for(const roll of [0,.5,.99])for(const complete of [false,true]){
   const r=enterNode({...newRun(),screen:'map',node,gold:1000,potions:{heal:0,freeze:0,ink:0},spells:complete?SPELLS.map(s=>s.id):newRun().spells},()=>roll);
   for(const item of r.stock){
-   const price=item.kind==='spell'?40:item.kind==='relic'?45:RARE_POTIONS.includes(item.item as Potion)?32:16;
+   const price=item.kind==='spell'?(SPELLS.find(s=>s.id===item.item)!.rarity==='Legendary'?60:40):item.kind==='relic'?{Common:45,Uncommon:60,Rare:75,Keepsake:45}[RELICS[item.item as keyof typeof RELICS].rarity]:RARE_POTIONS.includes(item.item as Potion)?32:16;
    assert.equal(item.price,price);
    const paid=buy(r,item.id);assert.equal(paid.gold,1000-price);assert.equal(paid.stock.find(s=>s.id===item.id)?.sold,true);assert.equal(buy(paid,item.id),paid);
    const poor={...r,gold:price-1};assert.equal(buy(poor,item.id),poor);

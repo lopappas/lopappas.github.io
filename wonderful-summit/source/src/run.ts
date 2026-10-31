@@ -1,4 +1,4 @@
-import type {RelicRarity} from './rarity.ts';
+import {pickByRarity,type RelicRarity,type SpellRarity} from './rarity.ts';
 import {rollTrailEvent,forgottenCampsiteOutcome,type TrailEventState} from './events.ts';
 import {bestDrawing,type PlayerDrawing} from './drawings.ts';
 import {SPELLS,PLAYER_SPELLS,isUpgradableSpell,type SpellId} from './magic.ts';
@@ -24,6 +24,13 @@ export function finishOpening(run:Run):Run{return run.screen==='opening'?{...run
 export function selectMode(run:Run,mode:'new'|'tutorial'):Run{return run.screen==='menu'?{...newRun(),screen:mode==='new'?'sister':'tutorial'}:run;}
 export function returnToMenu():Run{return{...newRun(),screen:'menu'};}
 const pick=<T,>(list:T[],random:()=>number)=>list[Math.min(list.length-1,Math.floor(random()*list.length))];
+const SPELL_WEIGHTS:Record<SpellRarity,number>={Common:90,Uncommon:90,Legendary:10};
+const RELIC_WEIGHTS:Record<RelicRarity,number>={Common:60,Uncommon:30,Rare:10,Keepsake:0};
+const spellRarity=(id:SpellId)=>SPELLS.find(s=>s.id===id)!.rarity;
+const pickSpell=(items:SpellId[],random:()=>number)=>pickByRarity(items,spellRarity,SPELL_WEIGHTS,random);
+const pickRelic=(items:RelicId[],random:()=>number)=>pickByRarity(items,id=>RELICS[id].rarity,RELIC_WEIGHTS,random);
+export function spellPrice(id:SpellId){return spellRarity(id)==='Legendary'?60:40;}
+export function relicPrice(id:RelicId){return {Common:45,Uncommon:60,Rare:75,Keepsake:45}[RELICS[id].rarity];}
 export function startRun(run:Run,relic:RelicId):Run{if(run.screen!=='sister'||!STARTER_RELICS.includes(relic))return run;return{...run,screen:'map',spells:[...BEGINNER_SPELLS],relics:[relic]};}
 export function potionCapacity(run:Pick<Run,'relics'>){return run.relics.includes('birkinStock')?5:3;}
 // Expand every bottle into a separate slot, including duplicate potion types.
@@ -37,14 +44,14 @@ export function enterNode(run:Run,random:()=>number=Math.random):Run{
  if(node.kind==='camp')return{...run,screen:'camp',campUsed:false};
  const allSpells=PLAYER_SPELLS.map(s=>s.id),allRelics=(Object.keys(RELICS) as RelicId[]).filter(id=>!STARTER_RELICS.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));
  // Prefer unowned items, but keep the six-card layout when a collection is complete.
- const chooseTwo=<T,>(all:T[],unowned:T[])=>{const result:T[]=[];while(result.length<2){const preferred=unowned.filter(x=>!result.includes(x)),pool=preferred.length?preferred:all.filter(x=>!result.includes(x));result.push(pick(pool,random));}return result;};
+ const chooseTwo=(all:RelicId[],unowned:RelicId[])=>{const result:RelicId[]=[];while(result.length<2){const preferred=unowned.filter(x=>!result.includes(x)),pool=preferred.length?preferred:all.filter(x=>!result.includes(x));result.push(pickRelic(pool,random));}return result;};
  const stock:Stock[]=[pick(COMMON_POTIONS,random),pick(RARE_POTIONS,random)].map(item=>({id:`potion-${item}`,kind:'potion',item,price:potionPrice(item),sold:false}));
  const unlearned=allSpells.filter(id=>!run.spells.includes(id));
  for(let slot=0;slot<2;slot++){
-  if(unlearned.length){const item=pick(unlearned,random);unlearned.splice(unlearned.indexOf(item),1);stock.push({id:`spell-${item}`,kind:'spell',item,price:40,sold:false});}
+  if(unlearned.length){const item=pickSpell(unlearned,random);unlearned.splice(unlearned.indexOf(item),1);stock.push({id:`spell-${item}`,kind:'spell',item,price:spellPrice(item),sold:false});}
   else {const available=POTION_IDS.filter(id=>!stock.some(s=>s.kind==='potion'&&s.item===id)),item=pick(available.length?available:POTION_IDS,random);stock.push({id:`potion-extra-${slot}`,kind:'potion',item,price:potionPrice(item),sold:false});}
  }
- for(const item of chooseTwo(allRelics,allRelics.filter(id=>!run.relics.includes(id))))stock.push({id:`relic-${item}`,kind:'relic',item,price:45,sold:false});
+ for(const item of chooseTwo(allRelics,allRelics.filter(id=>!run.relics.includes(id))))stock.push({id:`relic-${item}`,kind:'relic',item,price:relicPrice(item),sold:false});
  return{...run,screen:'shop',stock};
 }
 export function battleForRun(run:Run,random:()=>number=Math.random):Battle{
@@ -58,8 +65,8 @@ export function finishBattle(run:Run,battle:Battle,random:()=>number=Math.random
  const combats=run.combats+1;
  const potion=(run.relics.includes('twillyScarf')||random()<.35)?rollRewardPotion(random):null;
  const unknown=PLAYER_SPELLS.filter(s=>!run.spells.includes(s.id)).map(s=>s.id),offers:SpellId[]=[];
- if(combats%2===0)for(let i=0;i<3&&unknown.length;i++){const id=pick(unknown,random);unknown.splice(unknown.indexOf(id),1);offers.push(id);}
- const available=(Object.keys(RELICS) as RelicId[]).filter(id=>!STARTER_RELICS.includes(id)&&!run.relics.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));const relic=isEliteNode(run.node)&&available.length?pick(available,random):null;
+ if(combats%2===0)for(let i=0;i<3&&unknown.length;i++){const id=pickSpell(unknown,random);unknown.splice(unknown.indexOf(id),1);offers.push(id);}
+ const available=(Object.keys(RELICS) as RelicId[]).filter(id=>!STARTER_RELICS.includes(id)&&!run.relics.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));const relic=isEliteNode(run.node)&&available.length?pickRelic(available,random):null;
  const gold=encounterGold(run.node,random);
  return{...carried,screen:'rewards',combats,health:Math.min(100,battle.playerHP+(run.relics.includes('moss')?12:0)),reward:{gold,potion,offers,relic,goldClaimed:false,potionStatus:potion?'pending':'skipped',relicClaimed:!relic,learned:null}};
 }
