@@ -28,6 +28,18 @@ export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]],
  tidalcrest:[SPELLS.find(s=>s.id==='tidalcrest')!.strokes.map(stroke=>stroke.map(p=>({x:50+(p.x-50)*.8,y:p.y})))]
 };
+// Named recognition-only Bog variants; original book art and perfect traces stay canonical.
+function bogVariation(steeperSprouts:boolean,extraGap:number):Strokes{
+ const original=SPELLS.find(s=>s.id==='bog')!.strokes;
+ const sprouts=steeperSprouts?[24,76].flatMap(center=>SPELL_VARIATIONS.nature![0].map(st=>st.map(p=>({x:center+(p.x-50)*.5,y:14+p.y*.5})))):original.slice(0,4).map(st=>st.map(p=>({...p})));
+ return [...sprouts,original[4].map(p=>({...p,y:p.y+extraGap}))];
+}
+export const DRUDGE_BOG_VARIANTS={
+ variant1:bogVariation(true,0),
+ variant2:bogVariation(false,4),
+ variant3:bogVariation(true,4)
+};
+SPELL_VARIATIONS.bog=Object.values(DRUDGE_BOG_VARIANTS);
 export const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function strokeLength(strokes:Strokes){return strokes.reduce((sum,s)=>sum+s.slice(1).reduce((n,p,i)=>n+distance(s[i],p),0),0);}
 export function inkCost(a:Point,b:Point,shortSide:number){return distance(a,b)/Math.max(1,shortSide)*(22/1.25);}
