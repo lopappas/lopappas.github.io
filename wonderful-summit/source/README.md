@@ -22,3 +22,10 @@ Uncommon spells cost 40 gold and Legendary spells cost 60. Spell rewards and mer
 ## Developer panel
 
 Hold Spellbook for 3 seconds. Authorization is temporarily disabled for all players; grants apply locally to the current session. There is no account or API requirement in this build. Restore server-side identity checks before restricting access again.
+
+
+## Encyclopedia
+
+The home menu opens a single-page field journal with Spells, Relics, and Potions chapters, grouped by rarity. Entries use the live game definitions; developer-only spells are excluded. Spell entries include their current drawing shape and casting tips; relic and potion entries include effects and flavor text.
+
+`ENCYCLOPEDIA_PREVIEW` in `src/encyclopedia.ts` currently reveals every entry because journey saving is not implemented. Session discovery tracking stays separate from inventory, so spending a potion or starting a new run does not erase a discovery. Once durable discovery storage exists, disable the preview flag to show question marks until collection. No encyclopedia data is persisted yet.

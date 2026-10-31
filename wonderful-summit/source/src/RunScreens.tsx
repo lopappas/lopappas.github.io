@@ -1,3 +1,6 @@
+import {EncyclopediaButton} from './Encyclopedia';
+import {recordDiscoveries,type Discoveries} from './encyclopedia';
+import {PotionIcon} from './PotionIcon';
 import {rarityClass,spellRarityClass} from './rarity';
 import {SettingsButton} from './Settings';
 import {RainbowLetters} from './SpellGrade';
@@ -26,7 +29,7 @@ function TrailSymbol({symbol}:{symbol:string}){
  return <>{symbol}</>;
 }
 function Icon({spell}:{spell:Spell}){return <svg className="run-sigil" viewBox="0 0 100 100" style={{color:spell.color}} aria-hidden="true"><path d={spell.path} fill="none" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round"/></svg>}
-function PotionIcon({potion}:{potion:Potion}){const colors={theodoraHeal:'#f2b8d0',heal:'#e79caa',freeze:'#94d5e8',ink:'#c3a1e5',rejection:'#f8f6ee',spellBottle:'#bfa1e8',fury:'#bd384e'};return <svg className="reward-potion-icon" viewBox="0 0 48 56" aria-hidden="true"><path d="M17 5h14v7H17z" fill="#bc9362" stroke="#614f42" strokeWidth="2"/><path d="M18 12h12v10c10 6 14 12 11 21-2 7-9 9-17 9S9 50 7 43c-3-9 1-15 11-21z" fill="#dce8df" fillOpacity=".3" stroke="#d9e4d6" strokeWidth="2"/><path d="M11 33h26c6 12-2 16-13 16S5 45 11 33z" fill={colors[potion]}/><path d="M14 38v5" stroke="#fff7e5" strokeWidth="3" strokeLinecap="round" opacity=".65"/><path d="M20 17h8" stroke="#fff8e7" strokeWidth="2" opacity=".65"/></svg>}
+
 function GoldIcon(){return <svg className="reward-coin-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#e9bd50" stroke="#9f732e" strokeWidth="3"/><circle cx="24" cy="24" r="15" fill="none" stroke="#fff0ad" strokeWidth="2"/><path d="m24 13 7 11-7 11-7-11z" fill="#9f732e"/></svg>}
 function Sister(){return <svg className="npc-art sister-art" viewBox="0 0 220 155" role="img" aria-label="Theodora, Filadora's older witch sister"><circle cx="110" cy="78" r="55" fill="#e3d0ac"/><path d="M78 65h63v55H78z" fill="#694b52"/><path d="M88 68h44v41H88z" fill="#e7be9c"/><path d="M79 109h62l16 38H63z" fill="#8ba792"/><path d="M61 60h99v13H61zM76 60l24-47h15l26 47z" fill="#7e6c9a"/><path d="M84 47h51v10H84z" fill="#cfb27a"/><circle cx="101" cy="86" r="2.5" fill="#33333c"/><circle cx="123" cy="86" r="2.5" fill="#33333c"/><path d="M106 97q7 7 13 0" stroke="#a46b75" strokeWidth="2" fill="none"/></svg>}
 function Opening({onStart}:{onStart:()=>void}){
@@ -40,12 +43,14 @@ function Opening({onStart}:{onStart:()=>void}){
 function stockOwned(run:Run,s:Stock){return s.kind==='spell'?run.spells.includes(s.item as Spell['id']):s.kind==='relic'?run.relics.includes(s.item as RelicId):false;}
 function stockName(s:Stock){return s.kind==='spell'?SPELLS.find(x=>x.id===s.item)!.name:s.kind==='potion'?`${POTIONS[s.item as Potion].name}${s.item==='spellBottle'?'':' potion'}`:RELICS[s.item as RelicId].name;}
 export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
+ const [discoveries,setDiscoveries]=useState<Discoveries>({});
  const [run,setRun]=useState<Run>(()=>newRun()),[relic,setRelic]=useState<RelicId>('amber'),[replacingPotion,setReplacingPotion]=useState(false),[bottleReturning,setBottleReturning]=useState(false);
  useDeveloperTarget(command=>{const next=applyDeveloperCommand(run,command);setRun(next);if(next===run&&command.type==='potion')return 'Purse is full.';if(next===run&&command.type==='travel')return 'Return to the trail and finish any bottle first.';},0,{canTravel:run.screen==='map'&&!run.pendingBottle,onOpen:()=>setRun(unlockDeveloperTrail)});
  const contentRef=useRef<HTMLDivElement>(null);
  const update=(fn:(r:Run)=>Run,sound?:UISound)=>{const next=fn(run);if(next===run)return;setRun(next);if(sound)playUISound(sound);};
  useEffect(()=>{if(!bottleReturning)return;const timer=setTimeout(()=>setBottleReturning(false),350);return()=>clearTimeout(timer);},[bottleReturning]);
  useEffect(()=>installSpellAudio(),[]);
+ useEffect(()=>setDiscoveries(previous=>recordDiscoveries(previous,run)),[run.spells,run.relics,run.potions]);
  useEffect(()=>setReplacingPotion(false),[run.screen,run.node]);
  useLayoutEffect(()=>{
   const content=contentRef.current;if(!content)return;
@@ -59,7 +64,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  const stats=<div className="run-stats"><span className="run-stat" aria-label={`Health: ${run.health} out of 100`}>♡ {run.health}/100</span><RunPotions onDrinkHealing={id=>update(r=>drinkTrailHealing(r,id),'bottle')} visibleSlots key={`${run.screen}-${run.node}`} run={run} onDrop={(id,bottleIndex)=>update(r=>discardPotion(r,id,bottleIndex))}/><span className="run-stat" aria-label={`Gold: ${run.gold}`}>◈ {run.gold}</span></div>;
  if(run.pendingBottle)return <BottleCapture stats={stats} inkMultiplier={run.relics.includes('feather')?.8:1} known={run.spells} upgrades={run.upgrades} onSeal={spell=>{setBottleReturning(true);update(r=>sealBottle(r,spell));}}/>;
  if(run.screen==='opening')return <main className="app opening-shell"><Opening onStart={()=>update(finishOpening)}/></main>;
- if(run.screen==='menu')return <main className="app main-menu"><header className="topbar"><span className="brand">☾ Wonderful Summit</span><div className="header-actions"><SettingsButton/><TravelSpellbook known={run.spells} upgrades={run.upgrades}/></div></header><div className="menu-scene"><span className="menu-moon" aria-hidden="true">☾</span><h1 className="menu-title grade-wonderful" aria-label="Wonderful Summit"><span aria-hidden="true"><RainbowLetters text="Wonderful"/></span><br/><strong aria-hidden="true"><RainbowLetters text="Summit" offset={9}/></strong></h1><TitleMountain/></div><footer className="screen-confirmation menu-actions"><button className="primary-small" onClick={()=>{setRelic('amber');update(r=>selectMode(r,'new'));}}>New game</button><button className="secondary-button" onClick={()=>update(r=>selectMode(r,'tutorial'))}>Tutorial</button></footer></main>;
+ if(run.screen==='menu')return <main className="app main-menu"><header className="topbar"><span className="brand">☾ Wonderful Summit</span><div className="header-actions"><SettingsButton/><TravelSpellbook known={run.spells} upgrades={run.upgrades}/></div></header><div className="menu-scene"><span className="menu-moon" aria-hidden="true">☾</span><h1 className="menu-title grade-wonderful" aria-label="Wonderful Summit"><span aria-hidden="true"><RainbowLetters text="Wonderful"/></span><br/><strong aria-hidden="true"><RainbowLetters text="Summit" offset={9}/></strong></h1><TitleMountain/></div><footer className="screen-confirmation menu-actions"><button className="primary-small" onClick={()=>{setRelic('amber');update(r=>selectMode(r,'new'));}}>New game</button><button className="secondary-button" onClick={()=>update(r=>selectMode(r,'tutorial'))}>Tutorial</button><EncyclopediaButton discoveries={discoveries}/></footer></main>;
  if(run.screen==='tutorial')return <TutorialSession Combat={Combat} onExit={()=>update(()=>returnToMenu())}/>;
  if(run.screen==='battle')return <Combat key={run.node} journey={run} onDeveloperCommand={command=>setRun(r=>applyDeveloperCommand(r,command))} onFinish={battle=>update(r=>finishBattle(r,battle))}/>;
  const reward=run.reward;
@@ -90,3 +95,4 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  {(run.screen==='complete'||run.screen==='defeat')&&<section className="run-panel ending"><span className="scene-emblem">{run.screen==='complete'?'☾':'✧'}</span><h1>{run.screen==='complete'?'The foothills are safe.':'The mountain can wait.'}</h1><p>{run.screen==='complete'?'Fila and her purse reached the end of this first climb. The summit still waits above.':'Your spells and keepsakes belong to this run. A new climb begins from the foothills.'}</p><BestDrawing drawing={run.bestDrawing} scope={run.screen==='complete'?'act':'run'}/><p>{run.combats} encounters won · {run.spells.length} spells learned · {run.relics.length} relics</p><button className="primary-small" onClick={()=>{setRun(newRun());setRelic('amber');}}>New run</button></section>}
  </div>{confirmation&&<footer className="screen-confirmation" aria-label="Climb confirmation"><button className="primary-small" disabled={confirmation.disabled} onClick={()=>{confirmation.action();}}>{confirmation.label}</button></footer>}</main>;
 }
+
