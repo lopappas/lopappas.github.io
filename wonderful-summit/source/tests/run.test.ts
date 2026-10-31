@@ -54,7 +54,7 @@ test('first spell reward lets each intermediate be chosen and never offers a beg
  for(const id of ['wave','bolt','leaf','chronos'] as const){
   let r=collect(won(enterNode(start(),rng)));
   r=won(enterNode(r,()=>.99));
-  if(!r.reward!.offers.includes(id))r=finishBattle({...r,screen:'battle',combats:1},{...battleForRun(r),phase:'victory'},()=>.99);assert.equal(r.reward!.offers.length,3);assert.ok(r.reward!.offers.includes(id));
+  for(let roll=0;!r.reward!.offers.includes(id)&&roll<=100;roll++)r=finishBattle({...r,screen:'battle',combats:1},{...battleForRun(r),phase:'victory'},()=>roll/100);assert.equal(r.reward!.offers.length,3);assert.ok(r.reward!.offers.includes(id));
   r=learnReward(r,id);
   assert.deepEqual(r.spells,['water','fire','nature',id]);
   for(const known of r.spells){const spell=SPELLS.find(s=>s.id===known)!;assert.equal(recognize(spell.strokes,r.spells).spell?.id,known);}

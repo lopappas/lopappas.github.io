@@ -1,3 +1,4 @@
+import {BogArt} from './BogArt';
 import {TidalcrestArt} from './TidalcrestArt';
 import {FirestormArt} from './FirestormArt';
 import React,{useEffect,useRef,useState} from 'react';
@@ -50,7 +51,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 <ellipse cx="235" cy="465" rx="47" ry="10" fill="#203d32" opacity=".35"/>
 </PaletteGroup>
 <FirestormArt storm={battle.firestorm} time={battle.time} gray={timeVisual.environmentAmount} cloudY={cloudY}/>
-<TidalcrestArt battle={battle} gray={timeVisual.environmentAmount}/>
+<BogArt bog={battle.bog} time={battle.time} gray={timeVisual.environmentAmount}/><TidalcrestArt battle={battle} gray={timeVisual.environmentAmount}/>
 {battle.playerHits>0&&<g key={`ward-${battle.playerHits}`} transform="translate(295 410)" aria-label="Light blue magic flashes when Fila is hit"><g className="magic-hit-flash"><circle r="22" fill="#a9e7ff" opacity=".28"/><circle r="16" fill="none" stroke="#b4eeff" strokeWidth="3"/><path d="M0-29V-21M0 21v8M-29 0h8M21 0h8M-19-19l5 5M14 14l5 5M19-19l-5 5M-14 14l-5 5" fill="none" stroke="#d7f6ff" strokeWidth="3" strokeLinecap="round"/></g></g>}
 <g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" shapeRendering="crispEdges" transform="translate(190 320) scale(5)" aria-label="Fila, a little pixel witch holding a paintbrush">
 {battle.rejectionUntil>battle.time&&<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#fff" stroke="#fff" strokeWidth="3" opacity=".65" className="rejection-aura"/>}

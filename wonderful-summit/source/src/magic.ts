@@ -2,7 +2,7 @@ import type {SpellRarity} from './rarity.ts';
 export type Point = {x:number;y:number};
 export type Strokes = Point[][];
 export type Element = 'Water'|'Fire'|'Nature'|'Ancient';
-export type SpellId = 'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest';
+export type SpellId = 'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog';
 export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;color:string;description:string;path:string;strokes:Strokes;developerOnly?:boolean;upgradable?:boolean};
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
@@ -16,8 +16,10 @@ export const SPELLS:Spell[]=[
  {id:'chronos',rarity:'Legendary',name:'Chronos Denalis',element:'Ancient',color:'#8b9099',description:'A lost spell that distorts time itself to hinder enemy movements. Strong casts make time stand still.',path:'M50 10 C72.091 10 90 27.909 90 50 C90 72.091 72.091 90 50 90 C27.909 90 10 72.091 10 50 C10 27.909 27.909 10 50 10 Z M50 50 L50 10',strokes:[shape([50,10],[[72.091,10,90,27.909,90,50],[90,72.091,72.091,90,50,90],[27.909,90,10,72.091,10,50],[10,27.909,27.909,10,50,10]]),[{x:50,y:50},{x:50,y:10}]]},
  {id:'ender',rarity:'Legendary',name:'Ender',element:'Ancient',color:'#8b9099',description:'Draw a capital K. Deals 1,000 base damage to the nearest enemy. No knockback.',path:'M20 10 L20 90 M80 10 L20 50 L80 90',strokes:[[{x:20,y:10},{x:20,y:90}],[{x:80,y:10},{x:20,y:50},{x:80,y:90}]],developerOnly:true,upgradable:false},
  {id:'firestorm',rarity:'Uncommon',name:'Firestorm',element:'Fire',color:'#f0a068',description:'Bring about a relentless rain of fire. Damages all foes caught in its rain, with no knockback.',path:'M10 18 L90 18 M12 38 L44 38 L28 70 Z M56 38 L88 38 L72 70 Z',strokes:[[{x:10,y:18},{x:90,y:18}],[{x:12,y:38},{x:44,y:38},{x:28,y:70},{x:12,y:38}],[{x:56,y:38},{x:88,y:38},{x:72,y:70},{x:56,y:38}]]},
- {id:'tidalcrest',rarity:'Uncommon',name:'Tidalcrest',element:'Water',color:'#69c2d6',description:'Channel a mighty wave to washout all opponents.',path:'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z',strokes:[shape([15,85],[[15,47,50,15,85,12],[61,36,61,60,88,85],[64,85,39,85,15,85]])]}
+ {id:'tidalcrest',rarity:'Uncommon',name:'Tidalcrest',element:'Water',color:'#69c2d6',description:'Channel a mighty wave to washout all opponents.',path:'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z',strokes:[shape([15,85],[[15,47,50,15,85,12],[61,36,61,60,88,85],[64,85,39,85,15,85]])]},
+ {id:'bog',rarity:'Uncommon',name:'Drudge Bog',element:'Nature',color:'#9bbe72',description:'Raise a shallow, murky swamp that damages and slows all foes. Recasting extends its duration.',path:'M90.6 63.1 C90.6 70.8322 72.4231 77.1 50 77.1 C27.5769 77.1 9.4 70.8322 9.4 63.1 C9.4 55.3678 27.5769 49.1 50 49.1 C72.4231 49.1 90.6 55.3678 90.6 63.1 Z M16.12 21.8 L26.2 31.88 L36.28 21.8 M26.2 31.88 L26.2 44.648 M63.72 21.8 L73.8 31.88 L83.88 21.8 M73.8 31.88 L73.8 44.648',strokes:[shape([138,83],[[138,94.046,112.033,103,80,103],[47.967,103,22,94.046,22,83],[22,71.954,47.967,63,80,63],[112.033,63,138,71.954,138,83]]),[{x:31.6,y:24},{x:46,y:38.4},{x:60.4,y:24}],[{x:46,y:38.4},{x:46,y:56.64}],[{x:99.6,y:24},{x:114,y:38.4},{x:128.4,y:24}],[{x:114,y:38.4},{x:114,y:56.64}]]}
 ];
+const bogSigil=SPELLS.find(s=>s.id==='bog')!;bogSigil.strokes=bogSigil.strokes.map(st=>st.map(p=>({x:p.x*.7-6,y:p.y*.7+5})));
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
 // Recognition-only alternatives; spellbook art and perfect traces use SPELLS unchanged.

@@ -11,5 +11,5 @@ export function spellName(spellId:SpellId,level=0){return SPELLS.find(s=>s.id===
 export function spellUpgradePreview(spellId:SpellId,level=0,damageBonus=1){
  if(level>=1||!isUpgradableSpell(spellId))return null;
  const duration=spellId==='chronos';
- return{firestorm:spellId==='firestorm',currentTick:firestormBaseDamage(level),nextTick:firestormBaseDamage(level+1),duration,currentName:spellName(spellId,level),nextName:spellName(spellId,level+1),currentBonus:level*(duration?20:25),nextBonus:(level+1)*(duration?20:25),currentDamage:spellDamage({element:'Neutral'},60,spellId,damageBonus,level),nextDamage:spellDamage({element:'Neutral'},60,spellId,damageBonus,level+1)};
+ return{bog:spellId==='bog',firestorm:spellId==='firestorm',currentTick:firestormBaseDamage(level),nextTick:firestormBaseDamage(level+1),duration,currentName:spellName(spellId,level),nextName:spellName(spellId,level+1),currentBonus:level*(duration?20:25),nextBonus:(level+1)*(duration?20:25),currentDamage:spellDamage({element:'Neutral'},60,spellId,damageBonus,level),nextDamage:spellDamage({element:'Neutral'},60,spellId,damageBonus,level+1)};
 }
