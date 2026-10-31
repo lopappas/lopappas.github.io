@@ -15,6 +15,7 @@ test('bog quality endpoints and one upgrade match all durations, slow strengths 
 });
 test('approved sigil is recognized at any size, position and stroke order',()=>{
  const s=SPELLS.find(s=>s.id==='bog')!;assert.equal(s.rarity,'Uncommon');assert.equal(s.strokes.length,5);
+ const [left,stem,right,rightStem,baseline]=s.strokes;assert.deepEqual(right,left.map(p=>({x:100-p.x,y:p.y})).reverse());assert.deepEqual(rightStem,stem.map(p=>({x:100-p.x,y:p.y})));assert.equal(baseline[0].y,baseline[1].y);assert.equal(baseline[0].x+baseline[1].x,100);
  for(const scale of [.2,1,4]){const strokes=[...s.strokes].reverse().map(st=>[...st].reverse().map(p=>({x:p.x*scale+200,y:p.y*scale-40})));const r=recognize(strokes);assert.equal(r.spell?.id,'bog');assert.equal(r.quality,100);}
 });
 test('bog arrives after one second, then ticks on every present foe without knockback',()=>{
