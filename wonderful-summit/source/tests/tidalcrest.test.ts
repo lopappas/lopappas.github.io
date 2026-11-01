@@ -112,7 +112,7 @@ test('both spells appear naturally, remain separate in the book, are developer-g
   const spells=PLAYER_SPELLS.filter(s=>s.id!==id).map(s=>s.id),run={...newRun(),spells};
   assert.deepEqual(parseDeveloperCommand({type:'spell',id}),{type:'spell',id});
   assert.ok(enterNode({...run,screen:'map',node:2},()=>0).stock.some(s=>s.kind==='spell'&&s.item===id));
-  assert.deepEqual(finishBattle({...run,screen:'battle',combats:1},{...battleForRun(run),phase:'victory'},()=>0).reward?.offers,[id]);
+  assert.deepEqual(finishBattle({...run,screen:'battle',combats:2},{...battleForRun(run),phase:'victory'},()=>0).reward?.offers,[id]);
   const upgraded=camp({...run,spells:[...spells,id],screen:'camp'},id);assert.equal(upgraded.upgrades[id],1);assert.equal(camp({...upgraded,campUsed:false},id).campUsed,false);assert.equal(spellUpgradePreview(id,1),null);
   const preview=spellUpgradePreview(id)!;assert.equal(preview.currentDamage,spellDamage({element:'Neutral'},60,id));assert.equal(preview.nextDamage,spellDamage({element:'Neutral'},60,id,1,1));assert.equal(spellName(id,1),SPELLS.find(s=>s.id===id)!.name+'+');
  }

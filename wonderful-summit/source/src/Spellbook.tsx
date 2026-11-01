@@ -15,14 +15,15 @@ function MarkedSpellName({name,marked}:{name:string;marked:boolean}){
  return <>{name.slice(0,split)}<span className="spell-name-ending">{name.slice(split)}<sup className="wonderful-diamond" aria-label="True Wonderful achieved">◆</sup></span></>;
 }
 type UpgradePage={selected:boolean;used:boolean;confirmed:boolean;celebrating:boolean;damageBonus:number;onConfirm:()=>void};
-type Props={wonderful?:SpellId[];known:SpellId[];upgrades:Partial<Record<SpellId,number>>;reference:Spell;pageFlash:number;closing:boolean;inCombat?:boolean;traceCooldown?:GuideCooldown;tutorialHint?:{text:string;spellId?:SpellId;accent?:SpellAccent};upgrade?:UpgradePage;onSelect:(spell:Spell)=>void;onClose:()=>void};
-export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closing,inCombat=false,traceCooldown,tutorialHint,upgrade,onSelect,onClose}:Props){
+type Props={openingOpacity?:number;wonderful?:SpellId[];known:SpellId[];upgrades:Partial<Record<SpellId,number>>;reference:Spell;pageFlash:number;closing:boolean;inCombat?:boolean;traceCooldown?:GuideCooldown;tutorialHint?:{text:string;spellId?:SpellId;accent?:SpellAccent};upgrade?:UpgradePage;onSelect:(spell:Spell)=>void;onClose:()=>void};
+export function Spellbook({openingOpacity,wonderful=[],known,upgrades,reference,pageFlash,closing,inCombat=false,traceCooldown,tutorialHint,upgrade,onSelect,onClose}:Props){
  const dialog=useRef<HTMLElement>(null),closeRef=useRef(onClose);closeRef.current=onClose;
  const level=upgrades[reference.id]??0,preview=upgrade?spellUpgradePreview(reference.id,upgrade.confirmed?Math.max(0,level-1):level,upgrade.damageBonus):null;
  const [traceReady,setTraceReady]=useState(()=>!!traceCooldown?.isReady(performance.now()));
  useEffect(()=>{if(!inCombat||!traceCooldown)return;const update=()=>setTraceReady(traceCooldown.isReady(performance.now()));update();const timer=setInterval(update,100);return()=>clearInterval(timer);},[inCombat,traceCooldown]);
  useLayoutEffect(()=>{if(!inCombat)return;const modal=dialog.current!;const resize=()=>{modal.style.minHeight='';const height=modal.scrollHeight;modal.style.minHeight=`min(${Math.round(height*1.14)}px, calc(100svh - 32px))`;};resize();window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize);},[inCombat,reference.id,known.length]);
- const pagesDisabled=closing||!!upgrade?.confirmed;
+ const automatic=openingOpacity!==undefined;
+ const pagesDisabled=automatic||closing||!!upgrade?.confirmed;
  useEffect(()=>{
   const previous=document.activeElement as HTMLElement|null,modal=dialog.current!;
   modal.querySelector<HTMLButtonElement>('button')?.focus();
@@ -36,9 +37,9 @@ export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closi
   };
   window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus();};
  },[]);
- return createPortal(<div className={`modal-backdrop book-backdrop${closing?' book-closing':''}`} style={{'--book-duration':`${BOOK_TRANSITION_MS}ms`} as React.CSSProperties} onClick={onClose}>
+ return createPortal(<div className={`modal-backdrop book-backdrop${closing?' book-closing':''}`} style={{'--book-duration':`${BOOK_TRANSITION_MS}ms`,opacity:openingOpacity} as React.CSSProperties} onClick={onClose}>
   <section ref={dialog} className={`book-modal${inCombat?' combat-spellbook':''}`} role="dialog" aria-modal="true" aria-labelledby="book-title" onClick={e=>e.stopPropagation()}>
-   <button className="close-modal" onClick={onClose} aria-label="Close spellbook">×</button><span id="book-title" className="eyebrow">FILA'S SPELLS</span>
+   <button className="close-modal" onClick={onClose} disabled={automatic} aria-label="Close spellbook">×</button><span id="book-title" className="eyebrow">FILA'S SPELLS</span>
    {tutorialHint&&<p className="book-tutorial-task"><LessonText text={tutorialHint.text} accent={tutorialHint.accent}/></p>}
    <div className="book-elements" aria-label="Spells by element">{spellbookColumns(known).map(column=><section className="spell-column" key={column.element} aria-label={`${column.element} spells`} style={{'--element-color':column.color} as React.CSSProperties}>
     <h3><LessonText text={column.element}/></h3>{column.spells.map(spell=><button key={spell.id} aria-label={`${spellName(spell.id,upgrades[spell.id]??0)}, ${spell.rarity}`} className={`${spellRarityClass(spell.rarity)} ${reference.id===spell.id?'active':''}${tutorialHint?.spellId===spell.id?' tutorial-focus':''}`} aria-pressed={reference.id===spell.id} disabled={pagesDisabled||!!upgrade&&!isUpgradableSpell(spell.id)} onClick={()=>onSelect(spell)}><span className="spell-name" style={{color:spell.color}}><MarkedSpellName name={spellName(spell.id,upgrades[spell.id]??0)} marked={wonderful.includes(spell.id)}/></span></button>)}
@@ -47,7 +48,7 @@ export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closi
    <h3><span className="spell-name" style={{color:reference.color}}><MarkedSpellName name={spellName(reference.id,level)} marked={wonderful.includes(reference.id)}/></span></h3><p><LessonText text={reference.id==='firestorm'&&level>=1?reference.description.replace('2 damage every','3 damage every'):reference.description}/></p>
    {upgrade?<div className="upgrade-preview" aria-live="polite">{!upgrade.selected?<p>Choose a spell to upgrade.</p>:preview?<><strong style={{color:reference.color}}>{!upgrade.confirmed&&'Upgrade to '}<MarkedSpellName name={preview.nextName} marked={wonderful.includes(reference.id)}/></strong><p>{preview.bog?'Upgraded Drudge Bog also increases spell duration.':preview.firestorm?'Rain damage: 2 → 3 every 0.5 seconds':preview.duration?'Duration bonus: +0% -> +20%':<>Direct damage bonus: +{preview.currentBonus}% → +{preview.nextBonus}%</>}</p>{!preview.duration&&!preview.firestorm&&!preview.bog&&<small>Steady (60%) damage: {preview.currentDamage} → {preview.nextDamage}<br/>Before elemental advantage.</small>}</>:<p>Fully upgraded.</p>}</div>:<div className="book-tip">Keep the overall shape and proportions. Any size or position works. Stroke order does not matter.</div>}
    {upgrade&&<button className="primary-small" disabled={closing||!upgrade.selected||upgrade.used||!preview} onClick={upgrade.onConfirm}>{upgrade.confirmed?'Upgraded!':'Confirm upgrade'}</button>}
-   <button className={`${upgrade?'secondary-button upgrade-close':'primary-small'}${(inCombat&&traceReady&&!closing||upgrade?.confirmed)?' trace-ready':''}`} onClick={onClose}>{inCombat?'Ready':'Close'}</button>
+   <button disabled={automatic} className={`${upgrade?'secondary-button upgrade-close':'primary-small'}${(inCombat&&traceReady&&!closing||upgrade?.confirmed)?' trace-ready':''}`} onClick={onClose}>{inCombat?'Ready':'Close'}</button>
   </section>
  </div>,document.body);
 }

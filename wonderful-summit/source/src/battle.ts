@@ -133,13 +133,13 @@ export function midnightBonus(inkUsed:number){
  return thresholds.find(([ink])=>inkUsed>=ink)![1];
 }
 export function cloverReady(state:Battle){return state.castingRelics.clover&&state.castingRelics.steadyCasts===6;}
-export function cloverAccuracyBonus(state:Battle,raw:number){return cloverReady(state)&&raw+(state.castingRelics.calculus?3:0)+(state.stellarReady?10:0)>=60?7:0;}
+export function cloverAccuracyBonus(state:Battle,raw:number){return cloverReady(state)?7:0;}
 export function relicAccuracyBonus(state:Battle,raw=100){return (state.castingRelics.calculus?3:0)+cloverAccuracyBonus(state,raw)+(state.stellarReady?10:0);}
 export function effectiveAccuracy(state:Battle,raw:number){return Math.max(0,Math.min(100,raw+relicAccuracyBonus(state,raw)));}
 export function robesBonus(state:Battle){return state.robes.enabled?state.robes.spells.length*(state.robes.artisan?4:2):0;}
 export function prepareRelicCast(state:Battle,quality:number,id:SpellId,rawQuality=quality):Battle{
  const add=state.robes.enabled&&rawQuality>=80&&!state.robes.spells.includes(id);
- return {...state,stellarReady:false,castingRelics:{...state.castingRelics,steadyCasts:state.castingRelics.steadyCasts+(quality>=60?1:0)},robes:{...state.robes,spells:add?[...state.robes.spells,id]:state.robes.spells}};
+ return {...state,stellarReady:false,castingRelics:{...state.castingRelics,steadyCasts:cloverReady(state)||quality<60?0:state.castingRelics.steadyCasts+1},robes:{...state.robes,spells:add?[...state.robes.spells,id]:state.robes.spells}};
 }
 export function fizzleSpell(state:Battle):Battle{
  if(state.phase!=='active')return state;
@@ -148,7 +148,7 @@ export function fizzleSpell(state:Battle):Battle{
  const damage=shatter?25:10,push=shatter?ENEMY_RUNWAY_SIZE*.75:25;
  const live=new Set(presentEnemies(state).map(e=>e.id));
  const enemies=burst?state.enemies.map(e=>live.has(e.id)?{...e,hp:Math.max(0,e.hp-damage),hurtUntil:state.time+.25,attackAt:null,push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+push),started:state.time,ends:state.time+PUSH_DURATION}}:e):state.enemies;
- return resolveMother({...state,enemies,sphereShatteredAt:shatter?state.time:state.sphereShatteredAt,furyReady:false,stellarReady:false,castingRelics:{...state.castingRelics,sphere:false,stardust:state.castingRelics.stardust||shatter,stardustUsed:state.castingRelics.stardustUsed||burst}});
+ return resolveMother({...state,enemies,sphereShatteredAt:shatter?state.time:state.sphereShatteredAt,furyReady:false,stellarReady:false,castingRelics:{...state.castingRelics,sphere:false,stardust:state.castingRelics.stardust||shatter,steadyCasts:0,stardustUsed:state.castingRelics.stardustUsed||burst}});
 }
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random,damageMultiplier=1,inkUsed=0,bonuses?:TidalWave['bonuses'],knockbackMultiplier=1):Battle{
  if(state.phase!=='active'||(spellId==='bog'||spellId==='ender'||spellId==='firestorm'||spellId==='tidalcrest')&&(!Number.isFinite(quality)||quality<48))return state;

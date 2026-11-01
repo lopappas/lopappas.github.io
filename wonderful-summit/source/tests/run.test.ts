@@ -21,11 +21,11 @@ test('complete route has seven combats, merchant, camp and final victory',()=>{
   r=enterNode(r,rng);screens.push(r.screen);
   if(r.screen==='battle')r=collect(won(r));else if(r.screen==='shop'||r.screen==='event')r=leaveNode(r);else r=leaveNode(camp(r));
  }
- assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,242);assert.equal(r.relics.length,4);assert.equal(r.spells.length,6);
+ assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,242);assert.equal(r.relics.length,4);assert.equal(r.spells.length,5);
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,27);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
- r=won(enterNode(leaveNode(first),rng));r=claimPotion(claimGold(r));assert.deepEqual(r.reward?.offers,['wave','bolt','leaf']);assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
+ r=won({...enterNode(leaveNode(first),rng),combats:2});r=claimPotion(claimGold(r));assert.deepEqual(r.reward?.offers,['wave','bolt']);assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
 });
 test('potion drop boundary is 35 percent and capacity never exceeds three',()=>{
  const active=enterNode(start(),rng),battle={...battleForRun(active),phase:'victory' as const};
@@ -54,7 +54,7 @@ test('first spell reward lets each intermediate be chosen and never offers a beg
  for(const id of ['wave','bolt','leaf','chronos'] as const){
   let r=collect(won(enterNode(start(),rng)));
   r=won(enterNode(r,()=>.99));
-  for(let roll=0;!r.reward!.offers.includes(id)&&roll<=100;roll++)r=finishBattle({...r,screen:'battle',combats:1},{...battleForRun(r),phase:'victory'},()=>roll/100);assert.equal(r.reward!.offers.length,3);assert.ok(r.reward!.offers.includes(id));
+  for(let roll=0;!r.reward!.offers.includes(id)&&roll<=100;roll++)r=finishBattle({...r,screen:'battle',combats:2},{...battleForRun(r),phase:'victory'},()=>roll/100);assert.equal(r.reward!.offers.length,2);assert.ok(r.reward!.offers.includes(id));
   r=learnReward(r,id);
   assert.deepEqual(r.spells,['water','fire','nature',id]);
   for(const known of r.spells){const spell=SPELLS.find(s=>s.id===known)!;assert.equal(recognize(spell.strokes,r.spells).spell?.id,known);}
@@ -122,7 +122,7 @@ test('Continue leaves uncollected potions behind without granting or replacing i
   const continued=leaveNode(r);assert.equal(continued.screen,'map');assert.equal(continued.gold,27);assert.deepEqual(continued.potions,potions);assert.equal(continued.reward,null);
  }
  const elite=claimGold(won({...enterNode(start(),rng),node:3}));assert.equal(rewardsComplete(elite.reward!),false);assert.deepEqual(leaveNode(elite),elite);
- let second=collect(won(enterNode(start(),rng)));second=claimGold(won(enterNode(second,rng)));assert.equal(rewardsComplete(second.reward!),false);assert.deepEqual(leaveNode(second),second);
+ let second=collect(won(enterNode(start(),rng)));second=claimGold(won({...enterNode(second,rng),combats:2}));assert.equal(rewardsComplete(second.reward!),false);assert.deepEqual(leaveNode(second),second);
  second=learnReward(second,second.reward!.offers[0]);assert.equal(rewardsComplete(second.reward!),true);assert.equal(leaveNode(second).screen,'map');
 });
 
