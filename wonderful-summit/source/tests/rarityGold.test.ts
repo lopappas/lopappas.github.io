@@ -39,7 +39,7 @@ test('spell rarities exactly match the approved labeling, including the develope
 });
 
 test('legendary spells cost fifty percent more, and relic prices follow their tiers',()=>{
- for(const spell of SPELLS)assert.equal(spellPrice(spell.id),spell.rarity==='Legendary'?70:45);
+ for(const spell of SPELLS)assert.equal(spellPrice(spell.id),['firestorm','bog','tidalcrest'].includes(spell.id)?50:spell.rarity==='Legendary'?70:45);
  assert.equal(spellPrice('chronos'),70);
  for(const id of Object.keys(RELICS) as RelicId[])if(!STARTER_RELICS.includes(id))assert.equal(relicPrice(id),{Common:50,Uncommon:70,Rare:85,Keepsake:45,Starter:0}[RELICS[id].rarity]);
 });

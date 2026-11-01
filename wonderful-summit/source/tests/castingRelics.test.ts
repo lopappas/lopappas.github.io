@@ -20,13 +20,13 @@ test('Black Stardust deals exactly 10 through defenses once per combat, includin
  const ordinary={...setup(['blackStardust']),enemies:[{...b.enemies[0],hp:5}]};assert.equal(fizzleSpell(ordinary).phase,'victory');
  assert.equal(setup(['blackStardust']).castingRelics.stardustUsed,false);
 });
-test('clover readies on six successes, boosts seventh once, and fizzles reset the streak',()=>{
+test('clover boosts the seventh qualifying cast once and fizzles preserve its combat count',()=>{
  let b=setup(['sevenLeafClover','forgivingCalculus']);
  for(let i=0;i<6;i++){assert.equal(cloverReady(b),false);b={...launchSpell(b,60,'#fff','water'),projectile:null};}
  assert.equal(cloverReady(b),true);assert.equal(effectiveAccuracy(b,60),70);
  b=launchSpell(b,60,'#fff','water');assert.equal(b.projectile?.quality,70);assert.equal(cloverReady(b),false);
- b=fizzleSpell({...b,projectile:null});assert.equal(b.castingRelics.streak,0);assert.equal(effectiveAccuracy(b,60),63);
- assert.equal(setup(['sevenLeafClover']).castingRelics.streak,0);
+ b=fizzleSpell({...b,projectile:null});assert.equal(b.castingRelics.steadyCasts,7);assert.equal(effectiveAccuracy(b,60),63);
+ assert.equal(setup(['sevenLeafClover']).castingRelics.steadyCasts,0);
 });
 test('Artisan robes award 4% per distinct true Wonderful with no combat cap',()=>{
  let b=setup(['artisanRobes']);b=launchSpell(b,79,'#fff','water');assert.equal(b.projectile?.damageMultiplier,1);b={...b,projectile:null};

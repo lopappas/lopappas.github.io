@@ -20,7 +20,7 @@ test('Artisan replaces starter robes and retroactively doubles all earned percen
  const cast=launchSpell(battleForRun(upgraded,()=>0),80,'#fff','nature');assert.equal(robesBonus(cast),12);assert.equal(cast.projectile?.damageMultiplier,1.12);
 });
 test('Calculus, clover and Stellar can raise quality without qualifying for true Wonderful',()=>{
- let b=field();b={...b,stellarReady:true,castingRelics:{...b.castingRelics,calculus:true,clover:true,streak:6}};
+ let b=field();b={...b,stellarReady:true,castingRelics:{...b.castingRelics,calculus:true,clover:true,steadyCasts:6}};
  assert.equal(effectiveAccuracy(b,77),97);const cast=launchSpell(b,77,'#fff','water');assert.equal(cast.projectile?.quality,97);assert.deepEqual(cast.robes.spells,[]);assert.equal(cast.stellarReady,false);
 });
 test('Stellar is common and non-stacking, consumed on success or fizzle',()=>{
