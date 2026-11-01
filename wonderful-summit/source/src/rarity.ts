@@ -2,7 +2,7 @@ export type SpellRarity='Common'|'Uncommon'|'Legendary';
 export type RelicRarity='Common'|'Uncommon'|'Rare'|'Keepsake';
 export type Rarity=SpellRarity|RelicRarity;
 export function rarityClass(rarity:Rarity){return `item-rarity rarity-${rarity.toLowerCase()}`;}
-export function spellRarityClass(rarity:SpellRarity){return `${rarityClass(rarity)} spell-rarity`;}
+export function spellRarityClass(rarity:SpellRarity){return 'spell-rarity';}
 
 // Weight whole tiers, then share that weight equally among eligible items.
 // Missing tiers are automatically redistributed; selections use one random roll.
@@ -14,3 +14,4 @@ export function pickByRarity<T,R extends Rarity>(items:T[],rarity:(item:T)=>R,we
  for(const item of items){roll-=weight(item);if(roll<0)return item;}
  return items[items.length-1];
 }
+

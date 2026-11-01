@@ -1,7 +1,7 @@
 import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {CHAPTERS,ENCYCLOPEDIA_PREVIEW,encyclopediaGroups,isEntryRevealed,type Chapter,type Discoveries,type EncyclopediaEntry} from './encyclopedia';
-import {rarityClass} from './rarity';
+import {rarityClass,spellRarityClass} from './rarity';
 import {PotionIcon} from './PotionIcon';
 import type {Potion} from './battle';
 import './encyclopedia.css';
@@ -50,14 +50,14 @@ export function Encyclopedia({discoveries,onClose,preview=ENCYCLOPEDIA_PREVIEW}:
    <div ref={scroll} className="journal-scroll">
     {entry?<article className="journal-entry">
      <button className="journal-back" onClick={()=>{lastEntry.current=entry.key;setEntry(null);}}>← All {TITLES[chapter].toLowerCase()}</button>
-     <div className={`journal-art ${known?rarityClass(entry.rarity):''}`} style={{color:known?inkColor(entry):undefined}}>{known?<EntryArt entry={entry}/>:<span className="journal-question" aria-hidden="true">?</span>}</div>
+     <div className={`journal-art ${known?(entry.chapter==='spells'?spellRarityClass(entry.rarity as import('./rarity').SpellRarity):rarityClass(entry.rarity)):''}`} style={{color:known?inkColor(entry):undefined}}>{known?<EntryArt entry={entry}/>:<span className="journal-question" aria-hidden="true">?</span>}</div>
      <h2 className="journal-entry-title" tabIndex={-1}>{known?entry.name:'???'}</h2>
      <p className="journal-entry-kind">{known?`${entry.rarity}${entry.element?` · ${entry.element} magic`:''}`:'Undiscovered'}</p>
      {known?<><section className="journal-notes"><h3>{chapter==='spells'?'Spell notes':'Effect'}</h3><p>{entry.description}</p></section>{entry.tips&&<section className="journal-notes"><h3>Tips for casting</h3><p>{entry.tips}</p><p>Keep the overall shape and proportions. Any size or position works, and stroke order does not matter. Hold Cast for half a second to release your spell.</p></section>}{entry.lore&&<blockquote className="journal-lore">{entry.lore}</blockquote>}</>:<p className="journal-undiscovered">Collect this {chapter==='spells'?'spell':chapter==='relics'?'relic':'potion'} on your journey to reveal its journal entry.</p>}
     </article>:<>
      <div className="journal-chapter-heading"><h2>{TITLES[chapter]}</h2><span>{revealed} / {entries.length} revealed</span></div>
      <p className="journal-intro">{chapter==='spells'?'Shapes to remember. Magic to make.':chapter==='relics'?'Small treasures with stories of their own.':'A little wonder, carefully bottled.'} Select an entry to read its notes.</p>
-     {groups.map(group=><section className="journal-rarity-group" key={group.rarity} aria-label={`${group.rarity} ${TITLES[chapter].toLowerCase()}`}><h3>{group.rarity}<span>{group.entries.length}</span></h3><div className="journal-entry-grid">{group.entries.map(item=>{const visible=isEntryRevealed(item,discoveries,preview);return <button key={item.key} data-entry={item.key} className={`journal-item ${visible?rarityClass(item.rarity):'journal-locked'}`} aria-label={visible?`${item.name}, ${item.rarity}: read entry`:'Undiscovered entry: read notes'} onClick={()=>{indexScroll.current=scroll.current?.scrollTop??0;setEntry(item);}}><span className="journal-item-art" style={{color:visible?inkColor(item):undefined}}>{visible?<EntryArt entry={item}/>:<span className="journal-question" aria-hidden="true">?</span>}</span><strong>{visible?item.name:'???'}</strong></button>;})}</div></section>)}
+     {groups.map(group=><section className="journal-rarity-group" key={group.rarity} aria-label={`${group.rarity} ${TITLES[chapter].toLowerCase()}`}><h3>{group.rarity}<span>{group.entries.length}</span></h3><div className="journal-entry-grid">{group.entries.map(item=>{const visible=isEntryRevealed(item,discoveries,preview);return <button key={item.key} data-entry={item.key} className={`journal-item ${visible?(item.chapter==='spells'?spellRarityClass(item.rarity as import('./rarity').SpellRarity):rarityClass(item.rarity)):'journal-locked'}`} aria-label={visible?`${item.name}, ${item.rarity}: read entry`:'Undiscovered entry: read notes'} onClick={()=>{indexScroll.current=scroll.current?.scrollTop??0;setEntry(item);}}><span className="journal-item-art" style={{color:visible?inkColor(item):undefined}}>{visible?<EntryArt entry={item}/>:<span className="journal-question" aria-hidden="true">?</span>}</span><strong>{visible?item.name:'???'}</strong></button>;})}</div></section>)}
     </>}
    </div>
    <footer className="journal-footer"><span>{preview?'All entries revealed for now':'Your journey, remembered'}</span><span>{entry?'Field notes':`Chapter ${CHAPTERS.indexOf(chapter)+1} / 3`}</span></footer>
