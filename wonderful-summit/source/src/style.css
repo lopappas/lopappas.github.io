@@ -261,7 +261,7 @@
 /* Equal home actions size to the longest label, in a centered two-by-two grid. */
 .main-menu .menu-actions{width:max-content;max-width:calc(100% - 24px);display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.main-menu .menu-actions>button{width:100%;min-height:46px;margin:0;padding:12px 20px;font-size:14px;white-space:nowrap}
 
-.shape-score .score-track{display:flex}.shape-score .score-track i{flex-shrink:0}.shape-score .score-track .calculus-sliver{background:#e5c15a;box-shadow:0 0 7px #f5d66d88;border-radius:0 4px 4px 0}.clover-ready{outline:2px solid #85df78;outline-offset:-2px;box-shadow:0 0 20px #5ecc6866,inset 0 0 12px #88e97944}.clover-ready .paper{box-shadow:inset 0 0 22px #62bd5d55}
+.shape-score .score-track{display:flex}.shape-score .score-track i{flex-shrink:0;border-radius:0}.shape-score .score-track .calculus-sliver{background:#e5c15a;box-shadow:none;border-radius:0}.clover-ready{outline:2px solid #85df78;outline-offset:-2px;box-shadow:0 0 20px #5ecc6866,inset 0 0 12px #88e97944}.clover-ready .paper{box-shadow:inset 0 0 22px #62bd5d55}
 
 .rarity-starter{--rarity-border:#ab9980}.wonderful-diamond{font-size:.43em;color:#62b56a!important;margin-left:0;vertical-align:super;line-height:0;text-shadow:none}.starter-robe{position:relative;padding:12px 14px;margin:18px 0;border:1px solid #8b9573;border-radius:9px;background:#2d4538}.starter-robe h2{margin:0 0 10px}.starter-robe .trail-relics{justify-content:center}.starter-robe p{margin-bottom:9px}.robes-total strong{color:#8ed89a}.potion-stellar{color:#69c879}.potion-stellar .reward-potion-icon,.inventory-potion.potion-stellar .reward-potion-icon{display:block;width:24px;height:29px;margin:auto}.stellar-ready{color:#91dfa1!important}
 .starter-robe .combat-relics{position:relative;inset:auto;margin-top:8px}.starter-robe .combat-relic-row{justify-content:center}.practice-app .combat-relics{top:auto;bottom:49px;z-index:7}.practice-app .combat-relics .relic-detail{top:auto;bottom:35px;max-height:calc(100svh - 180px);overflow-y:auto}
@@ -275,3 +275,7 @@
 .spell-cooldowns{position:absolute;top:50px;left:14px;z-index:3;display:flex;flex-direction:column;gap:3px;pointer-events:none}.has-combat-relics .spell-cooldowns{top:79px}.spell-cooldowns span{font-size:10px;color:#eee8d8;background:#20382de0;border:1px solid #87927088;border-radius:5px;padding:4px 6px}.spell-cooldowns strong{margin-left:4px;font-weight:500}
 .cooldown-notice{position:absolute;left:12px;right:12px;top:45%;z-index:4;text-align:center;font-size:15px;color:#554b40;background:#ebdfbce8;padding:8px;pointer-events:none}
 .practice-app .spell-cooldowns{top:auto;bottom:84px}
+
+.stale-cast .paper{filter:grayscale(1)!important}.stale-cast-notice{position:absolute;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;color:#555;font-size:24px;font-style:italic;text-shadow:0 1px 5px #fff;pointer-events:none;animation:staleCastNotice .65s ease-in-out both}
+@keyframes staleCastNotice{0%,100%{opacity:0}25%,65%{opacity:1}}
+.spell-cooldowns>span{display:flex;align-items:center;gap:5px}.spell-cooldowns svg{width:18px;height:18px;flex:none;color:#d9dce0}.spell-cooldowns strong{margin-left:0}

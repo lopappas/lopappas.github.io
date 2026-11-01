@@ -28,7 +28,7 @@ test('gold rolls anew per encounter, is stored once in its reward, and cannot be
 });
 test('relic rarities exactly match the approved labeling and keepsakes stay exclusive to Theodora',()=>{
  assert.deepEqual(Object.fromEntries(Object.entries(RELICS).map(([id,r])=>[id,r.rarity])),{
-  perfectedSphere:'Rare',filadoraRobes:'Starter',forgivingCalculus:'Rare',blackStardust:'Rare',sevenLeafClover:'Common',artisanRobes:'Rare',lotus:'Uncommon',colorfulRock:'Uncommon',impossibleShale:'Uncommon',midnightStone:'Rare',amber:'Keepsake',moss:'Keepsake',feather:'Keepsake',bell:'Common',moon:'Common',sunAmulet:'Rare',moonAmulet:'Rare',twilightAmulet:'Rare',twillyScarf:'Rare',birkinStock:'Uncommon'
+  coinpurse:'Keepsake',untouchedBox:'Keepsake',perfectedSphere:'Rare',filadoraRobes:'Starter',forgivingCalculus:'Rare',blackStardust:'Rare',sevenLeafClover:'Common',artisanRobes:'Rare',lotus:'Uncommon',colorfulRock:'Uncommon',impossibleShale:'Uncommon',midnightStone:'Rare',amber:'Keepsake',moss:'Keepsake',feather:'Keepsake',bell:'Common',moon:'Common',sunAmulet:'Rare',moonAmulet:'Rare',twilightAmulet:'Rare',twillyScarf:'Rare',birkinStock:'Uncommon'
  });
  assert.deepEqual(Object.entries(RELICS).filter(([,r])=>r.rarity==='Keepsake').map(([id])=>id).sort(),[...STARTER_RELICS].sort());
 });

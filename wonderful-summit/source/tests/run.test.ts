@@ -39,7 +39,7 @@ test('shop charges exact prices, cannot overspend or buy sold stock twice',()=>{
 });
 test('camp allows one heal OR one upgrade, and only for a known spell',()=>{const r={...start(),screen:'camp' as const,health:45};assert.equal(camp(r).health,100);assert.deepEqual(camp(camp(r),'fire'),camp(r));assert.equal(camp(r,'fire').upgrades.fire,1);assert.deepEqual(camp(r,'bolt'),r);assert.deepEqual(leaveNode(r),r);});
 test('battle carries health, potions, upgrades and relics without refilling inventory',()=>{
- const r={...start(),screen:'battle' as const,health:44,potions:{heal:0,freeze:1,ink:0},upgrades:{fire:1}};const b=battleForRun(r,rng);assert.equal(b.playerHP,44);assert.deepEqual(b.potions,r.potions);assert.equal(b.upgrades.fire,1);assert.equal(b.damageBonus,1.15);const hit=hitWithSpell(b,100,'fire');assert.ok(hit.enemies[0].hp<100-32);
+ const r={...start(),screen:'battle' as const,health:44,potions:{heal:0,freeze:1,ink:0},upgrades:{fire:1}};const b=battleForRun(r,rng);assert.equal(b.playerHP,44);assert.deepEqual(b.potions,r.potions);assert.equal(b.upgrades.fire,1);assert.equal(b.damageBonus,1.05);const hit=hitWithSpell(b,100,'fire');assert.ok(hit.enemies[0].hp<100-32);
 });
 test('defeat ends run, restart clears all run power, elite relic excludes owned relics',()=>{
  const r=enterNode(start(),rng);const dead=finishBattle(r,{...battleForRun(r),phase:'defeat',playerHP:0});assert.equal(dead.screen,'defeat');assert.deepEqual(enterNode(dead),dead);assert.equal(newRun().gold,0);assert.deepEqual(newRun().relics,['filadoraRobes']);

@@ -20,7 +20,7 @@ test('travel and combat books can show only known spells without duplicating ent
 test('upgrade previews preserve the campsite choice until confirmation and match actual battle damage',()=>{
  for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'&&s.id!=='firestorm'&&s.id!=='bog'))for(const level of [0])for(const amber of [false,true]){
   const run:Run={...newRun(),screen:'camp',node:4,health:27,spells:SPELLS.map(s=>s.id),relics:amber?['amber']:[],upgrades:{[spell.id]:level}};
-  const before=structuredClone(run),preview=spellUpgradePreview(spell.id,level,amber?1.15:1)!;
+  const before=structuredClone(run),preview=spellUpgradePreview(spell.id,level,amber?1.05:1)!;
   assert.deepEqual(run,before);assert.equal(run.campUsed,false);
   assert.equal(preview.currentName,spell.name+'+'.repeat(level));assert.equal(preview.nextName,spell.name+'+'.repeat(level+1));
   const confirmed=camp(run,spell.id);assert.equal(confirmed.health,27);assert.equal(confirmed.campUsed,true);assert.equal(confirmed.upgrades[spell.id],level+1);

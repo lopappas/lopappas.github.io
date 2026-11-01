@@ -8,7 +8,7 @@ function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Ma
 function setup(){const b=newBattle('active');b.approachAt=1000;b.enemies[0]={...b.enemies[0],element:'Neutral',hp:10000,maxHP:10000,x:400};return b;}
 function contact(b:ReturnType<typeof newBattle>){b={...b,approachAt:0,enemies:b.enemies.map(e=>({...e,x:CONTACT_X,push:null,attackAt:0}))};return stepBattle(b,.01);}
 test('Theodora keepsakes have updated names and stats, and never enter natural relic pools',()=>{
- assert.equal(RELICS.amber.name,'Madora’s Earring');assert.equal(RELICS.feather.name,'Heirloom inkwell');assert.equal(RELICS.moon.name,'Gravity Needle');
+ assert.equal(RELICS.amber.name,'Madora’s Earring');assert.equal(RELICS.feather.name,'Giant Inkwell');assert.equal(RELICS.moon.name,'Gravity Needle');
  for(let i=0;i<100;i++){const r={...newRun(),screen:'map' as const,node:2};assert.ok(enterNode(r,()=>i/100).stock.filter(s=>s.kind==='relic').every(s=>!STARTER_RELICS.includes(s.item as RelicId)));const reward=finishBattle({...r,screen:'battle',node:3},{...newBattle('active'),phase:'victory'},()=>i/100).reward!;assert.ok(!STARTER_RELICS.includes(reward.relic!));}
  const run={...newRun(),screen:'battle' as const,relics:['moss' as const]};assert.equal(finishBattle(run,{...battleForRun(run),phase:'victory',playerHP:54},()=>.99).health,66);
  const gravity=battleForRun({...newRun(),relics:['moon']});assert.equal(gravity.pushBonus,1.15);assert.ok(Math.abs(contact(gravity).enemies[0].push!.to-CONTACT_X-PLAYER_HIT_PUSH*1.15)<1e-8);

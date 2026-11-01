@@ -56,7 +56,7 @@ test('normal pools never offer Stardust or a second Sphere once Stardust is owne
   const elite={...run,screen:'battle' as const,node:3};const reward=finishBattle(elite,{...battleForRun(elite),phase:'victory'},random).reward;
   assert.notEqual(reward?.relic,'blackStardust');if(ownsDust)assert.notEqual(reward?.relic,'perfectedSphere');
  }
- assert.equal(RELICS.perfectedSphere.description,'All spells deal 15% more damage.');
+ assert.equal(RELICS.perfectedSphere.description,"All spells deal 15% more damage... as long as you don't fizzle.");
 });
 test('failed event and bottle attempts outside combat transform without applying any combat effect',()=>{
  const run=acquireRelic(newRun(),'perfectedSphere');
