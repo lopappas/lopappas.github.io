@@ -15,9 +15,9 @@ test('circle and centered Bramble Leaf replace every old Bog variant',()=>{
  assert.equal(recognize([bog.strokes[0]],['bog']).spell,null);assert.equal(recognize([bog.strokes[1]],['bog']).spell,null);
 });
 test('bog quality endpoints and one upgrade match all durations, slow strengths and damage tiers',()=>{
- for(const [q,d,s,damage] of [[48,4,.5,1],[59,5,.55,1],[60,6,.6,1.5],[69,8,.64,1.5],[70,10,.66,2],[79,13,.7,2],[80,15,.74,2.5],[100,20,.78,2.5]]){
+ for(const [q,d,ud,s,damage] of [[48,5,6,.5,1],[59,6,7,.55,1],[60,7.5,9,.6,1.5],[69,9.5,11,.64,1.5],[70,12,14,.66,2],[79,15,17,.7,2],[80,18,20,.74,2.5],[100,24,28,.78,2.5]]){
   const e=bogEffect(q);assert.equal(e.duration,d);assert.ok(Math.abs(e.slow-s)<1e-9);assert.equal(e.damage,damage);
-  const up=bogEffect(q,1);assert.equal(up.damage,damage+1);assert.ok(Math.abs(up.slow-s-.08)<1e-9);assert.equal(up.duration,d);assert.deepEqual(bogEffect(q,4),up);
+  const up=bogEffect(q,1);assert.equal(up.damage,damage+1);assert.ok(Math.abs(up.slow-s-.08)<1e-9);assert.equal(up.duration,ud);assert.deepEqual(bogEffect(q,4),up);
  }for(const q of [0,47,NaN,Infinity])assert.equal(bogEffect(q).duration,0);
 });
 test('approved sigil is recognized at any size, position and stroke order',()=>{
@@ -27,10 +27,10 @@ test('approved sigil is recognized at any size, position and stroke order',()=>{
 });
 test('bog arrives after one second, then ticks on every present foe without knockback',()=>{
  let b=launchSpell(setup(),60,'#9bbe72','bog');assert.equal(b.projectile,null);assert.equal(b.casts,1);b=advance(b,.99);assert.equal(bogSlow(b,b.enemies[0],b.time),0);b=advance(b,.02);assert.equal(bogSlow(b,b.enemies[0],b.time),.6);b=advance(b,.49);assert.ok(b.enemies.every(e=>e.hp===998.5&&e.push===null));
- b=advance(b,5.5);assert.equal(b.bog,null);assert.ok(b.enemies.every(e=>e.hp===982));
+ b=advance(b,7);assert.equal(b.bog,null);assert.ok(b.enemies.every(e=>e.hp===977.5));
 });
 test('recasts append their own quality and upgrade without another arrival delay',()=>{
- let b=launchSpell(setup(),48,'#9bbe72','bog');b=advance(b,2);b.upgrades.bog=1;b=launchSpell(b,80,'#9bbe72','bog');assert.equal(b.bog!.arrives,1);assert.equal(b.bog!.portions.at(-1)!.until,20);assert.equal(b.bog!.portions[1].upgrade,1);b=advance(b,3.1);assert.equal(bogSlow(b,b.enemies[0],b.time),.82);
+ let b=launchSpell(setup(),48,'#9bbe72','bog');b=advance(b,2);b.upgrades.bog=1;b=launchSpell(b,80,'#9bbe72','bog');assert.equal(b.bog!.arrives,1);assert.equal(b.bog!.portions.at(-1)!.until,26);assert.equal(b.bog!.portions[1].upgrade,1);b=advance(b,4.1);assert.equal(bogSlow(b,b.enemies[0],b.time),.82);
 });
 test('elemental and rocky defenses apply to damage and slowing',()=>{
  const b=launchSpell(setup(),60,'#9bbe72','bog');b.time=2;const e=b.enemies[0];assert.equal(bogSlow(b,{...e,element:'Nature'},2),0);assert.equal(bogSlow(b,{...e,element:'Fire'},2),.6);assert.equal(bogTickDamage({element:'Nature'},60),.75);assert.equal(bogTickDamage({element:'Fire'},60),1.125);assert.equal(bogTickDamage({element:'Water'},60),2.25);
@@ -45,3 +45,4 @@ test('bottles preserve Fury; damage relics snapshot per cast and do not add burn
 test('bog is available to merchants and spell rewards, costs uncommon price, and upgrades once',()=>{
  const known=PLAYER_SPELLS.filter(s=>s.id!=='bog').map(s=>s.id),r={...newRun(),screen:'map' as const,node:2,spells:known};assert.ok(enterNode(r,()=>0).stock.some(s=>s.item==='bog'&&s.price===spellPrice('bog')));const b=setup();b.phase='victory';assert.deepEqual(finishBattle({...r,screen:'battle',combats:1},b,()=>0).reward!.offers,['bog']);const c={...r,screen:'camp' as const,spells:[...known,'bog' as const]};const upgraded=camp(c,'bog');assert.equal(upgraded.upgrades.bog,1);assert.equal(camp({...upgraded,campUsed:false},'bog').campUsed,false);assert.equal(spellUpgradePreview('bog')?.bog,true);
 });
+
