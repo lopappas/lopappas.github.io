@@ -25,7 +25,7 @@ function device(){
 const flush=async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
 
 test('remaining UI effects are distinct, bounded and brief, with silent sample boundaries',()=>{
- assert.deepEqual(Object.keys(UI_SOUND_VOLUME).sort(),['bottle','learn','rest','stone','upgrade']);
+ assert.deepEqual(Object.keys(UI_SOUND_VOLUME).sort(),['bottle','learn','rest','shatter','stone','upgrade']);
  const signatures=new Set<string>();
  for(const kind of Object.keys(UI_SOUND_VOLUME) as Array<keyof typeof UI_SOUND_VOLUME>){
   const samples=soundSamples(kind);
@@ -34,7 +34,7 @@ test('remaining UI effects are distinct, bounded and brief, with silent sample b
   assert.ok(samples.some(value=>Math.abs(value)>.1));assert.ok(UI_SOUND_VOLUME[kind]>.1&&UI_SOUND_VOLUME[kind]<.4);
   signatures.add(Array.from(samples.slice(100,120)).join(','));
  }
- assert.equal(signatures.size,5);
+ assert.equal(signatures.size,6);
  assert.ok(soundSamples('learn').length>SOUND_RATE*.5);
  assert.equal(soundSamples('upgrade').length,Math.ceil(SOUND_RATE*1.4));
 });

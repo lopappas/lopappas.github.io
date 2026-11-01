@@ -16,6 +16,6 @@ export function applyDeveloperCommand(run:Run,command:DeveloperCommand):Run{
  if(command.type==='potion'){if(run.pendingBottle||potionCount(run)>=potionCapacity(run))return run;return{...run,pendingBottle:command.id==='spellBottle',potions:{...run.potions,[command.id]:(run.potions[command.id]??0)+1}};}
  if(command.type==='gold')return{...run,gold:run.gold+1000};
  if(command.type==='spell')return run.spells.includes(command.id)?run:{...run,spells:[...run.spells,command.id]};
- return run.relics.includes(command.id)?run:{...run,...(command.id==='impossibleShale'?{shaleContacts:0}:{}),relics:acquireRelic(run,command.id).relics};
+ const next=acquireRelic(run,command.id);return next===run?run:{...next,...(command.id==='impossibleShale'?{shaleContacts:0}:{})};
 }
 

@@ -265,3 +265,7 @@
 
 .rarity-starter{--rarity-border:#ab9980}.wonderful-diamond{font-size:.55em;color:#62b56a!important;margin-left:3px;vertical-align:super;line-height:0;text-shadow:none}.starter-robe{position:relative;padding:12px 14px;margin:18px 0;border:1px solid #8b9573;border-radius:9px;background:#2d4538}.starter-robe h2{margin:0 0 10px}.starter-robe .trail-relics{justify-content:center}.starter-robe p{margin-bottom:9px}.robes-total strong{color:#8ed89a}.potion-stellar{color:#69c879}.potion-stellar .reward-potion-icon,.inventory-potion.potion-stellar .reward-potion-icon{display:block;width:24px;height:29px;margin:auto}.stellar-ready{color:#91dfa1!important}
 .starter-robe .combat-relics{position:relative;inset:auto;margin-top:8px}.starter-robe .combat-relic-row{justify-content:center}.practice-app .combat-relics{top:auto;bottom:49px;z-index:7}.practice-app .combat-relics .relic-detail{top:auto;bottom:35px;max-height:calc(100svh - 180px);overflow-y:auto}
+
+.drawing-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;width:100%}.drawing-pair .best-drawing{min-width:0}.drawing-pair h2{font-size:clamp(16px,3vw,23px)}.drawing-pair .spell-grade{font-size:clamp(18px,4vw,27px)}.drawing-pair svg{height:clamp(125px,28vw,200px)}
+.sphere-shatter-flash{animation:sphereShatterFlash .2s linear}.sphere-shatter-message{color:#f3e7d1!important;font-weight:600;text-shadow:0 1px 3px #000}
+@keyframes sphereShatterFlash{0%,99.9%{filter:grayscale(1)}100%{filter:grayscale(0)}}

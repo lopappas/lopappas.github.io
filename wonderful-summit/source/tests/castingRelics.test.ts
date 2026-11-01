@@ -23,8 +23,8 @@ test('Black Stardust deals exactly 10 through defenses once per combat, includin
 test('clover readies on six successes, boosts seventh once, and fizzles reset the streak',()=>{
  let b=setup(['sevenLeafClover','forgivingCalculus']);
  for(let i=0;i<6;i++){assert.equal(cloverReady(b),false);b={...launchSpell(b,60,'#fff','water'),projectile:null};}
- assert.equal(cloverReady(b),true);assert.equal(effectiveAccuracy(b,60),73);
- b=launchSpell(b,60,'#fff','water');assert.equal(b.projectile?.quality,73);assert.equal(cloverReady(b),false);
+ assert.equal(cloverReady(b),true);assert.equal(effectiveAccuracy(b,60),70);
+ b=launchSpell(b,60,'#fff','water');assert.equal(b.projectile?.quality,70);assert.equal(cloverReady(b),false);
  b=fizzleSpell({...b,projectile:null});assert.equal(b.castingRelics.streak,0);assert.equal(effectiveAccuracy(b,60),63);
  assert.equal(setup(['sevenLeafClover']).castingRelics.streak,0);
 });
@@ -36,6 +36,6 @@ test('Artisan robes award 4% per distinct true Wonderful with no combat cap',()=
  assert.equal(b.robes.spells.length,6);assert.equal(releaseMultiplier(b,'water'),1.24);assert.equal(fizzleSpell(b).robes.spells.length,6);
 });
 test('new relics enter the normal rarity catalog and battles without relics keep base accuracy',()=>{
- assert.equal(RELICS.forgivingCalculus.rarity,'Rare');assert.equal(RELICS.artisanRobes.rarity,'Rare');assert.equal(RELICS.blackStardust.rarity,'Common');assert.equal(RELICS.sevenLeafClover.rarity,'Common');
+ assert.equal(RELICS.forgivingCalculus.rarity,'Rare');assert.equal(RELICS.artisanRobes.rarity,'Rare');assert.equal(RELICS.blackStardust.rarity,'Rare');assert.equal(RELICS.sevenLeafClover.rarity,'Common');
  assert.equal(effectiveAccuracy(newBattle(),60),60);
 });

@@ -8,3 +8,9 @@ export function bestDrawing(current:PlayerDrawing|null,candidate:PlayerDrawing|n
  if(current&&((!!current.spellId&&!candidate.spellId)||(!!current.spellId===!!candidate.spellId&&current.quality>=candidate.quality)))return current;
  return snapshotDrawing(candidate.spellId,candidate.quality,candidate.strokes,candidate.width,candidate.height);
 }
+// Successful boosted casts remain eligible, but rankings always use raw accuracy.
+export function worstDrawing(current:PlayerDrawing|null,candidate:PlayerDrawing|null|undefined):PlayerDrawing|null{
+ if(!candidate?.spellId||!Number.isFinite(candidate.quality)||!candidate.strokes.some(st=>st.length>1))return current;
+ if(current&&current.quality<=candidate.quality)return current;
+ return snapshotDrawing(candidate.spellId,candidate.quality,candidate.strokes,candidate.width,candidate.height);
+}
