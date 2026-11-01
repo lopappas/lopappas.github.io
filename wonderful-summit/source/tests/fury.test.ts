@@ -19,7 +19,7 @@ test('each merchant guarantees a rare potion and prices all common/rare and fall
 });
 test('reward rarity is exactly 70 percent common / 30 percent rare; selection within each tier is uniform',()=>{
  let common=0,rare=0;for(let i=0;i<1000;i++){let call=0;const id=rollRewardPotion(()=>call++===0?(i+.5)/1000:.5);if(COMMON_POTIONS.includes(id))common++;else rare++;}assert.equal(common,700);assert.equal(rare,300);
- for(const [rarity,pool] of [[.699999,COMMON_POTIONS],[.7,RARE_POTIONS]] as const)for(let i=0;i<3;i++){let call=0;assert.equal(rollRewardPotion(()=>call++===0?rarity:(i+.5)/3),pool[i]);}
+ for(const [rarity,pool] of [[.699999,COMMON_POTIONS],[.7,RARE_POTIONS]] as const)for(let i=0;i<pool.length;i++){let call=0;assert.equal(rollRewardPotion(()=>call++===0?rarity:(i+.5)/pool.length),pool[i]);}
  const run={...newRun(),screen:'battle' as const};const b={...battleForRun(run),phase:'victory' as const};assert.equal(finishBattle(run,b,()=>.35).reward?.potion,null);
  for(const scarf of [false,true])for(const rarity of [.1,.8]){const values=scarf?[rarity,.5]:[.1,rarity,.5];const r=finishBattle({...run,relics:scarf?['twillyScarf']:[]},b,()=>values.shift()??0);assert.ok((rarity<.7?COMMON_POTIONS:RARE_POTIONS).includes(r.reward!.potion!));}
 });
@@ -60,3 +60,4 @@ test('every stored spell and stored fizzle leaves Fury for the next drawn cast, 
   }
  }
 });
+

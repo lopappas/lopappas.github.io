@@ -39,7 +39,7 @@ export function canTutorialAction(lesson:TutorialLesson,action:TutorialAction,st
 }
 
 export function tutorialJourney():Run{
- return{...newRun(),screen:'battle',health:70,potions:{heal:1,freeze:0,ink:0}};
+ return{...newRun(),relics:[],screen:'battle',health:70,potions:{heal:1,freeze:0,ink:0}};
 }
 export function newTutorial(random:()=>number=Math.random):TutorialState{
  const journey=tutorialJourney();
@@ -129,3 +129,4 @@ export function stepTutorialBattle(battle:Battle,delta:number,paused:boolean,les
  if(lesson&&lesson!=='finish'&&next.phase==='victory')return{...next,phase:'active',enemies:next.enemies.map(e=>e.hp===0?{...e,hp:1}:e)};
  return next;
 }
+

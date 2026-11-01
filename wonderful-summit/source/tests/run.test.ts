@@ -13,7 +13,7 @@ test('checkmark accepts scale and translation and rejects spell shapes and flat 
  for(const s of SPELLS)assert.equal(isCheckmark(s.strokes),false);
  assert.equal(isCheckmark([[{x:1,y:1},{x:20,y:1},{x:80,y:1}]]),false);
 });
-test('every run starts with all three beginner spells and a valid starter relic',()=>{const r=start();assert.deepEqual(newRun().spells,['water','fire','nature']);assert.deepEqual(r.spells,['water','fire','nature']);assert.deepEqual(r.relics,['amber']);assert.equal(r.health,100);assert.equal(r.screen,'map');assert.equal(potionCount(r),1);assert.deepEqual(startRun({...newRun(),screen:'sister'},'bell'),{...newRun(),screen:'sister'});});
+test('every run starts with all three beginner spells and a valid starter relic',()=>{const r=start();assert.deepEqual(newRun().spells,['water','fire','nature']);assert.deepEqual(r.spells,['water','fire','nature']);assert.deepEqual(r.relics,['filadoraRobes','amber']);assert.equal(r.health,100);assert.equal(r.screen,'map');assert.equal(potionCount(r),1);assert.deepEqual(startRun({...newRun(),screen:'sister'},'bell'),{...newRun(),screen:'sister'});});
 test('unlearned sigils do not cast, and learned spells remain recognizable',()=>{assert.equal(recognize(SPELLS[1].strokes,['fire']).spell?.id,'fire');assert.equal(recognize(SPELLS[3].strokes,['fire']).spell,null);});
 test('complete route has seven combats, merchant, camp and final victory',()=>{
  let r=start();const screens:string[]=[];
@@ -21,7 +21,7 @@ test('complete route has seven combats, merchant, camp and final victory',()=>{
   r=enterNode(r,rng);screens.push(r.screen);
   if(r.screen==='battle')r=collect(won(r));else if(r.screen==='shop'||r.screen==='event')r=leaveNode(r);else r=leaveNode(camp(r));
  }
- assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,242);assert.equal(r.relics.length,3);assert.equal(r.spells.length,6);
+ assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,7);assert.equal(r.gold,242);assert.equal(r.relics.length,4);assert.equal(r.spells.length,6);
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,27);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
@@ -42,7 +42,7 @@ test('battle carries health, potions, upgrades and relics without refilling inve
  const r={...start(),screen:'battle' as const,health:44,potions:{heal:0,freeze:1,ink:0},upgrades:{fire:1}};const b=battleForRun(r,rng);assert.equal(b.playerHP,44);assert.deepEqual(b.potions,r.potions);assert.equal(b.upgrades.fire,1);assert.equal(b.damageBonus,1.15);const hit=hitWithSpell(b,100,'fire');assert.ok(hit.enemies[0].hp<100-32);
 });
 test('defeat ends run, restart clears all run power, elite relic excludes owned relics',()=>{
- const r=enterNode(start(),rng);const dead=finishBattle(r,{...battleForRun(r),phase:'defeat',playerHP:0});assert.equal(dead.screen,'defeat');assert.deepEqual(enterNode(dead),dead);assert.equal(newRun().gold,0);assert.deepEqual(newRun().relics,[]);
+ const r=enterNode(start(),rng);const dead=finishBattle(r,{...battleForRun(r),phase:'defeat',playerHP:0});assert.equal(dead.screen,'defeat');assert.deepEqual(enterNode(dead),dead);assert.equal(newRun().gold,0);assert.deepEqual(newRun().relics,['filadoraRobes']);
  const elite={...r,node:3,relics:['amber','moss'] as (keyof typeof RELICS)[]};const reward=won(elite).reward!;assert.ok(reward.relic&&!elite.relics.includes(reward.relic));
 });
 test('moss locket heals after victories and glass bell affects only first incoming hit',()=>{
@@ -125,3 +125,4 @@ test('Continue leaves uncollected potions behind without granting or replacing i
  let second=collect(won(enterNode(start(),rng)));second=claimGold(won(enterNode(second,rng)));assert.equal(rewardsComplete(second.reward!),false);assert.deepEqual(leaveNode(second),second);
  second=learnReward(second,second.reward!.offers[0]);assert.equal(rewardsComplete(second.reward!),true);assert.equal(leaveNode(second).screen,'map');
 });
+

@@ -28,7 +28,7 @@ test('gold rolls anew per encounter, is stored once in its reward, and cannot be
 });
 test('relic rarities exactly match the approved labeling and keepsakes stay exclusive to Theodora',()=>{
  assert.deepEqual(Object.fromEntries(Object.entries(RELICS).map(([id,r])=>[id,r.rarity])),{
-  forgivingCalculus:'Rare',blackStardust:'Common',sevenLeafClover:'Common',artisanRobes:'Rare',lotus:'Uncommon',colorfulRock:'Uncommon',impossibleShale:'Uncommon',midnightStone:'Rare',amber:'Keepsake',moss:'Keepsake',feather:'Keepsake',bell:'Common',moon:'Common',sunAmulet:'Rare',moonAmulet:'Rare',twilightAmulet:'Rare',twillyScarf:'Rare',birkinStock:'Uncommon'
+  filadoraRobes:'Starter',forgivingCalculus:'Rare',blackStardust:'Common',sevenLeafClover:'Common',artisanRobes:'Rare',lotus:'Uncommon',colorfulRock:'Uncommon',impossibleShale:'Uncommon',midnightStone:'Rare',amber:'Keepsake',moss:'Keepsake',feather:'Keepsake',bell:'Common',moon:'Common',sunAmulet:'Rare',moonAmulet:'Rare',twilightAmulet:'Rare',twillyScarf:'Rare',birkinStock:'Uncommon'
  });
  assert.deepEqual(Object.entries(RELICS).filter(([,r])=>r.rarity==='Keepsake').map(([id])=>id).sort(),[...STARTER_RELICS].sort());
 });
@@ -41,7 +41,7 @@ test('spell rarities exactly match the approved labeling, including the develope
 test('legendary spells cost fifty percent more, and relic prices follow their tiers',()=>{
  for(const spell of SPELLS)assert.equal(spellPrice(spell.id),spell.rarity==='Legendary'?70:45);
  assert.equal(spellPrice('chronos'),70);
- for(const id of Object.keys(RELICS) as RelicId[])if(!STARTER_RELICS.includes(id))assert.equal(relicPrice(id),{Common:50,Uncommon:70,Rare:85,Keepsake:45}[RELICS[id].rarity]);
+ for(const id of Object.keys(RELICS) as RelicId[])if(!STARTER_RELICS.includes(id))assert.equal(relicPrice(id),{Common:50,Uncommon:70,Rare:85,Keepsake:45,Starter:0}[RELICS[id].rarity]);
 });
 
 // Sweep the roll for one offering while fixing independent potion/other rolls.

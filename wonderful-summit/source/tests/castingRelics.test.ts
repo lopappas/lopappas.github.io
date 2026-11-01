@@ -28,13 +28,12 @@ test('clover readies on six successes, boosts seventh once, and fizzles reset th
  b=fizzleSpell({...b,projectile:null});assert.equal(b.castingRelics.streak,0);assert.equal(effectiveAccuracy(b,60),63);
  assert.equal(setup(['sevenLeafClover']).castingRelics.streak,0);
 });
-test('Artisan robes count distinct Beautiful spells, apply immediately, cap at 25%, and reset per combat',()=>{
- let b=setup(['artisanRobes']);b=launchSpell(b,69,'#fff','water');assert.equal(b.projectile?.damageMultiplier,1);b={...b,projectile:null};
- b=launchSpell(b,70,'#fff','water');assert.equal(b.projectile?.damageMultiplier,1.05);b={...b,projectile:null};
- b=launchSpell(b,100,'#fff','water');assert.equal(b.castingRelics.artisanSpells.length,1);b={...b,projectile:null};
- for(const id of ['fire','nature','wave','bolt','leaf'] as const){b={...launchSpell(b,80,'#fff',id),projectile:null};}
- assert.equal(b.castingRelics.artisanSpells.length,5);assert.equal(releaseMultiplier(b,'water'),1.25);
- assert.equal(fizzleSpell(b).castingRelics.artisanSpells.length,5);assert.equal(setup(['artisanRobes']).castingRelics.artisanSpells.length,0);
+test('Artisan robes award 4% per distinct true Wonderful with no combat cap',()=>{
+ let b=setup(['artisanRobes']);b=launchSpell(b,79,'#fff','water');assert.equal(b.projectile?.damageMultiplier,1);b={...b,projectile:null};
+ b=launchSpell(b,80,'#fff','water');assert.equal(b.projectile?.damageMultiplier,1.04);b={...b,projectile:null};
+ b=launchSpell(b,100,'#fff','water');assert.equal(b.robes.spells.length,1);b={...b,projectile:null};
+ for(const id of ['fire','nature','wave','bolt','leaf'] as const)b={...launchSpell(b,80,'#fff',id),projectile:null};
+ assert.equal(b.robes.spells.length,6);assert.equal(releaseMultiplier(b,'water'),1.24);assert.equal(fizzleSpell(b).robes.spells.length,6);
 });
 test('new relics enter the normal rarity catalog and battles without relics keep base accuracy',()=>{
  assert.equal(RELICS.forgivingCalculus.rarity,'Rare');assert.equal(RELICS.artisanRobes.rarity,'Rare');assert.equal(RELICS.blackStardust.rarity,'Common');assert.equal(RELICS.sevenLeafClover.rarity,'Common');

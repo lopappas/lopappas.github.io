@@ -1,5 +1,5 @@
 export type SpellRarity='Common'|'Uncommon'|'Legendary';
-export type RelicRarity='Common'|'Uncommon'|'Rare'|'Keepsake';
+export type RelicRarity='Common'|'Uncommon'|'Rare'|'Keepsake'|'Starter';
 export type Rarity=SpellRarity|RelicRarity;
 export function rarityClass(rarity:Rarity){return `item-rarity rarity-${rarity.toLowerCase()}`;}
 export function spellRarityClass(rarity:SpellRarity){return 'spell-rarity';}

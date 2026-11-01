@@ -9,7 +9,7 @@ test('practice grants every spell and toggles only valid upgrades without alteri
  assert.deepEqual(base.spells,SPELLS.map(s=>s.id));
  assert.deepEqual(base.upgrades,{});
  for(const spell of SPELLS)assert.equal(upgraded.upgrades[spell.id],isUpgradableSpell(spell.id)?1:undefined);
- assert.deepEqual(base.relics,[]);
+ assert.deepEqual(base.relics,['filadoraRobes']);
  assert.deepEqual(newPracticeBattle(base).potions,{heal:0,freeze:0,ink:0});
  assert.deepEqual(practiceJourney().upgrades,{});
 });

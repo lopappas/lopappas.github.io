@@ -32,7 +32,7 @@ test('a full purse can replace a stored spell bottle without leaving orphaned sp
 });
 test('bottled spells retain quality and can be selected separately, carry across battles, and release once on impact',()=>{
  let run=sealBottle(buy(shop(),'bottle'),{spellId:'water',quality:60});run={...run,potions:{...run.potions,spellBottle:2},bottledSpells:[...run.bottledSpells,{spellId:'fire',quality:100}]};
- let b=battleForRun(run,()=>0);b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=drinkPotion(b,'spellBottle',1);assert.equal(b.potions.spellBottle,1);assert.deepEqual(b.bottledSpells,[{spellId:'water',quality:60}]);assert.equal(b.enemies[0].hp,1000);b=advance(b,.66);assert.equal(b.enemies[0].hp,1000-spellDamage({element:'Neutral'},100,'fire'));assert.equal(b.casts,1);b=advance(b,.5);assert.equal(b.casts,1);
+ let b=battleForRun(run,()=>0);b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=drinkPotion(b,'spellBottle',1);assert.equal(b.potions.spellBottle,1);assert.deepEqual(b.bottledSpells,[{spellId:'water',quality:60}]);assert.equal(b.enemies[0].hp,1000);b=advance(b,.66);assert.equal(b.enemies[0].hp,1000-Math.round(spellDamage({element:'Neutral'},100,'fire')*1.02));assert.equal(b.casts,1);b=advance(b,.5);assert.equal(b.casts,1);
  const carried=finishBattle({...run,screen:'battle'},{...b,phase:'victory'},()=>.99);assert.deepEqual(carried.bottledSpells,b.bottledSpells);assert.deepEqual(battleForRun(carried).bottledSpells,b.bottledSpells);
  b=drinkPotion(b,'spellBottle');b=advance(b,.66);assert.equal(b.casts,2);assert.equal(b.bottledSpells.length,0);assert.equal(drinkPotion(b,'spellBottle'),b);
 });
@@ -55,3 +55,4 @@ test('offspring spread around the death location without leaving the runway, kee
 test('a spell bottle that wins combat still reports its impact once',()=>{
  let b=newBattle('active');b.enemies[0].hp=1;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'water',quality:100}];b=drinkPotion(b,'spellBottle');b=advance(b,.64);const next=stepBattle(b,.02);assert.equal(next.phase,'victory');assert.deepEqual(potionImpactIds(b,next),[1]);assert.deepEqual(potionImpactIds(next,next),[]);
 });
+

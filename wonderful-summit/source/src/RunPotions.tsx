@@ -1,3 +1,4 @@
+import {PotionIcon} from './PotionIcon';
 import React,{useEffect,useRef,useState} from 'react';
 import {POTIONS,type Potion} from './battle';
 import {SPELLS} from './magic';
@@ -21,7 +22,7 @@ export function RunPotions({run,onDrop,onDrinkHealing,visibleSlots=false}:{run:R
   document.addEventListener('pointerdown',outside);document.addEventListener('keydown',escape);
   return()=>{document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',escape);};
  },[open,visibleSlots]);
- const renderSlots=()=> <div className="inventory-potion-slots" role="group" aria-label="Carried potions">{slots.map((p,index)=><button key={index} className={`inventory-potion${selected===index?' selected':''} potion-${p??'empty'}`} disabled={!p} aria-label={`Slot ${index+1}: ${p?POTIONS[p].name:'empty'}`} aria-pressed={p?selected===index:undefined} onClick={()=>{setSelected(index);setOpen(true);}}>{p?POTIONS[p].icon:'·'}</button>)}</div>;
+ const renderSlots=()=> <div className="inventory-potion-slots" role="group" aria-label="Carried potions">{slots.map((p,index)=><button key={index} className={`inventory-potion${selected===index?' selected':''} potion-${p??'empty'}`} disabled={!p} aria-label={`Slot ${index+1}: ${p?POTIONS[p].name:'empty'}`} aria-pressed={p?selected===index:undefined} onClick={()=>{setSelected(index);setOpen(true);}}>{p?(p==='stellar'?<PotionIcon potion={p}/>:POTIONS[p].icon):'·'}</button>)}</div>;
  return <div className={`run-potions${visibleSlots?' run-potions-inline':''}`} ref={container}>
   {visibleSlots?renderSlots():<button ref={trigger} className="run-potions-trigger" aria-label={`Potions: ${potionCount(run)} of ${potionCapacity(run)} slots. View inventory`} aria-expanded={open} aria-controls={open?'run-potion-inventory':undefined} onClick={()=>open?close():setOpen(true)}>⚗ {potionCount(run)}/{potionCapacity(run)} <span aria-hidden="true">⌄</span></button>}
   {open&&<section ref={panel} id="run-potion-inventory" className="run-potion-inventory" aria-labelledby="run-potion-title">
@@ -39,3 +40,4 @@ export function RunPotions({run,onDrop,onDrinkHealing,visibleSlots=false}:{run:R
   </section>}
  </div>;
 }
+

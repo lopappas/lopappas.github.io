@@ -6,7 +6,7 @@ export const SCARECROW_HEALTH=1_000_000;
 export function practiceJourney(upgraded=false):Run{return {...newRun(),screen:'battle',spells:SPELLS.map(s=>s.id),potions:{heal:0,freeze:0,ink:0},upgrades:upgraded?Object.fromEntries(SPELLS.filter(s=>isUpgradableSpell(s.id)).map(s=>[s.id,1])):{}};}
 export function newPracticeBattle(journey:Run):Battle{
  const battle=newBattle('active','slime',()=>0);
- return {...battle,approachAt:0,potions:{heal:0,freeze:0,ink:0},upgrades:{...journey.upgrades},enemies:[{...battle.enemies[0],element:'Neutral',initialElement:'Neutral',hp:SCARECROW_HEALTH,maxHP:SCARECROW_HEALTH,x:560}]};
+ return {...battle,robes:{enabled:journey.relics.includes('filadoraRobes')||journey.relics.includes('artisanRobes'),artisan:journey.relics.includes('artisanRobes'),spells:[...journey.wonderfulSpells]},approachAt:0,potions:{heal:0,freeze:0,ink:0},upgrades:{...journey.upgrades},enemies:[{...battle.enemies[0],element:'Neutral',initialElement:'Neutral',hp:SCARECROW_HEALTH,maxHP:SCARECROW_HEALTH,x:560}]};
 }
 export function restoreScarecrow(battle:Battle,mobile:boolean):Battle{return {...battle,phase:'active',playerHP:100,playerHits:0,enemies:battle.enemies.map(e=>({...e,hp:SCARECROW_HEALTH,maxHP:SCARECROW_HEALTH,attackAt:null,x:mobile?Math.max(420,Math.min(640,e.x)):560,push:mobile?e.push:null}))};}
 export function practiceDamage(battle:Battle){return Math.max(0,SCARECROW_HEALTH-battle.enemies[0].hp);}
