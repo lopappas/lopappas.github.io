@@ -41,7 +41,7 @@ function sample(strokes:Strokes,count=140):Point[]{
  return result;
 }
 const meanNearest=(a:Point[],b:Point[])=>a.reduce((sum,p)=>sum+Math.min(...b.map(q=>distance(p,q))),0)/a.length;
-export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id)){
+export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),accuracyBonus=0){
  const normalized=normalize(strokes),points=sample(normalized);if(points.length<5)return{spell:null,quality:0,candidates:[],reason:'Draw a complete sigil first.'};
  const len=strokeLength(normalized);
  // Collapse every shape variation into one candidate per spell BEFORE ambiguity checks.
@@ -55,8 +55,9 @@ export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id)){
  }).sort((a,b)=>b.quality-a.quality);
  if(!candidates.length)return{spell:null,quality:0,candidates,reason:'No spells learned yet.'};
  const top=candidates[0],margin=top.quality-(candidates[1]?.quality??0);
- const accepted=top.quality>=48&&margin>=7;
- return{spell:accepted?top.spell:null,quality:top.quality,candidates,reason:accepted?'':margin<7?'The shape is between two sigils. Make its defining details clearer.':'The sigil is incomplete or its shape needs more care.'};
+ const quality=Math.min(100,top.quality+Math.max(0,accuracyBonus));
+ const accepted=quality>=48&&margin>=7;
+ return{spell:accepted?top.spell:null,quality,candidates,reason:accepted?'':margin<7?'The shape is between two sigils. Make its defining details clearer.':'The sigil is incomplete or its shape needs more care.'};
 }
 export function grade(quality:number){return quality>=80?'Wonderful':quality>=70?'Beautiful':quality>=60?'Steady':'Faint';}
 // Exponential growth between valid scores, plus explicit rewards at grade thresholds.
@@ -87,3 +88,4 @@ export function isCheckmark(strokes:Strokes){
  const error=points.reduce((sum,p,i)=>sum+lineError(p,i<=pivot?first:corner,i<=pivot?corner:last),0)/points.length;
  return error/span<.12&&distance(corner,last)>distance(first,corner)*1.15;
 }
+
