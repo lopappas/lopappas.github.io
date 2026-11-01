@@ -5,7 +5,7 @@ import {launchSpell,robesBonus,stepBattle,drinkPotion,fizzleSpell,COMMON_POTIONS
 function field(){const run={...newRun(),screen:'battle' as const};const b=battleForRun(run,()=>0);return {...b,approachAt:1000,enemies:[{...b.enemies[0],element:'Neutral' as const,hp:10000,maxHP:10000}]};}
 function advance(b:ReturnType<typeof field>,seconds=.7){for(let i=0;i<Math.ceil(seconds/.01);i++)b=stepBattle(b,.01);return b;}
 test('Filadora starts with Starter robes plus a keepsake; robes stay out of merchant pools',()=>{
- const run=startRun({...newRun(),screen:'sister'},'moss');assert.deepEqual(run.relics,['filadoraRobes','moss']);assert.equal(RELICS.filadoraRobes.rarity,'Starter');
+ const run=startRun({...newRun(),keepsakeOffers:['amber','moss','feather'],screen:'sister'},'moss');assert.deepEqual(run.relics,['filadoraRobes','moss']);assert.equal(RELICS.filadoraRobes.rarity,'Starter');
  for(let i=0;i<20;i++)assert.ok(!enterNode({...run,screen:'map',node:2},()=>i/20).stock.some(s=>s.item==='filadoraRobes'));
 });
 test('raw Wonderful unlocks distinct run bonuses and survives combat transitions, but not a new run',()=>{

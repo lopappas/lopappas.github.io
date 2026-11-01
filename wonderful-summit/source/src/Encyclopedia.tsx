@@ -1,3 +1,4 @@
+import {RelicIcon} from './RelicIcon';
 import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {CHAPTERS,ENCYCLOPEDIA_PREVIEW,encyclopediaGroups,isEntryRevealed,type Chapter,type Discoveries,type EncyclopediaEntry} from './encyclopedia';
@@ -11,7 +12,7 @@ function inkColor(entry:EncyclopediaEntry){return ({Water:'#257285',Fire:'#b34f2
 function EntryArt({entry}:{entry:EncyclopediaEntry}){
  if(entry.path)return <svg viewBox="0 0 100 100" role="img" aria-label={`${entry.name} drawing shape`}><path d={entry.path} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
  if(entry.chapter==='potions')return <PotionIcon potion={entry.id as Potion}/>;
- return <span className="journal-relic-art" aria-hidden="true">{entry.icon}</span>;
+ return <span className="journal-relic-art" aria-hidden="true"><RelicIcon relic={entry.id as import('./run').RelicId}/></span>;
 }
 export function EncyclopediaButton({discoveries}:{discoveries:Discoveries}){
  const [open,setOpen]=useState(false),trigger=useRef<HTMLButtonElement>(null);

@@ -13,8 +13,8 @@ test('developer grants are immediate, preserve run state, and cannot duplicate s
  const spell=applyDeveloperCommand(gold,{type:'spell',id:'bolt'});assert.ok(spell.spells.includes('bolt'));assert.equal(applyDeveloperCommand(spell,{type:'spell',id:'bolt'}),spell);
  const relic=applyDeveloperCommand(spell,{type:'relic',id:'birkinStock'});assert.ok(relic.relics.includes('birkinStock'));assert.equal(applyDeveloperCommand(relic,{type:'relic',id:'birkinStock'}),relic);
 });
-test('three-second hold fires once and consumes click; short and cancelled holds stay ordinary clicks',t=>{
- t.mock.timers.enable({apis:['setTimeout']});let opens=0;const hold=new HoldGesture();hold.start(()=>opens++);t.mock.timers.tick(2999);assert.equal(opens,0);t.mock.timers.tick(1);assert.equal(opens,1);t.mock.timers.tick(5000);assert.equal(opens,1);assert.equal(hold.click(),false);assert.equal(hold.click(),true);
+test('1.5-second hold fires once and consumes click; short and cancelled holds stay ordinary clicks',t=>{
+ t.mock.timers.enable({apis:['setTimeout']});let opens=0;const hold=new HoldGesture();hold.start(()=>opens++);t.mock.timers.tick(1499);assert.equal(opens,0);t.mock.timers.tick(1);assert.equal(opens,1);t.mock.timers.tick(5000);assert.equal(opens,1);assert.equal(hold.click(),false);assert.equal(hold.click(),true);
  hold.start(()=>opens++);t.mock.timers.tick(1000);hold.cancel();t.mock.timers.tick(5000);assert.equal(opens,1);assert.equal(hold.click(),true);
 });
 test('ordinary shop and elite random rolls can select both new relics without excluding other relics',()=>{

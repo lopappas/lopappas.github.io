@@ -1,4 +1,4 @@
-export const DEVELOPER_HOLD_MS=3000;
+export const DEVELOPER_HOLD_MS=1500;
 /** One-shot hold: release, movement, or unmount cancels pending activation. */
 export class HoldGesture{
  private timer:ReturnType<typeof setTimeout>|null=null;

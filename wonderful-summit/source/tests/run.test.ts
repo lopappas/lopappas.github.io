@@ -4,7 +4,7 @@ import {ROUTE,newRun,startRun,enterNode,finishBattle,claimGold,claimPotion,claim
 import {SPELLS,isCheckmark,recognize,type SpellId} from '../src/magic.ts';
 import {hitWithSpell,stepBattle,launchSpell,nearestEnemy,targetedEnemy,presentEnemies,drinkPotion} from '../src/battle.ts';
 const rng=()=>.1;
-function start():Run{return startRun({...newRun(),screen:'sister'},'amber');}
+function start():Run{return startRun({...newRun(),keepsakeOffers:['amber','moss','feather'],screen:'sister'},'amber');}
 function won(r:Run):Run{return finishBattle(r,{...battleForRun(r,rng),phase:'victory',playerHP:65},rng);}
 function collect(r:Run):Run{r=claimGold(r);r=claimRelic(r);r=r.reward?.potion&&potionCount(r)>=3?skipRewardPotion(r):claimPotion(r);if(r.reward?.offers.length)r=learnReward(r,r.reward.offers[0]);return leaveNode(r);}
 test('checkmark accepts scale and translation and rejects spell shapes and flat scribbles',()=>{
@@ -13,7 +13,7 @@ test('checkmark accepts scale and translation and rejects spell shapes and flat 
  for(const s of SPELLS)assert.equal(isCheckmark(s.strokes),false);
  assert.equal(isCheckmark([[{x:1,y:1},{x:20,y:1},{x:80,y:1}]]),false);
 });
-test('every run starts with all three beginner spells and a valid starter relic',()=>{const r=start();assert.deepEqual(newRun().spells,['water','fire','nature']);assert.deepEqual(r.spells,['water','fire','nature']);assert.deepEqual(r.relics,['filadoraRobes','amber']);assert.equal(r.health,100);assert.equal(r.screen,'map');assert.equal(potionCount(r),1);assert.deepEqual(startRun({...newRun(),screen:'sister'},'bell'),{...newRun(),screen:'sister'});});
+test('every run starts with all three beginner spells and a valid starter relic',()=>{const r=start();assert.deepEqual(newRun().spells,['water','fire','nature']);assert.deepEqual(r.spells,['water','fire','nature']);assert.deepEqual(r.relics,['filadoraRobes','amber']);assert.equal(r.health,100);assert.equal(r.screen,'map');assert.equal(potionCount(r),1);assert.deepEqual(startRun({...newRun(),keepsakeOffers:['amber','moss','feather'],screen:'sister'},'bell'),{...newRun(),keepsakeOffers:['amber','moss','feather'],screen:'sister'});});
 test('unlearned sigils do not cast, and learned spells remain recognizable',()=>{assert.equal(recognize(SPELLS[1].strokes,['fire']).spell?.id,'fire');assert.equal(recognize(SPELLS[3].strokes,['fire']).spell,null);});
 test('complete route has seven combats, merchant, camp and final victory',()=>{
  let r=start();const screens:string[]=[];

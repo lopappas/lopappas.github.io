@@ -21,7 +21,7 @@ Uncommon spells cost 40 gold and Legendary spells cost 60. Spell rewards and mer
 
 ## Developer panel
 
-Hold Spellbook for 3 seconds. Authorization is temporarily disabled for all players; grants apply locally to the current session. There is no account or API requirement in this build. Restore server-side identity checks before restricting access again.
+Hold Spellbook for 1.5 seconds. Authorization is temporarily disabled for all players; grants apply locally to the current session. There is no account or API requirement in this build. Restore server-side identity checks before restricting access again.
 
 
 ## Encyclopedia
@@ -51,3 +51,5 @@ Chronos Denalis freezes at every successful quality, including Faint against roc
 Slime Mother retains the killing spell’s knockback during her death animation. The split and offspring location follow her final pushed position.
 
 Theodara’s Coinpurse is a keepsake granting 100 gold once upon collection. Untouched Box grants one unowned normal relic, with existing rarity weights and normal duplicate and starter restrictions; an Artisan robes gift performs its normal takeover. Madora’s Earring grants 5% spell damage. The ink keepsake is now named Giant Inkwell. Stale drawn casts briefly gray only their casting paper and show a fading stale label. Cooldown labels use the spell sigil, the word cooldown, and remaining seconds. Calculus gold and green segments share a flush edge within the quality track.
+
+New runs draw three distinct keepsake offers uniformly without replacement; the offers remain fixed until another run starts. Every keepsake has a 3/5 chance to appear in the current five-item pool. Only offered keepsakes may be selected. Perfected Spheredust uses a circular cluster of individual dots in all relic displays. Stale feedback is labeled “Stale”, lasts 0.975 seconds independently of the cast animation, and uses 30px text. The Calculus gold segment stays flush on the left and has a rounded cap on the right.
