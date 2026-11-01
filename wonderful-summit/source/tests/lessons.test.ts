@@ -45,7 +45,7 @@ test('all nine lessons complete against each single slime without a freeze lesso
   const run=new LessonRun(roll),element=run.snapshot.battle.enemies[0].element;assert.equal(run.snapshot.battle.potions.freeze,0);
   run.to('finish');assert.deepEqual(run.visited,[...TUTORIAL_LESSONS]);assert.equal(run.session.phase,'briefing');
   assert.equal(run.snapshot.battle.enemies.length,1);assert.equal(run.snapshot.battle.enemies[0].element,element);assert.deepEqual(run.snapshot.battle.potions,{heal:0,freeze:0,ink:0});
-  assert.equal(run.snapshot.lastCast!.quality,60);assert.equal(run.snapshot.lastCast!.damage,29);
+  assert.equal(run.snapshot.lastCast!.quality,60);assert.equal(run.snapshot.lastCast!.damage,26);
   run.begin();for(let i=0;i<6&&run.snapshot.battle.phase==='active';i++)run.cast(60);
   assert.equal(run.snapshot.battle.phase,'victory');assert.ok(run.snapshot.battle.playerHP>0);assert.equal(run.session.lesson,'finish');
  }

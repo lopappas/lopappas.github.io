@@ -46,14 +46,14 @@ test('real recognized sigils win the reduced-health slime encounter',()=>{
  let s=newBattle('active');for(let i=0;i<8&&s.phase==='active';i++){s=advance(s,3);const match=recognize(SPELLS[i%3].strokes);assert.ok(match.spell);s=hitWithSpell(s,match.quality,match.spell!.id);}assert.equal(s.phase,'victory');assert.equal(s.enemies[0].hp,0);assert.ok(s.playerHP>0);
 });
 test('orb travels before damage and push, then clears on arrival',()=>{
- let s=launchSpell(newBattle('active'),100,'#69c2d6');assert.equal(s.enemies[0].hp,SLIME_MAX_HP);assert.equal(projectilePosition(s)?.x,300);s=advance(s,.15);assert.ok(projectilePosition(s)!.x>300);assert.equal(s.enemies[0].hp,SLIME_MAX_HP);s=advance(s,.2);assert.equal(s.projectile,null);assert.equal(s.enemies[0].hp,SLIME_MAX_HP-32);assert.ok(s.enemies[0].push);
+ let s=launchSpell(newBattle('active'),100,'#69c2d6');assert.equal(s.enemies[0].hp,SLIME_MAX_HP);assert.equal(projectilePosition(s)?.x,300);s=advance(s,.15);assert.ok(projectilePosition(s)!.x>300);assert.equal(s.enemies[0].hp,SLIME_MAX_HP);s=advance(s,.2);assert.equal(s.projectile,null);assert.equal(s.enemies[0].hp,SLIME_MAX_HP-26);assert.ok(s.enemies[0].push);
 });
 test('knockback eases over time instead of teleporting',()=>{const start=hitWithSpell(firstEnemy(newBattle('active'),{x:400}),100);assert.equal(start.enemies[0].x,400);const middle=advance(start,.1);assert.ok(middle.enemies[0].x>400&&middle.enemies[0].x<start.enemies[0].push!.to);const end=advance(start,.28);assert.ok(Math.abs(end.enemies[0].x-start.enemies[0].push!.to)<.2);assert.equal(end.enemies[0].push,null);});
 test('each player hit emits a quarter-second hit event',()=>{const s=stepBattle(firstEnemy(newBattle('active'),{x:CONTACT_X,attackAt:0}),.01);assert.equal(s.playerHits,1);assert.ok(Math.abs(s.playerHurtUntil-s.time-.25)<1e-9);});
 test('element triangle grants 50% extra damage, with neutral unchanged and resisted matchups reduced',()=>{
  const base=newBattle('active').enemies[0];
- for(const [id,strong] of [['water','Fire'],['fire','Nature'],['nature','Water']] as const){assert.equal(spellDamage({...base,element:strong},100,id),96);assert.equal(spellDamage({...base,element:'Neutral'},100,id),64);}
- assert.equal(spellDamage({...base,element:'Water'},100,'fire'),48);
+ for(const [id,strong] of [['water','Fire'],['fire','Nature'],['nature','Water']] as const){assert.equal(spellDamage({...base,element:strong},100,id),78);assert.equal(spellDamage({...base,element:'Neutral'},100,id),52);}
+ assert.equal(spellDamage({...base,element:'Water'},100,'fire'),39);
 });
 test('nearest living enemy is targeted, including after knockback changes ordering',()=>{
  let s=newBattle('active','pack');s.enemies[0].x=650;assert.equal(nearestEnemy(s)?.id,2);s=launchSpell(s,100,'#abc','nature');assert.equal(s.projectile?.targetId,2);s=advance(s,.4);assert.ok(s.enemies[1].hp<s.enemies[1].maxHP);assert.equal(s.enemies[0].hp,100);
@@ -62,7 +62,7 @@ test('dead enemies are skipped, and killing one pack member does not end combat'
  let s=newBattle('active','pack');s.enemies[0].hp=1;s=hitWithSpell(s,100);assert.equal(s.phase,'active');assert.equal(s.enemies[0].hp,0);assert.equal(nearestEnemy(s)?.id,2);s=launchSpell(s,100,'#abc');assert.equal(s.projectile?.targetId,2);
 });
 test('advanced spells trade damage and knockback and leaf applies timed slow',()=>{
- const base=firstEnemy(newBattle('active'),{x:400});const normal=hitWithSpell(base,100),wave=hitWithSpell(base,100,'wave'),bolt=hitWithSpell(base,100,'bolt'),leaf=hitWithSpell(base,100,'leaf');assert.ok(wave.enemies[0].hp>normal.enemies[0].hp);assert.ok(wave.enemies[0].push!.to>normal.enemies[0].push!.to);assert.ok(bolt.enemies[0].hp<normal.enemies[0].hp);assert.equal(leaf.enemies[0].slowUntil,8);
+ const base=firstEnemy(newBattle('active'),{x:400});const normal=hitWithSpell(base,100),wave=hitWithSpell(base,100,'wave'),bolt=hitWithSpell(base,100,'bolt'),leaf=hitWithSpell(base,100,'leaf');assert.ok(wave.enemies[0].hp<normal.enemies[0].hp);assert.ok(wave.enemies[0].push!.to>normal.enemies[0].push!.to);assert.ok(bolt.enemies[0].hp<normal.enemies[0].hp);assert.equal(leaf.enemies[0].slowUntil,8);
  const slowed=firstEnemy(base,{slowUntil:4}),regular=advance(base,1),slow=advance(slowed,1);assert.ok(slow.enemies[0].x>regular.enemies[0].x);assert.ok(advance(slowed,5).enemies[0].x<slow.enemies[0].x);
 });
 test('healing applies on bottle impact, is single-use, and cannot exceed max health',()=>{
@@ -71,7 +71,7 @@ test('healing applies on bottle impact, is single-use, and cannot exceed max hea
 test('freeze applies on impact, pauses enemy action clocks, and resumes without instant attack',()=>{
  let s=drinkPotion(newBattle('active'),'freeze');assert.equal(s.freezeUntil,0);s=advance(s,.66);assert.ok(s.freezeUntil>s.time);const clock=s.enemies[0].clock,x=s.enemies[0].x;s=advance(s,5.8);assert.equal(s.enemies[0].clock,clock);assert.equal(s.enemies[0].x,x);s=advance(s,.5);assert.ok(s.enemies[0].clock>clock);
 });
-test('projectiles can hit while enemies are frozen',()=>{let s=advance(drinkPotion(newBattle('active'),'freeze'),.66);const clock=s.enemies[0].clock;s=launchSpell(s,100,'#abc');s=advance(s,.4);assert.equal(s.enemies[0].hp,68);assert.equal(s.enemies[0].clock,clock);});
+test('projectiles can hit while enemies are frozen',()=>{let s=advance(drinkPotion(newBattle('active'),'freeze'),.66);const clock=s.enemies[0].clock;s=launchSpell(s,100,'#abc');s=advance(s,.4);assert.equal(s.enemies[0].hp,74);assert.equal(s.enemies[0].clock,clock);});
 test('unlimited ink starts on impact and lasts fifteen seconds, without double use',()=>{let s=drinkPotion(newBattle('active'),'ink');assert.equal(s.unlimitedUntil,0);assert.equal(s.potions.ink,0);assert.deepEqual(drinkPotion(s,'ink'),s);s=advance(s,.66);assert.ok(Math.abs(s.unlimitedUntil-s.time-15)<.02);assert.ok(advance(s,14.9).time<s.unlimitedUntil);assert.ok(advance(s,15.1).time>s.unlimitedUntil);});
 test('potions do nothing outside active combat',()=>{for(const phase of ['ready','victory','defeat'] as const){const s=newBattle(phase);assert.deepEqual(drinkPotion(s,'heal'),s);assert.deepEqual(drinkPotion(s,'freeze'),s);}});
 test('elite goblin warns before rushing and deals heavier contact damage',()=>{
@@ -144,10 +144,10 @@ test('pairs start at the back with a stagger and walk 20 percent slower while bo
 test('accuracy curve flows through direct hits, spell push modifiers and burn',()=>{
  const base=firstEnemy(newBattle('active'),{x:CONTACT_X,element:'Neutral'});
  const faint=hitWithSpell(base,59),steady=hitWithSpell(base,60),beautiful=hitWithSpell(base,70),wonderful=hitWithSpell(base,100);
- assert.equal(base.enemies[0].hp-faint.enemies[0].hp,12);
- assert.equal(base.enemies[0].hp-steady.enemies[0].hp,19);
- assert.equal(base.enemies[0].hp-beautiful.enemies[0].hp,27);
- assert.equal(base.enemies[0].hp-wonderful.enemies[0].hp,64);
+ assert.equal(base.enemies[0].hp-faint.enemies[0].hp,11);
+ assert.equal(base.enemies[0].hp-steady.enemies[0].hp,17);
+ assert.equal(base.enemies[0].hp-beautiful.enemies[0].hp,26);
+ assert.equal(base.enemies[0].hp-wonderful.enemies[0].hp,52);
  assert.equal(wonderful.enemies[0].push!.to-CONTACT_X,160);
  assert.equal(faint.enemies[0].push!.to-CONTACT_X,26);
  assert.equal(spellKnockback(100,'wave'),160*1.7);

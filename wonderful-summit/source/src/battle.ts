@@ -1,7 +1,7 @@
 import {bogEffect,extendBog,type Bog} from './bog.ts';
 import {extendFirestorm,firestormBaseDamage,FIRESTORM_TICK_SECONDS,type Firestorm} from './firestorm.ts';
 import type {PlayerDrawing} from './drawings.ts';
-import {power,knockback,SPELLS,isUpgradableSpell,type SpellId,type Element} from './magic.ts';
+import {spellPower,power,knockback,SPELLS,isUpgradableSpell,type SpellId,type Element} from './magic.ts';
 import {woodenShield,shieldProtection,igniteShield,updateShield,type EnemyShield} from './shields.ts';
 export const PLAYER_MAX_HP=100,SLIME_MAX_HP=100;
 export const CONTACT_X=325,SLIME_START_X=580,SLIME_SPEED=18;
@@ -54,7 +54,7 @@ export function elementalMatchup(element:Element,target:Enemy['element']){
  return{damage:1.5,knockback:1,immuneEffects:false};
 }
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
-export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?1.1:spellId==='wave'?.9:spellId==='leaf'?.75:1;return Math.round((spellId==='ender'?(Number.isFinite(quality)&&quality>=48?1000:0):power(quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)?Math.max(0,Math.min(1,upgrade)):0)*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time));}
+export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?1.1:spellId==='wave'?.9:spellId==='leaf'?.75:1;return Math.round((spellId==='ender'?(Number.isFinite(quality)&&quality>=48?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)?Math.max(0,Math.min(1,upgrade)):0)*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time));}
 export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0){if(spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm')return 0;const base=spellId==='wave'&&quality>=48&&quality<60?40+14*(quality-48)/11:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?1.5:spellId==='bolt'?.65:1);return shieldProtection(shield,time)*rockyDefense(rocky,quality).knockback*base*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 // Rain retains fractional damage so small elemental/rock/shield reductions remain meaningful.
 export function firestormTickDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,damageBonus=1,upgrade=0,multiplier=1,time=0){

@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {newRun,enterNode,RELICS,ROUTE,battleForRun,buy,type Run} from '../src/run.ts';
-import {SPELLS,PLAYER_SPELLS,power} from '../src/magic.ts';
+import {SPELLS,PLAYER_SPELLS,power,spellPower} from '../src/magic.ts';
 import {newBattle,hitWithSpell,spellDamage,spellKnockback,stepBattle,burnDamage,CONTACT_X,drinkPotion,RARE_POTIONS,type Potion} from '../src/battle.ts';
 
 test('merchant always rolls two distinct options per category, preferring unowned items',()=>{
@@ -34,7 +34,7 @@ test('rocky trait halves Faint damage for every spell and removes all Faint knoc
  for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='chronos'&&s.id!=='firestorm'&&s.id!=='bog'))for(const quality of [48,59,60,69,70,79,80,100]){
   const b=newBattle('active','rock');b.enemies[0].x=350;
   const hit=hitWithSpell(b,quality,spell.id),rock=hit.enemies[0];const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?1.1:spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
-  assert.equal(b.enemies[0].hp-rock.hp,Math.round(power(quality)*factor*(quality<60?.5:quality<70?.75:1)));
+  assert.equal(b.enemies[0].hp-rock.hp,Math.round(spellPower(spell.id,quality)*factor*(quality<60?.5:quality<70?.75:1)));
   if(quality<60){assert.equal(rock.push,null);assert.equal(spellKnockback(quality,spell.id,9,'Neutral',true),0);}else assert.ok(rock.push&&rock.push.to>350);
  }
 });
@@ -58,7 +58,7 @@ test('Steady rocky defense reduces damage and knockback by exactly 25 percent be
   const expected=spellKnockback(q,spell.id,1,'Neutral')*mult;
   assert.ok(Math.abs(hit.enemies[0].push!.to-e.x-expected)<1e-8);
   const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?1.1:spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
-  assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(power(q)*factor*1.15*1.25*mult));
+  assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(spellPower(spell.id,q)*factor*1.15*1.25*mult));
  }
 });
 test('rocky Faint immunity never applies or refreshes statuses, and does not cleanse earlier good casts',()=>{
