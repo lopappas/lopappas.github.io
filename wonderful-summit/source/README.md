@@ -43,3 +43,9 @@ Stellar potion is a Common green-liquid bottle. Its non-stacking +10 accuracy po
 Perfected Sphere is a Rare relic granting 15% spell damage. Its hidden fizzle outcome must stay out of player-facing descriptions and lore. Shattering during combat replaces it with a single Black Stardust, immediately deals 25 flat damage to present enemies with strong knockback, flashes grayscale for 0.2 seconds, and plays an original synthesized retro fracture effect. Outside combat it transforms without combat damage. Normal shops, elite rewards, developer grants, and transformation enforce unique relic IDs. Sphere cannot be reacquired while Stardust is owned.
 
 Run and act ending screens show best and worst drawings side by side, best on the left. Both use original strokes and raw accuracy; the worst excludes fizzles and keeps the earliest drawing on ties. The records include battle, bottled, and event casts, survive encounters, and reset on a new run.
+
+Drawn casts track an encounter-local spell streak. The third and later consecutive casts of the same spell snapshot a 0.75 damage and knockback multiplier, including burns and ground effects. A different successful drawn spell resets the streak; fizzles and bottled spells leave it intact. Bottled spells always bypass this penalty.
+
+Chronos Denalis freezes at every successful quality, including Faint against rocky enemies, retaining all prior duration endpoints and upgrade scaling. Its 20-second cooldown starts at launch and advances only with combat time. A blocked attempt preserves the drawing and all cast bonuses; the canvas displays an italic cooldown message. Active spell cooldowns appear beneath player health. Bottled Chronos ignores and does not change the cooldown.
+
+Slime Mother retains the killing spell’s knockback during her death animation. The split and offspring location follow her final pushed position.

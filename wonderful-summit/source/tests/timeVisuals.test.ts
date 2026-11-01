@@ -5,14 +5,14 @@ import {chronosAffected,chronosVisuals,enemyStatusLabel} from '../src/timeVisual
 import {newRun,camp} from '../src/run.ts';
 import {PLAYER_SPELLS,SPELLS} from '../src/magic.ts';
 import {spellName,spellUpgradePreview} from '../src/spellbook.ts';
-test('weak Chronos flashes small and grayscales affected enemies only, for the actual slow duration',()=>{
+test('weak Chronos keeps its small pulse and freezes the environment for its duration',()=>{
  for(const q of [48,59,60,69]){
   const b=hitWithSpell(newBattle('active','pack'),q,'chronos');
-  assert.equal(chronosVisuals(b).environment,false);assert.equal(chronosVisuals(b).pulse?.strong,false);
+  assert.equal(chronosVisuals(b).environment,true);assert.equal(chronosVisuals(b).pulse?.strong,false);
   for(const e of b.enemies){assert.equal(chronosAffected(e,b.time),true);assert.equal(enemyStatusLabel(e,b),null);assert.equal(chronosAffected(e,chronosEffect(q).duration),false);}
   b.time=.29;assert.equal(chronosVisuals(b).pulse,null);
  }
- const rock=hitWithSpell(newBattle('active','rock'),59,'chronos');assert.equal(chronosAffected(rock.enemies[0],0),false);
+ const rock=hitWithSpell(newBattle('active','rock'),59,'chronos');assert.equal(chronosAffected(rock.enemies[0],0),true);
 });
 test('strong Chronos flashes large and grayscales the environment while any present enemy is stunned',()=>{
  for(const q of [70,79,80,100]){

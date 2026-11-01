@@ -81,7 +81,7 @@ test('recasts during arrival or rain append duration, retain cadence and per-cas
  let b=launchSpell(setup(),48,'#f0a068','firestorm');b=advance(b,1);b.upgrades.firestorm=1;b=launchSpell(b,60,'#f0a068','firestorm');assert.equal(b.firestorm?.rainAt,2);assert.equal(b.firestorm?.portions.at(-1)?.until,10.5);
  b=advance(b,1.5);assert.equal(b.enemies[0].hp,9998);b=advance(b,.5);b=launchSpell(b,70,'#f0a068','firestorm');assert.equal(b.firestorm?.portions.at(-1)?.until,18.5);assert.equal(b.firestorm?.nextTick,3.5);
  b=advance(b,2.5);assert.equal(b.enemies[0].hp,9986);b=advance(b,.5);assert.equal(b.enemies[0].hp,9983);
- b=advance(b,12.5);assert.equal(b.firestorm,null);assert.equal(b.enemies[0].hp,9908);b=launchSpell(b,48,'#f0a068','firestorm');assert.ok(Math.abs(b.firestorm!.rainAt-20.5)<1e-8);
+ b=advance(b,12.5);assert.equal(b.firestorm,null);assert.equal(b.enemies[0].hp,9920);b=launchSpell(b,48,'#f0a068','firestorm');assert.ok(Math.abs(b.firestorm!.rainAt-20.5)<1e-8);
 });
 test('rain resolves boss death, split children, ordinary victory and stops on defeat',()=>{
  let b=setup('mother');b.enemies[0].hp=1;b=launchSpell(b,100,'#f0a068','firestorm');b=advance(b,2.5);assert.equal(b.enemies[0].hp,0);assert.ok(b.motherSplit);assert.equal(b.phase,'active');

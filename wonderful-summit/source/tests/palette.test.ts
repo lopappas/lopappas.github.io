@@ -16,7 +16,7 @@ test('palette inheritance recolors custom effect components while sibling player
 });
 test('enemy and environment palette amounts fade smoothly with combat time and preserve existing grayscale on recasts',()=>{
  let b=hitWithSpell(newBattle('active'),60,'chronos');assert.equal(chronosGrayAmount(b.enemies[0],0),0);assert.ok(chronosGrayAmount(b.enemies[0],.09)>.4);assert.equal(chronosGrayAmount(b.enemies[0],.18),1);assert.equal(chronosVisuals(b).environmentAmount,0);
- b.time=.2;b=hitWithSpell(b,70,'chronos');assert.equal(chronosGrayAmount(b.enemies[0],b.time),1);assert.equal(chronosVisuals(b).environmentAmount,0);b.time=.38;assert.ok(chronosVisuals(b).environmentAmount>.99);
+ b.time=.2;b=hitWithSpell(b,70,'chronos');assert.equal(chronosGrayAmount(b.enemies[0],b.time),1);assert.equal(chronosVisuals(b).environmentAmount,1);b.time=.38;assert.ok(chronosVisuals(b).environmentAmount>.99);
  b.time=5.39;assert.ok(chronosVisuals(b).environmentAmount>0&&chronosVisuals(b).environmentAmount<1);b.time=5.5;assert.equal(chronosVisuals(b).environmentAmount,0);
  assert.equal(chronosGrayAmount(newBattle('active').enemies[0],.1),0);
 });

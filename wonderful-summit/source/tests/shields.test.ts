@@ -29,7 +29,7 @@ test('armor persists during burning, then disappears permanently; burn ticks use
 });
 test('unburned shields reduce contact ward knockback and accept control effects; freeze does not postpone destruction',()=>{
  let b=newBattle('active','slime');b.approachAt=0;b.enemies[0]={...b.enemies[0],shield:woodenShield(),x:CONTACT_X,attackAt:0};const pushed=stepBattle(b,.01);assert.equal(pushed.enemies[0].push!.to-CONTACT_X,52.5);
- const controlled=hitWithSpell(b,60,'chronos');assert.equal(controlled.enemies[0].slowUntil,2.5);assert.equal(controlled.enemies[0].shield?.burnUntil,null);
+ const controlled=hitWithSpell(b,60,'chronos');assert.equal(controlled.enemies[0].stunUntil,2.5);assert.equal(controlled.enemies[0].shield?.burnUntil,null);
  b=drinkPotion(hitWithSpell(b,48,'fire'),'freeze');b=advance(b,2.01);assert.equal(b.enemies[0].shield,null);assert.ok(b.freezeUntil>b.time);
 });
 test('reinforcement prevents early victory and cannot be targeted, controlled or damaged before its arrival',()=>{

@@ -24,11 +24,11 @@ test('Aquaspout uses its approved droplet-and-caret at all sizes, preserving dam
  for(const q of [48,59,60,100]){assert.equal(spellDamage({element:'Neutral'},q,'wave'),Math.round(power(q)*.9));assert.equal(spellDamage({element:'Neutral'},q,'bolt'),Math.round(power(q)*1.3));}
  assert.equal(spellKnockback(59,'wave',1,'Water'),54*.7);assert.equal(spellKnockback(59,'wave',1,'Neutral',true),0);
 });
-test('Chronos reinforcements receive remaining slow/stun duration, upgrade and rocky immunity',()=>{
+test('Chronos reinforcements receive the remaining freeze duration at every quality, including rocky enemies',()=>{
  for(const q of [48,60,70,100])for(const upgrade of [0,1])for(const rocky of [false,true]){
   let b=newBattle('active','pack');b.approachAt=0;b.upgrades.chronos=upgrade;b.enemies[1].spawnAt=.5;b.enemies[1].rocky=rocky;b=hitWithSpell(b,q,'chronos');const until=chronosEffect(q,upgrade).duration;b=advance(b,.6);
-  const e=b.enemies[1],immune=rocky&&q<60;assert.equal(q<70?e.chronosSlowUntil:e.stunUntil,immune?0:until);
-  if(q>=70)assert.equal(e.x,640);
+  const e=b.enemies[1];assert.equal(e.stunUntil,until);
+  assert.equal(e.x,640);
  }
  let b=newBattle('active','pack');b.enemies[1].spawnAt=2;b=hitWithSpell(b,48,'chronos');b=advance(b,2.1);assert.equal(b.enemies[1].chronosSlowUntil,0);
  b=newBattle('active','pack');b.enemies[1].spawnAt=2;b=hitWithSpell(b,100,'chronos');b=advance(b,.5);b=hitWithSpell(b,70,'chronos');b=advance(b,1.6);assert.equal(b.enemies[1].stunUntil,18);
