@@ -1,5 +1,5 @@
 import React from 'react';
-export function Scarecrow({hit}:{hit:boolean}){return <g className={hit?'scarecrow scarecrow-hit':'scarecrow'} aria-label="Patches, a smiling straw scarecrow" role="img">
+export function Scarecrow({hit}:{hit:boolean}){return <g className={hit?'scarecrow scarecrow-hit':'scarecrow'} aria-label="A smiling straw scarecrow" role="img">
  <path d="M0-45V24M-41-32H41" stroke="#735638" strokeWidth="8" strokeLinecap="round"/>
  <path d="M-12-39-33-30-43-34-47-23-31-14-19-19-22 8H22L19-19 31-14 47-23 43-34 33-30 12-39Z" fill="#9c83bc" stroke="#51475e" strokeWidth="3"/>
  <path d="M-20 6H22M-12-29H14" stroke="#d9b474" strokeWidth="4"/>
