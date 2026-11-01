@@ -283,3 +283,7 @@
 .spheredust-icon{display:inline-block;width:1em;height:1em;vertical-align:-.1em;overflow:visible}
 
 .shape-score.calculus-equipped .decorative-cap{position:absolute;top:0;bottom:0}.shape-score .score-track i{transition:width .35s ease}
+
+.opening-spell-review{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:#14271feb;backdrop-filter:blur(5px);outline:none;pointer-events:auto}
+.opening-review-sheet{width:min(540px,calc(100% - 24px));padding:16px 8px;color:#eee5cd}.opening-review-sheet h2{text-align:center;font-size:19px;font-weight:500;letter-spacing:1px;margin:0 0 14px}
+.opening-review-symbols{display:grid;grid-template-columns:repeat(var(--review-columns),minmax(0,1fr));grid-template-rows:repeat(var(--review-rows),minmax(0,1fr));height:min(72svh,calc(var(--review-rows)*160px));gap:14px 12px;list-style:none;padding:0;margin:0}.opening-review-symbols li{min-width:0;min-height:0;padding:5px}.opening-review-symbols svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 5px #fff1)}
