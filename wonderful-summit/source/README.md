@@ -29,3 +29,7 @@ Hold Spellbook for 3 seconds. Authorization is temporarily disabled for all play
 The home menu opens a single-page field journal with Spells, Relics, and Potions chapters, grouped by rarity. Entries use the live game definitions; developer-only spells are excluded. Spell entries include their current drawing shape and casting tips; relic and potion entries include effects and flavor text.
 
 `ENCYCLOPEDIA_PREVIEW` in `src/encyclopedia.ts` currently reveals every entry because journey saving is not implemented. Session discovery tracking stays separate from inventory, so spending a potion or starting a new run does not erase a discovery. Once durable discovery storage exists, disable the preview flag to show question marks until collection. No encyclopedia data is persisted yet.
+
+## Practice
+
+Practice opens above Encyclopedia on the home menu. All spells (including Ender) are temporarily available with the usual drawing, ink, and refill rules. Patches is a neutral, non-attacking scarecrow who absorbs repeated casts. Movement is off by default; switching it on enables a safe patrol affected by normal slows, roots, stops, and knockback. Upgrade all toggles the standard maximum upgrade on eligible spells. Existing ongoing effects retain their normal combat behavior. Reset restores ink and clears casts, effects, and damage totals while retaining the movement and upgrade switches. Practice does not modify run progress. Damage totals include direct hits and damage over time.
