@@ -139,6 +139,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  const activeGains=new Map<GainNode,number>();
  const loops=new Map<'rain'|'swamp',{source:AudioBufferSourceNode;gain:GainNode;expiresAt:number}>();
  const ambienceLeaseSeconds=.5;
+ let stormQuietUntil=0;
  let cloud:{source:AudioBufferSourceNode;gain:GainNode;age:number;expiresAt:number}|null=null,cloudGeneration=0;
  function stopCloudRollIn(){
   cloudGeneration++;const old=cloud;cloud=null;if(!old)return;
@@ -148,7 +149,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  }
  function setCloudRollIn(age:number|null){
   const ctx=context;
-  if(age===null||!Number.isFinite(age)||age<0||age>=2||!ctx||ctx.state!=='running'||!visible()){stopCloudRollIn();return;}
+  if(age===null||!Number.isFinite(age)||age<0||age>=2||environment.now()<stormQuietUntil||!ctx||ctx.state!=='running'||!visible()){stopCloudRollIn();return;}
   if(cloud&&(age<cloud.age||ctx.currentTime>=cloud.expiresAt))stopCloudRollIn();
   if(!cloud){
    let buffer=buffers.get('cloud');if(!buffer){const samples=soundSamples('cloud');buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set('cloud',buffer);}
@@ -170,12 +171,12 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   try{loop.source.disconnect();}catch{}
   try{loop.gain.disconnect();}catch{}
  }
- function stopAmbience(){stopCloudRollIn();for(const kind of ['rain','swamp'] as const)stopLoop(kind);}
+ function stopAmbience(){stormQuietUntil=0;stopCloudRollIn();for(const kind of ['rain','swamp'] as const)stopLoop(kind);}
 
  function setAmbience(levels:{rain:number;swamp:number}){
   const ctx=context;if(!ctx)return;
   for(const kind of ['rain','swamp'] as const){
-   const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.05:.08);
+   const base=(ctx.state==='running'&&visible()&&(kind!=='rain'||environment.now()>=stormQuietUntil)?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.05:.08);
    if(!base){stopLoop(kind);continue;}
    let loop=loops.get(kind);
    if(loop&&ctx.currentTime>=loop.expiresAt){stopLoop(kind);loop=undefined;}
@@ -245,6 +246,15 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
    }
   }catch{/* Input and combat keep working if browser/device audio is unavailable. */}
  }
+ function isolateFirestormForCast(kind:SoundKind,sampleCount:number){
+  if(!['water','fire','nature','ancient','aquaspout','tidalcrest','bramble','flareBolt','mud','fizzle'].includes(kind))return;
+  const rate=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;
+  const duration=sampleCount/SOUND_RATE/rate;
+  stormQuietUntil=Math.max(stormQuietUntil,environment.now()+(duration+.12)*1000);
+  // Disconnect rather than only lower gain: the Firestorm source must not
+  // participate in the mobile audio mix while another spell cue is playing.
+  stopLoop('rain');stopCloudRollIn();
+ }
  function playNow(ctx:AudioContext,kind:SoundKind,quality:number){
   if(ctx!==context||ctx.state!=='running'||!visible())return;
   if(kind==='cloud'){
@@ -254,6 +264,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   }
   let buffer=buffers.get(kind);
   if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
+  isolateFirestormForCast(kind,buffer.length);
   const source=ctx.createBufferSource(),gain=ctx.createGain();
   source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='mud'?.25:castVolume(quality);
   gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);

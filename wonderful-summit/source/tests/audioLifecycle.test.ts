@@ -232,11 +232,28 @@ test('cloud roll-in is a tracked non-looping cue that ends with its visual phase
  ctx.advanceAudio(.2);d.audio.setCloudRollIn(1);d.audio.play('water',80);assert.equal(ctx.starts.length,starts+1);
  d.audio.setCloudRollIn(2);assert.equal(ctx.sourceDisconnects,1);ctx.advanceAudio(.6);assert.equal(cloud.ended,true);
  d.audio.play('fire',80);d.audio.play('nature',80);assert.equal(ctx.starts.filter(n=>n===SOUND_RATE*2).length,1);
- d.audio.setCloudRollIn(0);d.audio.stopAmbience();assert.equal(ctx.sourceDisconnects,2);
+ d.setNow(3000);d.audio.setCloudRollIn(0);d.audio.stopAmbience();assert.equal(ctx.sourceDisconnects,2);
 });
 test('cancelled or ended Firestorm prevents a delayed cloud cue from replaying when browser audio resumes',async()=>{
  const d=device();d.audio.unlock();await flush();const ctx=d.devices[0],before=ctx.starts.length;
  ctx.state='suspended';let resume!:()=>void;ctx.resumeAction=()=>new Promise<void>(resolve=>{resume=()=>{ctx.state='running';resolve();};});
  d.audio.play('cloud',80);d.audio.setCloudRollIn(null);resume();await flush();
  assert.equal(ctx.starts.length,before);d.audio.play('water',80);assert.equal(ctx.starts.length,before+1);
+});
+
+test('other spell cues disconnect Firestorm rain and cloud sources for the entire cue duration',async()=>{
+ for(const [kind,duration] of [['water',.58],['aquaspout',.58/1.15],['bramble',.7/.88],['tidalcrest',1.15],['flareBolt',.48],['mud',.8]] as const){
+  const d=device();d.audio.unlock();await flush();const ctx=d.devices[0];
+  d.audio.setAmbience({rain:1,swamp:1});d.audio.setCloudRollIn(0);const before=ctx.starts.length;
+  d.audio.play(kind,80);assert.equal(ctx.sourceDisconnects,2,kind);assert.equal(ctx.starts.length,before+1);
+  d.audio.setAmbience({rain:1,swamp:1});d.audio.setCloudRollIn(.1);assert.equal(ctx.starts.length,before+1);
+  d.setNow((duration+.05)*1000);d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+1);
+  d.setNow((duration+.13)*1000);d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+2);
+ }
+});
+test('a later short cast cannot shorten Firestorm isolation for an earlier longer sound, and absent Firestorm stays silent',async()=>{
+ const d=device();d.audio.unlock();await flush();const ctx=d.devices[0];
+ d.audio.setAmbience({rain:1,swamp:0});d.audio.play('tidalcrest',80);d.setNow(100);d.audio.play('fire',80);
+ const before=ctx.starts.length;d.setNow(800);d.audio.setAmbience({rain:1,swamp:0});assert.equal(ctx.starts.length,before);
+ d.setNow(1400);d.audio.setAmbience({rain:0,swamp:0});d.audio.setCloudRollIn(null);assert.equal(ctx.starts.length,before);
 });
