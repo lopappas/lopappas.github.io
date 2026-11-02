@@ -15,7 +15,7 @@ test('Midnight percentage thresholds have exact boundaries',()=>{
 test('Midnight multiplies final direct damage without changing burns or knockback',()=>{
  for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const quality of [48,60,80])for(const rocky of [false,true])for(const [ink,bonus] of [[29,0],[30,.03],[35,.05],[40,.1],[45,.12],[50,.15],[55,.2]]){
   const b=newBattle('active','shieldPack');b.damageBonus=1.15;b.upgrades.fire=1;b.amulets.sun=true;b.enemies[0]={...b.enemies[0],element,rocky,hp:10000,maxHP:10000};
-  const expected=Math.round(spellDamage(b.enemies[0],quality,'fire',b.damageBonus,1)*2*(1+bonus));
+  const expected=Math.round(spellDamage(b.enemies[0],quality,'fire',b.damageBonus*(quality>=60?1.15:1),1)*2*(1+bonus));
   const plain=hitWithSpell(b,quality,'fire',1,()=>0,2,ink);b.midnightStone=true;const stone=hitWithSpell(b,quality,'fire',1,()=>0,2,ink);assert.equal(10000-stone.enemies[0].hp,expected);assert.deepEqual(stone.enemies[0].burn,plain.enemies[0].burn);assert.deepEqual(stone.enemies[0].push,plain.enemies[0].push);
  }
 });

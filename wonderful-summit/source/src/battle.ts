@@ -59,6 +59,11 @@ export function rockyDefense(rocky:boolean,quality:number){return !rocky||qualit
 export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?1.265:spellId==='wave'?.9:spellId==='leaf'?.75:1;const precision=spellId==='thistleBush'?1e6:1;return Math.round(precision*(isNearSpell(spellId)?nearDamage(spellId,quality):spellId==='ender'?(Number.isFinite(quality)&&quality>=48?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)?Math.max(0,Math.min(1,upgrade)):0)*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time))/precision;}
 export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0){if(spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm')return 0;const base=isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=48&&quality<60?40+14*(quality-48)/11:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?1.5:spellId==='bolt'?.65:1);return shieldProtection(shield,time)*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 // Rain retains fractional damage so small elemental/rock/shield reductions remain meaningful.
+export function amuletDamageMultiplier(quality:number,id:SpellId,amulets:Battle['amulets']){
+ if(!Number.isFinite(quality)||quality<60)return 1;
+ const element=SPELLS.find(s=>s.id===id)!.element;
+ return element==='Fire'&&amulets.sun||element==='Water'&&amulets.moon||element==='Nature'&&amulets.twilight?1.15:1;
+}
 export function firestormTickDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,damageBonus=1,upgrade=0,multiplier=1,time=0){
  if(!Number.isFinite(quality)||quality<48)return 0;
  return Math.round(firestormBaseDamage(upgrade)*damageBonus*multiplier*elementalMatchup('Fire',target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time)*1000000)/1000000;
@@ -80,12 +85,9 @@ function bogRain(state:Battle,time:number):Battle{
   enemies=enemies.map(old=>{
    if(old.hp<=0||old.spawnAt>tick+1e-9)return old;
    const e=old.kind==='mother'?{...old,element:ELEMENTS[(ELEMENTS.indexOf(old.initialElement as Element)+Math.floor((tick+1e-9)/15))%3]}:old;
-   const first=!portion.hitIds.includes(e.id);if(first)portion.hitIds.push(e.id);
-   const immune=elementalMatchup('Nature',e.element).immuneEffects||rockyDefense(e.rocky,portion.quality).immuneEffects;
-   const root=first&&portion.twilight&&portion.quality>=60&&!immune&&Math.random()<.5;
    const damage=bogTickDamage(e,portion.quality,portion.upgrade,portion.damageBonus,portion.multiplier,portion.midnight,tick,portion.twilight);
    const hp=Math.max(0,Math.round((e.hp-damage)*1e6)/1e6);
-   return{...e,hp,hurtUntil:time+.15,rootUntil:root?Math.max(e.rootUntil,tick+1.5):e.rootUntil,push:hp===0?null:e.push,attackAt:hp===0||root?null:e.attackAt};
+   return{...e,hp,hurtUntil:time+.15,push:hp===0?null:e.push,attackAt:hp===0?null:e.attackAt};
   });
   nextTick+=.5;
  }
@@ -156,7 +158,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
  if(isNearSpell(spellId)&&targetId===undefined)return castNearSpell(state,quality,spellId,damageMultiplier,inkUsed,knockbackMultiplier);
  if(state.phase!=='active'||(spellId==='bog'||spellId==='ender'||spellId==='firestorm'||spellId==='tidalcrest')&&(!Number.isFinite(quality)||quality<48))return state;
  if(spellId==='bog')return{...state,casts:state.casts+1,bog:extendBog(state.bog,state.time,{quality,upgrade:state.upgrades.bog??0,damageBonus:state.damageBonus,multiplier:damageMultiplier,midnight:state.midnightStone?midnightBonus(inkUsed):0,twilight:state.amulets.twilight})};
- if(spellId==='firestorm')return{...state,casts:state.casts+1,firestorm:extendFirestorm(state.firestorm,state.time,quality,state.upgrades.firestorm??0,state.damageBonus,damageMultiplier,state.midnightStone?midnightBonus(inkUsed):0)};
+ if(spellId==='firestorm')return{...state,casts:state.casts+1,firestorm:extendFirestorm(state.firestorm,state.time,quality,state.upgrades.firestorm??0,state.damageBonus*amuletDamageMultiplier(quality,spellId,state.amulets),damageMultiplier,state.midnightStone?midnightBonus(inkUsed):0)};
  if(spellId==='chronos'){
   const effect=chronosEffect(quality,state.upgrades.chronos??0);if(!effect.duration)return state;
   const live=new Set(presentEnemies(state).map(e=>e.id));if(!live.size)return state;
@@ -169,16 +171,16 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
  const immuneEffects=elementalMatchup(element,target.element).immuneEffects||rockyDefense(target.rocky,q).immuneEffects;
  const casting=bonuses??{damageBonus:state.damageBonus,pushBonus:state.pushBonus,upgrade:state.upgrades[spellId]??0,midnightStone:state.midnightStone,moon:state.amulets.moon};
  const steady=q>=60,moon=steady&&element==='Water'&&casting.moon,twilight=steady&&element==='Nature'&&state.amulets.twilight;
- const rooted=twilight&&!immuneEffects&&target.element!=='Nature'&&random()<.5;
+ const rooted=twilight&&spellId==='nature'&&!immuneEffects&&target.element!=='Nature'&&random()<.5;
  const enemies=state.enemies.map(e=>{
   if(e.id!==target.id)return e;
   const rockyFaint=e.rocky&&q<60;
-  const bonus=casting.damageBonus*(moon||twilight?1.15:1),level=casting.upgrade;
+  const bonus=casting.damageBonus*amuletDamageMultiplier(q,spellId,{...state.amulets,moon:casting.moon}),level=casting.upgrade;
   const precision=spellId==='thistleBush'?1e6:1;const damage=Math.round(precision*spellDamage(e,q,spellId,bonus,level,state.time)*damageMultiplier*(1+(casting.midnightStone?midnightBonus(inkUsed):0)))/precision;
   const shield=igniteShield(updateShield(e.shield,state.time),element,q,state.time),shieldBurning=(shield?.burnUntil??0)>state.time;
-  // Sun adds 30% of the resisted direct hit over three seconds, alongside Flare Bolt's burn.
-  const burnTick=(spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier:0)+(steady&&element==='Fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0);
-  return{...e,shield,hp:Math.max(0,e.hp-damage),push:spellId==='ender'||spellId==='thistleBush'?e.push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,casting.pushBonus*knockbackMultiplier*(moon?1.15:1),e.element,e.rocky,e.shield,state.time,level)*(e.kind==='mother'?.8:1)),started:state.time,ends:state.time+PUSH_DURATION},attackAt:spellId==='ender'||spellId==='thistleBush'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q).duration,amount:brambleEffect(q).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
+  // Sun grants Hearthspark its burn; Flare Bolt retains only its intrinsic burn.
+  const burnTick=(spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier*amuletDamageMultiplier(q,spellId,state.amulets):0)+(steady&&spellId==='fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0);
+  return{...e,shield,hp:Math.max(0,e.hp-damage),push:spellId==='ender'||spellId==='thistleBush'?e.push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,casting.pushBonus*knockbackMultiplier*(moon&&spellId==='water'?1.15:1),e.element,e.rocky,e.shield,state.time,level)*(e.kind==='mother'?.8:1)),started:state.time,ends:state.time+PUSH_DURATION},attackAt:spellId==='ender'||spellId==='thistleBush'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q).duration,amount:brambleEffect(q).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
  });
  return resolveMother({...state,enemies,casts:state.casts+1});
 }
