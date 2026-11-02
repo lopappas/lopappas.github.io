@@ -17,21 +17,21 @@ test('approved shapes recognize uniquely across size, position and reversed stro
  const thistle=SPELLS.find(s=>s.id==='thistleBush')!.strokes[0];for(let i=0;i<thistle.length;i++){assert.ok(Math.abs(thistle[i].x+thistle[thistle.length-1-i].x-100)<1e-5);assert.equal(thistle[i].y,thistle[thistle.length-1-i].y);}
 });
 test('quality endpoints set the promised puddle knockback and thistle reach/budget',()=>{
- const endpoints=[[48,100,80,40],[59,160,90,60],[60,180,95,75],[69,260,110,110],[70,280,115,125],[79,360,130,170],[80,380,135,190],[100,500,150,250]];
+ const endpoints=[[48,70,80,40],[59,112,90,60],[60,126,95,75],[69,182,110,110],[70,196,115,125],[79,252,130,170],[80,266,135,190],[100,350,150,250]];
  for(const [q,push,range,budget] of endpoints){assert.equal(nearKnockback('puddleGuard',q),push);assert.deepEqual(thistleStats(q),{range,budget});}
  for(const q of [0,47,NaN,Infinity])for(const id of ids)assert.equal(launchSpell(field(),q,'#fff',id).casts,0);
 });
-test('Flame Blade hits every present enemy within 125 units exactly once, without a projectile or distant fallback',()=>{
- const b=field([325,450,451,350]);b.enemies[3].spawnAt=5;const before=structuredClone(b),n=launchSpell(b,70,'#fff','flameBlade');
+test('Flame Blade hits every present enemy within 110 units exactly once, without a projectile or distant fallback',()=>{
+ const b=field([325,435,436,350]);b.enemies[3].spawnAt=5;const before=structuredClone(b),n=launchSpell(b,70,'#fff','flameBlade');
  assert.deepEqual(b,before);assert.equal(n.casts,1);assert.equal(n.projectile,null);
- assert.equal(n.enemies[0].hp,10000-81);assert.equal(n.enemies[1].hp,10000-81);assert.equal(n.enemies[2].hp,10000);assert.equal(n.enemies[3].hp,10000);
+ assert.equal(n.enemies[0].hp,10000-64);assert.equal(n.enemies[1].hp,10000-64);assert.equal(n.enemies[2].hp,10000);assert.equal(n.enemies[3].hp,10000);
  assert.ok(n.enemies[0].push);assert.equal(n.enemies[0].push!.to-325,20);
  const empty=launchSpell(field([500]),100,'#fff','flameBlade');assert.ok(empty.flameSwing);assert.equal(empty.enemies[0].hp,10000);assert.equal(advance(n,.4).enemies[0].hp,n.enemies[0].hp);
 });
 test('Puddle Guard persists, triggers only the first walking enemy, launches it, and then disappears',()=>{
  let b=launchSpell(field([400,400]),100,'#fff','puddleGuard');assert.equal(b.puddle!.x,CONTACT_X+30);assert.equal(advance(b,20).enemies[0].hp,10000);
  b={...b,approachAt:0,enemies:b.enemies.map(e=>({...e,x:365.1}))};b=advance(b,.1);
- assert.equal(b.puddle,null);assert.ok(b.puddleBurst);assert.equal(b.enemies[0].hp,9982);assert.equal(b.enemies[1].hp,10000);assert.equal(b.enemies[0].push!.to,ENEMY_BACK_X);
+ assert.equal(b.puddle,null);assert.ok(b.puddleBurst);assert.equal(b.enemies[0].hp,10000);assert.equal(b.enemies[1].hp,10000);assert.equal(b.enemies[0].push!.to,ENEMY_BACK_X);
  assert.equal(b.casts,1);assert.equal(advance(b,.5).enemies[1].hp,10000);
 });
 test('Thistle Bush ticks every half second, counts actual damage across enemies, and has no knockback',()=>{
@@ -78,14 +78,14 @@ test('new spells are learnable, sold, upgraded and grouped by element in book or
  for(const id of ids){const run={...newRun(),screen:'map' as const,node:2,spells:SPELLS.filter(s=>s.id!==id).map(s=>s.id)};
   assert.ok(enterNode(run,()=>0).stock.some(s=>s.item===id));assert.equal(spellPrice(id),45);
   const reward=finishBattle({...run,screen:'battle',combats:2},{...battleForRun(run),phase:'victory'},()=>0);assert.deepEqual(reward.reward!.offers,[id]);
-  assert.equal(camp({...run,screen:'camp',spells:[...run.spells,id]},id).upgrades[id],1);assert.ok(spellUpgradePreview(id)!.nextDamage>spellUpgradePreview(id)!.currentDamage);
+  assert.equal(camp({...run,screen:'camp',spells:[...run.spells,id]},id).upgrades[id],1);const preview=spellUpgradePreview(id)!;assert.ok(id==='puddleGuard'?preview.nextKnockback>preview.currentKnockback:preview.nextDamage>preview.currentDamage);
  }
  assert.equal(spellbookColumns([...known,...ids]).flatMap(c=>c.spells).filter(s=>ids.includes(s.id as typeof ids[number])).length,3);
 });
 test('near-distance practice makes melee and placed spells reachable without changing the journey',()=>{
  for(const id of ids){let b=restoreScarecrow(newPracticeBattle(practiceJourney()),false,true);b=launchSpell(b,100,'#fff',id);let damage=practiceDamage(b);b=restoreScarecrow(b,false,true);
   for(let i=0;i<60;i++){b=stepPracticeBattle(b,.01,false,-1,true).battle;damage+=practiceDamage(b);b=restoreScarecrow(b,false,true);}
-  assert.ok(damage>0,id);assert.equal(b.enemies[0].x,355);assert.equal(b.playerHP,100);
+  assert.ok(id==='puddleGuard'?damage===0&&b.puddle===null:damage>0,id);assert.equal(b.enemies[0].x,355);assert.equal(b.playerHP,100);
  }
 });
 
@@ -96,7 +96,7 @@ test('approved Flame Blade variant retains the blade and expands only guard and 
  assert.ok(Math.abs(variant[2][1].y-variant[2][0].y-26*1.2)<1e-8);
  for(const scale of [.2,1,4]){const strokes=variant.slice().reverse().map(s=>s.slice().reverse().map(p=>({x:90+p.x*scale,y:-15+p.y*scale})));const match=recognize(strokes);assert.equal(match.spell?.id,'flameBlade');assert.equal(match.quality,100);}
 });
-test('Puddle Guard uses the approved symmetric one-stroke wave while its doubled push respects the far edge',()=>{
+test('Puddle Guard uses the approved symmetric one-stroke wave while its reduced push respects the far edge',()=>{
  const spell=SPELLS.find(s=>s.id==='puddleGuard')!;
  assert.equal(spell.strokes.length,1);assert.equal(SPELL_VARIATIONS.puddleGuard,undefined);
  const wave=spell.strokes[0];assert.deepEqual(wave[0],{x:6,y:55});assert.deepEqual(wave.at(-1),{x:94,y:55});
@@ -121,7 +121,23 @@ test('damage increases apply at every quality before upgrades and resistance rou
   const tier=q<60?0:q<70?1:q<80?2:3,[lo,hi]=[[48,59],[60,69],[70,79],[80,100]][tier];
   const [a,b]=[[24,34],[45,58],[70,90],[105,140]][tier];
   const [c,d]=[[1,1.5],[2,2.5],[3,3.5],[4,5]][tier];
-  assert.ok(Math.abs(nearDamage('flameBlade',q)-(a+(b-a)*(q-lo)/(hi-lo))*1.16)<1e-8);
+  assert.ok(Math.abs(nearDamage('flameBlade',q)-(a+(b-a)*(q-lo)/(hi-lo))*1.16*.79)<1e-8);
   assert.ok(Math.abs(nearDamage('thistleBush',q)-(c+(d-c)*(q-lo)/(hi-lo)+.5))<1e-8);
  }
+});
+
+test('Puddle Guard deals zero damage even with upgrades and offensive relic bonuses',()=>{
+ for(const q of [48,59,60,69,70,79,80,100]){
+  let b=field([355]);b.damageBonus=99;b.furyReady=true;b.lotus=true;b.lotusReady=true;b.midnightStone=true;b.amulets={sun:true,moon:true,twilight:true};b.upgrades.puddleGuard=1;
+  b=launchSpell(b,q,'#fff','puddleGuard',100);assert.equal(b.lotusReady,true);
+  b=advance(b,.01);assert.equal(b.enemies[0].hp,10000);assert.equal(b.enemies[0].burn,null);assert.ok(b.enemies[0].push);
+ }
+});
+test('Puddle upgrade snapshots a 20 percent knockback bonus and Flame Blade reaches only 110 units',()=>{
+ for(const q of [48,60,70,100]){
+  let b=field([355]);b.upgrades.puddleGuard=1;b=launchSpell(b,q,'#fff','puddleGuard');b.upgrades={};b=advance(b,.01);
+  assert.ok(Math.abs(b.enemies[0].push!.to-Math.min(ENEMY_BACK_X,355+nearKnockback('puddleGuard',q)*1.2))<1e-8);
+ }
+ const preview=spellUpgradePreview('puddleGuard')!;assert.equal(preview.knockback,true);assert.equal(preview.nextBonus,20);assert.equal(preview.currentDamage,0);assert.equal(preview.nextDamage,0);assert.ok(Math.abs(preview.nextKnockback-preview.currentKnockback*1.2)<1e-8);
+ const blade=launchSpell(field([435,435.01,600]),100,'#fff','flameBlade');assert.ok(blade.enemies[0].hp<10000);assert.equal(blade.enemies[1].hp,10000);
 });

@@ -28,7 +28,7 @@ test('upgrade previews preserve the campsite choice until confirmation and match
    const battle=battleForRun(state,()=>.2);battle.enemies[0].element='Neutral';const hit=hitWithSpell(battle,60,spell.id,battle.enemies[0].id);
    assert.ok(Math.abs(battle.enemies[0].hp-hit.enemies[0].hp-expected)<1e-8);
   }
-  assert.ok(preview.nextDamage>preview.currentDamage);
+  assert.ok(preview.knockback?preview.nextKnockback>preview.currentKnockback:preview.nextDamage>preview.currentDamage);
   assert.strictEqual(camp(confirmed,spell.id),confirmed);assert.strictEqual(camp(confirmed),confirmed);
  }
 });
