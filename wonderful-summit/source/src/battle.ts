@@ -216,7 +216,7 @@ function castNearSpell(state:Battle,quality:number,id:NearSpell,multiplier:numbe
  if(id==='puddleGuard')return{...state,casts:state.casts+1,puddle:{x:CONTACT_X+30,cast}};
  if(id==='thistleBush'){const stats=thistleStats(quality);return{...state,casts:state.casts+1,thistle:{...stats,spent:0,nextTick:state.time+.5,cast}};}
  let next:Battle={...state,flameSwing:{started:state.time}};
- for(const e of presentEnemies(state).filter(e=>e.x>=CONTACT_X&&e.x<=CONTACT_X+50))next=nearHit(next,cast,id,e.id);
+ for(const e of presentEnemies(state).filter(e=>e.x>=CONTACT_X&&e.x<=CONTACT_X+125))next=nearHit(next,cast,id,e.id);
  return{...next,casts:state.casts+1};
 }
 function nearHit(state:Battle,cast:NearCast,id:NearSpell,targetId:number){
