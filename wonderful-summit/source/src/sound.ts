@@ -137,7 +137,8 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  let recycleOnGesture=false,needsWakeCycle=false,waking:AudioContext|null=null;
  const buffers=new Map<SoundKind,AudioBuffer>();
  const activeGains=new Map<GainNode,number>();
- const loops=new Map<'rain'|'swamp',{source:AudioBufferSourceNode;gain:GainNode}>();
+ const loops=new Map<'rain'|'swamp',{source:AudioBufferSourceNode;gain:GainNode;expiresAt:number}>();
+ const ambienceLeaseSeconds=.5;
  function stopLoop(kind:'rain'|'swamp'){
   const loop=loops.get(kind);if(!loop)return;
   loops.delete(kind);activeGains.delete(loop.gain);
@@ -156,13 +157,26 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
    const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.05:.08);
    if(!base){stopLoop(kind);continue;}
    let loop=loops.get(kind);
+   if(loop&&ctx.currentTime>=loop.expiresAt){stopLoop(kind);loop=undefined;}
    if(!loop&&base>0){
     let buffer=buffers.get(kind);if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
     const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;source.loop=true;source.connect(gain);gain.connect(ctx.destination);gain.gain.value=0;
-    loop={source,gain};loops.set(kind,loop);source.start();
+    loop={source,gain,expiresAt:ctx.currentTime+ambienceLeaseSeconds};loops.set(kind,loop);
+    source.onended=()=>{
+     if(loops.get(kind)?.source!==source)return;
+     loops.delete(kind);activeGains.delete(gain);
+     try{source.disconnect();}catch{}try{gain.disconnect();}catch{}
+    };
+    // Give every loop a real audio-engine deadline before any later UI work.
+    try{source.start();source.stop(loop.expiresAt);}catch{stopLoop(kind);continue;}
    }
    if(!loop)continue;
-   activeGains.set(loop.gain,base);loop.gain.gain.setTargetAtTime(base*audioChannelVolume('effects'),ctx.currentTime,.04);
+   // Only current combat ambience updates may renew this deadline. Cast
+   // effects, volume changes and resume callbacks cannot keep old rain alive.
+   try{
+    loop.expiresAt=ctx.currentTime+ambienceLeaseSeconds;loop.source.stop(loop.expiresAt);
+    activeGains.set(loop.gain,base);loop.gain.gain.setTargetAtTime(base*audioChannelVolume('effects'),ctx.currentTime,.04);
+   }catch{stopLoop(kind);}
 
   }
  }
@@ -215,7 +229,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   let buffer=buffers.get(kind);
   if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
   const source=ctx.createBufferSource(),gain=ctx.createGain();
-  source.buffer=buffer;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
+  source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
   gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);
   source.connect(gain);gain.connect(ctx.destination);
   source.onended=()=>{activeGains.delete(gain);source.disconnect();gain.disconnect();};source.start();
