@@ -20,11 +20,12 @@ test('Aquaspout uses the approved droplet and caret; Tidalcrest inherits the old
  assert.equal(recognize(spout.strokes,['water','tidalcrest']).spell,null);
  assert.notEqual(recognize([spout.strokes[1]],['wave']).spell?.id,'wave');
 });
-test('the narrower fin scores perfectly as Tidalcrest without changing its book art or creating a second ambiguity candidate',()=>{
+test('the narrower and wider fins score perfectly as Tidalcrest without changing its book art or creating a second ambiguity candidate',()=>{
  const spell=SPELLS.find(s=>s.id==='tidalcrest')!,narrow=spell.strokes.map(st=>st.map(p=>({x:50+(p.x-50)*.8,y:p.y})));
- assert.deepEqual(SPELL_VARIATIONS.tidalcrest,[narrow]);
+ const wide=spell.strokes.map(st=>st.map(p=>({x:50+(p.x-50)*1.2,y:p.y})));
+ assert.deepEqual(SPELL_VARIATIONS.tidalcrest,[narrow,wide]);
  assert.equal(spell.path,'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z');
- for(const shape of [spell.strokes,narrow])for(const scale of [.15,1,6]){
+ for(const shape of [spell.strokes,narrow,wide])for(const scale of [.15,1,6]){
   const moved=[...shape].reverse().map(st=>[...st].reverse().map(p=>({x:120+p.x*scale,y:-40+p.y*scale}))),result=recognize(moved);
   assert.equal(result.spell,spell);assert.equal(result.quality,100);assert.equal(result.candidates.filter(c=>c.spell.id==='tidalcrest').length,1);
   assert.equal(recognize(moved,['tidalcrest']).spell,spell);assert.equal(recognize(moved,['water','wave']).spell,null);
