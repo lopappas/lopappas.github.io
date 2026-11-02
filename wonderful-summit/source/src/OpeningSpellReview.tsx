@@ -33,7 +33,7 @@ export function OpeningSpellReview({known,reviewed,upgrades,onReady}:{known:Spel
   return()=>{if(content)content.inert=false;if(trigger.current?.isConnected)trigger.current.focus({preventScroll:true});};
  },[selected]);
  return createPortal(<section className="opening-spell-review" role="dialog" aria-modal="true" aria-labelledby="opening-review-title">
-  <div ref={sheet} className="opening-review-sheet"><h2 id="opening-review-title">Your spells</h2><p className="opening-review-hint">Tap a spell to inspect. Begin when you’re ready.</p>
+  <div ref={sheet} className="opening-review-sheet"><h2 id="opening-review-title">Your spells</h2>
    <div tabIndex={0} role="region" aria-label="Spells grouped by element" className="opening-review-groups">{groups.map(group=><section className="opening-review-element" key={group.element} aria-label={`${group.element} spells`} style={{'--review-color':group.color} as React.CSSProperties}>
     <ol className="opening-review-symbols">{group.spells.map(spell=><li key={spell.id} className={spell.isNew?'review-new':undefined}>
      <button className="review-spell-button" aria-label={`Inspect ${spellName(spell.id,upgrades[spell.id]??0)}`} aria-haspopup="dialog" aria-expanded={selected?.id===spell.id} aria-controls={selected?.id===spell.id?'review-spell-inspect':undefined} onClick={event=>{trigger.current=event.currentTarget;setSelected(spell);}}>
