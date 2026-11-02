@@ -18,8 +18,8 @@ export function encounterGold(node:number,random:()=>number=Math.random){
 export type RunScreen='opening'|'menu'|'tutorial'|'sister'|'map'|'battle'|'rewards'|'shop'|'camp'|'event'|'complete'|'defeat';
 export type Stock={id:string;kind:'spell'|'potion'|'relic';item:SpellId|Potion|RelicId;price:number;sold:boolean};
 export type Reward={gold:number;potion:Potion|null;offers:SpellId[];relic:RelicId|null;goldClaimed:boolean;potionStatus:'pending'|'collected'|'skipped';relicClaimed:boolean;learned:SpellId|null};
-export type Run={keepsakeOffers:RelicId[];wonderfulSpells:SpellId[];stellarReady:boolean;developerTrailUnlocked:boolean;event:TrailEventState|null;bestDrawing:PlayerDrawing|null;worstDrawing:PlayerDrawing|null;shaleContacts:number;screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
-export function newRun():Run{return{keepsakeOffers:[],wonderfulSpells:[],stellarReady:false,developerTrailUnlocked:false,event:null,bestDrawing:null,worstDrawing:null,shaleContacts:0,screen:'opening',node:0,health:100,gold:0,combats:0,spells:[...BEGINNER_SPELLS],upgrades:{},relics:['filadoraRobes'],potions:{theodoraHeal:1,heal:0,freeze:0,ink:0},bottledSpells:[],pendingBottle:false,furyReady:false,reward:null,stock:[],campUsed:false};}
+export type Run={reviewedSpells:SpellId[];keepsakeOffers:RelicId[];wonderfulSpells:SpellId[];stellarReady:boolean;developerTrailUnlocked:boolean;event:TrailEventState|null;bestDrawing:PlayerDrawing|null;worstDrawing:PlayerDrawing|null;shaleContacts:number;screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
+export function newRun():Run{return{reviewedSpells:[...BEGINNER_SPELLS],keepsakeOffers:[],wonderfulSpells:[],stellarReady:false,developerTrailUnlocked:false,event:null,bestDrawing:null,worstDrawing:null,shaleContacts:0,screen:'opening',node:0,health:100,gold:0,combats:0,spells:[...BEGINNER_SPELLS],upgrades:{},relics:['filadoraRobes'],potions:{theodoraHeal:1,heal:0,freeze:0,ink:0},bottledSpells:[],pendingBottle:false,furyReady:false,reward:null,stock:[],campUsed:false};}
 export function finishOpening(run:Run):Run{return run.screen==='opening'?{...run,screen:'menu'}:run;}
 export function rollKeepsakeOffers(random:()=>number=Math.random):RelicId[]{
  const pool=[...STARTER_RELICS],offers:RelicId[]=[];
@@ -164,3 +164,5 @@ export function shatterTrailSphere(run:Run):Run{
  if(!run.relics.includes('perfectedSphere'))return run;
  return {...run,relics:[...new Set(run.relics.map(id=>id==='perfectedSphere'?'blackStardust' as const:id))]};
 }
+
+export function markSpellsReviewed(run:Run):Run{if(run.screen!=='battle')return run;return {...run,reviewedSpells:[...new Set([...run.reviewedSpells,...run.spells])]};}

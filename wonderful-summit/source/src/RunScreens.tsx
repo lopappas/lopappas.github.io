@@ -11,7 +11,7 @@ import {BestDrawing} from './BestDrawing';
 import React,{useEffect,useLayoutEffect,useRef,useState,type ComponentType} from 'react';
 import {SPELLS,isCheckmark,type Spell,type Point} from './magic';
 import {POTIONS,type Battle,type Potion} from './battle';
-import {runRobesBonus,selectTrailNode,unlockDeveloperTrail,castTrailEvent,isEliteNode,sealBottle,merchantDialogue,newRun,finishOpening,selectMode,returnToMenu,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,discardPotion,drinkTrailHealing,camp,potionCount,potionCapacity,RELICS,ROUTE,type Run,type RelicId,type Stock} from './run';
+import {markSpellsReviewed,runRobesBonus,selectTrailNode,unlockDeveloperTrail,castTrailEvent,isEliteNode,sealBottle,merchantDialogue,newRun,finishOpening,selectMode,returnToMenu,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,discardPotion,drinkTrailHealing,camp,potionCount,potionCapacity,RELICS,ROUTE,type Run,type RelicId,type Stock} from './run';
 import {unlockSpellAudio,installSpellAudio,playSpellSound,playUISound,type UISound} from './sound';
 import {TravelSpellbook} from './Spellbook';
 import {LessonText} from './LessonText';
@@ -70,7 +70,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  if(practicing)return <Practice Combat={Combat} onExit={()=>setPracticing(false)}/>;
  if(run.screen==='menu')return <main className="app main-menu"><header className="topbar"><span className="brand">☾ Wonderful Summit</span><div className="header-actions"><SettingsButton/><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/></div></header><div className="menu-scene"><span className="menu-moon" aria-hidden="true">☾</span><h1 className="menu-title grade-wonderful" aria-label="Wonderful Summit"><span aria-hidden="true"><RainbowLetters text="Wonderful"/></span><br/><strong aria-hidden="true"><RainbowLetters text="Summit" offset={9}/></strong></h1><TitleMountain/></div><footer className="screen-confirmation menu-actions"><button className="primary-small" onClick={()=>{const next=selectMode(run,'new');setRelic(next.keepsakeOffers[0]);update(()=>next);}}>New game</button><button className="secondary-button" onClick={()=>update(r=>selectMode(r,'tutorial'))}>Tutorial</button><button className="secondary-button" onClick={()=>setPracticing(true)}>Practice</button><EncyclopediaButton discoveries={discoveries}/></footer></main>;
  if(run.screen==='tutorial')return <TutorialSession Combat={Combat} onExit={()=>update(()=>returnToMenu())}/>;
- if(run.screen==='battle')return <Combat key={run.node} journey={run} onDeveloperCommand={command=>setRun(r=>applyDeveloperCommand(r,command))} onFinish={battle=>update(r=>finishBattle(r,battle))}/>;
+ if(run.screen==='battle')return <Combat key={run.node} journey={run} onReviewReady={()=>setRun(markSpellsReviewed)} onDeveloperCommand={command=>setRun(r=>applyDeveloperCommand(r,command))} onFinish={battle=>update(r=>finishBattle(r,battle))}/>;
  const reward=run.reward,selectedRelic=run.keepsakeOffers.includes(relic)?relic:run.keepsakeOffers[0];
  const confirmation=run.screen==='sister'?{label:'Begin the climb',disabled:!selectedRelic,action:()=>update(r=>startRun(r,selectedRelic))}
   :run.screen==='shop'?{label:'Continue',disabled:false,action:()=>update(leaveNode)}
