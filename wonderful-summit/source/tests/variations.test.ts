@@ -32,7 +32,7 @@ test('variations do not unlock unlearned spells or accept incomplete and flatten
  for(const shape of [[[{x:50,y:12},{x:85,y:82}]],[[{x:50,y:12},{x:85,y:32},{x:15,y:32},{x:50,y:12}]],[[{x:10,y:10}]]] as Strokes[])assert.equal(recognize(shape).spell,null);
 });
 test('recognition-only variation keeps all canonical spellbook and perfect-trace shapes intact',()=>{
- assert.deepEqual(Object.keys(SPELL_VARIATIONS),['flameBlade','fire','firestorm','nature','tidalcrest']);assert.equal(SPELL_VARIATIONS.fire?.length,1);assert.equal(fire.path,'M50 12 L85 82 L15 82 Z');assert.deepEqual(fire.strokes,[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]);
+ assert.deepEqual(Object.keys(SPELL_VARIATIONS),['flameBlade','puddleGuard','fire','firestorm','nature','tidalcrest']);assert.equal(SPELL_VARIATIONS.fire?.length,1);assert.equal(fire.path,'M50 12 L85 82 L15 82 Z');assert.deepEqual(fire.strokes,[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]);
  for(const spell of SPELLS){const result=recognize(spell.strokes);assert.equal(result.spell,spell);assert.equal(result.quality,100);}
 });
 test('recognized variation works in the campsite and bottle without replacing the player drawing',()=>{
@@ -52,5 +52,17 @@ test('steeper Little Sprout variation keeps the canonical book sigil and scores 
   assert.equal(result.candidates.filter(c=>c.spell.id==='nature').length,1);
   assert.equal(recognize(strokes,['nature']).spell,sprout);
   assert.equal(recognize(strokes,['fire','water']).spell,null);
+ }
+});
+
+test('more vertical Puddle Guard variation narrows only the curved V and recognizes as the same spell',()=>{
+ const spell=SPELLS.find(s=>s.id==='puddleGuard')!,variant=SPELL_VARIATIONS.puddleGuard![0];
+ assert.equal(SPELL_VARIATIONS.puddleGuard!.length,1);assert.deepEqual(variant[0],spell.strokes[0]);
+ for(const [i,p] of variant[1].entries()){const original=spell.strokes[1][i];assert.equal(p.y,original.y);assert.equal(p.x,50+(original.x-50)*.7);}
+ assert.deepEqual(variant[1][(variant[1].length-1)/2],{x:50,y:58});
+ for(const shape of [spell.strokes,variant])for(const scale of [.15,1,6])for(const reverse of [false,true]){
+  const strokes=(reverse?shape.slice().reverse():shape).map(st=>(reverse?st.slice().reverse():st).map(p=>({x:145+p.x*scale,y:-70+p.y*scale})));
+  const result=recognize(strokes);assert.equal(result.spell,spell);assert.equal(result.quality,100);assert.equal(result.candidates.filter(c=>c.spell.id==='puddleGuard').length,1);
+  assert.equal(recognize(strokes,['puddleGuard']).spell,spell);assert.equal(recognize(strokes,['water','fire','nature']).spell,null);
  }
 });
