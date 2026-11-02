@@ -54,7 +54,7 @@ export function elementalMatchup(element:Element,target:Enemy['element']){
  return{damage:1.5,knockback:1,immuneEffects:false};
 }
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
-export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?1.1:spellId==='wave'?.9:spellId==='leaf'?.75:1;return Math.round((spellId==='ender'?(Number.isFinite(quality)&&quality>=48?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)?Math.max(0,Math.min(1,upgrade)):0)*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time));}
+export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0){if(spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?1.265:spellId==='wave'?.9:spellId==='leaf'?.75:1;return Math.round((spellId==='ender'?(Number.isFinite(quality)&&quality>=48?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)?Math.max(0,Math.min(1,upgrade)):0)*.25)*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time));}
 export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0){if(spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm')return 0;const base=spellId==='wave'&&quality>=48&&quality<60?40+14*(quality-48)/11:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?1.5:spellId==='bolt'?.65:1);return shieldProtection(shield,time)*rockyDefense(rocky,quality).knockback*base*pushBonus*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 // Rain retains fractional damage so small elemental/rock/shield reductions remain meaningful.
 export function firestormTickDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'>>,quality:number,damageBonus=1,upgrade=0,multiplier=1,time=0){
@@ -100,7 +100,7 @@ function stormRain(state:Battle,time:number):Battle{
    if(old.hp<=0||old.spawnAt>tick+1e-9)return old;
    const e=old.kind==='mother'?{...old,element:ELEMENTS[(ELEMENTS.indexOf(old.initialElement as Element)+Math.floor((tick+1e-9)/15))%3]}:old;
    const oldShield=updateShield(e.shield,tick);
-   const damage=firestormTickDamage({...e,shield:oldShield},portion.quality,portion.damageBonus,portion.baseDamage===3?1:0,portion.multiplier,tick);
+   const damage=firestormTickDamage({...e,shield:oldShield},portion.quality,portion.damageBonus,portion.baseDamage===3.5?1:0,portion.multiplier,tick);
    const boostedDamage=portion.midnightBonus?Math.floor(damage*(1+portion.midnightBonus)+1e-9):damage;
    const shield=igniteShield(oldShield,'Fire',portion.quality,tick),ignited=shield!==oldShield;
    const hp=Math.max(0,Math.round((e.hp-boostedDamage)*1000000)/1000000);

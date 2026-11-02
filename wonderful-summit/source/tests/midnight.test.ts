@@ -28,7 +28,7 @@ test('ink is retained by projectiles and bottled spells',()=>{
  b=battleForRun(sealed,()=>0);b.enemies[0].element='Neutral';b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(100-b.enemies[0].hp,Math.round(spellDamage({element:'Neutral'},60,'water')*1.15));
 });
 test('Firestorm snapshots its percentage per cast and floors boosted ticks without causing burns',()=>{
- let b=newBattle('active');b.midnightStone=true;b.damageBonus=2;b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=launchSpell(b,60,'#fff','firestorm',55);assert.equal(b.firestorm!.portions[0].midnightBonus,.2);b.midnightStone=false;b=advance(b,2.5);assert.equal(b.enemies[0].hp,996);assert.equal(b.enemies[0].burn,null);
+ let b=newBattle('active');b.midnightStone=true;b.damageBonus=2;b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=launchSpell(b,60,'#fff','firestorm',55);assert.equal(b.firestorm!.portions[0].midnightBonus,.2);b.midnightStone=false;b=advance(b,2.5);assert.equal(b.enemies[0].hp,994);assert.equal(b.enemies[0].burn,null);
 });
 test('Midnight is available from merchants, elite drops and the live battle relic state',()=>{
  const relics=(Object.keys(RELICS) as Array<keyof typeof RELICS>).filter(id=>id!=='midnightStone');const r={...newRun(),screen:'map' as const,node:2,relics};assert.ok(enterNode(r,()=>0).stock.some(s=>s.item==='midnightStone'));
