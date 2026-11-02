@@ -24,7 +24,7 @@ test('quality endpoints set the promised puddle knockback and thistle reach/budg
 test('Flame Blade hits every present enemy within 125 units exactly once, without a projectile or distant fallback',()=>{
  const b=field([325,450,451,350]);b.enemies[3].spawnAt=5;const before=structuredClone(b),n=launchSpell(b,70,'#fff','flameBlade');
  assert.deepEqual(b,before);assert.equal(n.casts,1);assert.equal(n.projectile,null);
- assert.equal(n.enemies[0].hp,10000-70);assert.equal(n.enemies[1].hp,10000-70);assert.equal(n.enemies[2].hp,10000);assert.equal(n.enemies[3].hp,10000);
+ assert.equal(n.enemies[0].hp,10000-81);assert.equal(n.enemies[1].hp,10000-81);assert.equal(n.enemies[2].hp,10000);assert.equal(n.enemies[3].hp,10000);
  assert.ok(n.enemies[0].push);assert.equal(n.enemies[0].push!.to-325,20);
  const empty=launchSpell(field([500]),100,'#fff','flameBlade');assert.ok(empty.flameSwing);assert.equal(empty.enemies[0].hp,10000);assert.equal(advance(n,.4).enemies[0].hp,n.enemies[0].hp);
 });
@@ -36,22 +36,22 @@ test('Puddle Guard persists, triggers only the first walking enemy, launches it,
 });
 test('Thistle Bush ticks every half second, counts actual damage across enemies, and has no knockback',()=>{
  let b=launchSpell(field([350,360,500]),48,'#fff','thistleBush');assert.equal(advance(b,.49).thistle!.spent,0);
- b=advance(b,.5);assert.equal(b.thistle!.spent,2);assert.equal(b.enemies[0].hp,9999);assert.equal(b.enemies[1].hp,9999);assert.equal(b.enemies[2].hp,10000);assert.equal(b.enemies[0].push,null);
- b=advance(b,9.5);assert.equal(b.thistle,null);assert.equal(b.enemies[0].hp,9980);assert.equal(b.enemies[1].hp,9980);
- assert.equal(advance(b,5).enemies[0].hp,9980);assert.equal(b.casts,1);
+ b=advance(b,.5);assert.equal(b.thistle!.spent,3);assert.equal(b.enemies[0].hp,9998.5);assert.equal(b.enemies[1].hp,9998.5);assert.equal(b.enemies[2].hp,10000);assert.equal(b.enemies[0].push,null);
+ b=advance(b,9.5);assert.equal(b.thistle,null);assert.equal(b.enemies[0].hp,9979);assert.equal(b.enemies[1].hp,9980.5);
+ assert.equal(advance(b,5).enemies[0].hp,9979);assert.equal(b.casts,1);
 });
 test('Thistle has no timeout, replaces a better bush with a worse one, and cannot spend overkill as actual damage',()=>{
  let b=launchSpell(field([500]),100,'#fff','thistleBush');b=advance(b,100);assert.equal(b.thistle!.spent,0);assert.equal(b.thistle!.budget,250);
  b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.budget,40);assert.equal(b.thistle!.range,80);assert.equal(b.thistle!.spent,0);
  b=launchSpell(field([350,360,600]),100,'#fff','thistleBush');b.enemies[0].hp=2;b.enemies[1].shield=woodenShield();b=advance(b,.5);
- assert.equal(b.thistle!.spent,4.5); // 2 actual HP + a 5-damage tick halved by wood.
- assert.equal(b.enemies[1].hp,9997.5);
+ assert.equal(b.thistle!.spent,4.75); // 2 actual HP + a 5.5-damage tick halved by wood.
+ assert.equal(b.enemies[1].hp,9997.25);
 });
 test('ground spells snapshot upgrades/relic multipliers and stale casts, and pause/end states stop ticks',()=>{
  let b=field([350]);b.damageBonus=2;b.upgrades.thistleBush=1;
  for(let i=0;i<4;i++)b=launchSpell(b,60,'#fff','thistleBush');
  b.damageBonus=1;b.upgrades={};const hp=b.enemies[0].hp;b=advance(b,.5);
- assert.equal(hp-b.enemies[0].hp,3.75);assert.equal(b.thistle!.spent,3.75);
+ assert.equal(hp-b.enemies[0].hp,4.6875);assert.equal(b.thistle!.spent,4.6875);
  for(const phase of ['ready','victory','defeat'] as const){const paused={...b,phase};assert.equal(stepBattle(paused,1),paused);}
  assert.equal(newBattle('active').thistle,null);assert.equal(newBattle('active').puddle,null);
 });
@@ -114,7 +114,17 @@ test('Puddle Guard requires the circle and centered curved V while its doubled p
 
 test('extended Thistle range reaches 150 units, while enlarged Puddle art preserves its trigger area',()=>{
  const bush=advance(launchSpell(field([475,475.01,600]),100,'#fff','thistleBush'),.5);
- assert.equal(bush.enemies[0].hp,9995);assert.equal(bush.enemies[1].hp,10000);
+ assert.equal(bush.enemies[0].hp,9994.5);assert.equal(bush.enemies[1].hp,10000);
  const guard=advance(launchSpell(field([380]),100,'#fff','puddleGuard'),1);
  assert.ok(guard.puddle);assert.equal(guard.enemies[0].hp,10000);
+});
+
+test('damage increases apply at every quality before upgrades and resistance rounding',()=>{
+ for(let q=48;q<=100;q++){
+  const tier=q<60?0:q<70?1:q<80?2:3,[lo,hi]=[[48,59],[60,69],[70,79],[80,100]][tier];
+  const [a,b]=[[24,34],[45,58],[70,90],[105,140]][tier];
+  const [c,d]=[[1,1.5],[2,2.5],[3,3.5],[4,5]][tier];
+  assert.ok(Math.abs(nearDamage('flameBlade',q)-(a+(b-a)*(q-lo)/(hi-lo))*1.16)<1e-8);
+  assert.ok(Math.abs(nearDamage('thistleBush',q)-(c+(d-c)*(q-lo)/(hi-lo)+.5))<1e-8);
+ }
 });
