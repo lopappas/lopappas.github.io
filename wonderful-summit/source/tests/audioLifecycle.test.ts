@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {createSpellAudio,spellCastSound,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
 
 class DeviceAudio{
- state='suspended';sampleRate=48000;destination={};onstatechange:(()=>void)|null=null;
+ currentTime=0;stops=0;state='suspended';sampleRate=48000;destination={};onstatechange:(()=>void)|null=null;
  rates:number[]=[];gains:{gain:{value:number}}[]=[];resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
  resumeAction=async()=>{this.state='running';};
  resume(){this.resumes++;return this.resumeAction();}
@@ -13,9 +13,9 @@ class DeviceAudio{
  createBuffer(_channels:number,length:number){this.buffers++;const samples=new Float32Array(length);return{length,owner:this,getChannelData:()=>samples};}
  createBufferSource(){
   const device=this;
-  return{playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null,connect(){},disconnect(){},start(){assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);device.rates.push(this.playbackRate.value);}};
+  return{stop(){device.stops++;},loop:false,playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null,connect(){},disconnect(){},start(){assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);device.rates.push(this.playbackRate.value);}};
  }
- createGain(){const gain={gain:{value:0},connect(){},disconnect(){}};this.gains.push(gain);return gain;}
+ createGain(){const gain={gain:{value:0,setTargetAtTime(value:number){this.value=value;}},connect(){},disconnect(){}};this.gains.push(gain);return gain;}
 }
 function device(){
  const devices:DeviceAudio[]=[];let visible=true,now=0;
@@ -169,4 +169,14 @@ test('spell-specific cues use the requested playback speeds and distinct bounded
  assert.equal(spellCastSound(null),'fizzle');
  assert.notDeepEqual(soundSamples('tidalcrest'),soundSamples('water'));
  assert.notDeepEqual(soundSamples('flareBolt'),soundSamples('fire'));
+});
+
+test('rain and swamp layers mix, extend without restarting, fade with levels and stop cleanly',async()=>{
+ const d=device();d.audio.unlock();await flush();const ctx=d.devices[0],before=ctx.starts.length;
+ d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+2);
+ d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+2);
+ d.audio.setAmbience({rain:.5,swamp:.5});assert.equal(ctx.gains.at(-2)!.gain.value,.05);assert.equal(ctx.gains.at(-1)!.gain.value,.04);
+ d.audio.setAmbience({rain:0,swamp:0});assert.equal(ctx.stops,2);
+ d.audio.setAmbience({rain:0,swamp:0});assert.equal(ctx.stops,2);
+ for(const kind of ['cloud','mud','rain','swamp'] as const){const samples=soundSamples(kind);assert.ok(samples.some(v=>Math.abs(v)>.1));assert.ok(samples.every(v=>Number.isFinite(v)&&Math.abs(v)<=.901));}
 });

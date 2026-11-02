@@ -1,13 +1,13 @@
 import {audioPreferences,audioChannelVolume,loadAudioPreferences} from './audioPreferences.ts';
 import type {Element,Spell} from './magic';
 
-export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt';
+export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp';
 export type UISound='bottle'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
 export const UI_SOUND_VOLUME:Record<UISound,number>={robes:.3,shatter:.38,bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
 type SoundKind=CastSound|UISound;
 export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):CastSound{
  if(!spell)return 'fizzle';
- return ({wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
+ return ({firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
 }
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}
@@ -16,7 +16,7 @@ export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quali
 export function soundSamples(kind:SoundKind):Float32Array{
  if(kind==='aquaspout')return soundSamples('water');
  if(kind==='bramble')return soundSamples('nature');
- const duration=kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
+ const duration=kind==='rain'||kind==='swamp'?6:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
  const samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
  let seed=19,low=0;
  const noise=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2147483648-1;};
@@ -25,7 +25,18 @@ export function soundSamples(kind:SoundKind):Float32Array{
   const attack=Math.min(1,t/.012),end=Math.min(1,(duration-t)/.04);
   const n=noise();low+=.12*(n-low);
   let value=0;
-  if(kind==='tidalcrest'){
+  if(kind==='rain'){
+   value=low*1.8+n*.16;
+  }else if(kind==='swamp'){
+   const chirp=(Math.sin(2*Math.PI*t*2.5)**18)*(.55+.45*Math.sin(t*1.7));
+   value=Math.sin(2*Math.PI*3600*t)*chirp*.18;
+   for(const start of [.65,1.05,3.6,4.05]){const a=t-start;if(a>=0&&a<.32)value+=(Math.sin(2*Math.PI*(145*a-35*a*a))+.3*Math.sin(2*Math.PI*290*a))*Math.sin(Math.PI*a/.32)**2*.4;}
+  }else if(kind==='cloud'){
+   value=(low*.7+n*.16*Math.sin(t*73)**12+Math.sin(2*Math.PI*85*t)*.08)*Math.sin(Math.PI*u)**.7;
+  }else if(kind==='mud'){
+   value=low*2*Math.exp(-t*6);
+   for(const start of [0,.12,.29,.43]){const a=t-start;if(a>=0)value+=Math.sin(2*Math.PI*(190*a-160*a*a))*Math.exp(-a*19)*Math.min(1,a/.008)*.4;}
+  }else if(kind==='tidalcrest'){
    // A broad rolling surf swell, breaking into fizzing foam.
    const swell=Math.sin(Math.PI*u)**1.3;
    value=(low*3.2+n*.22)*swell+(n-low)*.22*Math.exp(-Math.max(0,t-.35)*4)*Math.min(1,t/.35);
@@ -110,7 +121,24 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  let recycleOnGesture=false,needsWakeCycle=false,waking:AudioContext|null=null;
  const buffers=new Map<SoundKind,AudioBuffer>();
  const activeGains=new Map<GainNode,number>();
- function refreshVolume(){for(const [gain,base] of activeGains)gain.gain.value=base*audioChannelVolume('effects');}
+ const loops=new Map<'rain'|'swamp',{source:AudioBufferSourceNode;gain:GainNode}>();
+ function setAmbience(levels:{rain:number;swamp:number}){
+  const ctx=context;if(!ctx)return;
+  for(const kind of ['rain','swamp'] as const){
+   const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.1:.08);
+   let loop=loops.get(kind);
+   if(!loop&&base>0){
+    let buffer=buffers.get(kind);if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
+    const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;source.loop=true;source.connect(gain);gain.connect(ctx.destination);gain.gain.value=0;
+    loop={source,gain};loops.set(kind,loop);source.start();
+   }
+   if(!loop)continue;
+   activeGains.set(loop.gain,base);loop.gain.gain.setTargetAtTime(base*audioChannelVolume('effects'),ctx.currentTime,.04);
+   if(!base){const ended=loop;loops.delete(kind);activeGains.delete(ended.gain);ended.source.onended=()=>{ended.source.disconnect();ended.gain.disconnect();};ended.source.stop(ctx.currentTime+.2);}
+  }
+ }
+
+ function refreshVolume(){for(const [gain,base] of activeGains){gain.gain.value=base*audioChannelVolume('effects');if([...loops.values()].some(loop=>loop.gain===gain)&&context)gain.gain.setTargetAtTime(base*audioChannelVolume('effects'),context.currentTime,.04);}}
  const visible=()=>environment.isVisible();
  function resume(ctx:AudioContext){if(ctx===context&&visible()&&ctx.state!=='running'&&ctx.state!=='closed')void ctx.resume().catch(()=>{});}
  function wake(){
@@ -137,7 +165,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
     // Create and prime the replacement synchronously within this user gesture.
     const previous=context,next=environment.createContext();
     if(next){
-     context=next;primed=null;buffers.clear();activeGains.clear();recycleOnGesture=false;needsWakeCycle=false;waking=null;
+     context=next;primed=null;buffers.clear();activeGains.clear();loops.clear();recycleOnGesture=false;needsWakeCycle=false;waking=null;
      next.onstatechange=()=>{if(next!==context)return;if(String(next.state)==='interrupted')recycleOnGesture=true;wake();};
      if(previous){previous.onstatechange=null;try{if(previous.state!=='closed')void previous.close().catch(()=>{});}catch{}}
     }
@@ -156,7 +184,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   let buffer=buffers.get(kind);
   if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
   const source=ctx.createBufferSource(),gain=ctx.createGain();
-  source.buffer=buffer;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:castVolume(quality);
+  source.buffer=buffer;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
   gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);
   source.connect(gain);gain.connect(ctx.destination);
   source.onended=()=>{activeGains.delete(gain);source.disconnect();gain.disconnect();};source.start();
@@ -171,10 +199,11 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
    void ctx.resume().then(()=>{if(environment.now()-requested<=250)playNow(ctx,kind,quality);}).catch(()=>{});
   }catch{/* Do not interrupt game state if audio is blocked. */}
  }
- return{unlock,wake,sleep,play,refreshVolume};
+ return{unlock,wake,sleep,play,refreshVolume,setAmbience};
 }
 const spellAudio=createSpellAudio();
 audioPreferences.subscribe(spellAudio.refreshVolume);
+export function setSpellAmbience(levels:{rain:number;swamp:number}){spellAudio.setAmbience(levels);}
 export function unlockSpellAudio(){spellAudio.unlock();}
 export function playSpellSound(kind:SoundKind,quality:number){spellAudio.play(kind,quality);}
 
