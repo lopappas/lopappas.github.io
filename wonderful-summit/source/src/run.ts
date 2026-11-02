@@ -30,7 +30,7 @@ export function selectMode(run:Run,mode:'new'|'tutorial',random:()=>number=Math.
 export function returnToMenu():Run{return{...newRun(),screen:'menu'};}
 const pick=<T,>(list:T[],random:()=>number)=>list[Math.min(list.length-1,Math.floor(random()*list.length))];
 const SPELL_WEIGHTS:Record<SpellRarity,number>={Common:90,Uncommon:90,Legendary:10};
-const RELIC_WEIGHTS:Record<RelicRarity,number>={Common:60,Uncommon:30,Rare:10,Keepsake:0,Starter:0};
+const RELIC_WEIGHTS:Record<RelicRarity,number>={Common:50,Uncommon:33,Rare:17,Keepsake:0,Starter:0};
 const spellRarity=(id:SpellId)=>SPELLS.find(s=>s.id===id)!.rarity;
 const pickSpell=(items:SpellId[],random:()=>number)=>pickByRarity(items,spellRarity,SPELL_WEIGHTS,random);
 const pickRelic=(items:RelicId[],random:()=>number)=>pickByRarity(items,id=>RELICS[id].rarity,RELIC_WEIGHTS,random);

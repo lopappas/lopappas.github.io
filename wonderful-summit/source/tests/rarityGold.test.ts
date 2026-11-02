@@ -46,7 +46,7 @@ test('legendary spells cost fifty percent more, and relic prices follow their ti
 
 // Sweep the roll for one offering while fixing independent potion/other rolls.
 function rollAt(position:number,value:number){let calls=0;return()=>++calls===position?value:.99;}
-test('both merchants use 90/10 uncommon/legendary spell odds and 60/30/10 relic tier odds',()=>{
+test('both merchants use 90/10 uncommon/legendary spell odds and 50/33/17 relic tier odds',()=>{
  for(const node of [2,9]){
   const spells={Uncommon:0,Legendary:0},relics={Common:0,Uncommon:0,Rare:0};
   const run:Run={...newRun(),screen:'map',node};
@@ -58,7 +58,7 @@ test('both merchants use 90/10 uncommon/legendary spell odds and 60/30/10 relic 
    relics[RELICS[relic.item as RelicId].rarity as keyof typeof relics]++;
   }
   assert.deepEqual(spells,{Uncommon:900,Legendary:100});
-  assert.deepEqual(relics,{Common:600,Uncommon:300,Rare:100});
+  assert.deepEqual(relics,{Common:500,Uncommon:330,Rare:170});
  }
 });
 test('spell rewards and both elite drops use the same tier odds as merchant offerings',()=>{
@@ -78,7 +78,7 @@ test('spell rewards and both elite drops use the same tier odds as merchant offe
    const reward=finishBattle({...run,node,combats:0},battle,rollAt(2,(i+.5)/1000)).reward!;
    relics[RELICS[reward.relic!].rarity as keyof typeof relics]++;
   }
-  assert.deepEqual(relics,{Common:600,Uncommon:300,Rare:100});
+  assert.deepEqual(relics,{Common:500,Uncommon:330,Rare:170});
  }
 });
 test('exhausted tiers redistribute their odds without blocking remaining spells or relics',()=>{
