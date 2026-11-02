@@ -1,3 +1,4 @@
+import {playUISound} from './sound';
 import {BogArt} from './BogArt';
 import {TidalcrestArt} from './TidalcrestArt';
 import {FirestormArt} from './FirestormArt';
@@ -12,6 +13,14 @@ import {enemyElementColor,presentEnemies,projectilePosition,enemyY,targetedEnemy
 export function World({burst,color,battle,hasRelics=false,practice=false}:{burst:number;color:string;battle:Battle;hasRelics?:boolean;practice?:boolean}){
 const [sad,setSad]=useState(false),[viewHeight,setViewHeight]=useState(410),[cloudY,setCloudY]=useState(210);
 const worldRef=useRef<HTMLDivElement>(null);
+const previousRobes=useRef(battle.robes.spells.length),[robesBurst,setRobesBurst]=useState(0);
+useEffect(()=>{
+ const count=battle.robes.spells.length;
+ if(battle.robes.enabled&&count>previousRobes.current){setRobesBurst(count);playUISound('robes');}
+ previousRobes.current=count;
+},[battle.robes.enabled,battle.robes.spells.length]);
+useEffect(()=>{if(!robesBurst)return;const timer=setTimeout(()=>setRobesBurst(0),1000);return()=>clearTimeout(timer);},[robesBurst]);
+
 useEffect(()=>{
  const el=worldRef.current;if(!el)return;
  const health=el.parentElement?.querySelector<HTMLElement>('.world-bottom');
@@ -53,6 +62,10 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 <FirestormArt storm={battle.firestorm} time={battle.time} gray={timeVisual.environmentAmount} cloudY={cloudY}/>
 <BogArt bog={battle.bog} time={battle.time} gray={timeVisual.environmentAmount}/><TidalcrestArt battle={battle} gray={timeVisual.environmentAmount}/>
 {battle.playerHits>0&&<g key={`ward-${battle.playerHits}`} transform="translate(295 410)" aria-label="Light blue magic flashes when Fila is hit"><g className="magic-hit-flash"><circle r="22" fill="#a9e7ff" opacity=".28"/><circle r="16" fill="none" stroke="#b4eeff" strokeWidth="3"/><path d="M0-29V-21M0 21v8M-29 0h8M21 0h8M-19-19l5 5M14 14l5 5M19-19l-5 5M-14 14l-5 5" fill="none" stroke="#d7f6ff" strokeWidth="3" strokeLinecap="round"/></g></g>}
+{robesBurst>0&&<g key={`robes-${robesBurst}`} transform="translate(260 390)" aria-hidden="true" pointerEvents="none">{Array.from({length:24},(_,i)=>{
+ const angle=i*Math.PI*2/24,reach=35+(i%4)*12;
+ return <g key={i} className="robes-glitter" style={{'--glitter-x':`${Math.cos(angle)*reach}px`,'--glitter-y':`${Math.sin(angle)*reach*.85}px`,'--glitter-delay':`${i%4*25}ms`} as React.CSSProperties}><path d="M0-4 1-1 4 0 1 1 0 4-1 1-4 0-1-1Z" fill="#fff" transform={`translate(${Math.cos(angle)*12} ${Math.sin(angle)*18}) scale(${.65+i%3*.22})`}/></g>;
+})}</g>}
 <g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" shapeRendering="crispEdges" transform="translate(190 320) scale(5)" aria-label="Fila, a little pixel witch holding a paintbrush">
 {battle.rejectionUntil>battle.time&&<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#fff" stroke="#fff" strokeWidth="3" opacity=".65" className="rejection-aura"/>}
 {/* A tiny stepped silhouette and a limited palette keep Fila readable at phone size. */}
