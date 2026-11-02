@@ -80,9 +80,9 @@ export function soundSamples(kind:SoundKind):Float32Array{
 
 type AudioEnvironment={createContext:()=>AudioContext|null;isVisible:()=>boolean;now:()=>number};
 function browserAudioContext(){
- // Supported iPhones otherwise classify Web Audio as ambient audio. Request
- // playback when the player first interacts; unsupported browsers keep defaults.
- try{const session=(navigator as unknown as {audioSession?:{type:string}}).audioSession;if(session)session.type='playback';}catch{}
+ // Keep game effects mixable with music and other phone audio. Configure the
+ // session before creating Web Audio; unsupported browsers keep their defaults.
+ try{const session=(navigator as unknown as {audioSession?:{type:string}}).audioSession;if(session)session.type='ambient';}catch{}
  const Constructor=window.AudioContext||(window as unknown as {webkitAudioContext?:typeof AudioContext}).webkitAudioContext;
  return Constructor?new Constructor():null;
 }

@@ -139,3 +139,22 @@ test('master and effects sliders change playing and future effects, including af
   audioPreferences.set('master',0);d.audio.refreshVolume();assert.equal(d.devices[1].gains[0].gain.value,0);d.audio.play('hurt',0);assert.equal(d.devices[1].gains[1].gain.value,0);
  }finally{for(const key of ['master','music','effects'] as const)audioPreferences.set(key,1);}
 });
+
+
+test('browser audio requests mixing before context creation, including after a background return',async()=>{
+ const originals=new Map(['window','document','navigator'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+ const session={type:'auto'};const contexts:DeviceAudio[]=[];
+ try{
+  Object.defineProperty(globalThis,'navigator',{configurable:true,value:{audioSession:session}});
+  Object.defineProperty(globalThis,'document',{configurable:true,value:{hidden:false}});
+  Object.defineProperty(globalThis,'window',{configurable:true,value:{AudioContext:class extends DeviceAudio{
+   constructor(){super();assert.equal(session.type,'ambient');contexts.push(this);}
+  }}});
+  const audio=createSpellAudio();audio.unlock();await flush();
+  audio.play('water',60);assert.ok(contexts[0].starts.some(length=>length>1));
+  audio.sleep();session.type='auto';audio.unlock();await flush();
+  assert.equal(contexts.length,2);assert.equal(session.type,'ambient');
+ }finally{
+  for(const [key,descriptor] of originals){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else Reflect.deleteProperty(globalThis,key);}
+ }
+});
