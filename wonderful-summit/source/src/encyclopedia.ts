@@ -22,7 +22,7 @@ export const CASTING_TIPS:Record<SpellId,string>={
  firestorm:'Draw a level line above two downward-pointing triangles. Close both triangles and leave a gap below the line.',
  tidalcrest:'Sweep upward from the lower left to the pointed crest. Curve inward on the right, then close along the flat base.',
  flameBlade:'Draw the narrow triangular blade, a straight horizontal guard, and a short handle below it.',
- puddleGuard:'Draw a circle and a curved V whose point meets its center. Mirror the two arms as they curve outward beyond the upper sides of the circle.',
+ puddleGuard:'Draw one long, shallow wavy M with two equal rounded humps and a rounded dip in the center. Keep both halves mirrored and finish with sloping ends.',
  thistleBush:'Draw three equal peaks in one zigzag. Keep the center peak centered and both sides mirrored.',
  bog:'Draw a round circle with a closed Bramble Leaf diamond centered inside. Leave space between the leaf and the circle.'
 };

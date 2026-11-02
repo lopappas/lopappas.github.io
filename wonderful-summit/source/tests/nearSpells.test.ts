@@ -96,15 +96,12 @@ test('approved Flame Blade variant retains the blade and expands only guard and 
  assert.ok(Math.abs(variant[2][1].y-variant[2][0].y-26*1.2)<1e-8);
  for(const scale of [.2,1,4]){const strokes=variant.slice().reverse().map(s=>s.slice().reverse().map(p=>({x:90+p.x*scale,y:-15+p.y*scale})));const match=recognize(strokes);assert.equal(match.spell?.id,'flameBlade');assert.equal(match.quality,100);}
 });
-test('Puddle Guard requires the circle and centered curved V while its doubled push respects the far edge',()=>{
+test('Puddle Guard uses the approved symmetric one-stroke wave while its doubled push respects the far edge',()=>{
  const spell=SPELLS.find(s=>s.id==='puddleGuard')!;
- assert.equal(spell.strokes.length,2);const circle=spell.strokes[0];
- for(const p of circle)assert.ok(Math.abs(Math.hypot(p.x-50,p.y-58)-34)<.02);
- const v=spell.strokes[1];assert.deepEqual(v[0],{x:8,y:16});assert.deepEqual(v.at(-1),{x:92,y:16});assert.deepEqual(v[(v.length-1)/2],{x:50,y:58});
- for(let i=0;i<v.length;i++){assert.ok(Math.abs(v[i].x+v[v.length-1-i].x-100)<1e-8);assert.ok(Math.abs(v[i].y-v[v.length-1-i].y)<1e-8);}
- assert.ok(v[12].y<37); // Curved arms bow outward from the old straight V.
- assert.notEqual(recognize([v],['puddleGuard']).spell?.id,'puddleGuard');
- assert.notEqual(recognize([circle],['puddleGuard']).spell?.id,'puddleGuard');
+ assert.equal(spell.strokes.length,1);assert.equal(SPELL_VARIATIONS.puddleGuard,undefined);
+ const wave=spell.strokes[0];assert.deepEqual(wave[0],{x:6,y:55});assert.deepEqual(wave.at(-1),{x:94,y:55});
+ for(let i=0;i<wave.length;i++){assert.ok(Math.abs(wave[i].x+wave[wave.length-1-i].x-100)<1e-8);assert.ok(Math.abs(wave[i].y-wave[wave.length-1-i].y)<1e-8);}
+ assert.equal(Math.min(...wave.map(p=>p.y)),44);assert.equal(Math.max(...wave.map(p=>p.y)),56);
  for(const q of [48,59,60,69,70,79,80,100]){
   const b=advance(launchSpell(field([355]),q,'#fff','puddleGuard'),.01),push=b.enemies[0].push!;
   assert.equal(push.to,Math.min(ENEMY_BACK_X,push.from+nearKnockback('puddleGuard',q)));
