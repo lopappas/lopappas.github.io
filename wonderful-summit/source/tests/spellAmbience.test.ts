@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {newBattle,launchSpell,projectilePosition} from '../src/battle.ts';
-import {spellAmbience,shouldPlaySpellArrival} from '../src/spellAmbience.ts';
+import {firestormRollInAge,spellAmbience,shouldPlaySpellArrival} from '../src/spellAmbience.ts';
 test('rain starts at rainfall, swamp starts on arrival, fades match the visual endings and combat pauses stop both',()=>{
  let b=launchSpell(newBattle('active'),60,'#fff','firestorm');b=launchSpell(b,60,'#fff','bog');
  assert.deepEqual(spellAmbience(b),{rain:0,swamp:0});
@@ -19,4 +19,12 @@ test('Bramble Leaf travels 30 percent slower with a wobble that converges on its
  const p=leaf.projectile!,mid=projectilePosition({...leaf,time:p.duration*.5})!,end=projectilePosition({...leaf,time:p.duration})!;
  const start=projectilePosition(leaf)!;assert.ok(Math.abs(mid.y-(start.y+end.y)/2)>1);
  assert.ok(Math.abs(end.y-projectilePosition({...water,time:water.projectile!.duration})!.y)<1e-8);
+});
+
+test('cloud sound is permitted only while Firestorm clouds are rolling in, including recasts and pauses',()=>{
+ let b=launchSpell(newBattle('active'),60,'#fff','firestorm');assert.equal(firestormRollInAge(b),0);
+ b={...b,time:1};assert.equal(firestormRollInAge(b),1);assert.equal(firestormRollInAge(b,true),null);
+ b=launchSpell(b,80,'#fff','firestorm');assert.equal(firestormRollInAge(b),1);
+ assert.equal(firestormRollInAge({...b,time:2}),null);assert.equal(firestormRollInAge({...b,firestorm:null}),null);
+ assert.equal(firestormRollInAge({...b,phase:'victory'}),null);assert.equal(firestormRollInAge({...b,phase:'defeat'}),null);
 });

@@ -12,3 +12,9 @@ export function shouldPlaySpellArrival(id:string|undefined,battle:Pick<Battle,'t
  const active=id==='firestorm'?battle.firestorm:id==='bog'?battle.bog:null;
  return !active||active.portions.at(-1)!.until<=battle.time;
 }
+
+export function firestormRollInAge(battle:Pick<Battle,'time'|'phase'|'firestorm'>,paused=false):number|null{
+ const storm=battle.firestorm;
+ if(paused||battle.phase!=='active'||!storm||battle.time<storm.started||battle.time>=storm.rainAt)return null;
+ return battle.time-storm.started;
+}
