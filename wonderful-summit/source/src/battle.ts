@@ -114,7 +114,7 @@ export function eliteRush(e:Enemy){if(e.kind!=='goblin')return 'none';const cycl
 export function chronosEffect(quality:number,upgrade=0){
  if(!Number.isFinite(quality)||quality<48)return{kind:'slow' as const,duration:0};
  const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,1,2.4]:q<70?[60,69,2.5,5]:q<80?[70,79,5.1,9]:[80,100,9.1,18];
- return{kind:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*(1+.2*Math.max(0,Math.min(1,upgrade)))*1000)/1000};
+ return{kind:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*(1+.15*Math.max(0,Math.min(1,upgrade)))*1000)/1000};
 }
 export function brambleEffect(quality:number){
  if(!Number.isFinite(quality)||quality<48)return{duration:0,amount:0};
@@ -200,7 +200,7 @@ function resolveMother(state:Battle):Battle{
  if(next.enemies.every(e=>e.hp<=0)&&(!next.motherSplit||next.motherSplit.spawned))return{...next,phase:'victory',projectile:null,tidalWaves:[]};
  return next;
 }
-export const SPELL_COOLDOWNS:Partial<Record<SpellId,number>>={chronos:20};
+export const SPELL_COOLDOWNS:Partial<Record<SpellId,number>>={chronos:24};
 export function spellCooldownRemaining(state:Battle,id:SpellId){const remaining=(state.cooldowns[id]??0)-state.time;return remaining>1e-9?remaining:0;}
 export function staleMultiplier(state:Battle,id:SpellId){return state.stale.spellId===id&&state.stale.count>=3?.75:1;}
 export function releaseMultiplier(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){const element=SPELLS.find(s=>s.id===spellId)!.element;return(source==='cast'?staleMultiplier(state,spellId):1)*(state.castingRelics.sphere?1.15:1)*(1+robesBonus(state)/100)*(source==='cast'&&state.furyReady?2:1)*(state.lotus&&state.lotusReady&&spellId!=='chronos'?1.3:1)*(state.colorful&&state.lastElement!==null&&element!==state.lastElement?1.15:1);}

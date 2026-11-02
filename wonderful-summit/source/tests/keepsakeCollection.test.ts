@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import {newRun,startRun,acquireRelic,battleForRun,RELICS,STARTER_RELICS,type RelicId} from '../src/run.ts';
 import {applyDeveloperCommand} from '../src/developerCommands.ts';
 import {spellDamage,launchSpell} from '../src/battle.ts';
-test('coinpurse grants exactly 80 gold once, both at the start and through collection',()=>{
+test('coinpurse grants exactly 60 gold once, both at the start and through collection',()=>{
  const start={...newRun(),keepsakeOffers:['coinpurse','amber','moss'] as RelicId[],screen:'sister' as const};const r=startRun(start,'coinpurse');
- assert.equal(r.gold,80);assert.deepEqual(r.relics,['filadoraRobes','coinpurse']);assert.equal(startRun(r,'coinpurse'),r);assert.equal(acquireRelic(r,'coinpurse'),r);
- const richer=acquireRelic({...newRun(),gold:37},'coinpurse');assert.equal(richer.gold,117);assert.equal(applyDeveloperCommand(richer,{type:'relic',id:'coinpurse'}),richer);
+ assert.equal(r.gold,60);assert.deepEqual(r.relics,['filadoraRobes','coinpurse']);assert.equal(startRun(r,'coinpurse'),r);assert.equal(acquireRelic(r,'coinpurse'),r);
+ const richer=acquireRelic({...newRun(),gold:37},'coinpurse');assert.equal(richer.gold,97);assert.equal(applyDeveloperCommand(richer,{type:'relic',id:'coinpurse'}),richer);
  assert.equal(start.gold,0);
 });
 test('Untouched Box grants two unowned normal relics once and retains its own keepsake entry',()=>{

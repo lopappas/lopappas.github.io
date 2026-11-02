@@ -36,6 +36,6 @@ test('Artisan robes award 4% per distinct true Wonderful with no combat cap',()=
  assert.equal(b.robes.spells.length,6);assert.equal(releaseMultiplier(b,'water'),1.24);assert.equal(fizzleSpell(b).robes.spells.length,6);
 });
 test('new relics enter the normal rarity catalog and battles without relics keep base accuracy',()=>{
- assert.equal(RELICS.forgivingCalculus.rarity,'Rare');assert.equal(RELICS.artisanRobes.rarity,'Rare');assert.equal(RELICS.blackStardust.rarity,'Rare');assert.equal(RELICS.sevenLeafClover.rarity,'Common');
+ assert.equal(RELICS.forgivingCalculus.rarity,'Rare');assert.equal(RELICS.artisanRobes.rarity,'Rare');assert.equal(RELICS.blackStardust.rarity,'Rare');assert.equal(RELICS.sevenLeafClover.rarity,'Uncommon');
  assert.equal(effectiveAccuracy(newBattle(),60),60);
 });
