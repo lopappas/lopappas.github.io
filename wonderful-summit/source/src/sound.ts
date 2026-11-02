@@ -1,16 +1,22 @@
 import {audioPreferences,audioChannelVolume,loadAudioPreferences} from './audioPreferences.ts';
-import type {Element} from './magic';
+import type {Element,Spell} from './magic';
 
-export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start';
+export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt';
 export type UISound='bottle'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
 export const UI_SOUND_VOLUME:Record<UISound,number>={robes:.3,shatter:.38,bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
 type SoundKind=CastSound|UISound;
+export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):CastSound{
+ if(!spell)return 'fizzle';
+ return ({wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
+}
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}
 
 // Original synthesized effects: no downloads, microphone access, or audio assets.
 export function soundSamples(kind:SoundKind):Float32Array{
- const duration=kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
+ if(kind==='aquaspout')return soundSamples('water');
+ if(kind==='bramble')return soundSamples('nature');
+ const duration=kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
  const samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
  let seed=19,low=0;
  const noise=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2147483648-1;};
@@ -19,7 +25,11 @@ export function soundSamples(kind:SoundKind):Float32Array{
   const attack=Math.min(1,t/.012),end=Math.min(1,(duration-t)/.04);
   const n=noise();low+=.12*(n-low);
   let value=0;
-  if(kind==='robes'){
+  if(kind==='tidalcrest'){
+   // A broad rolling surf swell, breaking into fizzing foam.
+   const swell=Math.sin(Math.PI*u)**1.3;
+   value=(low*3.2+n*.22)*swell+(n-low)*.22*Math.exp(-Math.max(0,t-.35)*4)*Math.min(1,t/.35);
+  }else if(kind==='robes'){
    // Soft ascending celesta notes with tiny high bell sparkles.
    for(const [j,f] of [783.99,987.77,1174.66,1567.98,1975.53].entries()){
     const age=t-j*.075;if(age>=0)value+=(Math.sin(2*Math.PI*f*age)+.18*Math.sin(2*Math.PI*f*2.76*age))*Math.min(1,age/.012)*Math.exp(-age*9)*.25;
@@ -60,10 +70,14 @@ export function soundSamples(kind:SoundKind):Float32Array{
    for(const [j,f] of [523.25,659.25,783.99,1046.5].entries()){const age=t-j*.09;if(age>=0)value+=(Math.sin(2*Math.PI*f*age)+.15*Math.sin(2*Math.PI*f*2*age))*Math.exp(-age*8)*Math.min(1,age/.008)*.3;}
   }else if(kind==='hurt'){
    value=(.6*Math.sin(2*Math.PI*(145*t-180*t*t))+low*.3)*Math.exp(-t*28);
-  }else if(kind==='fire'){
+  }else if(kind==='fire'||kind==='flareBolt'){
    const whoosh=low*4*Math.sin(Math.PI*u)**.7;
    const crackle=n*(Math.sin(t*163)**18)*Math.exp(-t*5)*.32;
    value=whoosh+crackle+.1*Math.sin(2*Math.PI*(90*t-45*t*t))*Math.exp(-t*6);
+   if(kind==='flareBolt'){
+    value+=n*.55*(Math.sin(t*211)**16)*Math.exp(-t*4);
+    value+=Math.sign(Math.sin(2*Math.PI*(1350*t-900*t*t)))*.13*Math.exp(-t*12);
+   }
   }else if(kind==='water'){
    for(let j=0;j<6;j++){const age=t-j*.065;if(age>=0&&age<.19){const f=430+j*92;value+=Math.sin(2*Math.PI*(f*age+900*age*age))*Math.exp(-age*26)*Math.min(1,age/.007)*.45;}}
    value+=low*.16*Math.sin(Math.PI*u);
@@ -142,7 +156,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   let buffer=buffers.get(kind);
   if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
   const source=ctx.createBufferSource(),gain=ctx.createGain();
-  source.buffer=buffer;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:castVolume(quality);
+  source.buffer=buffer;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:castVolume(quality);
   gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);
   source.connect(gain);gain.connect(ctx.destination);
   source.onended=()=>{activeGains.delete(gain);source.disconnect();gain.disconnect();};source.start();

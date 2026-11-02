@@ -1,11 +1,11 @@
 import {audioPreferences} from '../src/audioPreferences.ts';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createSpellAudio,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
+import {createSpellAudio,spellCastSound,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
 
 class DeviceAudio{
  state='suspended';sampleRate=48000;destination={};onstatechange:(()=>void)|null=null;
- gains:{gain:{value:number}}[]=[];resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
+ rates:number[]=[];gains:{gain:{value:number}}[]=[];resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
  resumeAction=async()=>{this.state='running';};
  resume(){this.resumes++;return this.resumeAction();}
  suspend(){this.suspends++;this.state='suspended';return Promise.resolve();}
@@ -13,7 +13,7 @@ class DeviceAudio{
  createBuffer(_channels:number,length:number){this.buffers++;const samples=new Float32Array(length);return{length,owner:this,getChannelData:()=>samples};}
  createBufferSource(){
   const device=this;
-  return{playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null,connect(){},disconnect(){},start(){assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);}};
+  return{playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null,connect(){},disconnect(){},start(){assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);device.rates.push(this.playbackRate.value);}};
  }
  createGain(){const gain={gain:{value:0},connect(){},disconnect(){}};this.gains.push(gain);return gain;}
 }
@@ -157,4 +157,16 @@ test('browser audio requests mixing before context creation, including after a b
  }finally{
   for(const [key,descriptor] of originals){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else Reflect.deleteProperty(globalThis,key);}
  }
+});
+
+test('spell-specific cues use the requested playback speeds and distinct bounded surf and electric signals',async()=>{
+ const d=device();d.audio.unlock();await flush();
+ for(const [id,element,kind,rate] of [['wave','Water','aquaspout',1.15],['leaf','Nature','bramble',.88],['tidalcrest','Water','tidalcrest',1],['bolt','Fire','flareBolt',1]] as const){
+  assert.equal(spellCastSound({id,element}),kind);d.audio.play(kind,80);
+  assert.equal(d.devices[0].rates.at(-1),rate);
+  const samples=soundSamples(kind);assert.ok(samples.every(v=>Number.isFinite(v)&&Math.abs(v)<=.901));assert.equal(Math.abs(samples[0]),0);assert.ok(Math.abs(samples.at(-1)!)<.002);
+ }
+ assert.equal(spellCastSound(null),'fizzle');
+ assert.notDeepEqual(soundSamples('tidalcrest'),soundSamples('water'));
+ assert.notDeepEqual(soundSamples('flareBolt'),soundSamples('fire'));
 });

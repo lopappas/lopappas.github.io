@@ -79,3 +79,11 @@ test('Slime Mother keeps lethal knockback, moves the split animation with her, t
  assert.equal(b.motherSplit?.x,350);b=advance(b,.1);assert.ok(b.enemies[0].x>350);assert.equal(b.motherSplit?.x,b.enemies[0].x);
  b=advance(b,.3);assert.equal(b.enemies[0].x,to);assert.equal(b.enemies[0].push,null);b=advance(b,1.6);assert.equal(b.motherSplit?.spawned,true);assert.equal(b.motherSplit?.x,to);assert.equal(b.enemies.length,4);
 });
+
+test('Aquaspout travels 25 percent faster than Dewdrop and Flare Bolt arrives in 0.16 seconds',()=>{
+ const b=field();const water=launchSpell(b,60,'#fff','water'),wave=launchSpell(b,60,'#fff','wave'),bolt=launchSpell(b,60,'#fff','bolt');
+ assert.equal(wave.projectile?.duration,water.projectile!.duration/1.25);
+ assert.equal(bolt.projectile?.duration,.16);
+ assert.equal(advance(bolt,.15).enemies[0].hp,b.enemies[0].hp);
+ assert.ok(advance(bolt,.17).enemies[0].hp<b.enemies[0].hp);
+});
