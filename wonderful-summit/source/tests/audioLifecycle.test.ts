@@ -175,8 +175,18 @@ test('rain and swamp layers mix, extend without restarting, fade with levels and
  const d=device();d.audio.unlock();await flush();const ctx=d.devices[0],before=ctx.starts.length;
  d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+2);
  d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+2);
- d.audio.setAmbience({rain:.5,swamp:.5});assert.equal(ctx.gains.at(-2)!.gain.value,.05);assert.equal(ctx.gains.at(-1)!.gain.value,.04);
+ d.audio.setAmbience({rain:.5,swamp:.5});assert.equal(ctx.gains.at(-2)!.gain.value,.025);assert.equal(ctx.gains.at(-1)!.gain.value,.04);
  d.audio.setAmbience({rain:0,swamp:0});assert.equal(ctx.stops,2);
  d.audio.setAmbience({rain:0,swamp:0});assert.equal(ctx.stops,2);
  for(const kind of ['cloud','mud','rain','swamp'] as const){const samples=soundSamples(kind);assert.ok(samples.some(v=>Math.abs(v)>.1));assert.ok(samples.every(v=>Number.isFinite(v)&&Math.abs(v)<=.901));}
+});
+
+test('rain loop retains continuous energy across its seam and Bog buzzes have quiet gaps',()=>{
+ const rain=soundSamples('rain'),window=2000;
+ const rms=(values:Float32Array)=>Math.sqrt(values.reduce((n,v)=>n+v*v,0)/values.length);
+ const seam=new Float32Array(window*2);seam.set(rain.subarray(rain.length-window));seam.set(rain.subarray(0,window),window);
+ const ratio=rms(seam)/rms(rain.subarray(5000,9000));assert.ok(ratio>.7&&ratio<1.3);
+ const bugs=soundSamples('swamp');assert.ok(bugs.subarray(0,SOUND_RATE*.5).every(v=>v===0));
+ assert.ok(bugs.subarray(SOUND_RATE,Math.floor(SOUND_RATE*1.4)).some(v=>Math.abs(v)>.1));
+ assert.ok(bugs.subarray(SOUND_RATE*2,SOUND_RATE*3).every(v=>v===0));
 });

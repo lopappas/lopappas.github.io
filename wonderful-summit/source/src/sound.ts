@@ -17,22 +17,27 @@ export function soundSamples(kind:SoundKind):Float32Array{
  if(kind==='aquaspout')return soundSamples('water');
  if(kind==='bramble')return soundSamples('nature');
  const duration=kind==='rain'||kind==='swamp'?6:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
- const samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
- let seed=19,low=0;
+ let samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
+ let seed=19,low=0,rumble=0;
  const noise=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2147483648-1;};
  for(let i=0;i<samples.length;i++){
   const t=i/SOUND_RATE,u=t/duration;
   const attack=Math.min(1,t/.012),end=Math.min(1,(duration-t)/.04);
-  const n=noise();low+=.12*(n-low);
+  const n=noise();low+=.12*(n-low);rumble+=.008*(low-rumble);
   let value=0;
   if(kind==='rain'){
    value=low*1.8+n*.16;
   }else if(kind==='swamp'){
-   const chirp=(Math.sin(2*Math.PI*t*2.5)**18)*(.55+.45*Math.sin(t*1.7));
-   value=Math.sin(2*Math.PI*3600*t)*chirp*.18;
-   for(const start of [.65,1.05,3.6,4.05]){const a=t-start;if(a>=0&&a<.32)value+=(Math.sin(2*Math.PI*(145*a-35*a*a))+.3*Math.sin(2*Math.PI*290*a))*Math.sin(Math.PI*a/.32)**2*.4;}
+   // Occasional nearby wing buzzes, with quiet space between passes.
+   for(const [start,length] of [[.8,.75],[3.7,.95]]){
+    const age=t-start;if(age>=0&&age<length){
+     const wing=2*Math.PI*(165*age+5*Math.sin(age*17));
+     value+=(Math.sin(wing)+.35*Math.sin(wing*2)+.12*Math.sin(wing*3))*Math.sin(Math.PI*age/length)**2*.3;
+    }
+   }
   }else if(kind==='cloud'){
-   value=(low*.7+n*.16*Math.sin(t*73)**12+Math.sin(2*Math.PI*85*t)*.08)*Math.sin(Math.PI*u)**.7;
+   // Distant, gently rolling storm rumble without electrical crackles or tones.
+   value=(rumble*5+low*.3)*Math.sin(Math.PI*u)**.8;
   }else if(kind==='mud'){
    value=low*2*Math.exp(-t*6);
    for(const start of [0,.12,.29,.43]){const a=t-start;if(a>=0)value+=Math.sin(2*Math.PI*(190*a-160*a*a))*Math.exp(-a*19)*Math.min(1,a/.008)*.4;}
@@ -100,7 +105,18 @@ export function soundSamples(kind:SoundKind):Float32Array{
   }else{
    value=(n*.45+Math.sin(2*Math.PI*(420*t-320*t*t))*.14)*Math.exp(-t*8);
   }
-  samples[i]=value*attack*end;
+  samples[i]=value*(kind==='rain'?1:attack*end);
+ }
+ // Overlap the rain's tail and head with equal-power fades. The resulting
+ // loop crosses into a contiguous noise sequence, without a silent seam.
+ if(kind==='rain'){
+  const overlap=Math.round(SOUND_RATE*.2),length=samples.length-overlap,loop=new Float32Array(length);
+  loop.set(samples.subarray(overlap,samples.length-overlap));
+  for(let i=0;i<overlap;i++){
+   const phase=i/overlap*Math.PI/2;
+   loop[length-overlap+i]=samples[samples.length-overlap+i]*Math.cos(phase)+samples[i]*Math.sin(phase);
+  }
+  samples=loop;
  }
  // Every preset has a bounded peak; stronger casts increase gain, never clipping.
  const peak=samples.reduce((m,v)=>Math.max(m,Math.abs(v)),.001);
@@ -125,7 +141,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  function setAmbience(levels:{rain:number;swamp:number}){
   const ctx=context;if(!ctx)return;
   for(const kind of ['rain','swamp'] as const){
-   const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.1:.08);
+   const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.05:.08);
    let loop=loops.get(kind);
    if(!loop&&base>0){
     let buffer=buffers.get(kind);if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
