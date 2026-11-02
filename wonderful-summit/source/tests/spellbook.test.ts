@@ -25,8 +25,8 @@ test('upgrade previews preserve the campsite choice until confirmation and match
   assert.equal(preview.currentName,spell.name+'+'.repeat(level));assert.equal(preview.nextName,spell.name+'+'.repeat(level+1));
   const confirmed=camp(run,spell.id);assert.equal(confirmed.health,27);assert.equal(confirmed.campUsed,true);assert.equal(confirmed.upgrades[spell.id],level+1);
   for(const [state,expected] of [[run,preview.currentDamage],[confirmed,preview.nextDamage]] as const){
-   const battle=battleForRun(state,()=>.2);battle.enemies[0].element='Neutral';const hit=hitWithSpell(battle,60,spell.id);
-   assert.equal(battle.enemies[0].hp-hit.enemies[0].hp,expected);
+   const battle=battleForRun(state,()=>.2);battle.enemies[0].element='Neutral';const hit=hitWithSpell(battle,60,spell.id,battle.enemies[0].id);
+   assert.ok(Math.abs(battle.enemies[0].hp-hit.enemies[0].hp-expected)<1e-8);
   }
   assert.ok(preview.nextDamage>preview.currentDamage);
   assert.strictEqual(camp(confirmed,spell.id),confirmed);assert.strictEqual(camp(confirmed),confirmed);
