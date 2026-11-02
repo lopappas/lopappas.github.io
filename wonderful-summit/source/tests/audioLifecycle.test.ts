@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {createSpellAudio,spellCastSound,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
 
 class DeviceAudio{
- currentTime=0;stops=0;state='suspended';sampleRate=48000;destination={};onstatechange:(()=>void)|null=null;
+ currentTime=0;stops=0;sourceDisconnects=0;gainDisconnects=0;stopThrows=false;state='suspended';sampleRate=48000;destination={};onstatechange:(()=>void)|null=null;
  rates:number[]=[];gains:{gain:{value:number}}[]=[];resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
  resumeAction=async()=>{this.state='running';};
  resume(){this.resumes++;return this.resumeAction();}
@@ -13,9 +13,9 @@ class DeviceAudio{
  createBuffer(_channels:number,length:number){this.buffers++;const samples=new Float32Array(length);return{length,owner:this,getChannelData:()=>samples};}
  createBufferSource(){
   const device=this;
-  return{stop(){device.stops++;},loop:false,playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null,connect(){},disconnect(){},start(){assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);device.rates.push(this.playbackRate.value);}};
+  return{stop(){device.stops++;if(device.stopThrows)throw Error('interrupted');},loop:false,playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null,connect(){},disconnect(){device.sourceDisconnects++;},start(){assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);device.rates.push(this.playbackRate.value);}};
  }
- createGain(){const gain={gain:{value:0,setTargetAtTime(value:number){this.value=value;}},connect(){},disconnect(){}};this.gains.push(gain);return gain;}
+ createGain(){const device=this;const gain={gain:{value:0,cancelScheduledValues(){},setTargetAtTime(value:number){this.value=value;}},connect(){},disconnect(){device.gainDisconnects++;}};this.gains.push(gain);return gain;}
 }
 function device(){
  const devices:DeviceAudio[]=[];let visible=true,now=0;
@@ -189,4 +189,22 @@ test('rain loop retains continuous energy across its seam and Bog buzzes have qu
  const bugs=soundSamples('swamp');assert.ok(bugs.subarray(0,SOUND_RATE*.5).every(v=>v===0));
  assert.ok(bugs.subarray(SOUND_RATE,Math.floor(SOUND_RATE*1.4)).some(v=>Math.abs(v)>.1));
  assert.ok(bugs.subarray(SOUND_RATE*2,SOUND_RATE*3).every(v=>v===0));
+});
+
+test('interrupted rain is disconnected before context replacement even when stop fails and close never settles',async()=>{
+ const d=device();d.audio.unlock();await flush();const old=d.devices[0];
+ d.audio.setAmbience({rain:1,swamp:1});old.stopThrows=true;
+ old.close=()=>{old.closes++;return new Promise<void>(()=>{});};
+ old.state='interrupted';old.onstatechange?.();d.audio.unlock();
+ assert.equal(d.devices.length,2);assert.equal(old.stops,2);
+ assert.equal(old.sourceDisconnects,2);assert.equal(old.gainDisconnects,2);
+ await flush();const next=d.devices[1],starts=next.starts.length;d.audio.play('water',80);
+ assert.equal(next.starts.length,starts+1);d.audio.setAmbience({rain:0,swamp:0});assert.equal(next.stops,0);
+});
+test('expired rain, hidden pages and battle teardown disconnect loops even if a source refuses to stop',async()=>{
+ const d=device();d.audio.unlock();await flush();const ctx=d.devices[0];
+ d.audio.setAmbience({rain:1,swamp:0});ctx.stopThrows=true;d.audio.setAmbience({rain:0,swamp:0});
+ assert.equal(ctx.sourceDisconnects,1);assert.equal(ctx.gainDisconnects,1);
+ d.audio.setAmbience({rain:1,swamp:0});d.audio.sleep();assert.equal(ctx.sourceDisconnects,2);
+ d.audio.stopAmbience();assert.equal(ctx.sourceDisconnects,2);
 });

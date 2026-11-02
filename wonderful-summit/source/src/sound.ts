@@ -138,10 +138,23 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  const buffers=new Map<SoundKind,AudioBuffer>();
  const activeGains=new Map<GainNode,number>();
  const loops=new Map<'rain'|'swamp',{source:AudioBufferSourceNode;gain:GainNode}>();
+ function stopLoop(kind:'rain'|'swamp'){
+  const loop=loops.get(kind);if(!loop)return;
+  loops.delete(kind);activeGains.delete(loop.gain);
+  // Disconnect independently of stop/close promises: an interrupted mobile
+  // context can leave those pending while an old looping source stays audible.
+  try{loop.gain.gain.cancelScheduledValues(0);loop.gain.gain.value=0;}catch{}
+  try{loop.source.stop();}catch{}
+  try{loop.source.disconnect();}catch{}
+  try{loop.gain.disconnect();}catch{}
+ }
+ function stopAmbience(){for(const kind of ['rain','swamp'] as const)stopLoop(kind);}
+
  function setAmbience(levels:{rain:number;swamp:number}){
   const ctx=context;if(!ctx)return;
   for(const kind of ['rain','swamp'] as const){
    const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.05:.08);
+   if(!base){stopLoop(kind);continue;}
    let loop=loops.get(kind);
    if(!loop&&base>0){
     let buffer=buffers.get(kind);if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
@@ -150,7 +163,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
    }
    if(!loop)continue;
    activeGains.set(loop.gain,base);loop.gain.gain.setTargetAtTime(base*audioChannelVolume('effects'),ctx.currentTime,.04);
-   if(!base){const ended=loop;loops.delete(kind);activeGains.delete(ended.gain);ended.source.onended=()=>{ended.source.disconnect();ended.gain.disconnect();};ended.source.stop(ctx.currentTime+.2);}
+
   }
  }
 
@@ -169,6 +182,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   }catch{/* The next real interaction can replace a stranded audio context. */}
  }
  function sleep(){
+  stopAmbience();
   const ctx=context;if(!ctx)return;
   recycleOnGesture=true;needsWakeCycle=true;primed=null;
   try{if(ctx.state!=='closed')void ctx.suspend().catch(()=>{});}catch{}
@@ -181,6 +195,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
     // Create and prime the replacement synchronously within this user gesture.
     const previous=context,next=environment.createContext();
     if(next){
+     stopAmbience();
      context=next;primed=null;buffers.clear();activeGains.clear();loops.clear();recycleOnGesture=false;needsWakeCycle=false;waking=null;
      next.onstatechange=()=>{if(next!==context)return;if(String(next.state)==='interrupted')recycleOnGesture=true;wake();};
      if(previous){previous.onstatechange=null;try{if(previous.state!=='closed')void previous.close().catch(()=>{});}catch{}}
@@ -215,10 +230,11 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
    void ctx.resume().then(()=>{if(environment.now()-requested<=250)playNow(ctx,kind,quality);}).catch(()=>{});
   }catch{/* Do not interrupt game state if audio is blocked. */}
  }
- return{unlock,wake,sleep,play,refreshVolume,setAmbience};
+ return{unlock,wake,sleep,play,refreshVolume,setAmbience,stopAmbience};
 }
 const spellAudio=createSpellAudio();
 audioPreferences.subscribe(spellAudio.refreshVolume);
+export function stopSpellAmbience(){spellAudio.stopAmbience();}
 export function setSpellAmbience(levels:{rain:number;swamp:number}){spellAudio.setAmbience(levels);}
 export function unlockSpellAudio(){spellAudio.unlock();}
 export function playSpellSound(kind:SoundKind,quality:number){spellAudio.play(kind,quality);}
@@ -236,6 +252,7 @@ export function installSpellAudio(){
  document.addEventListener('visibilitychange',visibility);
  window.addEventListener('focus',spellAudio.wake);window.addEventListener('pageshow',spellAudio.wake);window.addEventListener('pagehide',spellAudio.sleep);
  return()=>{
+  spellAudio.stopAmbience();
   for(const name of gestures)document.removeEventListener(name,unlockSpellAudio,options);
   document.removeEventListener('visibilitychange',visibility);
   window.removeEventListener('focus',spellAudio.wake);window.removeEventListener('pageshow',spellAudio.wake);window.removeEventListener('pagehide',spellAudio.sleep);

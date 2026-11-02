@@ -17,7 +17,7 @@ import {World} from './World';
 import {cloverAccuracyBonus,staleMultiplier,SPELL_COOLDOWNS,spellCooldownRemaining,robesBonus,cloverReady,relicAccuracyBonus,effectiveAccuracy,prepareRelicCast,releaseMultiplier,bogTickDamage,midnightBonus,fizzleSpell,newBattle,stepBattle,potionImpactIds,launchSpell,nearestEnemy,spellDamage,firestormTickDamage,drinkPotion,ENCOUNTERS,POTIONS,type Potion,type Encounter,type Battle} from './battle';
 import {GuideCooldown,GUIDE_DURATION_MS,BOOK_TRANSITION_MS} from './guide';
 import {spellAmbience,shouldPlaySpellArrival} from './spellAmbience';
-import {setSpellAmbience,unlockSpellAudio,playSpellSound,playUISound,spellCastSound} from './sound';
+import {stopSpellAmbience,setSpellAmbience,unlockSpellAudio,playSpellSound,playUISound,spellCastSound} from './sound';
 import {Spellbook} from './Spellbook';
 import {LessonText} from './LessonText';
 import {SpellGrade} from './SpellGrade';
@@ -50,7 +50,7 @@ export function Combat({journey,onFinish,tutorial,onDeveloperCommand,practice,on
  const battleRef=useRef(battle);
  function unlimitedInk(){return !!practiceRef.current?.infiniteInk||battleRef.current.unlimitedUntil>battleRef.current.time;}
  useEffect(()=>{setSpellAmbience(spellAmbience(battle,paused));},[battle,paused]);
- useEffect(()=>()=>setSpellAmbience({rain:0,swamp:0}),[]);
+ useEffect(()=>()=>stopSpellAmbience(),[]);
  function updateBattle(next:Battle){if(battleRef.current.sphereShatteredAt===null&&next.sphereShatteredAt!==null)playUISound('shatter');if(practiceRef.current){const damage=practiceDamage(next);if(damage>0)setPracticeStats(stats=>({total:Math.round((stats.total+damage)*1e6)/1e6,last:damage}));next=restoreScarecrow(next,practiceRef.current.mobile);}battleRef.current=next;setBattle(next);}
  useEffect(()=>{const bonuses=battleForRun(journey,()=>0);updateBattle({...battleRef.current,castingRelics:{...battleRef.current.castingRelics,sphere:battleRef.current.sphereShatteredAt===null&&bonuses.castingRelics.sphere,calculus:bonuses.castingRelics.calculus,stardust:battleRef.current.sphereShatteredAt!==null||bonuses.castingRelics.stardust,clover:bonuses.castingRelics.clover},robes:{...battleRef.current.robes,enabled:bonuses.robes.enabled,artisan:bonuses.robes.artisan},lotus:bonuses.lotus,lotusReady:bonuses.lotus&&!battleRef.current.lotus?true:battleRef.current.lotusReady,colorful:bonuses.colorful,shaleActive:bonuses.shaleActive&&battleRef.current.shaleContacts<3,midnightStone:bonuses.midnightStone,damageBonus:bonuses.damageBonus,pushBonus:bonuses.pushBonus,firstHitPush:bonuses.firstHitPush,amulets:bonuses.amulets,upgrades:{...journey.upgrades}});},[journey.relics,journey.upgrades]);
  function teach(event:TutorialEvent){tutorialRef.current?.onEvent(event,{battle:battleRef.current,ink:inkRef.current});}
