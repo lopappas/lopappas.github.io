@@ -1,13 +1,13 @@
 import {audioPreferences} from '../src/audioPreferences.ts';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createSpellAudio,FIRESTORM_AUDIO_ENABLED,spellCastSound,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
+import {createSpellAudio,spellCastSound,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
 
 class DeviceAudio{
  sources:{loop:boolean;expiresAt:number;ended:boolean;onended:(()=>void)|null}[]=[];
  advanceAudio(seconds:number){this.currentTime+=seconds;for(const source of this.sources)if(!source.ended&&source.expiresAt<=this.currentTime){source.ended=true;source.onended?.();}}
  currentTime=0;stops=0;sourceDisconnects=0;gainDisconnects=0;stopThrows=false;state='suspended';sampleRate=48000;destination={};onstatechange:(()=>void)|null=null;
- offsets:number[]=[];rates:number[]=[];gains:{gain:{value:number}}[]=[];resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
+ rates:number[]=[];gains:{gain:{value:number}}[]=[];resumes=0;suspends=0;closes=0;starts:number[]=[];buffers=0;
  resumeAction=async()=>{this.state='running';};
  resume(){this.resumes++;return this.resumeAction();}
  suspend(){this.suspends++;this.state='suspended';return Promise.resolve();}
@@ -15,13 +15,13 @@ class DeviceAudio{
  createBuffer(_channels:number,length:number){this.buffers++;const samples=new Float32Array(length);return{length,owner:this,getChannelData:()=>samples};}
  createBufferSource(){
   const device=this;
-  const source={expiresAt:Infinity,ended:false,stop(at?:number){if(at===undefined||at<=device.currentTime)device.stops++;if(device.stopThrows)throw Error('interrupted');this.expiresAt=at??device.currentTime;},loop:false,playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null as (()=>void)|null,connect(){},disconnect(){device.sourceDisconnects++;},start(_when=0,offset=0){device.offsets.push(offset);assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);device.rates.push(this.playbackRate.value);}};device.sources.push(source);return source;
+  const source={expiresAt:Infinity,ended:false,stop(at?:number){if(at===undefined||at<=device.currentTime)device.stops++;if(device.stopThrows)throw Error('interrupted');this.expiresAt=at??device.currentTime;},loop:false,playbackRate:{value:1},buffer:null as ReturnType<DeviceAudio['createBuffer']>|null,onended:null as (()=>void)|null,connect(){},disconnect(){device.sourceDisconnects++;},start(){assert.strictEqual(this.buffer?.owner,device);device.starts.push(this.buffer!.length);device.rates.push(this.playbackRate.value);}};device.sources.push(source);return source;
  }
  createGain(){const device=this;const gain={gain:{value:0,cancelScheduledValues(){},setTargetAtTime(value:number){this.value=value;}},connect(){},disconnect(){device.gainDisconnects++;}};this.gains.push(gain);return gain;}
 }
-function device(firestormAudio=true){
+function device(){
  const devices:DeviceAudio[]=[];let visible=true,now=0;
- const audio=createSpellAudio({createContext:()=>{const ctx=new DeviceAudio();devices.push(ctx);return ctx as unknown as AudioContext;},isVisible:()=>visible,now:()=>now},firestormAudio?{firestormAudio:true}:{});
+ const audio=createSpellAudio({createContext:()=>{const ctx=new DeviceAudio();devices.push(ctx);return ctx as unknown as AudioContext;},isVisible:()=>visible,now:()=>now});
  return{audio,devices,setVisible:(value:boolean)=>visible=value,setNow:(value:number)=>now=value};
 }
 const flush=async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
@@ -224,54 +224,4 @@ test('active rain renews continuously, restarts after an expired callback, and l
  ctx.advanceAudio(.3);d.audio.setAmbience({rain:1,swamp:0});ctx.advanceAudio(.3);assert.equal(first.ended,false);assert.equal(ctx.starts.length,before);
  ctx.advanceAudio(.3);assert.equal(first.ended,true);d.audio.setAmbience({rain:1,swamp:0});assert.equal(ctx.starts.length,before+1);
  d.audio.stopAmbience();d.audio.play('nature',80);ctx.advanceAudio(.6);assert.equal(ctx.sources.filter(s=>s.loop&&!s.ended).length,0);
-});
-
-test('cloud roll-in is a tracked non-looping cue that ends with its visual phase and never contaminates other casts',async()=>{
- const d=device();d.audio.unlock();await flush();const ctx=d.devices[0];d.audio.setCloudRollIn(.8);
- assert.equal(ctx.offsets.at(-1),.8);const cloud=ctx.sources.at(-1)!;assert.equal(cloud.loop,false);const starts=ctx.starts.length;
- ctx.advanceAudio(.2);d.audio.setCloudRollIn(1);d.audio.play('water',80);assert.equal(ctx.starts.length,starts+1);
- d.audio.setCloudRollIn(2);assert.equal(ctx.sourceDisconnects,1);ctx.advanceAudio(.6);assert.equal(cloud.ended,true);
- d.audio.play('fire',80);d.audio.play('nature',80);assert.equal(ctx.starts.filter(n=>n===SOUND_RATE*2).length,1);
- d.setNow(3000);d.audio.setCloudRollIn(0);d.audio.stopAmbience();assert.equal(ctx.sourceDisconnects,2);
-});
-test('cancelled or ended Firestorm prevents a delayed cloud cue from replaying when browser audio resumes',async()=>{
- const d=device();d.audio.unlock();await flush();const ctx=d.devices[0],before=ctx.starts.length;
- ctx.state='suspended';let resume!:()=>void;ctx.resumeAction=()=>new Promise<void>(resolve=>{resume=()=>{ctx.state='running';resolve();};});
- d.audio.play('cloud',80);d.audio.setCloudRollIn(null);resume();await flush();
- assert.equal(ctx.starts.length,before);d.audio.play('water',80);assert.equal(ctx.starts.length,before+1);
-});
-
-test('other spell cues disconnect Firestorm rain and cloud sources for the entire cue duration',async()=>{
- for(const [kind,duration] of [['water',.58],['aquaspout',.58/1.15],['bramble',.7/.88],['tidalcrest',1.15],['flareBolt',.48],['mud',.8]] as const){
-  const d=device();d.audio.unlock();await flush();const ctx=d.devices[0];
-  d.audio.setAmbience({rain:1,swamp:1});d.audio.setCloudRollIn(0);const before=ctx.starts.length;
-  d.audio.play(kind,80);assert.equal(ctx.sourceDisconnects,2,kind);assert.equal(ctx.starts.length,before+1);
-  d.audio.setAmbience({rain:1,swamp:1});d.audio.setCloudRollIn(.1);assert.equal(ctx.starts.length,before+1);
-  d.setNow((duration+.05)*1000);d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+1);
-  d.setNow((duration+.13)*1000);d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+2);
- }
-});
-test('a later short cast cannot shorten Firestorm isolation for an earlier longer sound, and absent Firestorm stays silent',async()=>{
- const d=device();d.audio.unlock();await flush();const ctx=d.devices[0];
- d.audio.setAmbience({rain:1,swamp:0});d.audio.play('tidalcrest',80);d.setNow(100);d.audio.play('fire',80);
- const before=ctx.starts.length;d.setNow(800);d.audio.setAmbience({rain:1,swamp:0});assert.equal(ctx.starts.length,before);
- d.setNow(1400);d.audio.setAmbience({rain:0,swamp:0});d.audio.setCloudRollIn(null);assert.equal(ctx.starts.length,before);
-});
-
-test('production default blocks every Firestorm audio path without creating buffers or sources',async()=>{
- assert.equal(FIRESTORM_AUDIO_ENABLED,false);
- const d=device(false);d.audio.unlock();await flush();const ctx=d.devices[0],starts=ctx.starts.length,buffers=ctx.buffers;
- for(const age of [0,.2,.8,1.5,2,8]){d.audio.setCloudRollIn(age);d.audio.setAmbience({rain:1,swamp:0});d.audio.play('cloud',80);d.audio.play('rain',80);}
- assert.equal(ctx.starts.length,starts);assert.equal(ctx.buffers,buffers);
- ctx.state='suspended';const resumes=ctx.resumes;d.audio.play('cloud',80);d.audio.play('rain',80);assert.equal(ctx.resumes,resumes);
-});
-test('all other spell cues and Bog ambience work before and after attempted Firestorm audio',async()=>{
- const d=device(false);d.audio.unlock();await flush();const ctx=d.devices[0];
- const kinds=['water','fire','nature','ancient','aquaspout','bramble','flareBolt','tidalcrest','mud'] as const;
- for(const kind of kinds){const before=ctx.starts.length;d.audio.play(kind,80);assert.equal(ctx.starts.length,before+1);}
- const signatures=ctx.starts.slice(-kinds.length),rates=ctx.rates.slice(-kinds.length);
- d.audio.setCloudRollIn(0);d.audio.setAmbience({rain:1,swamp:0});d.audio.play('cloud',80);
- for(const kind of kinds)d.audio.play(kind,80);
- assert.deepEqual(ctx.starts.slice(-kinds.length),signatures);assert.deepEqual(ctx.rates.slice(-kinds.length),rates);
- const before=ctx.starts.length;d.audio.setAmbience({rain:1,swamp:1});assert.equal(ctx.starts.length,before+1);
 });

@@ -9,9 +9,6 @@ export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):
  if(!spell)return 'fizzle';
  return ({firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
 }
-// Temporary diagnostic workaround: iPhone/iPad reports persist after Firestorm.
-// Block both sources at the audio engine, including previews and bottle casts.
-export const FIRESTORM_AUDIO_ENABLED=false;
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}
 
@@ -135,37 +132,13 @@ function browserAudioContext(){
  const Constructor=window.AudioContext||(window as unknown as {webkitAudioContext?:typeof AudioContext}).webkitAudioContext;
  return Constructor?new Constructor():null;
 }
-export function createSpellAudio(environment:AudioEnvironment={createContext:browserAudioContext,isVisible:()=>!document.hidden,now:()=>performance.now()},options:{firestormAudio?:boolean}={}){
- const firestormAudio=options.firestormAudio??FIRESTORM_AUDIO_ENABLED;
+export function createSpellAudio(environment:AudioEnvironment={createContext:browserAudioContext,isVisible:()=>!document.hidden,now:()=>performance.now()}){
  let context:AudioContext|null=null,primed:AudioContext|null=null;
  let recycleOnGesture=false,needsWakeCycle=false,waking:AudioContext|null=null;
  const buffers=new Map<SoundKind,AudioBuffer>();
  const activeGains=new Map<GainNode,number>();
  const loops=new Map<'rain'|'swamp',{source:AudioBufferSourceNode;gain:GainNode;expiresAt:number}>();
  const ambienceLeaseSeconds=.5;
- let stormQuietUntil=0;
- let cloud:{source:AudioBufferSourceNode;gain:GainNode;age:number;expiresAt:number}|null=null,cloudGeneration=0;
- function stopCloudRollIn(){
-  cloudGeneration++;const old=cloud;cloud=null;if(!old)return;
-  activeGains.delete(old.gain);
-  try{old.gain.gain.cancelScheduledValues(0);old.gain.gain.value=0;}catch{}
-  try{old.source.stop();}catch{}try{old.source.disconnect();}catch{}try{old.gain.disconnect();}catch{}
- }
- function setCloudRollIn(age:number|null){
-  if(!firestormAudio){stopCloudRollIn();return;}
-  const ctx=context;
-  if(age===null||!Number.isFinite(age)||age<0||age>=2||environment.now()<stormQuietUntil||!ctx||ctx.state!=='running'||!visible()){stopCloudRollIn();return;}
-  if(cloud&&(age<cloud.age||ctx.currentTime>=cloud.expiresAt))stopCloudRollIn();
-  if(!cloud){
-   let buffer=buffers.get('cloud');if(!buffer){const samples=soundSamples('cloud');buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set('cloud',buffer);}
-   const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;source.loop=false;source.connect(gain);gain.connect(ctx.destination);gain.gain.value=.16*audioChannelVolume('effects');
-   const owned={source,gain,age,expiresAt:ctx.currentTime+Math.min(ambienceLeaseSeconds,2-age)};cloud=owned;activeGains.set(gain,.16);
-   source.onended=()=>{if(cloud!==owned)return;cloud=null;activeGains.delete(gain);try{source.disconnect();}catch{}try{gain.disconnect();}catch{}};
-   try{source.start(0,age);}catch{stopCloudRollIn();return;}
-  }
-  if(cloud){cloud.age=age;cloud.expiresAt=ctx.currentTime+Math.min(ambienceLeaseSeconds,2-age);try{cloud.source.stop(cloud.expiresAt);}catch{stopCloudRollIn();}}
- }
-
  function stopLoop(kind:'rain'|'swamp'){
   const loop=loops.get(kind);if(!loop)return;
   loops.delete(kind);activeGains.delete(loop.gain);
@@ -176,12 +149,12 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   try{loop.source.disconnect();}catch{}
   try{loop.gain.disconnect();}catch{}
  }
- function stopAmbience(){stormQuietUntil=0;stopCloudRollIn();for(const kind of ['rain','swamp'] as const)stopLoop(kind);}
+ function stopAmbience(){for(const kind of ['rain','swamp'] as const)stopLoop(kind);}
 
  function setAmbience(levels:{rain:number;swamp:number}){
   const ctx=context;if(!ctx)return;
   for(const kind of ['rain','swamp'] as const){
-   const base=(ctx.state==='running'&&visible()&&(kind!=='rain'||firestormAudio&&environment.now()>=stormQuietUntil)?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.05:.08);
+   const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.05:.08);
    if(!base){stopLoop(kind);continue;}
    let loop=loops.get(kind);
    if(loop&&ctx.currentTime>=loop.expiresAt){stopLoop(kind);loop=undefined;}
@@ -251,48 +224,30 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
    }
   }catch{/* Input and combat keep working if browser/device audio is unavailable. */}
  }
- function isolateFirestormForCast(kind:SoundKind,sampleCount:number){
-  if(!firestormAudio)return;
-  if(!['water','fire','nature','ancient','aquaspout','tidalcrest','bramble','flareBolt','mud','fizzle'].includes(kind))return;
-  const rate=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;
-  const duration=sampleCount/SOUND_RATE/rate;
-  stormQuietUntil=Math.max(stormQuietUntil,environment.now()+(duration+.12)*1000);
-  // Disconnect rather than only lower gain: the Firestorm source must not
-  // participate in the mobile audio mix while another spell cue is playing.
-  stopLoop('rain');stopCloudRollIn();
- }
  function playNow(ctx:AudioContext,kind:SoundKind,quality:number){
   if(ctx!==context||ctx.state!=='running'||!visible())return;
-  if(kind==='cloud'){
-   // Standalone bottle/event previews are finite one-shots; combat roll-in
-   // instead uses setCloudRollIn with the current battle-clock age.
-   setCloudRollIn(0);if(cloud){cloud.expiresAt=ctx.currentTime+2;try{cloud.source.stop(cloud.expiresAt);}catch{stopCloudRollIn();}}return;
-  }
   let buffer=buffers.get(kind);
   if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
-  isolateFirestormForCast(kind,buffer.length);
   const source=ctx.createBufferSource(),gain=ctx.createGain();
-  source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='mud'?.25:castVolume(quality);
+  source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
   gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);
   source.connect(gain);gain.connect(ctx.destination);
   source.onended=()=>{activeGains.delete(gain);source.disconnect();gain.disconnect();};source.start();
  }
  function play(kind:SoundKind,quality:number){
-  if(!firestormAudio&&(kind==='cloud'||kind==='rain'))return;
   try{
    const ctx=context;if(!ctx||ctx.state==='closed'||!visible())return;
    if(ctx.state==='running'){playNow(ctx,kind,quality);return;}
    // Resume asynchronously before playing; discard old effects rather than
    // replaying a backlog when the player returns from a lock screen or call.
-   const requested=environment.now(),requestedCloudGeneration=cloudGeneration;
-   void ctx.resume().then(()=>{if(environment.now()-requested<=250&&(kind!=='cloud'||requestedCloudGeneration===cloudGeneration))playNow(ctx,kind,quality);}).catch(()=>{});
+   const requested=environment.now();
+   void ctx.resume().then(()=>{if(environment.now()-requested<=250)playNow(ctx,kind,quality);}).catch(()=>{});
   }catch{/* Do not interrupt game state if audio is blocked. */}
  }
- return{unlock,wake,sleep,play,refreshVolume,setAmbience,stopAmbience,setCloudRollIn};
+ return{unlock,wake,sleep,play,refreshVolume,setAmbience,stopAmbience};
 }
 const spellAudio=createSpellAudio();
 audioPreferences.subscribe(spellAudio.refreshVolume);
-export function setFirestormRollIn(age:number|null){spellAudio.setCloudRollIn(age);}
 export function stopSpellAmbience(){spellAudio.stopAmbience();}
 export function setSpellAmbience(levels:{rain:number;swamp:number}){spellAudio.setAmbience(levels);}
 export function unlockSpellAudio(){spellAudio.unlock();}
