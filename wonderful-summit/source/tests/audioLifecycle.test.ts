@@ -1,4 +1,4 @@
-import {audioPreferences} from '../src/audioPreferences.ts';
+import {audioPreferences,audioChannelVolume} from '../src/audioPreferences.ts';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createSpellAudio,spellCastSound,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
@@ -25,6 +25,18 @@ function device(){
  return{audio,devices,setVisible:(value:boolean)=>visible=value,setNow:(value:number)=>now=value};
 }
 const flush=async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
+
+test('Thistle appearance uses a brief soft rustle that never loops and disconnects after playback',async()=>{
+ assert.equal(spellCastSound({id:'thistleBush',element:'Nature'}),'rustle');
+ const samples=soundSamples('rustle');assert.equal(samples.length,Math.ceil(SOUND_RATE*.55));
+ assert.ok(samples.every(v=>Number.isFinite(v)&&Math.abs(v)<=.901));
+ assert.equal(Math.abs(samples[0]),0);assert.ok(Math.abs(samples.at(-1)!)<.002);
+ assert.notDeepEqual(samples,soundSamples('nature'));
+ const d=device();d.audio.unlock();await flush();d.audio.play('rustle',100);
+ const ctx=d.devices[0],source=ctx.sources.at(-1)!;assert.equal(source.loop,false);assert.equal(ctx.rates.at(-1),1);
+ assert.ok(Math.abs(ctx.gains.at(-1)!.gain.value-.22*audioChannelVolume('effects'))<1e-8);
+ const before=ctx.sourceDisconnects;source.onended?.();assert.equal(ctx.sourceDisconnects,before+1);
+});
 
 test('remaining UI effects are distinct, bounded and brief, with silent sample boundaries',()=>{
  assert.deepEqual(Object.keys(UI_SOUND_VOLUME).sort(),['bottle','learn','rest','robes','shatter','stone','upgrade']);

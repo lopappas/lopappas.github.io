@@ -51,14 +51,14 @@ test('ground spells snapshot upgrades/relic multipliers and stale casts, and pau
  let b=field([350]);b.damageBonus=2;b.upgrades.thistleBush=1;
  for(let i=0;i<4;i++)b=launchSpell(b,60,'#fff','thistleBush');
  b.damageBonus=1;b.upgrades={};const hp=b.enemies[0].hp;b=advance(b,.5);
- assert.equal(hp-b.enemies[0].hp,4.21875);assert.equal(b.thistle!.spent,4.21875);
+ assert.ok(Math.abs(hp-b.enemies[0].hp-3.975)<1e-8);assert.equal(b.thistle!.spent,3.975);
  for(const phase of ['ready','victory','defeat'] as const){const paused={...b,phase};assert.equal(stepBattle(paused,1),paused);}
  assert.equal(newBattle('active').thistle,null);assert.equal(newBattle('active').puddle,null);
 });
 test('all new spells retain elemental, rocky and shield defenses and upgrade damage scaling',()=>{
  for(const id of ids)for(const q of [48,60,70,100]){
   const base=nearDamage(id,q),precision=id==='thistleBush'?1e6:1;
-  assert.equal(spellDamage({element:'Neutral'},q,id,1,1),Math.round(base*1.25*precision)/precision);
+  assert.equal(spellDamage({element:'Neutral'},q,id,1,1),Math.round((id==='thistleBush'?base+.4:base*1.25)*precision)/precision);
   const rock=q<60?.5:q<70?.75:1;
   assert.equal(spellDamage({element:'Neutral',rocky:true},q,id),Math.round(base*rock*precision)/precision);
   assert.equal(spellKnockback(q,id,1,'Neutral',true),nearKnockback(id,q)*(q<60?0:rock));
@@ -140,4 +140,28 @@ test('Puddle upgrade snapshots a 20 percent knockback bonus and Flame Blade reac
  }
  const preview=spellUpgradePreview('puddleGuard')!;assert.equal(preview.knockback,true);assert.equal(preview.nextBonus,20);assert.equal(preview.currentDamage,0);assert.equal(preview.nextDamage,0);assert.ok(Math.abs(preview.nextKnockback-preview.currentKnockback*1.2)<1e-8);
  const blade=launchSpell(field([435,435.01,600]),100,'#fff','flameBlade');assert.ok(blade.enemies[0].hp<10000);assert.equal(blade.enemies[1].hp,10000);
+});
+
+test('Thistle upgrade adds 0.4 per tick and 15 percent actual-damage budget at every quality',()=>{
+ for(let q=48;q<=100;q++){
+  const base=spellDamage({element:'Neutral'},q,'thistleBush');
+  assert.ok(Math.abs(spellDamage({element:'Neutral'},q,'thistleBush',1,1)-base-.4)<1e-8);
+  const normal=thistleStats(q),upgraded=thistleStats(q,1);
+  assert.equal(upgraded.range,normal.range);assert.ok(Math.abs(upgraded.budget-normal.budget*1.15)<1e-6);
+  assert.equal(spellDamage({element:'Neutral'},q,'thistleBush',1,99),spellDamage({element:'Neutral'},q,'thistleBush',1,1));
+ }
+ const preview=spellUpgradePreview('thistleBush')!;
+ assert.equal(preview.currentDamage,2.25);assert.equal(preview.nextDamage,2.65);
+ assert.equal(preview.currentThreshold,56.4);assert.equal(preview.nextThreshold,64.86);
+});
+
+test('Thistle appearance time and upgraded budget snapshot on drawn and bottled casts and restart on replacement',()=>{
+ for(const bottled of [false,true]){
+  let b=advance(field([500]),2);b.upgrades.thistleBush=1;
+  if(bottled){b.potions.spellBottle=1;b.bottledSpells=[{spellId:'thistleBush',quality:100}];b=advance(drinkPotion(b,'spellBottle'),.66);}
+  else b=launchSpell(b,100,'#fff','thistleBush');
+  assert.ok(b.time-b.thistle!.started<.011);assert.equal(b.thistle!.budget,216.2);
+  const started=b.thistle!.started;b.upgrades={};b=advance(b,1);assert.equal(b.thistle!.started,started);assert.equal(b.thistle!.budget,216.2);
+  b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.started,b.time);assert.equal(b.thistle!.budget,30.08);assert.equal(b.thistle!.spent,0);
+ }
 });
