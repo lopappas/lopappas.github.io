@@ -278,7 +278,7 @@
 
 .stale-cast .paper{filter:grayscale(1)!important}.stale-cast-notice{position:absolute;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;color:#555;font-size:30px;font-style:italic;text-shadow:0 1px 5px #fff;pointer-events:none;animation:staleCastNotice .975s ease-in-out both}
 @keyframes staleCastNotice{0%,100%{opacity:0}25%,65%{opacity:1}}
-.spell-cooldowns>span{display:flex;align-items:center;gap:5px}.spell-cooldowns svg{width:16px;height:16px;flex:none;color:var(--cooldown-color,#d9dce0)}.spell-cooldowns strong{margin-left:0}
+.spell-cooldowns>span{display:flex;align-items:center;gap:5px}.spell-cooldowns svg{width:22px;height:22px;flex:none;color:var(--cooldown-color,#d9dce0)}.spell-cooldowns svg path{stroke-width:6}.spell-cooldowns strong{margin-left:0}
 
 .spheredust-icon{display:inline-block;width:1em;height:1em;vertical-align:-.1em;overflow:visible}
 
