@@ -278,7 +278,7 @@
 
 .stale-cast .paper{filter:grayscale(1)!important}.stale-cast-notice{position:absolute;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;color:#555;font-size:30px;font-style:italic;text-shadow:0 1px 5px #fff;pointer-events:none;animation:staleCastNotice .975s ease-in-out both}
 @keyframes staleCastNotice{0%,100%{opacity:0}25%,65%{opacity:1}}
-.spell-cooldowns>span{display:flex;align-items:center;gap:5px}.spell-cooldowns svg{width:18px;height:18px;flex:none;color:#d9dce0}.spell-cooldowns strong{margin-left:0}
+.spell-cooldowns>span{display:flex;align-items:center;gap:5px}.spell-cooldowns svg{width:18px;height:18px;flex:none;color:var(--cooldown-color,#d9dce0)}.spell-cooldowns strong{margin-left:0}
 
 .spheredust-icon{display:inline-block;width:1em;height:1em;vertical-align:-.1em;overflow:visible}
 
@@ -316,3 +316,6 @@
 .robes-glitter{opacity:0;animation:robesGlitter 900ms ease-out var(--glitter-delay) both}
 @keyframes robesGlitter{0%{opacity:0;transform:translate(0,0)}12%{opacity:.95}55%{opacity:.7}100%{opacity:0;transform:translate(var(--glitter-x),var(--glitter-y))}}
 @media(prefers-reduced-motion:reduce){.robes-glitter{animation-name:robesGlitterFade}@keyframes robesGlitterFade{0%,100%{opacity:0}20%,50%{opacity:.8}}}
+
+.spell-cooldowns .cooldowns-title{margin:0 0 3px;font-size:16px;font-weight:500;line-height:1.15;letter-spacing:.3px;color:#d8a5ff;text-shadow:1px 2px 0 #553273,0 1px 5px #172522;transform:rotate(-3deg);transform-origin:left center}
+.spell-cooldowns>span{width:fit-content;min-width:64px;gap:8px}.spell-cooldowns strong{font-variant-numeric:tabular-nums}
