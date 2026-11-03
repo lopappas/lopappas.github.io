@@ -272,13 +272,13 @@
 
 .spell-name-ending{white-space:nowrap;overflow-wrap:normal;word-break:normal}.wonderful-diamond{display:inline-block}
 .starter-robe .relic-detail,.starter-robe .relic-detail h2,.starter-robe .relic-detail p,.starter-robe .relic-detail strong,.starter-robe .relic-detail .rarity-label,.starter-robe .relic-detail .spell-name{color:#000!important;text-shadow:none;opacity:1}
-.spell-cooldowns{position:absolute;top:50px;left:14px;z-index:3;display:flex;flex-direction:column;gap:3px;pointer-events:none}.has-combat-relics .spell-cooldowns{top:79px}.spell-cooldowns span{font-size:10px;color:#eee8d8;background:#20382de0;border:1px solid #87927088;border-radius:5px;padding:4px 6px}.spell-cooldowns strong{margin-left:4px;font-weight:500}
+.spell-cooldowns{position:absolute;top:50px;left:14px;z-index:3;display:flex;flex-direction:column;gap:3px;pointer-events:none}.has-combat-relics .spell-cooldowns{top:79px}.spell-cooldowns span{font-size:10px;color:#514735;background:#ebdfbc;border:1px solid #b8a47a;border-radius:5px;padding:2px 6px}.spell-cooldowns strong{margin-left:4px;font-weight:500}
 .cooldown-notice{position:absolute;left:12px;right:12px;top:45%;z-index:4;text-align:center;font-size:15px;color:#554b40;background:#ebdfbce8;padding:8px;pointer-events:none}
 .practice-app .spell-cooldowns{top:auto;bottom:84px}
 
 .stale-cast .paper{filter:grayscale(1)!important}.stale-cast-notice{position:absolute;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;color:#555;font-size:30px;font-style:italic;text-shadow:0 1px 5px #fff;pointer-events:none;animation:staleCastNotice .975s ease-in-out both}
 @keyframes staleCastNotice{0%,100%{opacity:0}25%,65%{opacity:1}}
-.spell-cooldowns>span{display:flex;align-items:center;gap:5px}.spell-cooldowns svg{width:18px;height:18px;flex:none;color:var(--cooldown-color,#d9dce0)}.spell-cooldowns strong{margin-left:0}
+.spell-cooldowns>span{display:flex;align-items:center;gap:5px}.spell-cooldowns svg{width:16px;height:16px;flex:none;color:var(--cooldown-color,#d9dce0)}.spell-cooldowns strong{margin-left:0}
 
 .spheredust-icon{display:inline-block;width:1em;height:1em;vertical-align:-.1em;overflow:visible}
 
@@ -317,5 +317,5 @@
 @keyframes robesGlitter{0%{opacity:0;transform:translate(0,0)}12%{opacity:.95}55%{opacity:.7}100%{opacity:0;transform:translate(var(--glitter-x),var(--glitter-y))}}
 @media(prefers-reduced-motion:reduce){.robes-glitter{animation-name:robesGlitterFade}@keyframes robesGlitterFade{0%,100%{opacity:0}20%,50%{opacity:.8}}}
 
-.spell-cooldowns .cooldowns-title{margin:0 0 3px;font-size:16px;font-weight:500;line-height:1.15;letter-spacing:.3px;color:#d8a5ff;text-shadow:1px 2px 0 #553273,0 1px 5px #172522;transform:rotate(-3deg);transform-origin:left center}
+.spell-cooldowns .cooldowns-title{margin:0 0 3px;font-size:14.08px;font-weight:500;line-height:1.15;letter-spacing:.3px;color:#d8a5ff;text-shadow:1px 2px 0 #553273,0 1px 5px #172522;animation:none;transition:none;transform:none}
 .spell-cooldowns>span{width:fit-content;min-width:64px;gap:8px}.spell-cooldowns strong{font-variant-numeric:tabular-nums}
