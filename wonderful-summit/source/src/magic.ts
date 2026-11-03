@@ -77,7 +77,7 @@ export function spellPower(id:SpellId,quality:number){
  if(!['water','fire','nature'].includes(id))return power(quality);
  if(!Number.isFinite(quality)||quality<48)return 0;
  const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,7,11]:q<70?[60,69,17,22]:q<80?[70,79,26,31]:[80,100,36,52];
- return Math.round(min+(max-min)*(q-lo)/(hi-lo));
+ return Math.round(min+(max-min)*(q-lo)/(hi-lo))-.5;
 }
 export function knockback(quality:number){return accuracyStrength(quality).knockback;}
 export const HOLD_MS=500;

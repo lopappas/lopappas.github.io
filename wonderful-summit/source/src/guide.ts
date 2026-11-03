@@ -18,3 +18,5 @@ export class GuideCooldown {
   this.readyAt=now+GUIDE_COOLDOWN_MS;
  }
 }
+
+export function bookTiming(bookWorm=false){return{openMs:BOOK_TRANSITION_MS-(bookWorm?250:0),traceMs:GUIDE_DURATION_MS+(bookWorm?500:0)};}

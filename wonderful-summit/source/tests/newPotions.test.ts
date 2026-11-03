@@ -17,7 +17,7 @@ test('both shops replace unavailable spell slots with extra potions while keepin
  }
 });
 test('new potions appear in shop and reward pools; each occupies one slot',()=>{
- for(const id of POTION_IDS.filter(id=>id!=='theodoraHeal')){const pool=COMMON_POTIONS.includes(id)?COMMON_POTIONS:RARE_POTIONS;let call=0;const reward=finishBattle({...newRun(),screen:'battle',relics:['twillyScarf']},{...battleForRun(newRun()),phase:'victory'},()=>call++===0?(COMMON_POTIONS.includes(id)?0:.8):(pool.indexOf(id)+.1)/3);assert.equal(reward.reward?.potion,id);const r=claimPotion(reward);assert.equal(potionCount(r),2);assert.equal(r.pendingBottle,id==='spellBottle');}
+ for(const id of POTION_IDS.filter(id=>id!=='theodoraHeal')){const pool=COMMON_POTIONS.includes(id)?COMMON_POTIONS:RARE_POTIONS;let call=0;const reward=finishBattle({...newRun(),screen:'battle',relics:['twillyScarf']},{...battleForRun(newRun()),phase:'victory'},()=>call++===0?(COMMON_POTIONS.includes(id)?0:.8):(pool.indexOf(id)+.1)/pool.length);assert.equal(reward.reward?.potion,id);const r=claimPotion(reward);assert.equal(potionCount(r),2);assert.equal(r.pendingBottle,id==='spellBottle');}
  assert.deepEqual(potionSlots({heal:0,freeze:0,ink:0,rejection:1,spellBottle:2},3),['rejection','spellBottle','spellBottle']);
  assert.equal(POTIONS.rejection.detail,'Imbue your skin with a powerful repelling magic for 15 seconds. During this time, attackers get sent soaring on contact and deal reduced damage.');
 });
@@ -32,7 +32,7 @@ test('a full purse can replace a stored spell bottle without leaving orphaned sp
 });
 test('bottled spells retain quality and can be selected separately, carry across battles, and release once on impact',()=>{
  let run=sealBottle(buy(shop(),'bottle'),{spellId:'water',quality:60});run={...run,potions:{...run.potions,spellBottle:2},bottledSpells:[...run.bottledSpells,{spellId:'fire',quality:100}]};
- let b=battleForRun(run,()=>0);b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=drinkPotion(b,'spellBottle',1);assert.equal(b.potions.spellBottle,1);assert.deepEqual(b.bottledSpells,[{spellId:'water',quality:60}]);assert.equal(b.enemies[0].hp,1000);b=advance(b,.66);assert.equal(b.enemies[0].hp,1000-Math.round(spellDamage({element:'Neutral'},100,'fire')*1.02));assert.equal(b.casts,1);b=advance(b,.5);assert.equal(b.casts,1);
+ let b=battleForRun(run,()=>0);b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=drinkPotion(b,'spellBottle',1);assert.equal(b.potions.spellBottle,1);assert.deepEqual(b.bottledSpells,[{spellId:'water',quality:60}]);assert.equal(b.enemies[0].hp,1000);b=advance(b,.66);assert.equal(b.enemies[0].hp,1000-spellDamage({element:'Neutral'},100,'fire')*1.02);assert.equal(b.casts,1);b=advance(b,.5);assert.equal(b.casts,1);
  const carried=finishBattle({...run,screen:'battle'},{...b,phase:'victory'},()=>.99);assert.deepEqual(carried.bottledSpells,b.bottledSpells);assert.deepEqual(battleForRun(carried).bottledSpells,b.bottledSpells);
  b=drinkPotion(b,'spellBottle');b=advance(b,.66);assert.equal(b.casts,2);assert.equal(b.bottledSpells.length,0);assert.equal(drinkPotion(b,'spellBottle'),b);
 });

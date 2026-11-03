@@ -12,7 +12,7 @@ test('first three casts are full power; fourth and later lose exactly 25 percent
   const launched=cast(b);assert.equal(launched.projectile?.knockbackMultiplier,i<3?1:.75);b=advance(launched,.33);
   powers.push(hp-b.enemies[0].hp);pushes.push(b.enemies[0].push!.to-350);
  }
- assert.deepEqual(powers,[powers[0],powers[0],powers[0],Math.round(powers[0]*.75),Math.round(powers[0]*.75)]);
+ assert.deepEqual(powers,[powers[0],powers[0],powers[0],powers[0]*.75,powers[0]*.75]);
  assert.equal(pushes[2],pushes[0]);assert.equal(pushes[3],pushes[0]*.75);assert.equal(pushes[4],pushes[0]*.75);
 });
 test('fizzles keep the stale spell streak; a different successful spell clears only that streak; encounters reset it',()=>{

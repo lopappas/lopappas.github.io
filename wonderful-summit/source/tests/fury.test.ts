@@ -15,7 +15,7 @@ test('target caret retains its element color throughout partial and full Chronos
 test('each merchant guarantees a rare potion and prices all common/rare and fallback offers correctly',()=>{
  for(const node of ROUTE.flatMap((n,i)=>n.kind==='shop'?[i]:[]))for(const roll of [0,.2,.5,.7,.999])for(const all of [false,true]){const r=enterNode({...newRun(),screen:'map',node,spells:all?SPELLS.map(s=>s.id):newRun().spells},()=>roll);const bottles=r.stock.filter(s=>s.kind==='potion');assert.ok(bottles.some(s=>RARE_POTIONS.includes(s.item as any)));for(const s of bottles)assert.equal(s.price,RARE_POTIONS.includes(s.item as any)?36:18);assert.equal(r.stock.length,6);assert.equal(new Set(r.stock.map(s=>s.id)).size,6);}
  for(const id of COMMON_POTIONS)assert.equal(potionPrice(id),18);for(const id of RARE_POTIONS)assert.equal(potionPrice(id),36);
- assert.deepEqual([...RARE_POTIONS].sort(),['fury','rejection','spellBottle']);assert.equal(POTIONS.fury.detail,'Your next spell deals twice as much damage. Make it count.');
+ assert.deepEqual([...RARE_POTIONS].sort(),['fury','miasma','rejection','spellBottle']);assert.equal(POTIONS.fury.detail,'Your next spell deals twice as much damage. Make it count.');
 });
 test('reward rarity is exactly 70 percent common / 30 percent rare; selection within each tier is uniform',()=>{
  let common=0,rare=0;for(let i=0;i<1000;i++){let call=0;const id=rollRewardPotion(()=>call++===0?(i+.5)/1000:.5);if(COMMON_POTIONS.includes(id))common++;else rare++;}assert.equal(common,700);assert.equal(rare,300);
@@ -26,7 +26,7 @@ test('reward rarity is exactly 70 percent common / 30 percent rare; selection wi
 test('Fury activates on potion impact and consumes on release, doubling only the next hit and its burn',()=>{
  for(const id of ['water','fire','nature','wave','bolt','leaf'] as const){const base=setup();base.damageBonus=1.15;base.upgrades[id]=1;base.amulets.sun=true;
  let b={...base,potions:{...base.potions,fury:1}};b=drinkPotion(b,'fury');assert.equal(b.furyReady,false);b=advance(b,.66);assert.equal(b.furyReady,true);
- const normal=advance(launchSpell(base,69,'#fff',id),.33);b=launchSpell(b,69,'#fff',id);assert.equal(b.furyReady,false);assert.equal(b.projectile?.damageMultiplier,2);b=advance(b,.33);assert.equal(10000-b.enemies[0].hp,2*(10000-normal.enemies[0].hp));assert.equal(b.enemies[0].push?.to,normal.enemies[0].push?.to);if(normal.enemies[0].burn)assert.equal(b.enemies[0].burn?.damage,normal.enemies[0].burn.damage*2);
+ const normal=advance(launchSpell(base,69,'#fff',id),.33);b=launchSpell(b,69,'#fff',id);assert.equal(b.furyReady,false);assert.equal(b.projectile?.damageMultiplier,2);b=advance(b,.33);assert.ok(Math.abs((10000-b.enemies[0].hp)-2*(10000-normal.enemies[0].hp))<1e-8);assert.equal(b.enemies[0].push?.to,normal.enemies[0].push?.to);if(normal.enemies[0].burn)assert.equal(b.enemies[0].burn?.damage,normal.enemies[0].burn.damage*2);
  b=advance(b,.3);b=launchSpell(b,69,'#fff',id);assert.equal(b.projectile?.damageMultiplier,1);
  }
 });

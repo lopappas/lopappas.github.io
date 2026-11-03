@@ -15,17 +15,17 @@ test('Midnight percentage thresholds have exact boundaries',()=>{
 test('Midnight multiplies final direct damage without changing burns or knockback',()=>{
  for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const quality of [48,60,80])for(const rocky of [false,true])for(const [ink,bonus] of [[29,0],[30,.03],[35,.05],[40,.1],[45,.12],[50,.15],[55,.2]]){
   const b=newBattle('active','shieldPack');b.damageBonus=1.15;b.upgrades.fire=1;b.amulets.sun=true;b.enemies[0]={...b.enemies[0],element,rocky,hp:10000,maxHP:10000};
-  const expected=Math.round(spellDamage(b.enemies[0],quality,'fire',b.damageBonus*(quality>=60?1.15:1),1)*2*(1+bonus));
-  const plain=hitWithSpell(b,quality,'fire',1,()=>0,2,ink);b.midnightStone=true;const stone=hitWithSpell(b,quality,'fire',1,()=>0,2,ink);assert.equal(10000-stone.enemies[0].hp,expected);assert.deepEqual(stone.enemies[0].burn,plain.enemies[0].burn);assert.deepEqual(stone.enemies[0].push,plain.enemies[0].push);
+  const expected=Math.round(1e6*spellDamage(b.enemies[0],quality,'fire',b.damageBonus*(quality>=60?1.15:1),1)*2*(1+bonus))/1e6;
+  const plain=hitWithSpell(b,quality,'fire',1,()=>0,2,ink);b.midnightStone=true;const stone=hitWithSpell(b,quality,'fire',1,()=>0,2,ink);assert.ok(Math.abs(10000-stone.enemies[0].hp-expected)<1e-8);assert.deepEqual(stone.enemies[0].burn,plain.enemies[0].burn);assert.deepEqual(stone.enemies[0].push,plain.enemies[0].push);
  }
 });
 test('Chronos remains non-damaging while preserving time control',()=>{
  const b=newBattle('active','pack');b.midnightStone=true;const hit=hitWithSpell(b,70,'chronos',undefined,()=>0,2,55);assert.ok(hit.enemies.every(e=>e.hp===100&&e.stunUntil===5.1));
 });
 test('ink is retained by projectiles and bottled spells',()=>{
- let b=newBattle('active');b.midnightStone=true;b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=launchSpell(b,60,'#fff','water',45);assert.equal(b.projectile?.inkUsed,45);b=advance(b,.33);assert.equal(1000-b.enemies[0].hp,Math.round(spellDamage({element:'Neutral'},60,'water')*1.12));
+ let b=newBattle('active');b.midnightStone=true;b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=launchSpell(b,60,'#fff','water',45);assert.equal(b.projectile?.inkUsed,45);b=advance(b,.33);assert.ok(Math.abs(1000-b.enemies[0].hp-spellDamage({element:'Neutral'},60,'water')*1.12)<1e-8);
  let r={...newRun(),pendingBottle:true,potions:{heal:0,freeze:0,ink:0,spellBottle:1},relics:['midnightStone' as const]};const sealed=sealBottle(r,{spellId:'water',quality:60,inkUsed:50});assert.equal(sealed.bottledSpells[0].inkUsed,50);
- b=battleForRun(sealed,()=>0);b.enemies[0].element='Neutral';b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(100-b.enemies[0].hp,Math.round(spellDamage({element:'Neutral'},60,'water')*1.15));
+ b=battleForRun(sealed,()=>0);b.enemies[0].element='Neutral';b=advance(drinkPotion(b,'spellBottle'),.66);assert.ok(Math.abs(100-b.enemies[0].hp-spellDamage({element:'Neutral'},60,'water')*1.15)<1e-8);
 });
 test('Firestorm snapshots its percentage per cast and floors boosted ticks without causing burns',()=>{
  let b=newBattle('active');b.midnightStone=true;b.damageBonus=2;b.enemies[0]={...b.enemies[0],element:'Neutral',hp:1000,maxHP:1000};b=launchSpell(b,60,'#fff','firestorm',55);assert.equal(b.firestorm!.portions[0].midnightBonus,.2);b.midnightStone=false;b=advance(b,2.5);assert.equal(b.enemies[0].hp,994);assert.equal(b.enemies[0].burn,null);

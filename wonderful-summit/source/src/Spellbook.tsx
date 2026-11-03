@@ -15,8 +15,8 @@ function MarkedSpellName({name,marked}:{name:string;marked:boolean}){
  return <>{name.slice(0,split)}<span className="spell-name-ending">{name.slice(split)}<sup className="wonderful-diamond" aria-label="True Wonderful achieved">◆</sup></span></>;
 }
 type UpgradePage={selected:boolean;used:boolean;confirmed:boolean;celebrating:boolean;damageBonus:number;onConfirm:()=>void};
-type Props={wonderful?:SpellId[];known:SpellId[];upgrades:Partial<Record<SpellId,number>>;reference:Spell;pageFlash:number;closing:boolean;inCombat?:boolean;traceCooldown?:GuideCooldown;tutorialHint?:{text:string;spellId?:SpellId;accent?:SpellAccent};upgrade?:UpgradePage;onSelect:(spell:Spell)=>void;onClose:()=>void};
-export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closing,inCombat=false,traceCooldown,tutorialHint,upgrade,onSelect,onClose}:Props){
+type Props={wonderful?:SpellId[];known:SpellId[];upgrades:Partial<Record<SpellId,number>>;reference:Spell;pageFlash:number;closing:boolean;inCombat?:boolean;openingDurationMs?:number;traceCooldown?:GuideCooldown;tutorialHint?:{text:string;spellId?:SpellId;accent?:SpellAccent};upgrade?:UpgradePage;onSelect:(spell:Spell)=>void;onClose:()=>void};
+export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closing,inCombat=false,openingDurationMs=BOOK_TRANSITION_MS,traceCooldown,tutorialHint,upgrade,onSelect,onClose}:Props){
  const dialog=useRef<HTMLElement>(null),closeRef=useRef(onClose);closeRef.current=onClose;
  const level=upgrades[reference.id]??0,preview=upgrade?spellUpgradePreview(reference.id,upgrade.confirmed?Math.max(0,level-1):level,upgrade.damageBonus):null;
  const [traceReady,setTraceReady]=useState(()=>!!traceCooldown?.isReady(performance.now()));
@@ -36,7 +36,7 @@ export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closi
   };
   window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus();};
  },[]);
- return createPortal(<div className={`modal-backdrop book-backdrop${closing?' book-closing':''}`} style={{'--book-duration':`${BOOK_TRANSITION_MS}ms`} as React.CSSProperties} onClick={onClose}>
+ return createPortal(<div className={`modal-backdrop book-backdrop${closing?' book-closing':''}`} style={{'--book-duration':`${closing?BOOK_TRANSITION_MS:openingDurationMs}ms`} as React.CSSProperties} onClick={onClose}>
   <section ref={dialog} className={`book-modal${inCombat?' combat-spellbook':''}`} role="dialog" aria-modal="true" aria-labelledby="book-title" onClick={e=>e.stopPropagation()}>
    <button className="close-modal" onClick={onClose} aria-label="Close spellbook">×</button><span id="book-title" className="eyebrow">FILA'S SPELLS</span>
    {tutorialHint&&<p className="book-tutorial-task"><LessonText text={tutorialHint.text} accent={tutorialHint.accent}/></p>}

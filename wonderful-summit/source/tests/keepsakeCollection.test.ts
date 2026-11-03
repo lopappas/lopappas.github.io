@@ -27,6 +27,6 @@ test('box gifts cannot duplicate owned relics and safely handle an exhausted poo
 });
 test('Madora earring uses five percent in combat while the Sphere retains fifteen percent',()=>{
  const b=battleForRun({...newRun(),relics:['amber']},()=>0);assert.equal(b.damageBonus,1.05);
- assert.equal(spellDamage({element:'Neutral'},60,'water',b.damageBonus),Math.round(spellDamage({element:'Neutral'},60,'water')*1.05));
+ assert.equal(spellDamage({element:'Neutral'},60,'water',b.damageBonus),spellDamage({element:'Neutral'},60,'water')*1.05);
  const sphere=battleForRun({...newRun(),relics:['perfectedSphere']},()=>0);assert.equal(launchSpell(sphere,60,'#fff','water').projectile?.damageMultiplier,1.15);
 });

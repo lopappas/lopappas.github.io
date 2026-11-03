@@ -24,6 +24,7 @@ export function stepPracticeBattle(battle:Battle,delta:number,mobile:boolean,dir
 }
 export function practiceEffects(battle:Battle){
  const e=battle.enemies[0],now=battle.time,out:string[]=[];
+ if(e.potionCurseTick!=null)out.push('Cursed · 3 damage / second');
  if(e.burn)out.push(`Burning · ${e.burn.ticks} ticks`);
  const slow=Math.max(bogSlow(battle,e,now),now<e.chronosSlowUntil?.55:0,...e.leafSlows.filter(s=>s.until>now).map(s=>s.amount));
  if(slow>0)out.push(`Slowed ${Math.round(slow*100)}%`);
