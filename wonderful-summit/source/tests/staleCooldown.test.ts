@@ -29,16 +29,19 @@ test('stale projectiles snapshot their damage and rejected busy casts leave the 
 });
 test('stale ground spells keep per-cast damage multipliers and switching spells never restores old ticks',()=>{
  for(const id of ['bog','firestorm'] as const){
-  let b=field();for(let i=0;i<4;i++)b=cast(b,id);
-  const portions=id==='bog'?b.bog!.portions:b.firestorm!.portions;
-  assert.deepEqual(portions.map(p=>p.multiplier),[1,1,1,.75]);
+  let b=field();for(let i=0;i<4;i++){
+   if(i)b=advance(b,id==='bog'?15:10);b=cast(b,id);
+   const portions=id==='bog'?b.bog!.portions:b.firestorm!.portions;assert.equal(portions.at(-1)!.multiplier,i<3?1:.75);
+  }
   b=cast(b,'water');assert.equal(staleMultiplier(b,id),1);
   assert.equal((id==='bog'?b.bog!.portions:b.firestorm!.portions).at(-1)?.multiplier,.75);
  }
 });
 test('stale Tidalcrest snapshots reduced damage and push without applying that penalty to other spells',()=>{
- let b=field();for(let i=0;i<4;i++)b=cast(b,'tidalcrest');
- assert.deepEqual(b.tidalWaves.map(w=>w.damageMultiplier),[1,1,1,.75]);assert.deepEqual(b.tidalWaves.map(w=>w.bonuses.pushBonus),[1,1,1,.75]);
+ let b=field();for(let i=0;i<4;i++){
+  if(i)b=advance(b,8);b=cast(b,'tidalcrest');
+  assert.equal(b.tidalWaves.at(-1)!.damageMultiplier,i<3?1:.75);assert.equal(b.tidalWaves.at(-1)!.bonuses.pushBonus,i<3?1:.75);
+ }
  b=cast(b,'fire');assert.equal(b.projectile?.damageMultiplier,1);assert.equal(b.projectile?.knockbackMultiplier,1);
 });
 test('burn ticks are reduced for stale Flare Bolt casts',()=>{

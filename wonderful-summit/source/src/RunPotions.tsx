@@ -1,6 +1,6 @@
 import {PotionIcon} from './PotionIcon';
 import React,{useEffect,useRef,useState} from 'react';
-import {POTIONS,type Potion} from './battle';
+import {potionName,POTIONS,type Potion} from './battle';
 import {SPELLS} from './magic';
 import {potionCapacity,potionCount,potionSlots,type Run} from './run';
 import {LessonText} from './LessonText';
@@ -31,11 +31,11 @@ export function RunPotions({run,onDrop,onDrinkHealing,visibleSlots=false}:{run:R
    {!visibleSlots&&<p>{potionCount(run)?'Tap a potion to view its description.':'Your purse has no potions.'}</p>}
    {!visibleSlots&&renderSlots()}
    {id&&<div className="inventory-potion-detail" aria-live="polite">
-    <h3>{POTIONS[id].name}{id==='spellBottle'?'':' potion'}</h3>
+    <h3>{potionName(id)}</h3>
     <p><LessonText text={POTIONS[id].detail}/></p>
     {stored&&<p className="inventory-sealed-spell">Sealed spell: <LessonText text={spell?.name??'Fizzle'}/> · {stored.quality}% quality</p>}
     {run.screen!=='battle'&&(id==='heal'||id==='theodoraHeal')&&onDrinkHealing&&<button className="drink-trail-potion" disabled={run.health>=100||run.health<=0||run.pendingBottle} onClick={()=>{onDrinkHealing(id);close();}}>Drink</button>}
-    <button className="drop-potion" disabled={run.pendingBottle} aria-label={`Drop ${POTIONS[id].name}${id==='spellBottle'?'':' potion'}`} onClick={()=>{onDrop(id,bottleIndex);if(visibleSlots)close();else{setSelected(null);panel.current?.querySelector<HTMLButtonElement>('.close-modal')?.focus({preventScroll:true});}}}>Drop potion</button>
+    <button className="drop-potion" disabled={run.pendingBottle} aria-label={`Drop ${potionName(id)}`} onClick={()=>{onDrop(id,bottleIndex);if(visibleSlots)close();else{setSelected(null);panel.current?.querySelector<HTMLButtonElement>('.close-modal')?.focus({preventScroll:true});}}}>Drop potion</button>
    </div>}
   </section>}
  </div>;

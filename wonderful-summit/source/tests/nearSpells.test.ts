@@ -49,7 +49,7 @@ test('Thistle has no timeout, replaces a better bush with a worse one, and canno
 });
 test('ground spells snapshot upgrades/relic multipliers and stale casts, and pause/end states stop ticks',()=>{
  let b=field([350]);b.damageBonus=2;b.upgrades.thistleBush=1;
- for(let i=0;i<4;i++)b=launchSpell(b,60,'#fff','thistleBush');
+ for(let i=0;i<4;i++){if(i)b=advance(b,15);b=launchSpell(b,60,'#fff','thistleBush');}
  b.damageBonus=1;b.upgrades={};const hp=b.enemies[0].hp;b=advance(b,.5);
  assert.ok(Math.abs(hp-b.enemies[0].hp-3.975)<1e-8);assert.equal(b.thistle!.spent,3.975);
  for(const phase of ['ready','victory','defeat'] as const){const paused={...b,phase};assert.equal(stepBattle(paused,1),paused);}
@@ -161,7 +161,7 @@ test('Thistle appearance time and upgraded budget snapshot on drawn and bottled 
   if(bottled){b.potions.spellBottle=1;b.bottledSpells=[{spellId:'thistleBush',quality:100}];b=advance(drinkPotion(b,'spellBottle'),.66);}
   else b=launchSpell(b,100,'#fff','thistleBush');
   assert.ok(b.time-b.thistle!.started<.011);assert.equal(b.thistle!.budget,216.2);
-  const started=b.thistle!.started;b.upgrades={};b=advance(b,1);assert.equal(b.thistle!.started,started);assert.equal(b.thistle!.budget,216.2);
+  const started=b.thistle!.started;b.upgrades={};b=advance(b,15);assert.equal(b.thistle!.started,started);assert.equal(b.thistle!.budget,216.2);
   b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.started,b.time);assert.equal(b.thistle!.budget,30.08);assert.equal(b.thistle!.spent,0);
  }
 });

@@ -90,7 +90,7 @@ test('a bottled Tidalcrest starts from the player on impact and preserves Fury f
  b=launchSpell(b,60,'#fff','water');assert.equal(b.furyReady,false);assert.equal(b.projectile?.damageMultiplier,2);
 });
 test('waves can overlap and run alongside an orb without cancelling either or duplicating a cast',()=>{
- let b=setup();b=launchSpell(b,48,'#fff','tidalcrest');b=advance(b,.1);b=launchSpell(b,60,'#fff','tidalcrest');assert.equal(b.tidalWaves.length,2);assert.notEqual(b.tidalWaves[0].id,b.tidalWaves[1].id);
+ let b=setup();b=launchSpell(b,48,'#fff','tidalcrest');b=advance(b,.1);b.potions.spellBottle=1;b.bottledSpells=[{spellId:'tidalcrest',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.tidalWaves.length,2);assert.notEqual(b.tidalWaves[0].id,b.tidalWaves[1].id);
  b=launchSpell(b,48,'#fff','water');assert.ok(b.projectile);b=advance(b,1);
  assert.equal(b.tidalWaves.length,0);assert.equal(b.projectile,null);assert.equal(b.casts,3);
  const waveDamage=spellDamage({element:'Neutral'},48,'tidalcrest')+spellDamage({element:'Neutral'},60,'tidalcrest');assert.equal(b.enemies[2].hp,1000-waveDamage);

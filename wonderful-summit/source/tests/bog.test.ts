@@ -29,8 +29,8 @@ test('bog arrives after one second, then ticks on every present foe without knoc
  let b=launchSpell(setup(),60,'#9bbe72','bog');assert.equal(b.projectile,null);assert.equal(b.casts,1);b=advance(b,.99);assert.equal(bogSlow(b,b.enemies[0],b.time),0);b=advance(b,.02);assert.equal(bogSlow(b,b.enemies[0],b.time),.6);b=advance(b,.49);assert.ok(b.enemies.every(e=>e.hp===998.5&&e.push===null));
  b=advance(b,7);assert.equal(b.bog,null);assert.ok(b.enemies.every(e=>e.hp===977.5));
 });
-test('recasts append their own quality and upgrade without another arrival delay',()=>{
- let b=launchSpell(setup(),48,'#9bbe72','bog');b=advance(b,2);b.upgrades.bog=1;b=launchSpell(b,80,'#9bbe72','bog');assert.equal(b.bog!.arrives,1);assert.equal(b.bog!.portions.at(-1)!.until,26);assert.equal(b.bog!.portions[1].upgrade,1);b=advance(b,4.1);assert.equal(bogSlow(b,b.enemies[0],b.time),.82);
+test('bottled recasts during cooldown append their own quality and upgrade without another arrival delay',()=>{
+ let b=launchSpell(setup(),48,'#9bbe72','bog');b=advance(b,2);b.upgrades.bog=1;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'bog',quality:80}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.bog!.arrives,1);assert.equal(b.bog!.portions.at(-1)!.until,26);assert.equal(b.bog!.portions[1].upgrade,1);b=advance(b,3.44);assert.equal(bogSlow(b,b.enemies[0],b.time),.82);
 });
 test('elemental and rocky defenses apply to damage and slowing',()=>{
  const b=launchSpell(setup(),60,'#9bbe72','bog');b.time=2;const e=b.enemies[0];assert.equal(bogSlow(b,{...e,element:'Nature'},2),0);assert.equal(bogSlow(b,{...e,element:'Fire'},2),.6);assert.equal(bogTickDamage({element:'Nature'},60),.75);assert.equal(bogTickDamage({element:'Fire'},60),1.125);assert.equal(bogTickDamage({element:'Water'},60),2.25);

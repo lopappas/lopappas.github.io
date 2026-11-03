@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {newBattle,drinkPotion,stepBattle,spellDamage,POTION_IDS,COMMON_POTIONS,RARE_POTIONS,potionPrice,ENEMY_BACK_X,type Battle,type Potion} from '../src/battle.ts';
+import {newBattle,drinkPotion,stepBattle,spellDamage,POTION_IDS,COMMON_POTIONS,RARE_POTIONS,potionPrice,potionName,POTIONS,ENEMY_BACK_X,type Battle,type Potion} from '../src/battle.ts';
 import {newRun,battleForRun,RELICS,enterNode,finishBattle,type RelicId} from '../src/run.ts';
 import {bookTiming,GuideCooldown} from '../src/guide.ts';
 import {enemyStatusLabel} from '../src/timeVisuals.ts';
+import {ENCYCLOPEDIA_ENTRIES} from '../src/encyclopedia.ts';
 
 function field():Battle{
  const b=newBattle('active','pack',()=>0);
@@ -32,7 +33,7 @@ test('new relics are common, available from merchants and elite rewards, and ena
 });
 
 test('curse potion rarities, prices, inventory and between-combat persistence use the existing potion flow',()=>{
- for(const [id,pool,price] of [['smallCurse',COMMON_POTIONS,18],['miasma',RARE_POTIONS,36]] as const){
+ for(const [id,pool,price] of [['miasma',RARE_POTIONS,36]] as const){
   assert.ok(POTION_IDS.includes(id));assert.ok(pool.includes(id));assert.equal(potionPrice(id),price);
   const run={...newRun(),screen:'battle' as const,potions:{heal:0,freeze:0,ink:0,[id]:2}};
   const battle=battleForRun(run);assert.equal(battle.potions[id],2);
@@ -41,24 +42,31 @@ test('curse potion rarities, prices, inventory and between-combat persistence us
  }
 });
 
-test('Small curse targets the nearest enemy and starts three-damage ticks one second after impact',()=>{
- let b=field();b.enemies[0].x=550;b.enemies[1].x=400;
- const input=b,original=structuredClone(b);b=throwPotion(b,'smallCurse');b=advance(b,.64);
+test('Miasma deals six ticks of three damage then clears its curse and status label',()=>{
+ const input=field(),original=structuredClone(input);let b=advance(throwPotion(input,'miasma'),.64);
  assert.ok(b.enemies.every(e=>e.potionCurseTick===null&&e.hp===1000));
- b=advance(b,.02);assert.equal(b.enemies[0].potionCurseTick,null);assert.ok(b.enemies[1].potionCurseTick!>b.time);
- assert.equal(enemyStatusLabel(b.enemies[1],b),'Cursed');
- b=advance(b,.98);assert.equal(b.enemies[1].hp,1000);
- b=advance(b,.02);assert.equal(b.enemies[1].hp,997);
- b=advance(b,10);assert.equal(b.enemies[1].hp,967);assert.equal(b.enemies[0].hp,1000);
- assert.deepEqual(input,original);
+ b=advance(b,.02);assert.ok(b.enemies.every(e=>e.potionCurseTick!>b.time));
+ assert.equal(enemyStatusLabel(b.enemies[0],b),'Cursed');
+ b=advance(b,.98);assert.equal(b.enemies[0].hp,1000);
+ b=advance(b,.02);assert.equal(b.enemies[0].hp,997);
+ b=advance(b,5);assert.deepEqual(b.enemies.map(e=>e.hp),[982,982]);
+ assert.ok(b.enemies.every(e=>e.potionCurseTick===null));assert.equal(enemyStatusLabel(b.enemies[0],b),null);
+ b=advance(b,20);assert.deepEqual(b.enemies.map(e=>e.hp),[982,982]);assert.deepEqual(input,original);
 });
 
-test('repeat and mixed curse potions do not stack or postpone existing tick cadence',()=>{
- let b=advance(throwPotion(field(),'smallCurse'),.66);const tick=b.enemies[0].potionCurseTick;
- b=advance(throwPotion(b,'miasma'),.66);
- assert.equal(b.enemies[0].potionCurseTick,tick);assert.ok(b.enemies[1].potionCurseTick!>tick!);
- b=advance(b,.34);assert.equal(b.enemies[0].hp,997);assert.equal(b.enemies[1].hp,1000);
- b=advance(b,1);assert.equal(b.enemies[0].hp,994);assert.equal(b.enemies[1].hp,997);
+test('repeat Miasma refreshes six seconds without stacking or postponing the next tick',()=>{
+ let b=advance(throwPotion(field(),'miasma'),.66);const tick=b.enemies[0].potionCurseTick,until=b.enemies[0].potionCurseUntil;
+ b=advance(b,3);b=advance(throwPotion(b,'miasma'),.66);
+ assert.equal(b.enemies[0].potionCurseTick,tick!+3);assert.ok(b.enemies[0].potionCurseUntil>until+3.6);
+ const hp=b.enemies[0].hp;b=advance(b,.34);assert.equal(b.enemies[0].hp,hp-3);
+ b=advance(b,5.66);assert.equal(b.enemies[0].potionCurseTick,null);
+ const end=b.enemies[0].hp;b=advance(b,10);assert.equal(b.enemies[0].hp,end);
+});
+
+test('Small curse is removed and Miasma has the same single name in every display',()=>{
+ assert.ok(!POTION_IDS.some(id=>String(id)==='smallCurse'));assert.ok(!COMMON_POTIONS.some(id=>String(id)==='smallCurse'));
+ assert.equal(POTIONS.miasma.name,'Miasma');assert.equal(potionName('miasma'),'Miasma');
+ assert.equal(ENCYCLOPEDIA_ENTRIES.find(e=>e.key==='potions:miasma')?.name,'Miasma');assert.ok(!ENCYCLOPEDIA_ENTRIES.some(e=>e.key==='potions:smallCurse'));
 });
 
 test('Miasma affects present enemies only, ignores defenses and persists during freeze',()=>{
@@ -66,12 +74,12 @@ test('Miasma affects present enemies only, ignores defenses and persists during 
  b.enemies=b.enemies.map(e=>({...e,hp:1000,maxHP:1000,rocky:true}));
  b=advance(throwPotion(b,'miasma'),.66);assert.ok(b.enemies.slice(0,2).every(e=>e.potionCurseTick!==null));assert.equal(b.enemies[2].potionCurseTick,null);
  b.freezeUntil=20;b=advance(b,15);
- assert.deepEqual(b.enemies.map(e=>e.hp),[955,955,1000]);assert.equal(b.enemies[2].potionCurseTick,null);
+ assert.deepEqual(b.enemies.map(e=>e.hp),[982,982,1000]);assert.equal(b.enemies[2].potionCurseTick,null);
 });
 
 test('potion curses coexist with Impossible Shale and can finish combat',()=>{
  let b=field();b.enemies=b.enemies.slice(0,1);b.enemies[0].curseTick=1.65;
- b=advance(throwPotion(b,'smallCurse'),1.66);assert.equal(b.enemies[0].hp,992);
+ b=advance(throwPotion(b,'miasma'),1.66);assert.equal(b.enemies[0].hp,992);
  b.enemies[0].hp=3;b.enemies[0].curseTick=null;b=advance(b,1);
  assert.equal(b.enemies[0].hp,0);assert.equal(b.phase,'victory');
  assert.equal(newBattle('active').enemies[0].potionCurseTick,null);

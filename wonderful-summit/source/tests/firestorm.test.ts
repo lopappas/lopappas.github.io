@@ -77,10 +77,10 @@ test('damage multipliers and upgrade are snapshotted for the entire cast, consum
  b.damageBonus=1;b.upgrades.firestorm=0;b=advance(b,2.5);const expected=firestormTickDamage({element:'Neutral'},60,1.15,1,multiplier);assert.ok(Math.abs(10000-b.enemies[0].hp-expected)<1e-8);
  b=advance(b,.5);assert.ok(Math.abs(10000-b.enemies[0].hp-2*expected)<1e-8);
 });
-test('recasts append durations and preserve per-cast tick damage and cadence',()=>{
- let b=launchSpell(setup(),48,'#f0a068','firestorm');b=advance(b,1);b.upgrades.firestorm=1;b=launchSpell(b,60,'#f0a068','firestorm');
+test('bottled recasts append durations during cooldown and preserve per-cast tick damage and cadence',()=>{
+ let b=launchSpell(setup(),48,'#f0a068','firestorm');b=advance(b,1);b.upgrades.firestorm=1;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'firestorm',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.66);
  assert.equal(b.firestorm?.rainAt,2);assert.equal(b.firestorm?.portions.at(-1)?.until,13);
- b=advance(b,1.5);assert.equal(b.enemies[0].hp,9997.2);
+ b=advance(b,.84);assert.equal(b.enemies[0].hp,9997.2);
  b=advance(b,4);assert.equal(b.enemies[0].hp,9974.8);
  b=advance(b,.5);assert.equal(b.enemies[0].hp,9971);
  b=advance(b,6);assert.equal(b.firestorm,null);assert.equal(b.enemies[0].hp,9925.4);
