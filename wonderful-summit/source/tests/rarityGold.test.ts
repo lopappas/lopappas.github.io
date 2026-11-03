@@ -13,8 +13,8 @@ test('every normal and elite encounter has six equally selectable, inclusive int
   assert.deepEqual([...counts.keys()],[min,min+1,min+2,min+3,min+4,min+5]);assert.ok([...counts.values()].every(n=>n===100));
   assert.equal(encounterGold(node,()=>0),min);assert.equal(encounterGold(node,()=>.999999),min+5);assert.equal(encounterGold(node,()=>1),min+5);
  }
- assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>0),0),242);
- assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>.999999),0),272);
+ assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>0),0),269);
+ assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>.999999),0),304);
 });
 test('gold rolls anew per encounter, is stored once in its reward, and cannot be rerolled or collected twice',()=>{
  const run={...newRun(),screen:'battle' as const};

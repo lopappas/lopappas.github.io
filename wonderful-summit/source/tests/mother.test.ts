@@ -4,10 +4,10 @@ import {newBattle,hitWithSpell,stepBattle,spellKnockback,presentEnemies,CONTACT_
 import {ROUTE,newRun,battleForRun,finishBattle} from '../src/run.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 function slain(){let b=newBattle('active','mother',()=>0);b.time=7;b.enemies[0]={...b.enemies[0],hp:1,x:401};return hitWithSpell(b,100,'water');}
-test('Slime Mother is the final trail battle with 300 HP and every random starting element',()=>{
- assert.equal(ROUTE.at(-1)?.encounter,'mother');
+test('Slime Mother precedes the final trail battle with 300 HP and every random starting element',()=>{
+ assert.equal(ROUTE.at(-2)?.encounter,'mother');
  for(const [roll,element] of [[0,'Fire'],[.4,'Water'],[.8,'Nature']] as const){const b=newBattle('active','mother',()=>roll);assert.equal(b.enemies[0].element,element);assert.equal(b.enemies[0].hp,300);assert.equal(b.enemies[0].maxHP,300);assert.equal(b.enemies[0].kind,'mother');}
- const run={...newRun(),screen:'battle' as const,node:ROUTE.length-1};const b=battleForRun(run);assert.equal(b.encounter,'mother');assert.equal(finishBattle(run,b).screen,'battle');
+ const run={...newRun(),screen:'battle' as const,node:ROUTE.length-2};const b=battleForRun(run);assert.equal(b.encounter,'mother');assert.equal(finishBattle(run,b).screen,'battle');
 });
 test('Mother changes to a different element precisely every 15 combat seconds, even while stunned',()=>{
  let b=newBattle('active','mother',()=>0);b.approachAt=1000;b=advance(b,14.99);assert.equal(b.enemies[0].element,'Fire');b=stepBattle(b,.01);assert.equal(b.enemies[0].element,'Water');b=hitWithSpell(b,100,'chronos');b=advance(b,15);assert.equal(b.enemies[0].element,'Nature');b=advance(b,15);assert.equal(b.enemies[0].element,'Fire');
