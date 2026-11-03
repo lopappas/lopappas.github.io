@@ -6,7 +6,7 @@ export function firestormDuration(quality:number){
  const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,4.5,5.5]:q<70?[60,69,6.5,8]:q<80?[70,79,10,13]:[80,100,15,18];
  return Math.round((min+(max-min)*(q-lo)/(hi-lo))*1000)/1000;
 }
-export function firestormBaseDamage(upgrade=0){return upgrade>=1?3.5:2.5;}
+export function firestormBaseDamage(upgrade=0){return upgrade>=1?3.8:2.8;}
 export function extendFirestorm(storm:Firestorm|null,time:number,quality:number,upgrade=0,damageBonus=1,multiplier=1,midnightBonus=0):Firestorm|null{
  const duration=firestormDuration(quality);if(!duration)return storm;
  const current=storm&&(storm.portions.at(-1)?.until??0)>time+1e-9?storm:null;

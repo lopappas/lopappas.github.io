@@ -104,7 +104,7 @@ function stormRain(state:Battle,time:number):Battle{
    if(old.hp<=0||old.spawnAt>tick+1e-9)return old;
    const e=old.kind==='mother'?{...old,element:ELEMENTS[(ELEMENTS.indexOf(old.initialElement as Element)+Math.floor((tick+1e-9)/15))%3]}:old;
    const oldShield=updateShield(e.shield,tick);
-   const damage=firestormTickDamage({...e,shield:oldShield},portion.quality,portion.damageBonus,portion.baseDamage===3.5?1:0,portion.multiplier,tick);
+   const damage=firestormTickDamage({...e,shield:oldShield},portion.quality,portion.damageBonus,portion.baseDamage===firestormBaseDamage(1)?1:0,portion.multiplier,tick);
    const boostedDamage=portion.midnightBonus?Math.floor(damage*(1+portion.midnightBonus)+1e-9):damage;
    const shield=igniteShield(oldShield,'Fire',portion.quality,tick),ignited=shield!==oldShield;
    const hp=Math.max(0,Math.round((e.hp-boostedDamage)*1000000)/1000000);

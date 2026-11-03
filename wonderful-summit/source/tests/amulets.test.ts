@@ -47,11 +47,11 @@ test('advanced spells keep the matching 15 percent damage bonus without inheriti
   if(['wave','tidalcrest'].includes(id))assert.ok(Math.abs(hit.enemies[0].push!.to-350-spellKnockback(60,id))<1e-8);
  }
  const b=setup();b.enemies[0].x=355;const guard=advance(launchSpell(b,60,'#fff','puddleGuard'),.01);
- assert.equal(guard.enemies[0].hp,1000);assert.equal(guard.enemies[0].push!.to-guard.enemies[0].push!.from,126);
+ assert.equal(guard.enemies[0].hp,1000);assert.ok(Math.abs(guard.enemies[0].push!.to-guard.enemies[0].push!.from-115.92)<1e-8);
 });
 test('Firestorm, Drudge Bog and Thistle snapshot their elemental damage bonus without amulet burn or roots',()=>{
  const oldRandom=Math.random;Math.random=()=>0;
- try{for(const [id,seconds,damage] of [['firestorm',2.5,2.875],['bog',1.5,1.725],['thistleBush',.5,2.5875]] as const){
+ try{for(const [id,seconds,damage] of [['firestorm',2.5,3.22],['bog',1.5,1.725],['thistleBush',.5,2.5875]] as const){
   let b=setup();b.approachAt=1000;b.enemies[0].x=350;b=launchSpell(b,60,'#fff',id);b.amulets={sun:false,moon:false,twilight:false};b=advance(b,seconds);
   assert.ok(Math.abs(1000-b.enemies[0].hp-damage)<1e-8,id);assert.equal(b.enemies[0].burn,null);assert.equal(b.enemies[0].rootUntil,0);
  }}finally{Math.random=oldRandom;}

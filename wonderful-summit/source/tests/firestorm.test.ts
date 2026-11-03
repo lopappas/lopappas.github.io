@@ -39,22 +39,22 @@ test('duration follows revised endpoints and interpolates monotonically within a
 });
 test('clouds arrive for two full seconds, first rain damage is at 2.5, then each half-second through the final tick',()=>{
  let b=launchSpell(setup(),48,'#f0a068','firestorm');assert.equal(b.projectile,null);assert.equal(b.casts,1);assert.equal(b.firestorm?.rainAt,2);assert.equal(b.firestorm?.portions[0].until,6.5);assert.equal(b.enemies[0].hp,10000);
- b=advance(b,2.49);assert.equal(b.enemies[0].hp,10000);b=advance(b,.01);assert.equal(b.enemies[0].hp,9997.5);
- b=advance(b,.49);assert.equal(b.enemies[0].hp,9997.5);b=advance(b,.01);assert.equal(b.enemies[0].hp,9995);
- b=advance(b,3.5);assert.equal(b.enemies[0].hp,9977.5);assert.equal(b.firestorm,null);b=advance(b,2);assert.equal(b.enemies[0].hp,9977.5);
+ b=advance(b,2.49);assert.equal(b.enemies[0].hp,10000);b=advance(b,.01);assert.equal(b.enemies[0].hp,9997.2);
+ b=advance(b,.49);assert.equal(b.enemies[0].hp,9997.2);b=advance(b,.01);assert.equal(b.enemies[0].hp,9994.4);
+ b=advance(b,3.5);assert.equal(b.enemies[0].hp,9974.8);assert.equal(b.firestorm,null);b=advance(b,2);assert.equal(b.enemies[0].hp,9974.8);
 });
 test('rain damages all living present foes, including reinforcements at a tick, but not before arrival',()=>{
  let b=setup('shieldPack');b.enemies[1].spawnAt=3;b.enemies[2].spawnAt=3.01;b.enemies[2].rocky=false;b=launchSpell(b,60,'#f0a068','firestorm');
- b=advance(b,2.5);assert.deepEqual(b.enemies.map(e=>e.hp),[9997.5,10000,10000]);
- b=advance(b,.5);assert.deepEqual(b.enemies.map(e=>e.hp),[9995,9997.5,10000]);
- b=advance(b,.5);assert.deepEqual(b.enemies.map(e=>e.hp),[9992.5,9995,9997.5]);
+ b=advance(b,2.5);assert.deepEqual(b.enemies.map(e=>e.hp),[9997.2,10000,10000]);
+ b=advance(b,.5);assert.deepEqual(b.enemies.map(e=>e.hp),[9994.4,9997.2,10000]);
+ b=advance(b,.5);assert.deepEqual(b.enemies.map(e=>e.hp),[9991.6,9994.4,9997.2]);
  // A storm can be started while the field is temporarily empty.
- b=setup();b.enemies[0].spawnAt=3;b=launchSpell(b,48,'#f0a068','firestorm');assert.ok(b.firestorm);b=advance(b,3);assert.equal(b.enemies[0].hp,9997.5);
+ b=setup();b.enemies[0].spawnAt=3;b=launchSpell(b,48,'#f0a068','firestorm');assert.ok(b.firestorm);b=advance(b,3);assert.equal(b.enemies[0].hp,9997.2);
 });
 test('ticks use full elemental, rocky and wooden-shield defenses without rounding away small resistances',()=>{
  for(const [element,factor] of [['Fire',.5],['Water',.75],['Nature',1.5],['Neutral',1]] as const)for(const [q,rockFactor] of [[48,.5],[60,.75],[70,1],[100,1]])for(const shield of [false,true]){
-  const target={element,rocky:true,shield:shield?woodenShield():null};assert.equal(firestormTickDamage(target,q),2.5*factor*rockFactor*(shield?.5:1));
-  let b=setup();b.enemies[0]={...b.enemies[0],...target};b=advance(launchSpell(b,q,'#f0a068','firestorm'),2.5);assert.equal(10000-b.enemies[0].hp,firestormTickDamage(target,q));
+  const target={element,rocky:true,shield:shield?woodenShield():null};assert.equal(firestormTickDamage(target,q),Math.round(2.8*factor*rockFactor*(shield?.5:1)*1e6)/1e6);
+  let b=setup();b.enemies[0]={...b.enemies[0],...target};b=advance(launchSpell(b,q,'#f0a068','firestorm'),2.5);assert.ok(Math.abs(10000-b.enemies[0].hp-firestormTickDamage(target,q))<1e-8);
  }
 });
 test('rain ignites wooden shields on first contact for any Firestorm grade and element, stopping the bearer for two seconds',()=>{
@@ -80,10 +80,10 @@ test('damage multipliers and upgrade are snapshotted for the entire cast, consum
 test('recasts append durations and preserve per-cast tick damage and cadence',()=>{
  let b=launchSpell(setup(),48,'#f0a068','firestorm');b=advance(b,1);b.upgrades.firestorm=1;b=launchSpell(b,60,'#f0a068','firestorm');
  assert.equal(b.firestorm?.rainAt,2);assert.equal(b.firestorm?.portions.at(-1)?.until,13);
- b=advance(b,1.5);assert.equal(b.enemies[0].hp,9997.5);
- b=advance(b,4);assert.equal(b.enemies[0].hp,9977.5);
- b=advance(b,.5);assert.equal(b.enemies[0].hp,9974);
- b=advance(b,6);assert.equal(b.firestorm,null);assert.equal(b.enemies[0].hp,9932);
+ b=advance(b,1.5);assert.equal(b.enemies[0].hp,9997.2);
+ b=advance(b,4);assert.equal(b.enemies[0].hp,9974.8);
+ b=advance(b,.5);assert.equal(b.enemies[0].hp,9971);
+ b=advance(b,6);assert.equal(b.firestorm,null);assert.equal(b.enemies[0].hp,9925.4);
  b=launchSpell(b,48,'#f0a068','firestorm');assert.ok(Math.abs(b.firestorm!.rainAt-15)<1e-8);
 });
 test('rain resolves boss death, split children, ordinary victory and stops on defeat',()=>{
@@ -100,7 +100,7 @@ test('stored Firestorm starts on bottle impact and retains its quality and rain 
 });
 test('storm is frame-rate independent, does not mutate previous states, and resets each encounter',()=>{
  const original=setup(),before=structuredClone(original),launched=launchSpell(original,100,'#f0a068','firestorm');assert.deepEqual(original,before);
- const snapshot=structuredClone(launched),fine=advance(launched,20,.01),coarse=advance(launched,20,.1);assert.deepEqual(launched,snapshot);assert.equal(fine.enemies[0].hp,9910);assert.equal(coarse.enemies[0].hp,9910);assert.equal(fine.firestorm,null);assert.equal(newBattle('active').firestorm,null);
+ const snapshot=structuredClone(launched),fine=advance(launched,20,.01),coarse=advance(launched,20,.1);assert.deepEqual(launched,snapshot);assert.equal(fine.enemies[0].hp,9899.2);assert.equal(coarse.enemies[0].hp,9899.2);assert.equal(fine.firestorm,null);assert.equal(newBattle('active').firestorm,null);
  for(const quality of [0,47,NaN])assert.equal(launchSpell(original,quality,'#f0a068','firestorm').firestorm,null);
 });
 test('Firestorm is naturally learnable, sold, developer-grantable and upgrades once with an accurate rain preview',()=>{
@@ -108,5 +108,5 @@ test('Firestorm is naturally learnable, sold, developer-grantable and upgrades o
  const spells=PLAYER_SPELLS.filter(s=>s.id!=='firestorm').map(s=>s.id);const shop=enterNode({...newRun(),screen:'map',node:2,spells},()=>0);assert.ok(shop.stock.some(s=>s.kind==='spell'&&s.item==='firestorm'));
  const r={...newRun(),screen:'battle' as const,spells,combats:2};assert.deepEqual(finishBattle(r,{...battleForRun(r),phase:'victory'},()=>0).reward?.offers,['firestorm']);
  const c={...newRun(),screen:'camp' as const,spells:['firestorm' as SpellId]},upgraded=camp(c,'firestorm');assert.equal(upgraded.upgrades.firestorm,1);assert.equal(camp({...upgraded,campUsed:false},'firestorm').campUsed,false);assert.equal(spellName('firestorm',1),'Firestorm+');
- const preview=spellUpgradePreview('firestorm')!;assert.equal(preview.firestorm,true);assert.equal(preview.currentTick,2.5);assert.equal(preview.nextTick,3.5);assert.equal(spellUpgradePreview('firestorm',1),null);assert.equal(firestormBaseDamage(10),3.5);assert.equal(spellbookColumns(['firestorm','fire']).find(c=>c.element==='Fire')?.spells[0].id,'fire');
+ const preview=spellUpgradePreview('firestorm')!;assert.equal(preview.firestorm,true);assert.equal(preview.currentTick,2.8);assert.equal(preview.nextTick,3.8);assert.equal(spellUpgradePreview('firestorm',1),null);assert.equal(firestormBaseDamage(10),3.8);assert.equal(spellbookColumns(['firestorm','fire']).find(c=>c.element==='Fire')?.spells[0].id,'fire');
 });
