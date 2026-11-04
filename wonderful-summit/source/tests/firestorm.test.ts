@@ -4,7 +4,7 @@ import {SPELLS,SPELL_VARIATIONS,PLAYER_SPELLS,recognize,type SpellId} from '../s
 import {firestormDuration,firestormBaseDamage} from '../src/firestorm.ts';
 import {newBattle,launchSpell,hitWithSpell,stepBattle,firestormTickDamage,spellDamage,spellKnockback,releaseMultiplier,drinkPotion} from '../src/battle.ts';
 import {woodenShield} from '../src/shields.ts';
-import {newRun,enterNode,camp,finishBattle,battleForRun} from '../src/run.ts';
+import {rollSpellOffers,newRun,enterNode,camp,finishBattle,battleForRun} from '../src/run.ts';
 import {spellUpgradePreview,spellbookColumns,spellName} from '../src/spellbook.ts';
 import {parseDeveloperCommand} from '../src/developerCommands.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number,dt=.01){for(let i=0;i<Math.round(seconds/dt);i++)b=stepBattle(b,dt);return b;}
@@ -72,7 +72,7 @@ test('Firestorm has no impact, knockback, generic attack interruption, Sun burn 
 });
 test('damage multipliers and upgrade are snapshotted for the entire cast, consuming Fury and Lotus once',()=>{
  let b=setup();b.damageBonus=1.15;b.furyReady=true;b.lotus=true;b.lotusReady=true;b.colorful=true;b.lastElement='Water';b.upgrades.firestorm=1;
- const multiplier=releaseMultiplier(b,'firestorm');assert.equal(multiplier,2*1.3*1.15);
+ const multiplier=releaseMultiplier(b,'firestorm');assert.equal(multiplier,2*1.25*1.15);
  b=launchSpell(b,60,'#f0a068','firestorm');assert.equal(b.furyReady,false);assert.equal(b.lotusReady,false);assert.equal(b.lastElement,'Fire');
  b.damageBonus=1;b.upgrades.firestorm=0;b=advance(b,2.5);const expected=firestormTickDamage({element:'Neutral'},60,1.15,1,multiplier);assert.ok(Math.abs(10000-b.enemies[0].hp-expected)<1e-8);
  b=advance(b,.5);assert.ok(Math.abs(10000-b.enemies[0].hp-2*expected)<1e-8);
@@ -105,7 +105,7 @@ test('storm is frame-rate independent, does not mutate previous states, and rese
 });
 test('Firestorm is naturally learnable, sold, developer-grantable and upgrades once with an accurate rain preview',()=>{
  assert.ok(PLAYER_SPELLS.some(s=>s.id==='firestorm'));assert.deepEqual(parseDeveloperCommand({type:'spell',id:'firestorm'}),{type:'spell',id:'firestorm'});
- const spells=PLAYER_SPELLS.filter(s=>s.id!=='firestorm').map(s=>s.id);const shop=enterNode({...newRun(),screen:'map',node:2,spells},()=>0);assert.ok(shop.stock.some(s=>s.kind==='spell'&&s.item==='firestorm'));
+ const spells=PLAYER_SPELLS.filter(s=>s.id!=='firestorm').map(s=>s.id);const shop=enterNode({...newRun(),screen:'map',node:2,spells},()=>0);assert.ok(shop.stock.some(s=>s.kind==='randomSpell')&&rollSpellOffers({...newRun(),spells},()=>0).includes('firestorm'));
  const r={...newRun(),screen:'battle' as const,spells,combats:2};assert.deepEqual(finishBattle(r,{...battleForRun(r),phase:'victory'},()=>0).reward?.offers,['firestorm']);
  const c={...newRun(),screen:'camp' as const,spells:['firestorm' as SpellId]},upgraded=camp(c,'firestorm');assert.equal(upgraded.upgrades.firestorm,1);assert.equal(camp({...upgraded,campUsed:false},'firestorm').campUsed,false);assert.equal(spellName('firestorm',1),'Firestorm+');
  const preview=spellUpgradePreview('firestorm')!;assert.equal(preview.firestorm,true);assert.equal(preview.currentTick,2.8);assert.equal(preview.nextTick,3.8);assert.equal(spellUpgradePreview('firestorm',1),null);assert.equal(firestormBaseDamage(10),3.8);assert.equal(spellbookColumns(['firestorm','fire']).find(c=>c.element==='Fire')?.spells[0].id,'fire');

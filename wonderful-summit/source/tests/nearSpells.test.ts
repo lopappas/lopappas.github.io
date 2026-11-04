@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {SPELLS,SPELL_VARIATIONS,recognize,type SpellId} from '../src/magic.ts';
 import {nearDamage,nearKnockback,thistleStats} from '../src/nearSpells.ts';
 import {newBattle,launchSpell,stepBattle,spellDamage,spellKnockback,hitWithSpell,drinkPotion,CONTACT_X,ENEMY_BACK_X,type Battle} from '../src/battle.ts';
-import {newRun,enterNode,finishBattle,battleForRun,camp,spellPrice} from '../src/run.ts';
+import {rollSpellOffers,newRun,enterNode,finishBattle,battleForRun,camp,spellPrice} from '../src/run.ts';
 import {newPracticeBattle,practiceJourney,restoreScarecrow,stepPracticeBattle,practiceDamage} from '../src/practice.ts';
 import {spellbookColumns,spellUpgradePreview} from '../src/spellbook.ts';
 import {woodenShield} from '../src/shields.ts';
@@ -76,7 +76,7 @@ test('bottles deliver all three effects without changing cooldowns or stale stre
 test('new spells are learnable, sold, upgraded and grouped by element in book order',()=>{
  const known=SPELLS.filter(s=>!ids.includes(s.id as typeof ids[number])).map(s=>s.id);
  for(const id of ids){const run={...newRun(),screen:'map' as const,node:2,spells:SPELLS.filter(s=>s.id!==id).map(s=>s.id)};
-  assert.ok(enterNode(run,()=>0).stock.some(s=>s.item===id));assert.equal(spellPrice(id),100);
+  assert.ok(enterNode(run,()=>0).stock.some(s=>s.kind==='randomSpell')&&rollSpellOffers(run,()=>0).includes(id));assert.equal(spellPrice(id),100);
   const reward=finishBattle({...run,screen:'battle',combats:2},{...battleForRun(run),phase:'victory'},()=>0);assert.deepEqual(reward.reward!.offers,[id]);
   assert.equal(camp({...run,screen:'camp',spells:[...run.spells,id]},id).upgrades[id],1);const preview=spellUpgradePreview(id)!;assert.ok(id==='puddleGuard'?preview.nextKnockback>preview.currentKnockback:preview.nextDamage>preview.currentDamage);
  }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {bogEffect} from '../src/bog.ts';
 import {SPELLS,recognize,PLAYER_SPELLS,SPELL_VARIATIONS} from '../src/magic.ts';
 import {newBattle,launchSpell,stepBattle,bogSlow,bogTickDamage,drinkPotion} from '../src/battle.ts';
-import {newRun,enterNode,finishBattle,camp,spellPrice} from '../src/run.ts';
+import {rollSpellOffers,newRun,enterNode,finishBattle,camp,spellPrice} from '../src/run.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
 function setup(){const b=newBattle('active','pack',()=>0);b.approachAt=1000;for(const e of b.enemies){e.element='Neutral';e.hp=e.maxHP=1000;}return b;}
 function advance(b:ReturnType<typeof setup>,seconds:number,dt=.01){for(let i=0;i<Math.round(seconds/dt);i++)b=stepBattle(b,dt);return b;}
@@ -40,9 +40,9 @@ test('reinforcements enter the active bog; fractional ticks, end cleanup and fra
  let b=setup();b.enemies[1].spawnAt=2;const launched=launchSpell(b,80,'#9bbe72','bog'),before=structuredClone(launched);const fine=advance(launched,4),coarse=advance(launched,4,.1);assert.deepEqual(launched,before);assert.deepEqual(fine.enemies.map(e=>e.hp),coarse.enemies.map(e=>e.hp));assert.equal(fine.enemies[1].hp,987.5);assert.equal(bogSlow(fine,fine.enemies[1],4),.54);
 });
 test('bottles preserve Fury; damage relics snapshot per cast and do not add burn',()=>{
- let b=setup();b.midnightStone=true;b.damageBonus=1.15;b.furyReady=true;b.lotus=true;b.lotusReady=true;b.colorful=true;b.lastElement='Fire';b.potions.spellBottle=1;b.bottledSpells=[{spellId:'bog',quality:60,inkUsed:55}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,true);assert.ok(b.bog);const p=b.bog!.portions[0];assert.equal(p.midnight,.2);assert.equal(p.multiplier,1.3*1.15);b=advance(b,1.5);assert.ok(b.enemies.every(e=>e.hp<998.5&&e.burn===null));
+ let b=setup();b.midnightStone=true;b.damageBonus=1.15;b.furyReady=true;b.lotus=true;b.lotusReady=true;b.colorful=true;b.lastElement='Fire';b.potions.spellBottle=1;b.bottledSpells=[{spellId:'bog',quality:60,inkUsed:55}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.furyReady,true);assert.ok(b.bog);const p=b.bog!.portions[0];assert.equal(p.midnight,.2);assert.equal(p.multiplier,1.25*1.15);b=advance(b,1.5);assert.ok(b.enemies.every(e=>e.hp<998.5&&e.burn===null));
 });
 test('bog is available to merchants and spell rewards, costs uncommon price, and upgrades once',()=>{
- const known=PLAYER_SPELLS.filter(s=>s.id!=='bog').map(s=>s.id),r={...newRun(),screen:'map' as const,node:2,spells:known};assert.ok(enterNode(r,()=>0).stock.some(s=>s.item==='bog'&&s.price===spellPrice('bog')));const b=setup();b.phase='victory';assert.deepEqual(finishBattle({...r,screen:'battle',combats:2},b,()=>0).reward!.offers,['bog']);const c={...r,screen:'camp' as const,spells:[...known,'bog' as const]};const upgraded=camp(c,'bog');assert.equal(upgraded.upgrades.bog,1);assert.equal(camp({...upgraded,campUsed:false},'bog').campUsed,false);assert.equal(spellUpgradePreview('bog')?.bog,true);
+ const known=PLAYER_SPELLS.filter(s=>s.id!=='bog').map(s=>s.id),r={...newRun(),screen:'map' as const,node:2,spells:known};assert.ok(enterNode(r,()=>0).stock.some(s=>s.kind==='randomSpell'&&s.price===100)&&rollSpellOffers(r,()=>0).includes('bog'));const b=setup();b.phase='victory';assert.deepEqual(finishBattle({...r,screen:'battle',combats:2},b,()=>0).reward!.offers,['bog']);const c={...r,screen:'camp' as const,spells:[...known,'bog' as const]};const upgraded=camp(c,'bog');assert.equal(upgraded.upgrades.bog,1);assert.equal(camp({...upgraded,campUsed:false},'bog').campUsed,false);assert.equal(spellUpgradePreview('bog')?.bog,true);
 });
 

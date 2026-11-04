@@ -319,3 +319,5 @@
 
 .spell-cooldowns .cooldowns-title{margin:0 0 3px;font-size:14.08px;font-weight:500;line-height:1.15;letter-spacing:.3px;color:#d8a5ff;text-shadow:1px 2px 0 #553273,0 1px 5px #172522;animation:none;transition:none;transform:none}
 .spell-cooldowns>span{width:fit-content;min-width:64px;gap:8px}.spell-cooldowns strong{font-variant-numeric:tabular-nums}
+
+.skip-spell-button{display:block;width:140px;max-width:100%;margin:12px auto 0;padding:6px 18px;background:#777d79;color:#f4f2eb;border:1px solid #969d97;border-radius:6px;font-size:12px;line-height:1.2}.skip-spell-button:disabled{opacity:.55}.spell-offer-choice{width:100%}

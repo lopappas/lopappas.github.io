@@ -4,11 +4,11 @@ import {newRun,enterNode,RELICS,ROUTE,battleForRun,buy,type Run} from '../src/ru
 import {SPELLS,PLAYER_SPELLS,power,spellPower} from '../src/magic.ts';
 import {newBattle,hitWithSpell,spellDamage,spellKnockback,stepBattle,burnDamage,CONTACT_X,drinkPotion,RARE_POTIONS,type Potion} from '../src/battle.ts';
 
-test('merchant always rolls two distinct options per category, preferring unowned items',()=>{
+test('merchant always rolls two distinct potions and relics plus one random spell offer, preferring unowned items',()=>{
  for(const roll of [0,.25,.5,.85,.999])for(const complete of [false,true]){
   const run:Run={...newRun(),screen:'map',node:2,relics:complete?Object.keys(RELICS) as Run['relics']:[],spells:complete?SPELLS.map(s=>s.id):['water','fire','nature']};
-  const shop=enterNode(run,()=>roll);assert.equal(shop.stock.length,6);
-  for(const kind of ['potion','spell','relic']){const items=shop.stock.filter(s=>s.kind===kind);const expected=kind==='potion'&&complete?4:kind==='spell'&&complete?0:2;assert.equal(items.length,expected);assert.equal(new Set(items.map(s=>s.item)).size,expected);}
+  const shop=enterNode(run,()=>roll);assert.equal(shop.stock.length,5);
+  for(const kind of ['potion','randomSpell','relic']){const items=shop.stock.filter(s=>s.kind===kind);const expected=kind==='randomSpell'?1:2;assert.equal(items.length,expected);assert.equal(new Set(items.map(s=>s.item)).size,expected);}
   if(!complete)assert.ok(shop.stock.filter(s=>s.kind==='spell').every(s=>!run.spells.includes(s.item as any)));
   assert.equal(enterNode(shop,()=>0),shop); // purchases never reroll stock
   if(complete)for(const item of shop.stock.filter(s=>s.kind!=='potion')){const rich={...shop,gold:1000};assert.equal(buy(rich,item.id),rich);}
@@ -18,7 +18,8 @@ test('both merchants charge rarity-based spell and relic prices, keep potion pri
  for(const node of ROUTE.flatMap((entry,i)=>entry.kind==='shop'?[i]:[]))for(const roll of [0,.5,.99])for(const complete of [false,true]){
   const r=enterNode({...newRun(),screen:'map',node,gold:1000,potions:{heal:0,freeze:0,ink:0},spells:complete?SPELLS.map(s=>s.id):newRun().spells},()=>roll);
   for(const item of r.stock){
-   const price=item.kind==='spell'?(SPELLS.find(s=>s.id===item.item)!.rarity==='Legendary'?150:SPELLS.find(s=>s.id===item.item)!.rarity==='Uncommon'?100:45):item.kind==='relic'?{Common:50,Uncommon:70,Rare:85,Keepsake:45}[RELICS[item.item as keyof typeof RELICS].rarity]:RARE_POTIONS.includes(item.item as Potion)?36:18;
+   if(complete&&item.kind==='randomSpell'){assert.equal(buy(r,item.id),r);continue;}
+   const price=item.kind==='randomSpell'?100:item.kind==='spell'?(SPELLS.find(s=>s.id===item.item)!.rarity==='Legendary'?150:SPELLS.find(s=>s.id===item.item)!.rarity==='Uncommon'?100:45):item.kind==='relic'?{Common:50,Uncommon:70,Rare:85,Keepsake:45}[RELICS[item.item as keyof typeof RELICS].rarity]:RARE_POTIONS.includes(item.item as Potion)?36:18;
    assert.equal(item.price,price);
    const paid=buy(r,item.id);assert.equal(paid.gold,1000-price);assert.equal(paid.stock.find(s=>s.id===item.id)?.sold,true);assert.equal(buy(paid,item.id),paid);
    const poor={...r,gold:price-1};assert.equal(buy(poor,item.id),poor);

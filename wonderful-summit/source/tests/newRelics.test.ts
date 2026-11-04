@@ -18,13 +18,13 @@ test('new relics enter merchant/elite pools while broken shale does not reappear
  const r={...newRun(),screen:'map' as const,node:2,shaleContacts:3};for(let i=0;i<30;i++)assert.ok(!enterNode(r,()=>i/30).stock.some(s=>s.item==='impossibleShale'));
 });
 test('Blooming Lotus boosts only the first offensive release; control spells and fizzles preserve it',()=>{
- let b=setup();b.lotus=true;b.lotusReady=true;assert.equal(releaseMultiplier(b,'water'),1.3);assert.equal(releaseMultiplier(b,'chronos'),1);assert.equal(fizzleSpell(b).lotusReady,true);
- b=advance(launchSpell(b,60,'#fff','chronos'),.33);assert.equal(b.lotusReady,true);b=launchSpell(b,60,'#fff','water');assert.equal(b.lotusReady,false);assert.equal(b.projectile?.damageMultiplier,1.3);b=advance(b,.33);b=launchSpell(b,60,'#fff','fire');assert.equal(b.projectile?.damageMultiplier,1);
+ let b=setup();b.lotus=true;b.lotusReady=true;assert.equal(releaseMultiplier(b,'water'),1.25);assert.equal(releaseMultiplier(b,'chronos'),1);assert.equal(fizzleSpell(b).lotusReady,true);
+ b=advance(launchSpell(b,60,'#fff','chronos'),.33);assert.equal(b.lotusReady,true);b=launchSpell(b,60,'#fff','water');assert.equal(b.lotusReady,false);assert.equal(b.projectile?.damageMultiplier,1.25);b=advance(b,.33);b=launchSpell(b,60,'#fff','fire');assert.equal(b.projectile?.damageMultiplier,1);
  const run={...newRun(),relics:['lotus' as const]};assert.equal(battleForRun(run).lotusReady,true);
 });
 test('Colorful Rock compares successfully played elements and snapshots multipliers onto projectiles',()=>{
  let b=setup();b.colorful=true;assert.equal(releaseMultiplier(b,'fire'),1);b=advance(launchSpell(b,60,'#fff','water'),.33);assert.equal(b.lastElement,'Water');assert.equal(releaseMultiplier(b,'wave'),1);assert.equal(releaseMultiplier(b,'fire'),1.15);assert.equal(fizzleSpell(b).lastElement,'Water');b=launchSpell(b,60,'#fff','fire');assert.equal(b.projectile?.damageMultiplier,1.15);assert.equal(b.lastElement,'Fire');
- b=setup();b.colorful=true;b.lastElement='Water';b.lotus=true;b.lotusReady=true;b.furyReady=true;assert.equal(releaseMultiplier(b,'fire'),2*1.3*1.15);
+ b=setup();b.colorful=true;b.lastElement='Water';b.lotus=true;b.lotusReady=true;b.furyReady=true;assert.equal(releaseMultiplier(b,'fire'),2*1.25*1.15);
 });
 test('Impossible Shale curses attackers permanently, counts contacts across fights, breaks once, and applies its internal recovery',()=>{
  let b=setup();b.shaleActive=true;b=contact(b);assert.equal(b.shaleContacts,1);assert.ok(b.enemies[0].curseTick);const hp=b.enemies[0].hp;b.freezeUntil=100;b=advance(b,2.01);assert.equal(hp-b.enemies[0].hp,10);

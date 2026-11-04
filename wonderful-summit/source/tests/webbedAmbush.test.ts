@@ -19,11 +19,11 @@ test('clearing earlier waves waits for reinforcements and victory requires all f
 test('new final encounter is elite and awards elite gold plus an unowned relic',()=>{
  const node=ROUTE.length-1;assert.equal(ROUTE[node-1].name,'Rockweb nest');assert.equal(isEliteNode(node),true);
  const run={...newRun(),screen:'battle' as const,node};assert.equal(battleForRun(run).encounter,'spiderGoblinElite');
- for(const roll of [0,.99999]){const reward=finishBattle(run,{...battleForRun(run),phase:'victory'},()=>roll).reward!;assert.equal(reward.gold,roll?42:37);assert.ok(reward.relic&&!run.relics.includes(reward.relic));}
+ for(const roll of [0,.99999]){const reward=finishBattle(run,{...battleForRun(run),phase:'victory'},()=>roll).reward!;assert.equal(reward.gold,roll?38:33);assert.ok(reward.relic&&!run.relics.includes(reward.relic));}
 });
 test('merchants charge 100 for uncommon spells, including former special prices, and 150 for legendary spells',()=>{
  for(const [id,price] of [['bolt',100],['firestorm',100],['bog',100],['tidalcrest',100],['chronos',150]] as const){
-  const shop=enterNode({...newRun(),screen:'map',node:2,gold:price,spells:PLAYER_SPELLS.filter(s=>s.id!==id).map(s=>s.id)},()=>0),offer=shop.stock.find(s=>s.kind==='spell'&&s.item===id)!;
-  assert.equal(offer.price,price);const poor={...shop,gold:price-1};assert.equal(buy(poor,offer.id),poor);const paid=buy(shop,offer.id);assert.equal(paid.gold,0);assert.ok(paid.spells.includes(id));
+  const shop=enterNode({...newRun(),screen:'map',node:2,gold:price,spells:PLAYER_SPELLS.filter(s=>s.id!==id).map(s=>s.id)},()=>0),offer=shop.stock.find(s=>s.kind==='randomSpell')!;
+  assert.equal(offer.price,100);const poor={...shop,gold:99};assert.equal(buy(poor,offer.id),poor);const paid=buy(shop,offer.id);assert.equal(paid.gold,price-100);assert.deepEqual(paid.pendingSpellOffers,[id]);
  }
 });

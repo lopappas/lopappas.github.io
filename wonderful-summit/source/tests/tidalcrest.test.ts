@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {SPELLS,SPELL_VARIATIONS,PLAYER_SPELLS,recognize,power,knockback,type SpellId} from '../src/magic.ts';
 import {newBattle,launchSpell,stepBattle,spellDamage,spellKnockback,drinkPotion,tidalWavePosition,TIDAL_TRAVEL_SECONDS,ENEMY_BACK_X,CONTACT_X,type Battle} from '../src/battle.ts';
 import {woodenShield} from '../src/shields.ts';
-import {newRun,enterNode,finishBattle,battleForRun,camp} from '../src/run.ts';
+import {rollSpellOffers,newRun,enterNode,finishBattle,battleForRun,camp} from '../src/run.ts';
 import {spellName,spellUpgradePreview,spellbookColumns} from '../src/spellbook.ts';
 import {parseDeveloperCommand} from '../src/developerCommands.ts';
 function advance(b:Battle,seconds:number,dt=.01){for(let i=0;i<Math.round(seconds/dt);i++)b=stepBattle(b,dt);return b;}
@@ -76,7 +76,7 @@ test('elemental, rocky, wooden-shield and Mother defenses apply independently to
 });
 test('Fury, Lotus, Colorful Rock, Moon Amulet, upgrades and Midnight are snapshotted for the entire wave',()=>{
  let b=setup();b.damageBonus=1.15;b.pushBonus=1.15;b.upgrades.tidalcrest=1;b.midnightStone=true;b.amulets.moon=true;b.lotus=true;b.lotusReady=true;b.colorful=true;b.lastElement='Fire';b.furyReady=true;
- const enemies=structuredClone(b.enemies),multiplier=2*1.3*1.15;
+ const enemies=structuredClone(b.enemies),multiplier=2*1.25*1.15;
  b=launchSpell(b,60,'#fff','tidalcrest',50);assert.equal(b.furyReady,false);assert.equal(b.lotusReady,false);assert.equal(b.lastElement,'Water');assert.equal(b.tidalWaves[0].damageMultiplier,multiplier);
  b.damageBonus=1;b.pushBonus=1;b.upgrades={};b.midnightStone=false;b.amulets.moon=false;
  b=advance(b,.9);
@@ -112,7 +112,7 @@ test('both spells appear naturally, remain separate in the book, are developer-g
  for(const id of ['wave','tidalcrest'] as SpellId[]){
   const spells=PLAYER_SPELLS.filter(s=>s.id!==id).map(s=>s.id),run={...newRun(),spells};
   assert.deepEqual(parseDeveloperCommand({type:'spell',id}),{type:'spell',id});
-  assert.ok(enterNode({...run,screen:'map',node:2},()=>0).stock.some(s=>s.kind==='spell'&&s.item===id));
+  assert.ok(enterNode({...run,screen:'map',node:2},()=>0).stock.some(s=>s.kind==='randomSpell')&&rollSpellOffers(run,()=>0).includes(id));
   assert.deepEqual(finishBattle({...run,screen:'battle',combats:2},{...battleForRun(run),phase:'victory'},()=>0).reward?.offers,[id]);
   const upgraded=camp({...run,spells:[...spells,id],screen:'camp'},id);assert.equal(upgraded.upgrades[id],1);assert.equal(camp({...upgraded,campUsed:false},id).campUsed,false);assert.equal(spellUpgradePreview(id,1),null);
   const preview=spellUpgradePreview(id)!;assert.equal(preview.currentDamage,spellDamage({element:'Neutral'},60,id));assert.equal(preview.nextDamage,spellDamage({element:'Neutral'},60,id,1,1));assert.equal(spellName(id,1),SPELLS.find(s=>s.id===id)!.name+'+');

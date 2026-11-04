@@ -10,10 +10,10 @@ test('second merchant and a fresh Mossy grove campsite sit between barricade and
  assert.equal(merchantDialogue(ROUTE.findLastIndex(n=>n.kind==='shop')),"I'm saving money to buy a cozy sweater for winter. How are you staying warm?");
  const node=ROUTE.findIndex(n=>n.name==='Mossy grove campsite');const r=enterNode({...newRun(),screen:'map',node,campUsed:true,health:13});assert.equal(r.campUsed,false);assert.equal(camp(r).health,83);assert.equal(leaveNode(camp(r)).node,node+1);
 });
-test('both shops replace unavailable spell slots with extra potions while keeping six unique stock entries',()=>{
+test('both shops keep two potions, two relics and one random spell offer',()=>{
  for(const node of ROUTE.flatMap((n,i)=>n.kind==='shop'?[i]:[]))for(const missing of [0,1,2,4])for(const roll of [0,.4,.99]){
   const known=PLAYER_SPELLS.slice(0,PLAYER_SPELLS.length-missing).map(s=>s.id),r=enterNode({...newRun(),screen:'map',node,spells:known},()=>roll);
-  assert.equal(r.stock.length,6);assert.equal(new Set(r.stock.map(s=>s.id)).size,6);assert.equal(r.stock.filter(s=>s.kind==='relic').length,2);assert.equal(r.stock.filter(s=>s.kind==='spell').length,Math.min(missing,2));assert.equal(r.stock.filter(s=>s.kind==='potion').length,4-Math.min(missing,2));assert.ok(r.stock.filter(s=>s.kind==='spell').every(s=>!known.includes(s.item as any)));
+  assert.equal(r.stock.length,5);assert.equal(new Set(r.stock.map(s=>s.id)).size,5);assert.equal(r.stock.filter(s=>s.kind==='relic').length,2);assert.equal(r.stock.filter(s=>s.kind==='randomSpell').length,1);assert.equal(r.stock.filter(s=>s.kind==='potion').length,2);
  }
 });
 test('new potions appear in shop and reward pools; each occupies one slot',()=>{
