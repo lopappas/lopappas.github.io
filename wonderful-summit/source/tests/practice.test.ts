@@ -24,7 +24,7 @@ test('every spell can hit the stationary neutral scarecrow repeatedly without en
     assert.equal(battle.phase,'active');assert.equal(battle.playerHP,100);assert.equal(battle.enemies[0].hp,SCARECROW_HEALTH);assert.equal(battle.enemies[0].x,560);assert.equal(battle.enemies[0].element,'Neutral');
    }
   }
-  assert.ok(spell.id==='chronos'||total>0,spell.name+' deals damage');
+  assert.ok(spell.id==='alchemize'||spell.id==='chronos'||total>0,spell.name+' deals damage');
  }
 });
 test('mobile scarecrow patrols both directions without attacking and time-stop freezes it',()=>{

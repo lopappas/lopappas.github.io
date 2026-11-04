@@ -17,7 +17,7 @@ test('shop selection learns exactly once; skipping keeps the charge and cannot r
 test('shop offers only unknown spells, handles one or zero remaining, and rolls the same rarity weights',()=>{
  const known=PLAYER_SPELLS.filter(s=>s.id!=='chronos').map(s=>s.id);const r=enterNode({...newRun(),screen:'map',node:2,gold:100,spells:known},()=>0);const bought=buy(r,'random-spell',()=>0);assert.deepEqual(bought.pendingSpellOffers,['chronos']);
  const full={...r,spells:PLAYER_SPELLS.map(s=>s.id)};assert.equal(buy(full,'random-spell'),full);
- let legendary=0;for(let i=0;i<1000;i++){let n=0;const offers=rollSpellOffers(newRun(),()=>n++?0:(i+.5)/1000);if(offers[0]==='chronos')legendary++;assert.equal(new Set(offers).size,2);}assert.equal(legendary,100);
+ let legendary=0;for(let i=0;i<1000;i++){let n=0;const offers=rollSpellOffers(newRun(),()=>n++?0:(i+.5)/1000);if(PLAYER_SPELLS.find(s=>s.id===offers[0])!.rarity==='Legendary')legendary++;assert.equal(new Set(offers).size,2);}assert.equal(legendary,100);
 });
 test('victory spells can be skipped once without learning, and rewards then allow continuing',()=>{
  const run={...newRun(),screen:'battle' as const,combats:2},r=claimGold(finishBattle(run,{...battleForRun(run),phase:'victory'},()=>0));assert.equal(rewardsComplete(r.reward!),false);

@@ -11,6 +11,7 @@ export const RARITY_ORDER:Rarity[]=['Starter','Common','Uncommon','Rare','Legend
 // Temporary until journey discoveries can be saved between visits.
 export const ENCYCLOPEDIA_PREVIEW=true;
 export const CASTING_TIPS:Record<SpellId,string>={
+ alchemize:'Draw a round bottle with a narrow rectangular neck, then close a small cork across its top.',
  water:'Close the teardrop outline. Keep the tip pointed and the base rounded.',
  fire:'Draw a closed triangle with a centered peak and a level base.',
  nature:'Join two upward branches at the center, then add the straight downward stem.',

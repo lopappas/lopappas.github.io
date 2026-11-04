@@ -30,7 +30,7 @@ test('Chronos visuals do not suppress unrelated burn/freeze cues, and leaf Slow 
  b.freezeUntil=4;assert.equal(enemyStatusLabel(b.enemies[0],b),'❄');
 });
 test('every natural spell can be upgraded once; legacy second levels cannot increase effects or add a second plus',()=>{
- for(const spell of PLAYER_SPELLS){
+ for(const spell of PLAYER_SPELLS.filter(s=>s.id!=='alchemize')){
   const run={...newRun(),screen:'camp' as const,spells:SPELLS.map(s=>s.id)},first=camp(run,spell.id),secondCamp={...first,campUsed:false};
   assert.equal(first.upgrades[spell.id],1);assert.equal(camp(secondCamp,spell.id),secondCamp);assert.equal(spellUpgradePreview(spell.id,1),null);assert.equal(spellName(spell.id,2),spell.name+'+');
   assert.equal(spellDamage({element:'Neutral'},80,spell.id,1,2),spellDamage({element:'Neutral'},80,spell.id,1,1));
