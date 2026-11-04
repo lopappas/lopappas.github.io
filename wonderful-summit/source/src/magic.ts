@@ -82,11 +82,12 @@ export function spellPower(id:SpellId,quality:number){
 }
 export function knockback(quality:number){return accuracyStrength(quality).knockback;}
 export const HOLD_MS=500;
+export function castHoldMs(mindRune=false){return HOLD_MS*(mindRune?.5:1);}
 export function chargeColor(progress:number,elementColor?:string){return progress>=.5&&elementColor?elementColor:'#d9b9ff';}
 export const REFILL_MS=1000;
 export function refillDurationMs(ink:number){return Math.max(0,100-Math.max(0,Math.min(100,ink)))*10;}
 export function refillInk(ink:number,elapsedMs:number){return Math.min(100,Math.max(0,ink)+Math.max(0,elapsedMs)/10);}
-export function chargeComplete(start:number,now:number){return now-start>=HOLD_MS;}
+export function chargeComplete(start:number,now:number,mindRune=false){return now-start>=castHoldMs(mindRune);}
 export function isCheckmark(strokes:Strokes){
  if(strokes.length!==1||strokes[0].length<3)return false;
  let points=strokes[0];if(points[0].x>points.at(-1)!.x)points=[...points].reverse();
