@@ -49,14 +49,14 @@ test('burn ticks are reduced for stale Flare Bolt casts',()=>{
  let b=field();for(let i=0;i<3;i++)b={...cast(b,'bolt'),projectile:null};b=advance(cast(b,'bolt'),.33);
  assert.equal(b.enemies[0].burn!.damage,base.damage*.75);
 });
-test('Chronos starts a 24 second cooldown on launch; blocked attempts preserve the entire battle, bonuses and streak',()=>{
- let b=field();b=launchSpell(b,60,'#fff','chronos');assert.equal(spellCooldownRemaining(b,'chronos'),24);
+test('Chronos starts a 30 second cooldown on launch; blocked attempts preserve the entire battle, bonuses and streak',()=>{
+ let b=field();b=launchSpell(b,60,'#fff','chronos');assert.equal(spellCooldownRemaining(b,'chronos'),30);
  b=advance(b,.33);b={...b,stellarReady:true,furyReady:true};const snapshot=structuredClone(b);
  assert.equal(launchSpell(b,80,'#fff','chronos'),b);assert.deepEqual(b,snapshot);
  assert.equal(spellCooldownRemaining({...b,phase:'ready'},'chronos'),spellCooldownRemaining(stepBattle({...b,phase:'ready'},1),'chronos'));
  assert.equal(spellCooldownRemaining(battleForRun(newRun()),'chronos'),0);
- b=advance(b,23.67);assert.ok(spellCooldownRemaining(b,'chronos')<1e-8);
- b={...b,time:24};assert.notEqual(launchSpell(b,80,'#fff','chronos'),b);
+ b=advance(b,29.67);assert.ok(spellCooldownRemaining(b,'chronos')<1e-8);
+ b={...b,time:30};assert.notEqual(launchSpell(b,80,'#fff','chronos'),b);
 });
 test('bottled Chronos bypasses cooldowns, preserves the stale streak and does not start or extend cooldowns',()=>{
  for(const cooling of [false,true]){

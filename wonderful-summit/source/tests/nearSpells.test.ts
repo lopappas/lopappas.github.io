@@ -17,7 +17,7 @@ test('approved shapes recognize uniquely across size, position and reversed stro
  const thistle=SPELLS.find(s=>s.id==='thistleBush')!.strokes[0];for(let i=0;i<thistle.length;i++){assert.ok(Math.abs(thistle[i].x+thistle[thistle.length-1-i].x-100)<1e-5);assert.equal(thistle[i].y,thistle[thistle.length-1-i].y);}
 });
 test('quality endpoints set the promised puddle knockback and thistle reach/budget',()=>{
- const endpoints=[[48,64.4,80,30.08],[59,103.04,90,45.12],[60,115.92,95,56.4],[69,167.44,110,82.72],[70,180.32,115,94],[79,231.84,130,127.84],[80,244.72,135,142.88],[100,322,150,188]];
+ const endpoints=[[48,54.74,80,30.08],[59,87.584,90,45.12],[60,98.532,95,56.4],[69,142.324,110,82.72],[70,153.272,115,94],[79,197.064,130,127.84],[80,208.012,135,142.88],[100,273.7,150,188]];
  for(const [q,push,range,budget] of endpoints){assert.equal(nearKnockback('puddleGuard',q),push);assert.deepEqual(thistleStats(q),{range,budget});}
  for(const q of [0,47,NaN,Infinity])for(const id of ids)assert.equal(launchSpell(field(),q,'#fff',id).casts,0);
 });
@@ -25,13 +25,13 @@ test('Flame Blade hits every present enemy within 110 units exactly once, withou
  const b=field([325,435,436,350]);b.enemies[3].spawnAt=5;const before=structuredClone(b),n=launchSpell(b,70,'#fff','flameBlade');
  assert.deepEqual(b,before);assert.equal(n.casts,1);assert.equal(n.projectile,null);
  assert.equal(n.enemies[0].hp,10000-61);assert.equal(n.enemies[1].hp,10000-61);assert.equal(n.enemies[2].hp,10000);assert.equal(n.enemies[3].hp,10000);
- assert.ok(n.enemies[0].push);assert.equal(n.enemies[0].push!.to-325,20);
+ assert.equal(n.enemies[0].push,null);
  const empty=launchSpell(field([500]),100,'#fff','flameBlade');assert.ok(empty.flameSwing);assert.equal(empty.enemies[0].hp,10000);assert.equal(advance(n,.4).enemies[0].hp,n.enemies[0].hp);
 });
 test('Puddle Guard persists, triggers only the first walking enemy, launches it, and then disappears',()=>{
  let b=launchSpell(field([400,400]),100,'#fff','puddleGuard');assert.equal(b.puddle!.x,CONTACT_X+30);assert.equal(advance(b,20).enemies[0].hp,10000);
  b={...b,approachAt:0,enemies:b.enemies.map(e=>({...e,x:365.1}))};b=advance(b,.1);
- assert.equal(b.puddle,null);assert.ok(b.puddleBurst);assert.equal(b.enemies[0].hp,10000);assert.equal(b.enemies[1].hp,10000);assert.equal(b.enemies[0].push!.to,ENEMY_BACK_X);
+ assert.equal(b.puddle,null);assert.ok(b.puddleBurst);assert.equal(b.enemies[0].hp,10000);assert.equal(b.enemies[1].hp,10000);assert.ok(Math.abs(b.enemies[0].push!.to-b.enemies[0].push!.from-273.7)<1e-8);
  assert.equal(b.casts,1);assert.equal(advance(b,.5).enemies[1].hp,10000);
 });
 test('Thistle Bush ticks every half second, counts actual damage across enemies, and has no knockback',()=>{
@@ -164,4 +164,15 @@ test('Thistle appearance time and upgraded budget snapshot on drawn and bottled 
   const started=b.thistle!.started;b.upgrades={};b=advance(b,15);assert.equal(b.thistle!.started,started);assert.equal(b.thistle!.budget,216.2);
   b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.started,b.time);assert.equal(b.thistle!.budget,30.08);assert.equal(b.thistle!.spent,0);
  }
+});
+
+
+test('Flame Blade has no knockback at every quality and upgrade, including bottled casts and push relics',()=>{
+ for(let q=48;q<=100;q++)for(const upgrade of [0,1]){
+  let b=field([350,360]);b.upgrades.flameBlade=upgrade;b.pushBonus=20;
+  assert.equal(spellKnockback(q,'flameBlade',20,'Water',false,null,0,upgrade),0);
+  const hit=launchSpell(b,q,'#fff','flameBlade');assert.ok(hit.enemies.every(e=>e.push===null));assert.ok(hit.enemies.every(e=>e.hp<10000));
+  b.potions.spellBottle=1;b.bottledSpells=[{spellId:'flameBlade',quality:q}];const bottle=advance(drinkPotion(b,'spellBottle'),.66);assert.ok(bottle.enemies.every(e=>e.push===null));
+ }
+ const b=field([350]);b.enemies[0].push={from:350,to:500,started:0,ends:.28};const hit=launchSpell(b,100,'#fff','flameBlade');assert.deepEqual(hit.enemies[0].push,b.enemies[0].push);
 });

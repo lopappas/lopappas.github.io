@@ -47,7 +47,7 @@ test('advanced spells keep the matching 15 percent damage bonus without inheriti
   if(['wave','tidalcrest'].includes(id))assert.ok(Math.abs(hit.enemies[0].push!.to-350-spellKnockback(60,id))<1e-8);
  }
  const b=setup();b.enemies[0].x=355;const guard=advance(launchSpell(b,60,'#fff','puddleGuard'),.01);
- assert.equal(guard.enemies[0].hp,1000);assert.ok(Math.abs(guard.enemies[0].push!.to-guard.enemies[0].push!.from-115.92)<1e-8);
+ assert.equal(guard.enemies[0].hp,1000);assert.ok(Math.abs(guard.enemies[0].push!.to-guard.enemies[0].push!.from-98.532)<1e-8);
 });
 test('Firestorm, Drudge Bog and Thistle snapshot their elemental damage bonus without amulet burn or roots',()=>{
  const oldRandom=Math.random;Math.random=()=>0;

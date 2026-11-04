@@ -119,11 +119,11 @@ export function eliteRush(e:Enemy){if(e.kind!=='goblin')return 'none';const cycl
 export function chronosEffect(quality:number,upgrade=0){
  if(!Number.isFinite(quality)||quality<48)return{kind:'slow' as const,duration:0};
  const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,1,2.4]:q<70?[60,69,2.5,5]:q<80?[70,79,5.1,9]:[80,100,9.1,18];
- return{kind:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*(1+.15*Math.max(0,Math.min(1,upgrade)))*1000)/1000};
+ return{kind:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*(1+.12*Math.max(0,Math.min(1,upgrade)))*1000)/1000};
 }
 export function brambleEffect(quality:number){
  if(!Number.isFinite(quality)||quality<48)return{duration:0,amount:0};
- const q=Math.min(100,quality),[lo,hi,d0,d1,a0,a1]=q<60?[48,59,3,4,.4,.5]:q<70?[60,69,4.1,5,.51,.6]:q<80?[70,79,5.1,6,.61,.66]:[80,100,6.1,8,.67,.8];
+ const q=Math.min(100,quality),[lo,hi,d0,d1,a0,a1]=q<60?[48,59,3,4,.35,.45]:q<70?[60,69,4.1,5,.46,.55]:q<80?[70,79,5.1,6,.56,.61]:[80,100,6.1,8,.62,.75];
  const t=(q-lo)/(hi-lo);return{duration:Math.round((d0+(d1-d0)*t)*1000)/1000,amount:Math.round((a0+(a1-a0)*t)*1000)/1000};
 }
 function applyChronos(e:Enemy,field:Battle['chronosFields'][number],time:number):Enemy{
@@ -181,7 +181,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   const shield=igniteShield(updateShield(e.shield,state.time),element,q,state.time),shieldBurning=(shield?.burnUntil??0)>state.time;
   // Sun grants Hearthspark its burn; Flare Bolt retains only its intrinsic burn.
   const burnTick=(spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier*amuletDamageMultiplier(q,spellId,state.amulets):0)+(steady&&spellId==='fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0);
-  return{...e,shield,hp:Math.max(0,e.hp-damage),push:spellId==='ender'||spellId==='thistleBush'?e.push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,casting.pushBonus*knockbackMultiplier*(moon&&spellId==='water'?1.15:1),e.element,e.rocky,e.shield,state.time,level)*(e.kind==='mother'?.8:1)),started:state.time,ends:state.time+PUSH_DURATION},attackAt:spellId==='ender'||spellId==='thistleBush'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q).duration,amount:brambleEffect(q).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
+  return{...e,shield,hp:Math.max(0,e.hp-damage),push:spellId==='ender'||spellId==='thistleBush'||spellId==='flameBlade'?e.push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,casting.pushBonus*knockbackMultiplier*(moon&&spellId==='water'?1.15:1),e.element,e.rocky,e.shield,state.time,level)*(e.kind==='mother'?.8:1)),started:state.time,ends:state.time+PUSH_DURATION},attackAt:spellId==='ender'||spellId==='thistleBush'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q).duration,amount:brambleEffect(q).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
  });
  return resolveMother({...state,enemies,casts:state.casts+1});
 }
@@ -206,7 +206,7 @@ function resolveMother(state:Battle):Battle{
  if(next.enemies.every(e=>e.hp<=0)&&(!next.motherSplit||next.motherSplit.spawned))return{...next,phase:'victory',projectile:null,tidalWaves:[]};
  return next;
 }
-export const SPELL_COOLDOWNS:Partial<Record<SpellId,number>>={chronos:24,firestorm:10,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:15,flameBlade:8};
+export const SPELL_COOLDOWNS:Partial<Record<SpellId,number>>={chronos:30,firestorm:10,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:15,flameBlade:8};
 export function spellCooldownRemaining(state:Battle,id:SpellId){const remaining=(state.cooldowns[id]??0)-state.time;return remaining>1e-9?remaining:0;}
 export function staleMultiplier(state:Battle,id:SpellId){return state.stale.spellId===id&&state.stale.count>=3?.75:1;}
 export function releaseMultiplier(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){const element=SPELLS.find(s=>s.id===spellId)!.element;return(source==='cast'?staleMultiplier(state,spellId):1)*(state.castingRelics.sphere?1.15:1)*(1+robesBonus(state)/100)*(source==='cast'&&state.furyReady?2:1)*(state.lotus&&state.lotusReady&&!['chronos','puddleGuard'].includes(spellId)?1.3:1)*(state.colorful&&state.lastElement!==null&&element!==state.lastElement?1.15:1);}

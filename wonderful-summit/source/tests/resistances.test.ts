@@ -65,10 +65,10 @@ test('normal resistance reduces direct damage and push but preserves full slow a
  assert.equal(slowed.enemies[0].hp,64); // 48 base leaf damage, reduced to 36.
  assert.equal(slowed.enemies[0].slowUntil,8);
  assert.ok(Math.abs(slowed.enemies[0].push!.to-400-160*.85)<1e-8);
- // Once the push ends, movement still uses the full 80% speed reduction.
+ // Once the push ends, movement still uses the full 75% speed reduction.
  for(let i=0;i<30;i++)slowed=stepBattle(slowed,.01);
  const start=slowed.enemies[0].x;slowed=stepBattle(slowed,.1);
- assert.ok(Math.abs(start-slowed.enemies[0].x-18*.2*.1)<1e-8);
+ assert.ok(Math.abs(start-slowed.enemies[0].x-18*.25*.1)<1e-8);
  const water=newBattle('active','slime',()=>.4);water.enemies[0].hp=1000;water.enemies[0].maxHP=1000;
  let burning=hitWithSpell(water,100,'bolt');assert.equal(burning.enemies[0].burn!.ticks,3);assert.equal(burning.enemies[0].burn!.damage,16);
  const afterDirect=burning.enemies[0].hp;for(let i=0;i<310;i++)burning=stepBattle(burning,.01);

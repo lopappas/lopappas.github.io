@@ -10,7 +10,7 @@ test('Chronos quality thresholds interpolate to every requested endpoint',()=>{
  assert.equal(chronosEffect(47).duration,0);assert.equal(chronosEffect(NaN).duration,0);assert.equal(chronosEffect(101).duration,18);
 });
 test('Chronos is recognizable at any size and location, with either stroke order and direction',()=>{
- const spell=SPELLS.find(s=>s.id==='chronos')!;assert.equal(spell.element,'Ancient');assert.equal(spell.description,'A lost spell that makes time stand still at every cast quality. Higher quality freezes enemies longer. Cooldown: 24 seconds.');
+ const spell=SPELLS.find(s=>s.id==='chronos')!;assert.equal(spell.element,'Ancient');assert.equal(spell.description,'A lost spell that makes time stand still at every cast quality. Higher quality freezes enemies longer. Cooldown: 30 seconds. Upgrade: +12% freeze duration.');
  for(const scale of [.2,1,4]){const strokes=[...spell.strokes].reverse().map(st=>[...st].reverse().map(p=>({x:p.x*scale+100,y:p.y*scale+37})));const r=recognize(strokes);assert.equal(r.spell?.id,'chronos');assert.ok(r.quality>=98);}
  assert.equal(recognize(spell.strokes,['water','fire','nature']).spell,null);assert.notEqual(recognize([spell.strokes[0]],['chronos']).spell?.id,'chronos');
  assert.ok(spellbookColumns(['chronos']).some(c=>c.element==='Ancient'&&c.spells[0].id==='chronos'));
@@ -36,16 +36,16 @@ test('Chronos impacts all present enemies on orb arrival, skips reinforcements/d
  b.enemies[1]={...b.enemies[1],hp:0,spawnAt:0};assert.deepEqual(hitWithSpell(b,100,'chronos').enemies[1],b.enemies[1]);
 });
 
-test('Chronos upgrades once for a 15 percent duration bonus with no damage or knockback',()=>{
+test('Chronos upgrades once for a 12 percent duration bonus with no damage or knockback',()=>{
  const run={...newRun(),screen:'camp' as const,spells:SPELLS.map(s=>s.id)};
  const upgraded=camp(run,'chronos'),preview=spellUpgradePreview('chronos')!;
- assert.equal(upgraded.upgrades.chronos,1);assert.equal(preview.duration,true);assert.equal(preview.currentBonus,0);assert.equal(preview.nextBonus,15);assert.equal(preview.currentDamage,0);assert.equal(preview.nextDamage,0);
+ assert.equal(upgraded.upgrades.chronos,1);assert.equal(preview.duration,true);assert.equal(preview.currentBonus,0);assert.equal(preview.nextBonus,12);assert.equal(preview.currentDamage,0);assert.equal(preview.nextDamage,0);
  for(const q of [48,59,60,69,70,79,80,100]){
   const b=newBattle('active','pack');b.upgrades={...upgraded.upgrades};const effect=chronosEffect(q,1),base=chronosEffect(q);
-  assert.equal(effect.duration,Math.round(base.duration*1.15*1000)/1000);assert.deepEqual(chronosEffect(q,2),effect);
+  assert.equal(effect.duration,Math.round(base.duration*1.12*1000)/1000);assert.deepEqual(chronosEffect(q,2),effect);
   for(const e of hitWithSpell(b,q,'chronos').enemies){assert.equal(effect.kind==='slow'?e.slowUntil:e.stunUntil,effect.duration);assert.equal(e.hp,100);assert.equal(e.push,null);}
   const rock=newBattle('active','rock');rock.upgrades={...upgraded.upgrades};const e=hitWithSpell(rock,q,'chronos').enemies[0];assert.equal(effect.kind==='slow'?e.slowUntil:e.stunUntil,effect.duration);
  }
- assert.equal(chronosEffect(100,1).duration,20.7);
+ assert.equal(chronosEffect(100,1).duration,20.16);
  const secondCamp={...upgraded,campUsed:false};assert.equal(camp(secondCamp,'chronos'),secondCamp);assert.equal(spellUpgradePreview('chronos',1),null);
 });
