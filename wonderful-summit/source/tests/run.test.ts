@@ -15,13 +15,13 @@ test('checkmark accepts scale and translation and rejects spell shapes and flat 
 });
 test('every run starts with all three beginner spells and a valid starter relic',()=>{const r=start();assert.deepEqual(newRun().spells,['water','fire','nature']);assert.deepEqual(r.spells,['water','fire','nature']);assert.deepEqual(r.relics,['filadoraRobes','amber']);assert.equal(r.health,100);assert.equal(r.screen,'map');assert.equal(potionCount(r),1);assert.deepEqual(startRun({...newRun(),keepsakeOffers:['amber','moss','feather'],screen:'sister'},'bell'),{...newRun(),keepsakeOffers:['amber','moss','feather'],screen:'sister'});});
 test('unlearned sigils do not cast, and learned spells remain recognizable',()=>{assert.equal(recognize(SPELLS[1].strokes,['fire']).spell?.id,'fire');assert.equal(recognize(SPELLS[3].strokes,['fire']).spell,null);});
-test('complete route has eight combats, merchant, camp and final victory',()=>{
+test('complete route has nine combats, merchant, camp and final victory',()=>{
  let r=start();const screens:string[]=[];
  for(let i=0;i<ROUTE.length;i++){
   r=enterNode(r,rng);screens.push(r.screen);
   if(r.screen==='battle')r=collect(won(r));else if(r.screen==='shop'||r.screen==='event')r=leaveNode(r);else r=leaveNode(camp(r));
  }
- assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,8);assert.equal(r.gold,269);assert.equal(r.relics.length,4);assert.equal(r.spells.length,5);
+ assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle','battle','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,9);assert.equal(r.gold,296);assert.equal(r.relics.length,4);assert.equal(r.spells.length,6);
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,27);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);

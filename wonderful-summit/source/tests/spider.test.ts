@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createSpider,newBattle,stepBattle,presentEnemies,hitWithSpell,CONTACT_X,SLIME_SPEED,spellDamage,type Battle} from '../src/battle.ts';
-import {ROUTE,newRun,battleForRun,finishBattle,claimGold,leaveNode,enterNode} from '../src/run.ts';
+import {createSpider,newBattle,stepBattle,presentEnemies,hitWithSpell,enemyY,CONTACT_X,SLIME_SPEED,spellDamage,type Battle} from '../src/battle.ts';
+import {ROUTE,newRun,battleForRun,finishBattle,claimGold,leaveNode,enterNode,learnReward} from '../src/run.ts';
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 test('Spider has 100 HP and is neutral by default, with explicit elemental support',()=>{
  assert.equal(createSpider().element,'Neutral');
@@ -28,8 +28,22 @@ test('killing the rock slime early waits for Spider, and killing Spider wins',()
 test('elemental spiders use normal resistances and Chronos freezes them',()=>{
  const b=newBattle('active');b.enemies=[createSpider(1,400,'Water')];const hit=hitWithSpell(b,60,'water');assert.equal(hit.enemies[0].hp,100-spellDamage({element:'Water'},60,'water'));const frozen=hitWithSpell(b,60,'chronos');assert.ok(frozen.enemies[0].stunUntil>0);assert.equal(advance(frozen,1).enemies[0].x,400);
 });
-test('post-boss route leads to Rock and web and completes only after its rewards',()=>{
+test('post-boss route leads through Rock and web and Rockweb nest before completion',()=>{
  const boss=ROUTE.findIndex(n=>n.kind==='battle'&&n.encounter==='mother');assert.equal(ROUTE[boss+1].name,'Rock and web');
  let run={...newRun(),screen:'battle' as const,node:boss};let rewards=finishBattle(run,{...battleForRun(run),phase:'victory'},()=>.99);rewards=claimGold(rewards);let next=leaveNode(rewards);assert.equal(next.screen,'map');next=enterNode(next);assert.equal(next.screen,'battle');assert.equal(battleForRun(next).encounter,'rockSpider');
- rewards=claimGold(finishBattle(next,{...battleForRun(next),phase:'victory'},()=>.99));assert.equal(leaveNode(rewards).screen,'complete');
+ rewards=claimGold(finishBattle(next,{...battleForRun(next),phase:'victory'},()=>.99));next=enterNode(leaveNode(rewards));assert.equal(battleForRun(next).encounter,'rockWebNest');rewards=claimGold(finishBattle(next,{...battleForRun(next),phase:'victory'},()=>.99));if(rewards.reward!.offers.length)rewards=learnReward(rewards,rewards.reward!.offers[0]);assert.equal(leaveNode(rewards).screen,'complete');
+});
+
+
+test('Rockweb nest starts with three full-health rock slimes and adds a neutral Spider exactly at ten seconds',()=>{
+ let b=newBattle('active','rockWebNest');assert.equal(presentEnemies(b).length,3);
+ assert.ok(b.enemies.slice(0,3).every(e=>e.kind==='slime'&&e.rocky&&e.hp===150&&e.spawnAt===0));
+ assert.equal(b.enemies[3].kind,'spider');assert.equal(b.enemies[3].element,'Neutral');assert.equal(b.enemies[3].hp,100);assert.equal(b.enemies[3].spawnAt,10);
+ b=advance(b,9.99);assert.equal(presentEnemies(b).length,3);assert.equal(b.enemies[3].clock,0);b=advance(b,.01);assert.equal(presentEnemies(b).length,4);
+ assert.ok(b.enemies.every(e=>enemyY(e.id,b.encounter)+26<=510));
+});
+
+test('Rockweb nest cannot end before its delayed Spider arrives, even if all three slimes die early',()=>{
+ let b=newBattle('active','rockWebNest');b.enemies=b.enemies.map(e=>e.rocky?{...e,hp:0}:e);b=advance(b,9.99);assert.equal(b.phase,'active');assert.equal(presentEnemies(b).length,0);
+ b=advance(b,.01);assert.equal(presentEnemies(b).length,1);b.enemies[3].hp=1;b=hitWithSpell(b,100,'water');assert.equal(b.phase,'victory');
 });
