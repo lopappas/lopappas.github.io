@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSpider,newBattle,stepBattle,presentEnemies,hitWithSpell,enemyY,CONTACT_X,SLIME_SPEED,spellDamage,type Battle} from '../src/battle.ts';
-import {ROUTE,newRun,battleForRun,finishBattle,claimGold,leaveNode,enterNode,learnReward} from '../src/run.ts';
+import {ROUTE,newRun,battleForRun,finishBattle,claimGold,leaveNode,enterNode,learnReward,claimRelic} from '../src/run.ts';
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 test('Spider has 100 HP and is neutral by default, with explicit elemental support',()=>{
  assert.equal(createSpider().element,'Neutral');
@@ -31,7 +31,7 @@ test('elemental spiders use normal resistances and Chronos freezes them',()=>{
 test('post-boss route leads through Rock and web and Rockweb nest before completion',()=>{
  const boss=ROUTE.findIndex(n=>n.kind==='battle'&&n.encounter==='mother');assert.equal(ROUTE[boss+1].name,'Rock and web');
  let run={...newRun(),screen:'battle' as const,node:boss};let rewards=finishBattle(run,{...battleForRun(run),phase:'victory'},()=>.99);rewards=claimGold(rewards);let next=leaveNode(rewards);assert.equal(next.screen,'map');next=enterNode(next);assert.equal(next.screen,'battle');assert.equal(battleForRun(next).encounter,'rockSpider');
- rewards=claimGold(finishBattle(next,{...battleForRun(next),phase:'victory'},()=>.99));next=enterNode(leaveNode(rewards));assert.equal(battleForRun(next).encounter,'rockWebNest');rewards=claimGold(finishBattle(next,{...battleForRun(next),phase:'victory'},()=>.99));if(rewards.reward!.offers.length)rewards=learnReward(rewards,rewards.reward!.offers[0]);assert.equal(leaveNode(rewards).screen,'complete');
+ rewards=claimGold(finishBattle(next,{...battleForRun(next),phase:'victory'},()=>.99));next=enterNode(leaveNode(rewards));assert.equal(battleForRun(next).encounter,'rockWebNest');rewards=claimGold(finishBattle(next,{...battleForRun(next),phase:'victory'},()=>.99));if(rewards.reward!.offers.length)rewards=learnReward(rewards,rewards.reward!.offers[0]);next=enterNode(leaveNode(rewards));assert.equal(battleForRun(next).encounter,'spiderGoblinElite');rewards=claimRelic(claimGold(finishBattle(next,{...battleForRun(next),phase:'victory'},()=>.99)));assert.equal(leaveNode(rewards).screen,'complete');
 });
 
 

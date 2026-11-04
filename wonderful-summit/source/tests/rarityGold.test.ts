@@ -13,8 +13,8 @@ test('every normal and elite encounter has six equally selectable, inclusive int
   assert.deepEqual([...counts.keys()],[min,min+1,min+2,min+3,min+4,min+5]);assert.ok([...counts.values()].every(n=>n===100));
   assert.equal(encounterGold(node,()=>0),min);assert.equal(encounterGold(node,()=>.999999),min+5);assert.equal(encounterGold(node,()=>1),min+5);
  }
- assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>0),0),296);
- assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>.999999),0),336);
+ assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>0),0),333);
+ assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>.999999),0),378);
 });
 test('gold rolls anew per encounter, is stored once in its reward, and cannot be rerolled or collected twice',()=>{
  const run={...newRun(),screen:'battle' as const};
@@ -39,8 +39,8 @@ test('spell rarities exactly match the approved labeling, including the develope
 });
 
 test('legendary spells cost fifty percent more, and relic prices follow their tiers',()=>{
- for(const spell of SPELLS)assert.equal(spellPrice(spell.id),['firestorm','bog','tidalcrest'].includes(spell.id)?50:spell.rarity==='Legendary'?70:45);
- assert.equal(spellPrice('chronos'),70);
+ for(const spell of SPELLS)assert.equal(spellPrice(spell.id),spell.rarity==='Legendary'?150:spell.rarity==='Uncommon'?100:45);
+ assert.equal(spellPrice('chronos'),150);
  for(const id of Object.keys(RELICS) as RelicId[])if(!STARTER_RELICS.includes(id))assert.equal(relicPrice(id),{Common:50,Uncommon:70,Rare:85,Keepsake:45,Starter:0}[RELICS[id].rarity]);
 });
 
