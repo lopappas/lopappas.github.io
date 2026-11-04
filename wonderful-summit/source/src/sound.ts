@@ -2,8 +2,8 @@ import {audioPreferences,audioChannelVolume,loadAudioPreferences} from './audioP
 import type {Element,Spell} from './magic';
 
 export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp'|'rustle';
-export type UISound='bottle'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
-export const UI_SOUND_VOLUME:Record<UISound,number>={robes:.3,shatter:.38,bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
+export type UISound='blackFlash'|'bottle'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
+export const UI_SOUND_VOLUME:Record<UISound,number>={blackFlash:.62,robes:.3,shatter:.38,bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
 type SoundKind=CastSound|UISound;
 export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):CastSound{
  if(!spell)return 'fizzle';
@@ -16,7 +16,7 @@ export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quali
 export function soundSamples(kind:SoundKind):Float32Array{
  if(kind==='aquaspout')return soundSamples('water');
  if(kind==='bramble')return soundSamples('nature');
- const duration=kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
+ const duration=kind==='blackFlash'?.85:kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
  let samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
  let seed=19,low=0,rumble=0;
  const noise=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2147483648-1;};
@@ -54,6 +54,11 @@ export function soundSamples(kind:SoundKind):Float32Array{
    for(const [j,f] of [783.99,987.77,1174.66,1567.98,1975.53].entries()){
     const age=t-j*.075;if(age>=0)value+=(Math.sin(2*Math.PI*f*age)+.18*Math.sin(2*Math.PI*f*2.76*age))*Math.min(1,age/.012)*Math.exp(-age*9)*.25;
    }
+  }else if(kind==='blackFlash'){
+   // One-shot bass impact, sharp crack and a short decaying debris tail.
+   const bass=Math.sin(2*Math.PI*(48*t+5*(1-Math.exp(-t*24))));
+   value=bass*.8*Math.exp(-t*7)+n*.65*Math.exp(-t*32)+low*2.5*Math.exp(-t*6);
+   for(const at of [.035,.08,.14])if(t>=at)value+=n*.22*Math.exp(-(t-at)*45);
   }else if(kind==='shatter'){
    // Crunchy 8-bit rock fracture: stepped noise, falling square-wave impact,
    // and three short debris cracks. Quantization gives the retro texture.

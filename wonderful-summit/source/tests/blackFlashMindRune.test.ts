@@ -10,15 +10,15 @@ test('new relics are common, cannot duplicate, and Black Flash resets for each e
  for(const id of ['blackFlash','mindRune'] as const){assert.equal(RELICS[id].rarity,'Common');const run=acquireRelic(acquireRelic(newRun(),id),id);assert.equal(run.relics.filter(r=>r===id).length,1);}
  assert.deepEqual(field().blackFlash,{enabled:true,chain:false});assert.deepEqual(newBattle().blackFlash,{enabled:false,chain:false});
 });
-test('Mind Rune halves pointer and keyboard cast hold timing without changing normal timing',()=>{
- assert.equal(castHoldMs(),500);assert.equal(castHoldMs(true),250);
- assert.equal(chargeComplete(100,349,true),false);assert.equal(chargeComplete(100,350,true),true);
+test('Mind Rune reduces pointer and keyboard cast hold timing without changing normal timing',()=>{
+ assert.equal(castHoldMs(),500);assert.equal(castHoldMs(true),375);
+ assert.equal(chargeComplete(100,474,true),false);assert.equal(chargeComplete(100,475,true),true);
  assert.equal(chargeComplete(100,599),false);assert.equal(chargeComplete(100,600),true);
 });
 test('Black Flash uses strict 1/100 odds then chains at strict 1/3 odds until a miss',()=>{
  const initial=field();assert.equal(rollBlackFlash(initial,'water',80,()=>.01).multiplier,1);
- const first=rollBlackFlash(initial,'water',80,()=>.009999);assert.equal(first.multiplier,2);assert.equal(first.state.blackFlash.chain,true);
- const chain=rollBlackFlash(first.state,'leaf',80,()=>1/3-1e-9);assert.equal(chain.multiplier,2);assert.equal(chain.state.blackFlash.chain,true);
+ const first=rollBlackFlash(initial,'water',80,()=>.009999);assert.equal(first.multiplier,2);assert.deepEqual(first.state.blackFlashBurst,{serial:1,x:400});assert.equal(first.state.blackFlash.chain,true);
+ const chain=rollBlackFlash(first.state,'leaf',80,()=>1/3-1e-9);assert.equal(chain.multiplier,2);assert.equal(chain.state.blackFlashBurst?.serial,2);assert.equal(chain.state.blackFlash.chain,true);
  const miss=rollBlackFlash(chain.state,'water',80,()=>1/3);assert.equal(miss.multiplier,1);assert.equal(miss.state.blackFlash.chain,false);
  assert.equal(rollBlackFlash(miss.state,'water',80,()=>.02).multiplier,1);
 });
