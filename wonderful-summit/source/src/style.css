@@ -321,3 +321,5 @@
 .spell-cooldowns>span{width:fit-content;min-width:64px;gap:8px}.spell-cooldowns strong{font-variant-numeric:tabular-nums}
 
 .skip-spell-button{display:block;width:140px;max-width:100%;margin:12px auto 0;padding:6px 18px;background:#777d79;color:#f4f2eb;border:1px solid #969d97;border-radius:6px;font-size:12px;line-height:1.2}.skip-spell-button:disabled{opacity:.55}.spell-offer-choice{width:100%}
+
+.ending-relics{position:relative;width:100%;margin:12px 0 18px}.ending-relics .combat-relics{position:relative;inset:auto;z-index:5}.ending-relics .combat-relic-row{flex-wrap:wrap;justify-content:center;overflow:visible;gap:7px}.ending-relics .combat-relic-row button{flex-basis:38px;height:34px;font-size:22px}.ending-relics .relic-detail{top:auto;bottom:calc(100% + 8px);left:0;right:0;max-height:240px;overflow-y:auto;text-align:left}

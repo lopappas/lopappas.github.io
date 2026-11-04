@@ -42,24 +42,24 @@ test('curse potion rarities, prices, inventory and between-combat persistence us
  }
 });
 
-test('Miasma deals six ticks of three damage then clears its curse and status label',()=>{
+test('Miasma deals twelve ticks of three damage then clears its curse and status label',()=>{
  const input=field(),original=structuredClone(input);let b=advance(throwPotion(input,'miasma'),.64);
  assert.ok(b.enemies.every(e=>e.potionCurseTick===null&&e.hp===1000));
  b=advance(b,.02);assert.ok(b.enemies.every(e=>e.potionCurseTick!>b.time));
  assert.equal(enemyStatusLabel(b.enemies[0],b),'Cursed');
  b=advance(b,.98);assert.equal(b.enemies[0].hp,1000);
  b=advance(b,.02);assert.equal(b.enemies[0].hp,997);
- b=advance(b,5);assert.deepEqual(b.enemies.map(e=>e.hp),[982,982]);
+ b=advance(b,11);assert.deepEqual(b.enemies.map(e=>e.hp),[964,964]);
  assert.ok(b.enemies.every(e=>e.potionCurseTick===null));assert.equal(enemyStatusLabel(b.enemies[0],b),null);
- b=advance(b,20);assert.deepEqual(b.enemies.map(e=>e.hp),[982,982]);assert.deepEqual(input,original);
+ b=advance(b,20);assert.deepEqual(b.enemies.map(e=>e.hp),[964,964]);assert.deepEqual(input,original);
 });
 
-test('repeat Miasma refreshes six seconds without stacking or postponing the next tick',()=>{
+test('repeat Miasma refreshes twelve seconds without stacking or postponing the next tick',()=>{
  let b=advance(throwPotion(field(),'miasma'),.66);const tick=b.enemies[0].potionCurseTick,until=b.enemies[0].potionCurseUntil;
  b=advance(b,3);b=advance(throwPotion(b,'miasma'),.66);
  assert.equal(b.enemies[0].potionCurseTick,tick!+3);assert.ok(b.enemies[0].potionCurseUntil>until+3.6);
  const hp=b.enemies[0].hp;b=advance(b,.34);assert.equal(b.enemies[0].hp,hp-3);
- b=advance(b,5.66);assert.equal(b.enemies[0].potionCurseTick,null);
+ b=advance(b,11.66);assert.equal(b.enemies[0].potionCurseTick,null);
  const end=b.enemies[0].hp;b=advance(b,10);assert.equal(b.enemies[0].hp,end);
 });
 
@@ -74,7 +74,7 @@ test('Miasma affects present enemies only, ignores defenses and persists during 
  b.enemies=b.enemies.map(e=>({...e,hp:1000,maxHP:1000,rocky:true}));
  b=advance(throwPotion(b,'miasma'),.66);assert.ok(b.enemies.slice(0,2).every(e=>e.potionCurseTick!==null));assert.equal(b.enemies[2].potionCurseTick,null);
  b.freezeUntil=20;b=advance(b,15);
- assert.deepEqual(b.enemies.map(e=>e.hp),[982,982,1000]);assert.equal(b.enemies[2].potionCurseTick,null);
+ assert.deepEqual(b.enemies.map(e=>e.hp),[964,964,1000]);assert.equal(b.enemies[2].potionCurseTick,null);
 });
 
 test('potion curses coexist with Impossible Shale and can finish combat',()=>{
