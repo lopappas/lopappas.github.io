@@ -156,8 +156,8 @@ export function fizzleSpell(state:Battle):Battle{
  return resolveMother({...state,enemies,sphereShatteredAt:shatter?state.time:state.sphereShatteredAt,furyReady:false,stellarReady:false,castingRelics:{...state.castingRelics,sphere:false,stardust:state.castingRelics.stardust||shatter,steadyCasts:0,stardustUsed:state.castingRelics.stardustUsed||burst}});
 }
 export function rollBlackFlash(state:Battle,id:SpellId,quality:number,random:()=>number=Math.random,x=nearestEnemy(state)?.x??400){
- if(!state.blackFlash.enabled||!Number.isFinite(quality)||quality<48||!(['water','fire','nature','wave','bolt','leaf','tidalcrest'] as SpellId[]).includes(id))return{state,multiplier:1};
- const success=random()<(state.blackFlash.chain?1/3:1/100);
+ if(!state.blackFlash.enabled||!Number.isFinite(quality)||quality<60||!(['water','fire','nature','wave','bolt','leaf','tidalcrest'] as SpellId[]).includes(id))return{state,multiplier:1};
+ const success=random()<(state.blackFlash.chain?1/3:1/10);
  return{state:{...state,blackFlashBurst:success?{serial:(state.blackFlashBurst?.serial??0)+1,x}:state.blackFlashBurst,blackFlash:{...state.blackFlash,chain:success}},multiplier:success?2:1};
 }
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random,damageMultiplier=1,inkUsed=0,bonuses?:TidalWave['bonuses'],knockbackMultiplier=1,blackFlashMultiplier?:number):Battle{
@@ -379,3 +379,4 @@ export function rollAlchemizePotion(quality:number,random:()=>number=Math.random
  const roll=random(),rare=rareChance===1||(rareChance>0&&roll<rareChance),pool=rare?RARE_POTIONS.filter(id=>id!=='spellBottle'):COMMON_POTIONS.filter(id=>quality>=70||id!=='heal');
  return pool[Math.max(0,Math.min(pool.length-1,Math.floor(random()*pool.length)))];
 }
+

@@ -15,12 +15,12 @@ test('Mind Rune reduces pointer and keyboard cast hold timing without changing n
  assert.equal(chargeComplete(100,474,true),false);assert.equal(chargeComplete(100,475,true),true);
  assert.equal(chargeComplete(100,599),false);assert.equal(chargeComplete(100,600),true);
 });
-test('Black Flash uses strict 1/100 odds then chains at strict 1/3 odds until a miss',()=>{
- const initial=field();assert.equal(rollBlackFlash(initial,'water',80,()=>.01).multiplier,1);
- const first=rollBlackFlash(initial,'water',80,()=>.009999);assert.equal(first.multiplier,2);assert.deepEqual(first.state.blackFlashBurst,{serial:1,x:400});assert.equal(first.state.blackFlash.chain,true);
+test('Black Flash uses strict 1/10 odds then chains at strict 1/3 odds until a miss',()=>{
+ const initial=field();assert.equal(rollBlackFlash(initial,'water',80,()=>.1).multiplier,1);
+ const first=rollBlackFlash(initial,'water',80,()=>.099999);assert.equal(first.multiplier,2);assert.deepEqual(first.state.blackFlashBurst,{serial:1,x:400});assert.equal(first.state.blackFlash.chain,true);
  const chain=rollBlackFlash(first.state,'leaf',80,()=>1/3-1e-9);assert.equal(chain.multiplier,2);assert.equal(chain.state.blackFlashBurst?.serial,2);assert.equal(chain.state.blackFlash.chain,true);
  const miss=rollBlackFlash(chain.state,'water',80,()=>1/3);assert.equal(miss.multiplier,1);assert.equal(miss.state.blackFlash.chain,false);
- assert.equal(rollBlackFlash(miss.state,'water',80,()=>.02).multiplier,1);
+ assert.equal(rollBlackFlash(miss.state,'water',80,()=>.1).multiplier,1);
 });
 test('only direct damage plus knockback spells roll; other spells and fizzles preserve a chain',()=>{
  const b={...field(),blackFlash:{enabled:true,chain:true}};
@@ -51,4 +51,17 @@ test('bottled direct spells participate in Black Flash without altering drawn sp
  let b=field();b.potions.spellBottle=1;b.bottledSpells=[{spellId:'water',quality:70}];
  const original=Math.random;try{Math.random=()=>0;b=advance(drinkPotion(b,'spellBottle'),.75);}finally{Math.random=original;}
  assert.equal(b.blackFlash.chain,true);assert.deepEqual(b.stale,{spellId:null,count:0});
+});
+
+
+test('Black Flash requires Steady accuracy even during a chain and does not roll for Faint spells',()=>{
+ for(const chain of [false,true]){const b={...field(),blackFlash:{enabled:true,chain}};
+  for(const quality of [0,47,48,59,59.999,NaN,Infinity]){const result=rollBlackFlash(b,'water',quality,()=>{throw Error('below Steady rolled');});assert.equal(result.state,b);assert.equal(result.multiplier,1);}
+  for(const quality of [60,69,70,79,80,100])assert.equal(rollBlackFlash(b,'water',quality,()=>.099999).multiplier,2);
+ }
+});
+test('Faint spells deal normal damage and knockback and cannot start or consume a Black Flash chain',()=>{
+ const b={...field(),blackFlash:{enabled:true,chain:true}},plain={...b,blackFlash:{enabled:false,chain:false}};
+ const faint=hitWithSpell(b,59,'water',1,()=>{throw Error('Faint rolled');}),normal=hitWithSpell(plain,59,'water',1,()=>0);
+ assert.equal(faint.enemies[0].hp,normal.enemies[0].hp);assert.deepEqual(faint.enemies[0].push,normal.enemies[0].push);assert.equal(faint.blackFlash.chain,true);assert.equal(faint.blackFlashBurst,null);
 });
