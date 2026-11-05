@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {newRun,enterNode,RELICS,ROUTE,battleForRun,buy,type Run} from '../src/run.ts';
 import {SPELLS,PLAYER_SPELLS,power,spellPower} from '../src/magic.ts';
-import {newBattle,hitWithSpell,spellDamage,spellKnockback,stepBattle,burnDamage,CONTACT_X,drinkPotion,RARE_POTIONS,type Potion} from '../src/battle.ts';
+import {newBattle,hitWithSpell,spellDamage,spellKnockback,stepBattle,burnDamage,ENEMY_BACK_X,CONTACT_X,drinkPotion,RARE_POTIONS,type Potion} from '../src/battle.ts';
 
 test('merchant always rolls two distinct potions and relics plus one random spell offer, preferring unowned items',()=>{
  for(const roll of [0,.25,.5,.85,.999])for(const complete of [false,true]){
@@ -57,7 +57,7 @@ test('Steady rocky defense reduces damage and knockback by exactly 25 percent be
   const b=newBattle('active','rock'),e=b.enemies[0];e.x=350;
   const hit=hitWithSpell(b,q,spell.id),mult=q<70?.75:1;
   const expected=spellKnockback(q,spell.id,1,'Neutral')*mult;
-  assert.ok(Math.abs(hit.enemies[0].push!.to-e.x-expected)<1e-8);
+  assert.ok(Math.abs(hit.enemies[0].push!.to-Math.min(ENEMY_BACK_X,e.x+expected))<1e-8);
   const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?1.265:spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
   const precision=['water','fire','nature'].includes(spell.id)?1e6:1;assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(precision*spellPower(spell.id,q)*factor*1.15*1.25*mult)/precision);
  }
@@ -79,3 +79,4 @@ test('rock slimes move 10 percent slower than regular slimes at the same difficu
   assert.ok(Math.abs(rockTravel-regularTravel*.9)<1e-8);
  }
 });
+

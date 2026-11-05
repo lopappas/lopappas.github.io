@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,PLAYER_SPELLS,recognize,spellPower} from '../src/magic.ts';
-import {newBattle,hitWithSpell,launchSpell,stepBattle,spellDamage,spellTarget,spellCooldownRemaining,drinkPotion,ENEMY_BACK_X} from '../src/battle.ts';
+import {newBattle,hitWithSpell,launchSpell,stepBattle,spellKnockback,spellDamage,spellTarget,spellCooldownRemaining,drinkPotion,ENEMY_BACK_X} from '../src/battle.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
 function field(){const b=newBattle('active','pack',()=>0);b.approachAt=1000;b.enemies=b.enemies.map((e,i)=>({...e,element:'Neutral',hp:1000,maxHP:1000,x:350+i*100}));return b;}
 test('Sneaky Vine is a learnable uncommon Nature spell with a recognizable simple DNA sigil',()=>{
@@ -39,4 +39,9 @@ test('Sneaky Vine can Black Flash at Steady but not Faint, without changing othe
 test('fizzles and no living target do not spend the vine cooldown or create a grab',()=>{
  const b=field();assert.equal(launchSpell(b,47,'green','sneakyVine').vineGrab,null);assert.equal(spellCooldownRemaining(launchSpell(b,47,'green','sneakyVine'),'sneakyVine'),0);
  const empty={...b,enemies:b.enemies.map(e=>({...e,hp:0}))};const noTarget=launchSpell(empty,60,'green','sneakyVine');assert.equal(noTarget.vineGrab,null);assert.equal(spellCooldownRemaining(noTarget,'sneakyVine'),0);
+});
+
+test('Sneaky Vine has 2.5 times standard spell knockback at every successful grade',()=>{
+ for(const q of [48,59,60,69,70,79,80,100])assert.equal(spellKnockback(q,'sneakyVine'),spellKnockback(q,'water')*2.5);
+ const b=field();b.enemies[1].x=400;const hit=launchSpell(b,60,'green','sneakyVine',0,()=>.99);assert.equal(hit.enemies[1].push!.to,Math.min(ENEMY_BACK_X,400+spellKnockback(60,'water')*2.5));
 });
