@@ -17,7 +17,7 @@ test('every spell can hit the stationary neutral scarecrow repeatedly without en
  for(const spell of SPELLS.filter(s=>!['flameBlade','puddleGuard','thistleBush'].includes(s.id))){
   let battle=newPracticeBattle(practiceJourney());let total=0;
   for(let casts=0;casts<3;casts++){
-   battle=restoreScarecrow(launchSpell(battle,100,spell.color,spell.id,20),false);
+   const released=launchSpell(battle,100,spell.color,spell.id,20);total+=practiceDamage(released);battle=restoreScarecrow(released,false);
    for(let frame=0;frame<200;frame++){
     const next=stepPracticeBattle(battle,.1,false,-1).battle;
     total+=practiceDamage(next);battle=restoreScarecrow(next,false);
@@ -52,3 +52,4 @@ test('slow effects reduce mobile patrol travel; damage metrics include damage ov
  assert.ok(practiceEffects(next).some(s=>s.startsWith('Burning')));
  const restored=restoreScarecrow(next,false);assert.equal(practiceDamage(restored),0);assert.ok(restored.enemies[0].burn);
 });
+

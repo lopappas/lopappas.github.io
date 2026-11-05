@@ -2,11 +2,12 @@ import type {SpellRarity} from './rarity.ts';
 export type Point = {x:number;y:number};
 export type Strokes = Point[][];
 export type Element = 'Water'|'Fire'|'Nature'|'Ancient';
-export type SpellId = 'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize';
+export type SpellId = 'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize'|'sneakyVine';
 export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;color:string;description:string;path:string;strokes:Strokes;developerOnly?:boolean;upgradable?:boolean};
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
 export const SPELLS:Spell[]=[
+
  {id:'water',rarity:'Common',name:'Dewdrop',element:'Water',color:'#69c2d6',description:'A sturdy splash of water magic. Close the outline and keep the rounded base.',path:'M50 8 C54 23 82 49 80 64 C78 94 22 94 20 64 C18 49 46 23 50 8 Z',strokes:[shape([50,8],[[54,23,82,49,80,64],[78,94,22,94,20,64],[18,49,46,23,50,8]])]},
  {id:'fire',rarity:'Common',name:'Hearthspark',element:'Fire',color:'#f0a068',description:'An eager spark of fire magic',path:'M50 12 L85 82 L15 82 Z',strokes:[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]},
  {id:'nature',rarity:'Common',name:'Little Sprout',element:'Nature',color:'#9bbe72',description:'A resilient ball of nature magic.',path:'M20 20 L50 50 L80 20 M50 50 L50 88',strokes:[[{x:20,y:20},{x:50,y:50},{x:80,y:20}],[{x:50,y:50},{x:50,y:88}]]},
@@ -21,6 +22,7 @@ export const SPELLS:Spell[]=[
  {id:'flameBlade',rarity:'Uncommon',name:'Flame Blade',element:'Fire',color:'#f0a068',description:'Swing a fiery sword 110 units ahead of you, striking every enemy in reach. High damage, no knockback. Cooldown: 8 seconds.',path:'M50 10 L57 62 L43 62 Z M28 62 L72 62 M50 62 L50 88',strokes:[[{x:50,y:10},{x:57,y:62},{x:43,y:62},{x:50,y:10}],[{x:28,y:62},{x:72,y:62}],[{x:50,y:62},{x:50,y:88}]]},
  {id:'puddleGuard',rarity:'Uncommon',name:'Puddle Guard',element:'Water',color:'#69c2d6',description:'Place a puddle 30 units ahead of you. The first enemy to step onto it bursts it, taking no damage and 54.74–273.7 base knockback depending on spell quality. Upgrading adds 20% knockback. Recasting replaces the puddle. Cooldown: 10 seconds.',path:'M6 55 C12 53 14 44 25 44 C37 44 37 56 50 56 C63 56 63 44 75 44 C86 44 88 53 94 55',strokes:[shape([6,55],[[12,53,14,44,25,44],[37,44,37,56,50,56],[63,56,63,44,75,44],[86,44,88,53,94,55]])]},
  {id:'thistleBush',rarity:'Uncommon',name:'Thistle Bush',element:'Nature',color:'#9bbe72',description:'Grow thorns 80–150 units ahead of you. Enemies touching them take low damage every 0.5 seconds. The bush lasts until it deals 30.08–188 total actual damage. Quality sets its range and damage budget; recasting replaces it. Upgrade: +0.4 damage per tick and +15% damage threshold. Cooldown: 15 seconds.',path:'M10 60 L23.333333 40 L36.666667 60 L50 40 L63.333333 60 L76.666667 40 L90 60',strokes:[[{x:10,y:60},{x:23.333333,y:40},{x:36.666667,y:60},{x:50,y:40},{x:63.333333,y:60},{x:76.666667,y:40},{x:90,y:60}]]},
+ {id:'sneakyVine',rarity:'Uncommon',name:'Sneaky Vine',element:'Nature',color:'#9bbe72',description:'A vine reaches from the right, grabs the furthest enemy from behind and drags them backwards. Deals 27 base damage at 60% accuracy. Cooldown: 12 seconds.',path:'M30 10 C30 30 70 30 70 50 C70 70 30 70 30 90 M70 10 C70 30 30 30 30 50 C30 70 70 70 70 90 M30 10 L70 10 M30 50 L70 50 M30 90 L70 90',strokes:[shape([30,10],[[30,30,70,30,70,50],[70,70,30,70,30,90]]),shape([70,10],[[70,30,30,30,30,50],[30,70,70,70,70,90]]),[{x:30,y:10},{x:70,y:10}],[{x:30,y:50},{x:70,y:50}],[{x:30,y:90},{x:70,y:90}]]},
  {id:'alchemize',rarity:'Legendary',name:'Alchemize',element:'Ancient',color:'#8b9099',upgradable:false,description:'Create a random potion once per battle. Faint: non-healing common. Steady: 90% non-healing common, 10% rare. Beautiful: 75% common (including healing), 25% rare. Wonderful: guaranteed rare. Requires room in your purse. Cannot create Spell in a bottle.',path:'M41 14 L59 14 L59 35.6 C77 41 86 52.7 84.2 66.2 C82.4 82.4 70.7 89.6 50 89.6 C29.3 89.6 17.6 82.4 15.8 66.2 C14 52.7 23 41 41 35.6 L41 14 Z M39.2 5 L60.8 5 L59 14 L41 14 L39.2 5 Z',strokes:[[{x:41,y:14},{x:59,y:14},...shape([59,35.6],[[77,41,86,52.7,84.2,66.2],[82.4,82.4,70.7,89.6,50,89.6],[29.3,89.6,17.6,82.4,15.8,66.2],[14,52.7,23,41,41,35.6]]),{x:41,y:14}],[{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14},{x:41,y:14},{x:39.2,y:5}]]},
 ];
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
@@ -75,6 +77,7 @@ function accuracyStrength(quality:number){
 }
 export function power(quality:number){return accuracyStrength(quality).damage;}
 export function spellPower(id:SpellId,quality:number){
+ if(id==='sneakyVine'){if(!Number.isFinite(quality)||quality<48)return 0;const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,12,20]:q<70?[60,69,27,36]:q<80?[70,79,43,58]:[80,100,67,95];return min+(max-min)*(q-lo)/(hi-lo);}
  if(!['water','fire','nature'].includes(id))return power(quality);
  if(!Number.isFinite(quality)||quality<48)return 0;
  const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,7,11]:q<70?[60,69,17,22]:q<80?[70,79,26,31]:[80,100,36,52];
@@ -100,4 +103,5 @@ export function isCheckmark(strokes:Strokes){
  const error=points.reduce((sum,p,i)=>sum+lineError(p,i<=pivot?first:corner,i<=pivot?corner:last),0)/points.length;
  return error/span<.12&&distance(corner,last)>distance(first,corner)*1.15;
 }
+
 

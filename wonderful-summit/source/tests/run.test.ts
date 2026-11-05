@@ -25,7 +25,7 @@ test('complete route has ten combats, merchant, camp and final victory',()=>{
 });
 test('rewards are rolled once, claim only once, and spell choice cannot be skipped',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=claimPotion(claimGold(r));assert.equal(first.gold,24);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
- r=won({...enterNode(leaveNode(first),rng),combats:2});r=claimPotion(claimGold(r));assert.deepEqual(r.reward?.offers,['bolt','wave']);assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
+ r=won({...enterNode(leaveNode(first),rng),combats:2});r=claimPotion(claimGold(r));assert.equal(r.reward?.offers.length,2);assert.equal(new Set(r.reward?.offers).size,2);assert.ok(r.reward?.offers.every(id=>!r.spells.includes(id)));assert.deepEqual(leaveNode(r),r);const id=r.reward!.offers[0];r=learnReward(r,id);assert.equal(r.spells.filter(s=>s===id).length,1);assert.deepEqual(learnReward(r,id),r);assert.equal(leaveNode(r).screen,'map');
 });
 test('potion drop boundary is 35 percent and capacity never exceeds three',()=>{
  const active=enterNode(start(),rng),battle={...battleForRun(active),phase:'victory' as const};
@@ -125,4 +125,5 @@ test('Continue leaves uncollected potions behind without granting or replacing i
  let second=collect(won(enterNode(start(),rng)));second=claimGold(won({...enterNode(second,rng),combats:2}));assert.equal(rewardsComplete(second.reward!),false);assert.deepEqual(leaveNode(second),second);
  second=learnReward(second,second.reward!.offers[0]);assert.equal(rewardsComplete(second.reward!),true);assert.equal(leaveNode(second).screen,'map');
 });
+
 

@@ -6,7 +6,7 @@ function field(){const b=newBattle('active');b.approachAt=1000;b.enemies[0]={...
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 
 test('each new cooldown starts on launch and blocks all changes until its exact expiry',()=>{
- assert.deepEqual(SPELL_COOLDOWNS,{chronos:30,firestorm:10,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:15,flameBlade:8});
+ assert.deepEqual(SPELL_COOLDOWNS,{sneakyVine:12,chronos:30,firestorm:10,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:15,flameBlade:8});
  for(const [id,seconds] of spells){
   let b=field();b.time=2;b=launchSpell(b,60,'#fff',id);
   assert.equal(spellCooldownRemaining(b,id),seconds);
@@ -40,3 +40,4 @@ test('bottled spells bypass all six cooldowns without starting or extending them
 test('fizzles never start a cooldown on any of the six spells',()=>{
  for(const [id] of spells){const b=launchSpell(field(),47,'#fff',id);assert.equal(b.casts,0);assert.equal(spellCooldownRemaining(b,id),0);}
 });
+

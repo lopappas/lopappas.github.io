@@ -33,7 +33,7 @@ test('relic rarities exactly match the approved labeling and keepsakes stay excl
  assert.deepEqual(Object.entries(RELICS).filter(([,r])=>r.rarity==='Keepsake').map(([id])=>id).sort(),[...STARTER_RELICS].sort());
 });
 test('spell rarities exactly match the approved labeling, including the developer-only Legendary Ender',()=>{
- assert.deepEqual(Object.fromEntries(SPELLS.map(s=>[s.id,s.rarity])),{water:'Common',fire:'Common',nature:'Common',wave:'Uncommon',bolt:'Uncommon',leaf:'Uncommon',chronos:'Legendary',ender:'Legendary',firestorm:'Uncommon',tidalcrest:'Uncommon',bog:'Uncommon',flameBlade:'Uncommon',puddleGuard:'Uncommon',thistleBush:'Uncommon',alchemize:'Legendary'});
+ assert.deepEqual(Object.fromEntries(SPELLS.map(s=>[s.id,s.rarity])),{sneakyVine:'Uncommon',water:'Common',fire:'Common',nature:'Common',wave:'Uncommon',bolt:'Uncommon',leaf:'Uncommon',chronos:'Legendary',ender:'Legendary',firestorm:'Uncommon',tidalcrest:'Uncommon',bog:'Uncommon',flameBlade:'Uncommon',puddleGuard:'Uncommon',thistleBush:'Uncommon',alchemize:'Legendary'});
  assert.equal(SPELLS.find(s=>s.id==='ender')?.developerOnly,true);assert.ok(!PLAYER_SPELLS.some(s=>s.id==='ender'));
  assert.deepEqual(PLAYER_SPELLS.filter(s=>s.rarity==='Legendary').map(s=>s.id),['chronos','alchemize']);
 });
@@ -95,4 +95,5 @@ test('exhausted tiers redistribute their odds without blocking remaining spells 
   assert.deepEqual([...reward.offers].sort(),['alchemize','chronos']);assert.equal(RELICS[reward.relic!].rarity,'Rare');
  }
 });
+
 

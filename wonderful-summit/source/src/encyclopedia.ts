@@ -11,6 +11,7 @@ export const RARITY_ORDER:Rarity[]=['Starter','Common','Uncommon','Rare','Legend
 // Temporary until journey discoveries can be saved between visits.
 export const ENCYCLOPEDIA_PREVIEW=true;
 export const CASTING_TIPS:Record<SpellId,string>={
+ sneakyVine:'Draw two mirrored S-shaped strands like simple DNA, then join them with horizontal bars at the top, middle and bottom.',
  alchemize:'Draw a round bottle with a narrow rectangular neck, then close a small cork across its top.',
  water:'Close the teardrop outline. Keep the tip pointed and the base rounded.',
  fire:'Draw a closed triangle with a centered peak and a level base.',
@@ -46,3 +47,4 @@ export function recordDiscoveries(previous:Discoveries,collection:{spells:SpellI
  const added=keys.filter(key=>!previous[key]);
  return added.length?{...previous,...Object.fromEntries(added.map(key=>[key,true]))}:previous;
 }
+

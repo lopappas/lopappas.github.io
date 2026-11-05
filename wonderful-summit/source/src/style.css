@@ -330,3 +330,6 @@
 @keyframes black-flash-fade{from{opacity:1}to{opacity:0}}
 
 
+
+.sneaky-vine-grab{animation:vine-grab-fade 1.1s ease-out both}@keyframes vine-grab-fade{0%{opacity:0}12%,80%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.sneaky-vine-grab{animation:none}}
