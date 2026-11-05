@@ -9,8 +9,8 @@ test('shield encounter starts two 100 HP elemental shield slimes and reveals a 1
  const seen=new Set<string>();for(const a of [0,.4,.8])for(const c of [0,.4,.8]){let i=0;const b=newBattle('active','shieldPack',()=>i++?c:a);seen.add(b.enemies.slice(0,2).map(e=>e.element).join('/'));assert.equal(presentEnemies(b).length,2);assert.equal(b.enemies[0].hp,100);assert.equal(b.enemies[1].hp,100);assert.ok(b.enemies[0].shield&&b.enemies[1].shield);assert.equal(b.enemies[2].hp,150);assert.equal(b.enemies[2].rocky,true);assert.equal(b.enemies[2].shield,null);assert.equal(b.enemies[2].spawnAt,13.5);b.time=13.5;assert.equal(presentEnemies(b).length,3);}
  assert.equal(seen.size,9);const node=ROUTE.findIndex(n=>n.kind==='battle'&&n.encounter==='shieldPack');assert.ok(node>=0);assert.equal(battleForRun({...newRun(),node}).encounter,'shieldPack');
 });
-test('wooden shields halve damage and knockback before rounding for every damage spell and enemy element',()=>{
- for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const s of SPELLS.filter(s=>s.id!=='chronos')){
+test('wooden shields halve damage and knockback before rounding for other damage spells across every enemy element',()=>{
+ for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const s of SPELLS.filter(s=>s.id!=='chronos'&&s.id!=='sneakyVine')){
  const e={element,rocky:false,shield:woodenShield()};const raw=spellDamage({...e,shield:null},100,s.id,1.15,1);
  assert.ok(Math.abs(spellDamage(e,100,s.id,1.15,1)-raw*.5)<=.5);
  assert.equal(spellKnockback(100,s.id,1.25,element,false,e.shield),spellKnockback(100,s.id,1.25,element)*.5);
@@ -35,3 +35,4 @@ test('unburned shields reduce contact ward knockback and accept control effects;
 test('reinforcement prevents early victory and cannot be targeted, controlled or damaged before its arrival',()=>{
  let b=newBattle('active','shieldPack');b.enemies[0].hp=0;b.enemies[1].hp=0;b=advance(b,13.49);assert.equal(b.phase,'active');assert.equal(nearestEnemy(b),undefined);assert.equal(hitWithSpell(b,100,'chronos'),b);assert.equal(b.enemies[2].hp,150);b=advance(b,.02);assert.equal(nearestEnemy(b)?.id,3);assert.equal(presentEnemies(b).length,1);
 });
+

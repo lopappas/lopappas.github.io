@@ -45,3 +45,18 @@ test('Sneaky Vine has 2.5 times standard spell knockback at every successful gra
  for(const q of [48,59,60,69,70,79,80,100])assert.equal(spellKnockback(q,'sneakyVine'),spellKnockback(q,'water')*2.5);
  const b=field();b.enemies[1].x=400;const hit=launchSpell(b,60,'green','sneakyVine',0,()=>.99);assert.equal(hit.enemies[1].push!.to,Math.min(ENEMY_BACK_X,400+spellKnockback(60,'water')*2.5));
 });
+
+test('Sneaky Vine ignores shield reductions at every grade while preserving elemental and rocky defenses',()=>{
+ for(const element of ['Neutral','Fire','Water','Nature'] as const)for(const rocky of [false,true])for(const quality of [48,59,60,69,70,80,100])for(const shield of [{material:'wood' as const,burnUntil:null},{material:'wood' as const,burnUntil:2}]){
+  const target={element,rocky,shield};assert.equal(spellDamage(target,quality,'sneakyVine'),spellDamage({...target,shield:null},quality,'sneakyVine'));
+  assert.equal(spellKnockback(quality,'sneakyVine',1,element,rocky,shield),spellKnockback(quality,'sneakyVine',1,element,rocky,null));
+ }
+});
+test('normal and Black Flash vine hits drag shield bearers including burning shields without destroying the shield',()=>{
+ for(const burnUntil of [null,2])for(const flash of [false,true]){
+  const b=field();b.blackFlash.enabled=flash;b.enemies[1].x=400;const shield={material:'wood' as const,burnUntil};b.enemies[1].shield=shield;
+  const hit=launchSpell(b,60,'green','sneakyVine',0,()=>0),plain={...b,enemies:b.enemies.map(e=>({...e,shield:null}))};const baseline=launchSpell(plain,60,'green','sneakyVine',0,()=>0);
+  assert.equal(hit.enemies[1].hp,baseline.enemies[1].hp);assert.deepEqual(hit.enemies[1].push,baseline.enemies[1].push);assert.deepEqual(hit.enemies[1].shield,shield);
+  assert.equal(hit.enemies[1].hp,flash?946:973);assert.ok(stepBattle(hit,.1).enemies[1].x>400);
+ }
+});
