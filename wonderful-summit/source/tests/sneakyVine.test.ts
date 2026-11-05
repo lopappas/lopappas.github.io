@@ -4,8 +4,8 @@ import {SPELLS,PLAYER_SPELLS,recognize,spellPower} from '../src/magic.ts';
 import {newBattle,hitWithSpell,launchSpell,stepBattle,spellKnockback,spellDamage,spellTarget,spellCooldownRemaining,drinkPotion,ENEMY_BACK_X} from '../src/battle.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
 function field(){const b=newBattle('active','pack',()=>0);b.approachAt=1000;b.enemies=b.enemies.map((e,i)=>({...e,element:'Neutral',hp:1000,maxHP:1000,x:350+i*100}));return b;}
-test('Sneaky Vine is a learnable uncommon Nature spell with a recognizable simple DNA sigil',()=>{
- const s=PLAYER_SPELLS.find(s=>s.id==='sneakyVine')!;assert.equal(s.element,'Nature');assert.equal(s.rarity,'Uncommon');assert.equal(s.strokes.length,2);assert.equal((s.path.match(/M/g)??[]).length,2);assert.ok(!s.path.includes(' L'));
+test('Sneaky Vine is a learnable uncommon Nature spell with a recognizable single-stroke candy cane sigil',()=>{
+ const s=PLAYER_SPELLS.find(s=>s.id==='sneakyVine')!;assert.equal(s.element,'Nature');assert.equal(s.rarity,'Uncommon');assert.equal(s.strokes.length,1);assert.equal((s.path.match(/M/g)??[]).length,1);assert.deepEqual(s.strokes[0][0],{x:70,y:90});assert.deepEqual(s.strokes[0].at(-1),{x:30,y:42});
  for(const strokes of [s.strokes,[...s.strokes].reverse().map(st=>[...st].reverse())]){const result=recognize(strokes);assert.equal(result.spell?.id,s.id);assert.ok(result.quality>=95);}
 });
 test('Sneaky Vine targets only the furthest living, present enemy and breaks ties by ID',()=>{
