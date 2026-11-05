@@ -13,11 +13,11 @@ function field():Battle{
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 function throwPotion(b:Battle,id:Potion){return drinkPotion({...b,potions:{...b.potions,[id]:1}},id);}
 
-test('Book Worm changes combat opening and trace timing without changing the guide cooldown',()=>{
+test('Book Worm changes combat opening and trace timing without adding a guide cooldown',()=>{
  assert.deepEqual(bookTiming(),{openMs:500,traceMs:1500});
  assert.deepEqual(bookTiming(true),{openMs:250,traceMs:2000});
  const cooldown=new GuideCooldown();assert.equal(cooldown.tryStart(0),true);
- cooldown.finish(bookTiming(true).traceMs);assert.equal(cooldown.isReady(9999),false);assert.equal(cooldown.isReady(10000),true);
+ cooldown.finish(bookTiming(true).traceMs);assert.equal(cooldown.isReady(2000),true);assert.equal(cooldown.tryStart(2000),true);
  assert.equal(RELICS.bookWorm.description,'Open spell book faster during combat and slightly increase perfect trace duration');
 });
 
@@ -119,3 +119,4 @@ test('lethal vial pops start the Slime Mother split and curses can kill the moth
   b=advance(b,2.1);assert.equal(b.enemies.length,4);assert.ok(b.enemies.slice(1).every(e=>e.potionCurseTick===null));
  }
 });
+
