@@ -330,4 +330,3 @@
 @keyframes black-flash-fade{from{opacity:1}to{opacity:0}}
 
 
-.black-flash-message{position:absolute;top:22%;left:50%;transform:translateX(-50%);z-index:5;pointer-events:none;white-space:nowrap;padding:.35em .8em;border:2px solid #ff5470;border-radius:8px;background:#10070dee;color:#ff5470;font-size:clamp(20px,3vw,32px);font-weight:600;text-shadow:0 2px 3px #000;box-shadow:0 0 24px #e11c3870}

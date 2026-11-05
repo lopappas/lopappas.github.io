@@ -15,12 +15,6 @@ import {enemyElementColor,presentEnemies,projectilePosition,enemyY,targetedEnemy
 export function World({burst,color,battle,hasRelics=false,practice=false}:{burst:number;color:string;battle:Battle;hasRelics?:boolean;practice?:boolean}){
 const [sad,setSad]=useState(false),[viewHeight,setViewHeight]=useState(410),[cloudY,setCloudY]=useState(210);
 const worldRef=useRef<HTMLDivElement>(null);
-const [flashMessage,setFlashMessage]=useState(false);
-useEffect(()=>{
- if(!battle.blackFlashBurst)return;
- setFlashMessage(true);
- const timer=setTimeout(()=>setFlashMessage(false),1500);return()=>clearTimeout(timer);
-},[battle.blackFlashBurst?.serial]);
 const [flashBurst,setFlashBurst]=useState<Battle['blackFlashBurst']>(null);
 useEffect(()=>{
  if(!battle.blackFlashBurst)return;
@@ -136,8 +130,8 @@ const t=Math.min(1,age/POTION_BREAK_SECONDS);return <g key={f.id} opacity={1-t} 
 
 {timeVisual.pulse&&<circle cx="245" cy="405" r={timeVisual.pulse.radius} opacity={timeVisual.pulse.opacity} fill="url(#chronos-white)" pointerEvents="none" aria-label={timeVisual.pulse.strong?'Large Chronos white flash':'Small Chronos white flash'}/>}
 <PaletteGroup className="chronos-environment" amount={timeVisual.environmentAmount} fill="#2a4939"><path d="M0 600V550q42-22 73 5l34 45zM720 600V520q-69-5-119 80z"/></PaletteGroup>
-{flashBurst&&<g key={flashBurst.serial} transform={`translate(${flashBurst.x} 410)`} pointerEvents="none" aria-label="Black Flash explosion"><g className="black-flash-explosion"><circle r="78" fill="#09070c"/><path d="M0-112 18-62 62-85 50-38 116-22 66 4 104 63 45 48 22 110 0 65-43 99-39 42-109 52-64 6-112-35-51-37-60-96-18-61Z" fill="#e11c38" stroke="#10070d" strokeWidth="8"/><circle r="39" fill="#08060a"/><path d="m-16-58 28 40-23 9 30 59M-71-14l38 15-10 20 32 7M32-37l-6 25 31 4 22 24" fill="none" stroke="#ff5470" strokeWidth="7"/></g></g>}
-</svg>{flashMessage&&<div key={`flash-message-${battle.blackFlashBurst?.serial}`} className="black-flash-message" role="status" aria-live="polite">Black Flash!</div>}</div>;
+{flashBurst&&<g key={flashBurst.serial} transform={`translate(${flashBurst.x} 410) scale(0.75)`} pointerEvents="none" aria-label="Black Flash explosion"><g className="black-flash-explosion"><circle r="78" fill="#09070c"/><path d="M0-112 18-62 62-85 50-38 116-22 66 4 104 63 45 48 22 110 0 65-43 99-39 42-109 52-64 6-112-35-51-37-60-96-18-61Z" fill="#e11c38" stroke="#10070d" strokeWidth="8"/><circle r="39" fill="#08060a"/><path d="m-16-58 28 40-23 9 30 59M-71-14l38 15-10 20 32 7M32-37l-6 25 31 4 22 24" fill="none" stroke="#ff5470" strokeWidth="7"/></g></g>}
+</svg></div>;
 }
 
 
