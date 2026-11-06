@@ -19,8 +19,8 @@ function Spotlight({target,text,token}:{target:Tutorial2Target;text:string;token
   return()=>{cancelAnimationFrame(frame);if(element){element.classList.remove('t2-highlight');if(oldDescription===null)element.removeAttribute('aria-describedby');else element.setAttribute('aria-describedby',oldDescription);}};
  },[target,token]);
  if(!rect)return null;
- const below=rect.top<155,top=below?rect.top+rect.height+16:rect.top-105;
- return createPortal(<><div className="t2-spotlight" aria-hidden="true" style={{top:rect.top-5,left:rect.left-5,width:rect.width+10,height:rect.height+10}}/><div id="t2-instruction" key={token} className={`t2-instruction ${below?'t2-below':'t2-above'}`} role="status" style={{top:Math.max(62,Math.min(innerHeight-130,top)),left:Math.max(12,Math.min(innerWidth-292,rect.left+rect.width/2-140))}}><span className="t2-arrow" aria-hidden="true">{below?'▲':'▼'}</span><strong>{text}</strong></div></>,document.body);
+ const below=rect.top<155,top=below?rect.top+rect.height+16:rect.top-85;
+ return createPortal(<><div className="t2-spotlight" aria-hidden="true" style={{top:rect.top-5,left:rect.left-5,width:rect.width+10,height:rect.height+10}}/><div id="t2-instruction" key={token} className="t2-instruction" role="status" style={{top:Math.max(62,Math.min(innerHeight-100,top)),left:Math.max(12,Math.min(innerWidth-292,rect.left+rect.width/2-140))}}><strong>{text}</strong></div></>,document.body);
 }
 function Tutorial2Dialog({title,text,label,onContinue,onExit}:{title:string;text:string;label:string;onContinue:()=>void;onExit:()=>void}){
  const ref=useRef<HTMLElement>(null);
