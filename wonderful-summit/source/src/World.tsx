@@ -103,8 +103,8 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 </g></g>
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>
-{!practice&&<><rect x={e.kind==='mother'?-90:e.kind==='spider'&&e.element!=='Neutral'?-80:e.rocky?-62:-47} y={e.kind==='mother'?-130:e.kind==='goblin'?-83:-62} width={e.kind==='mother'?180:e.kind==='spider'&&e.element!=='Neutral'?160:e.rocky?124:94} height="22" rx="5" fill="#233b32dd"/>
-<text y={e.kind==='mother'?-114:e.kind==='goblin'?-67:-46} textAnchor="middle" fill={color} fontSize="17" fontFamily="Fredoka">{e.kind==='mother'?'Slime Mother':e.rocky?'Rock slime':e.kind==='goblin'?'Elite':e.kind==='spider'?(e.element==='Neutral'?'Spider':`${e.element} spider`):e.element==='Neutral'?'Slime':e.element} {Math.ceil(e.hp)}</text>
+{!practice&&<><rect x={e.kind==='mother'?-90:e.kind==='spider'&&e.element!=='Neutral'?-80:e.rocky?-62:e.kind==='slime'&&e.element!=='Neutral'?-78:-47} y={e.kind==='mother'?-130:e.kind==='goblin'?-83:-62} width={e.kind==='mother'?180:e.kind==='spider'&&e.element!=='Neutral'?160:e.rocky?124:e.kind==='slime'&&e.element!=='Neutral'?156:94} height="22" rx="5" fill="#233b32dd"/>
+<text y={e.kind==='mother'?-114:e.kind==='goblin'?-67:-46} textAnchor="middle" fill={color} fontSize="17" fontFamily="Fredoka">{e.kind==='mother'?'Slime Mother':e.rocky?'Rock slime':e.kind==='goblin'?'Elite':e.kind==='spider'?(e.element==='Neutral'?'Spider':`${e.element} spider`):e.element==='Neutral'?'Slime':`${e.element} slime`} {Math.ceil(e.hp)}</text>
 <rect x="-39" y={e.kind==='mother'?-105:e.kind==='goblin'?-59:-38} width="78" height="6" rx="3" fill="#294034"/><rect x="-39" y={e.kind==='mother'?-105:e.kind==='goblin'?-59:-38} width={78*e.hp/e.maxHP} height="6" rx="3" fill="#d68c88"/>
 {e.kind==='mother'&&<text y={-84} textAnchor="middle" fill={color} fontSize="16" fontFamily="Fredoka">{e.element}</text>}
 </>}

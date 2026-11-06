@@ -16,9 +16,13 @@ export const ELEMENT_STEPS:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS,
  {id:'nature-intro',kind:'dialogue',text:'Ah, a pesky nature slime, let me blast em away with fire!'},
  {id:'nature-spill',kind:'dialogue',text:'Whoops! Spilled some ink.'},
  {id:'nature-clear',kind:'action',action:'clear',target:'clear',text:'Clear the spilled ink.'},
- ...castingSteps(1),{id:'nature-victory',kind:'dialogue',text:'That was easy. Fire burns nature.'},
+ ...castingSteps(1),{id:'nature-victory',kind:'dialogue',text:'That was easy. Fire beats nature.'},
+ {id:'nature-water-wait',kind:'settling',durationMs:1500,text:''},
  {id:'water-ambush',kind:'settling',durationMs:0,text:''},
- {id:'water-injury',kind:'dialogue',text:'Ow! What... Where did this guy come from?? I need a health potion... Belladora! Where are you!'},
+ {id:'water-hit-wait',kind:'settling',durationMs:1500,text:''},
+ {id:'water-injury',kind:'dialogue',text:'Ow! What... Where did this water slime come from?? I need a health potion... Belladora! Where are you!'},
+ {id:'water-arrive',kind:'settling',durationMs:1000,text:''},
+ {id:'water-arrival-wait',kind:'settling',durationMs:1500,text:''},
  {id:'water-heal',kind:'action',action:'heal',target:'heal',text:'Tap your health potion.'},
  {id:'water-ink',kind:'dialogue',text:'I need to refill my ink too.'},
  {id:'water-refill',kind:'action',action:'refill',target:'refill',text:'Refill your ink.'},
@@ -36,15 +40,18 @@ export function elementActionAllowed(s:Tutorial2FireState,action:Tutorial2Action
 export const elementCanReplay=(s:Tutorial2FireState)=>s.phase==='running'&&/-(draw|cast)$/.test(elementStep(s).id);
 export const replayElement=(s:Tutorial2FireState)=>elementCanReplay(s)?jump(s,`${LESSONS[elementLesson(s)].id}-demo`,true):s;
 export function transitionElement(s:Tutorial2FireState,e:Tutorial2Event){
- if(s.phase!=='running'||e.token!==s.token||elementStep(s).kind==='settling')return s;
+ if(s.phase!=='running'||e.token!==s.token)return s;
+ const step=elementStep(s);
+ if(e.type==='tick'&&['water-draw','water-cast'].includes(step.id)&&Number.isFinite(e.deltaMs)&&e.deltaMs>0)return s.elapsedMs>=6000?s:{...s,elapsedMs:Math.min(6000,s.elapsedMs+e.deltaMs)};
+ if(step.kind==='settling'&&step.durationMs===0)return s;
  if(e.type==='action'&&e.action==='clear'&&elementCanReplay(s))return jump(s,`${LESSONS[elementLesson(s)].id}-draw`,true);
- const next=transitionTutorial2(ELEMENT_STEPS,s,e);return next===s?s:{...s,...next,retry:false};
+ const next=transitionTutorial2(ELEMENT_STEPS,s,e);return next===s?s:{...s,...next,elapsedMs:step.id==='water-draw'&&e.type==='action'&&e.action==='draw'?s.elapsedMs:next.elapsedMs,retry:e.type==='tick'?s.retry:false};
 }
 export function resolveElementCast(s:Tutorial2FireState,o:Tutorial2CastOutcome){
  if(s.phase!=='running'||!elementStep(s).id.endsWith('-impact')||o.token!==s.token-1)return s;
  const l=LESSONS[elementLesson(s)];return o.spellId===l.spell&&o.quality>=60&&o.enemyHP<=0?jump(s,`${l.id}-victory`):{...jump(s,`${l.id}-draw`,true),retry:true};
 }
-export const finishAmbush=(s:Tutorial2FireState,token:number)=>s.phase==='running'&&s.token===token&&elementStep(s).id==='water-ambush'?jump(s,'water-injury'):s;
+export const finishAmbush=(s:Tutorial2FireState,token:number)=>s.phase==='running'&&s.token===token&&elementStep(s).id==='water-ambush'?jump(s,'water-hit-wait'):s;
 export function elementBattle(lesson:number,ambush=false){
  const b=tutorial2FireBattle();return{...b,playerHP:100,potions:{...b.potions,heal:lesson===2&&!ambush?0:1},approachAt:ambush?0:Infinity,enemies:b.enemies.map(e=>({...e,element:lesson===1?'Nature' as const:lesson===2?'Water' as const:'Fire' as const,x:ambush?CONTACT_X:e.x}))};
 }

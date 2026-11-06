@@ -3,7 +3,7 @@ import {tutorial2FoundationBattle,newTutorial2,transitionTutorial2,type Tutorial
 import type {Battle} from './battle.ts';
 export const DEWDROP_DEMO_MS=4500;
 export const TUTORIAL2_FIRE_STEPS:readonly Tutorial2Step[]=[
- {id:'fire-intro',kind:'dialogue',text:'Oh no! A slime has come to attack my village! I have a water spell to handle this.'},
+ {id:'fire-intro',kind:'dialogue',text:'Oh no! A fire slime has come to attack my village! I have a water spell to handle this.'},
  {id:'fire-book',kind:'action',action:'book',target:'book',text:'Open your spellbook.'},
  {id:'fire-select',kind:'action',action:'select',target:'spell-water',spellId:'water',text:'Select Dewdrop, your water spell.'},
  {id:'fire-close',kind:'action',action:'close',target:'book-close',text:'Close your spellbook.'},
