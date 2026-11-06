@@ -71,3 +71,5 @@ The menu offers a separate **Tutorial 2.0 preview**, while **The old tutorial** 
 `src/tutorial2.ts` owns explicit step definitions, action permissions, token-checked completion, pause/resume, and future demonstration/settling phases. `Tutorial2Session.tsx` provides tap-through dialogue, focus handling, an obvious spotlight/arrow, and always-available Pause/Menu controls. The shared Combat and Spellbook enforce permissions at their handlers as well as disabling controls. Pausing preserves the drawing and pauses an in-flight book close; leaving cleans up listeners and timers. The preview enemy cannot approach or attack.
 
 Next: the complete fire-slime lesson and animated Dewdrop tracing (milestone 2), followed by nature/water lessons, the accuracy goblin, final independent combat, verification, and removal of the old tutorial. No old tutorial code or exclusive tests have been removed.
+
+Direct preview link: `https://lopappas.github.io/wonderful-summit/?tutorial=2`. Returning to the menu does not reset the preview on that page; reloading the direct link intentionally starts a fresh preview.
