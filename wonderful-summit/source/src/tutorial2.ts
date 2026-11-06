@@ -2,11 +2,11 @@ import type {SpellId} from './magic.ts';
 import {newBattle,type Battle} from './battle.ts';
 import {newRun} from './run.ts';
 
-export type Tutorial2Action='book'|'select'|'close'|'draw'|'clear'|'cast'|'refill'|'heal';
-export type Tutorial2Target='book'|'book-close'|'canvas'|'clear'|'cast'|'refill'|'heal'|`spell-${SpellId}`;
+export type Tutorial2Action='book'|'select'|'close'|'draw'|'clear'|'cast'|'refill'|'heal'|'inspect'|'continue-anywhere';
+export type Tutorial2Target='book'|'book-close'|'canvas'|'clear'|'cast'|'refill'|'heal'|'relic-colorfulRock'|`spell-${SpellId}`;
 type BaseStep={id:string;text:string};
 export type Tutorial2Step=BaseStep&(
- {kind:'dialogue'}|
+ {kind:'dialogue';presentation?:'screen'}|
  {kind:'action';action:Tutorial2Action;target:Tutorial2Target;spellId?:SpellId}|
  {kind:'demonstration';completion:string}|
  {kind:'settling';durationMs:number}
@@ -56,7 +56,7 @@ export function tutorial2FoundationBattle():Battle{
  return{...newBattle('active','slime',()=>0),approachAt:Infinity,potions:{heal:1,freeze:0,ink:0}};
 }
 export type Tutorial2Controls={
- initialBattle:Battle;resetBattle?:Battle;token:number;paused:boolean;blocking:boolean;resetSerial?:number;setup?:'spill'|'empty';ambush?:boolean;companion?:boolean;onAmbush?:(token:number)=>void;trace?:{progress:number;demonstrating:boolean;spellId?:SpellId};onCastOutcome?:(outcome:import('./tutorial2Fire').Tutorial2CastOutcome)=>void;
+ scriptedDrawing?:{id:string;strokes:import('./magic').Strokes};relicInspection?:{canInspect:boolean;inspected:boolean;onInspect:()=>void};initialBattle:Battle;resetBattle?:Battle;token:number;paused:boolean;blocking:boolean;resetSerial?:number;setup?:'spill'|'empty';ambush?:boolean;companion?:boolean;onAmbush?:(token:number)=>void;trace?:{progress:number;demonstrating:boolean;spellId?:SpellId};onCastOutcome?:(outcome:import('./tutorial2Fire').Tutorial2CastOutcome)=>void;
  canAction:(action:Tutorial2Action,spellId?:SpellId)=>boolean;
  onAction:(action:Tutorial2Action,token:number,spellId?:SpellId)=>void;
 };

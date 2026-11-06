@@ -95,7 +95,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 <path d="M15 22h4v2h-4z" fill="#9c83bc"/>
 <path d="M19 22h4v2h-4z" fill="#f2cea6"/>
 </g></g>
-{companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className="t2-companion-arrival" style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse sad={sad}/></g></g>}
+{companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse sad={sad}/></g></g>}
 {presentEnemies(battle).map(e=>{const frozen=battle.freezeUntil>battle.time,status=enemyStatusLabel(e,battle),color=practice?'#e6b844':e.rocky?'#a5aaa4':e.element==='Fire'?'#ef9c70':e.element==='Water'?'#7ccbd6':e.element==='Nature'?'#99bf76':'#bcc3a2';return <PaletteGroup key={e.id} amount={chronosGrayAmount(e,battle.time)} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
 <ellipse cy="22" rx={e.kind==='mother'?72:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<TargetCaret element={e.element} mother={e.kind==='mother'}/>}
@@ -105,7 +105,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>
 {!practice&&<><rect x={e.kind==='mother'?-90:e.kind==='spider'&&e.element!=='Neutral'?-80:e.rocky?-62:e.kind==='slime'&&e.element!=='Neutral'?-78:-47} y={e.kind==='mother'?-130:e.kind==='goblin'?-83:-62} width={e.kind==='mother'?180:e.kind==='spider'&&e.element!=='Neutral'?160:e.rocky?124:e.kind==='slime'&&e.element!=='Neutral'?156:94} height="22" rx="5" fill="#233b32dd"/>
-<text y={e.kind==='mother'?-114:e.kind==='goblin'?-67:-46} textAnchor="middle" fill={color} fontSize="17" fontFamily="Fredoka">{e.kind==='mother'?'Slime Mother':e.rocky?'Rock slime':e.kind==='goblin'?'Elite':e.kind==='spider'?(e.element==='Neutral'?'Spider':`${e.element} spider`):e.element==='Neutral'?'Slime':`${e.element} slime`} {Math.ceil(e.hp)}</text>
+<text y={e.kind==='mother'?-114:e.kind==='goblin'?-67:-46} textAnchor="middle" fill={color} fontSize="17" fontFamily="Fredoka">{e.kind==='mother'?'Slime Mother':e.rocky?'Rock slime':e.kind==='goblin'?(enemyEntrance?'Goblin':'Elite'):e.kind==='spider'?(e.element==='Neutral'?'Spider':`${e.element} spider`):e.element==='Neutral'?'Slime':`${e.element} slime`} {Math.ceil(e.hp)}</text>
 <rect x="-39" y={e.kind==='mother'?-105:e.kind==='goblin'?-59:-38} width="78" height="6" rx="3" fill="#294034"/><rect x="-39" y={e.kind==='mother'?-105:e.kind==='goblin'?-59:-38} width={78*e.hp/e.maxHP} height="6" rx="3" fill="#d68c88"/>
 {e.kind==='mother'&&<text y={-84} textAnchor="middle" fill={color} fontSize="16" fontFamily="Fredoka">{e.element}</text>}
 </>}
