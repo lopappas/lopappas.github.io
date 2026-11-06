@@ -28,19 +28,21 @@ npm run build
 
 Existing focused tests additionally cover timing boundaries, guide direction and recognition at different sizes, canonical spell grades, control restrictions, final defeat/resource reset, dialogue/audio lifecycle, fonts and text colors. Full-suite execution also checks the old tutorial and normal game behavior.
 
-## Manual release checklist — not yet verified in this pass
+## Manual release checklist — user verified
 
-Automated state/combat tests are not browser or physical-device tests. Do not describe the items below as passed without performing them.
+User sign-off received on 2026-11-07: “I verified the manual browser and physical-device checks.” The checklist below is marked complete based on the user's report, not an additional agent-run browser/device pass. Individual device models, OS versions and browser versions were not supplied.
 
-- One complete touch-driven journey: draw all three sigils, release Cast early once, fizzle once, retry and replay a guide; verify player ink is above the guide.
-- Pause/resume while typing, drawing, holding Cast, replaying a guide and refilling. Background and resume the page; confirm no catch-up combat, duplicate input or continuing pencil audio.
-- Confirm a completed Filadora line waits for a tap; the acknowledgement disappears and its tap does not activate the next control.
-- Confirm Water fades in, attacks once after its wait, Belladora arrives, and potion healing finishes before the recovery line.
-- Confirm nephew drawing pops in without dimming/prompt, perfect drawing animates, and relic dismissal is delayed and centered on the canvas.
-- Lose the final fight and retry: same element, fresh drawing, 100 HP, 100 ink, one potion and Colorful Rock. Win and return to the menu; re-entry starts a fresh tutorial.
-- Check narrow/short portrait layouts and landscape, large text, reduced motion, keyboard focus, and VoiceOver labels; instructions must not cover required targets.
-- Check actual sound/volume and scrolling on a physical iPhone/Safari and Android/Chrome. Device audio and touch behavior remain unverified here.
+- [x] One complete touch-driven journey: draw all three sigils, release Cast early once, fizzle once, retry and replay a guide; verify player ink is above the guide.
+- [x] Pause/resume while typing, drawing, holding Cast, replaying a guide and refilling. Background and resume the page; confirm no catch-up combat, duplicate input or continuing pencil audio.
+- [x] Confirm a completed Filadora line waits for a tap; the acknowledgement disappears and its tap does not activate the next control.
+- [x] Confirm Water fades in, attacks once after its wait, Belladora arrives, and potion healing finishes before the recovery line.
+- [x] Confirm nephew drawing pops in without dimming/prompt, perfect drawing animates, and relic dismissal is delayed and centered on the canvas.
+- [x] Lose the final fight and retry: same element, fresh drawing, 100 HP, 100 ink, one potion and Colorful Rock. Win and return to the menu; re-entry starts a fresh tutorial.
+- [x] Check narrow/short portrait layouts and landscape, large text, reduced motion, keyboard focus, and VoiceOver labels; instructions must not cover required targets.
+- [x] Check actual sound/volume and scrolling on a physical iPhone/Safari and Android/Chrome.
 
 ## Next milestone
+
+Milestone 6 is complete with automated results and user-confirmed manual/device verification.
 
 Old-tutorial removal is a separate requested cleanup milestone. Do not remove its code, menu entry or exclusive tests as part of verification. Keep current milestones 1–5 behavior unchanged unless a verified defect requires a fix.

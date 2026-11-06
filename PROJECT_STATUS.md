@@ -11,11 +11,11 @@ Updated: 2026-11-07
 - Publish the contents of source/dist-pages/ under wonderful-summit/.
 
 ## Current state
-Tutorial 2.0 milestones 1–5 are implemented; Milestone 6 automated regression coverage is added (manual/device checks remain): Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The old tutorial remains available.
+Tutorial 2.0 milestones 1–6 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The old tutorial remains available.
 
 Latest completed changes: title card waits for every bundled font before mounting; title-screen pencil-audio priming is explicitly muted until dialogue lettering. Credits return prompt uses the Wonderful rainbow lettering. Encyclopedia subtitle removed. Theodora's name is 15% smaller, portrait 20% smaller, and dialogue types 20% faster. Starter relic heading is “Filadora's starter relic”; duplicate robe details above its inspection icon are removed.
 
-Milestone 6 validation: 519 tests passed and the production build passed against current GitHub source. New full-sequence tests run all three final elements with real recognition, combat, potion healing, failed-cast recovery and pause/stale-callback checks. No runtime defect was found; this commit changes tests and documentation only. Manual browser and physical-device verification remain explicitly unchecked in wonderful-summit/source/docs/tutorial2-verification.md. No deployment monitoring is needed for this verification-only commit.
+Milestone 6 validation: 519 tests passed and the production build passed against current GitHub source. New full-sequence tests run all three final elements with real recognition, combat, potion healing, failed-cast recovery and pause/stale-callback checks. No runtime defect was found in the automated pass. On 2026-11-07, the user confirmed completion of the manual browser and physical-device checks. See wonderful-summit/source/docs/tutorial2-verification.md for the user-reported sign-off; device/browser versions were not recorded.
 
 ## Important current decisions
 - Shared Filadora dialogue: bold full speaker name, stable Kurale font, fading letters, 48/1.15 ms character interval and extra 500 ms punctuation pauses.
@@ -37,7 +37,7 @@ Paths below are relative to wonderful-summit/source/:
 - Recording/license: src/audio/frostnox_quick-pencil-writing.ogg and src/audio/ATTRIBUTION.txt.
 
 ## Remaining work
-- Complete the manual/browser and physical-device checklist in wonderful-summit/source/docs/tutorial2-verification.md before declaring Milestone 6 fully verified. Old-tutorial cleanup remains a separate milestone to be requested.
+- Milestone 7: old-tutorial cleanup is next, when requested by the user.
 - Preserve the old tutorial, menu entry and exclusive tests until its cleanup is requested.
 - Historical Pages timeouts/queued retries are not evidence of a current outage. Check current status only when relevant, following AGENTS.md.
 - Historical generated bundles remain in the published assets folder; cleanup has not been requested.
