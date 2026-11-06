@@ -7,13 +7,15 @@ function castingSteps(i:1|2):Tutorial2Step[]{const l=LESSONS[i];return[
  {id:`${l.id}-book`,kind:'action',action:'book',target:'book',text:'Open your spellbook.'},
  {id:`${l.id}-select`,kind:'action',action:'select',spellId:l.spell,target:`spell-${l.spell}`,text:`Select ${l.name}, your ${i===1?'fire':'nature'} spell.`},
  {id:`${l.id}-close`,kind:'action',action:'close',target:'book-close',text:'Close your spellbook.'},
- {id:`${l.id}-demo`,kind:'demonstration',completion:l.spell,text:`${l.name} casting tutorial`},
+ {id:`${l.id}-demo`,kind:'demonstration',completion:l.spell,text:`Tutorial: How to draw ${l.name}`},
  {id:`${l.id}-draw`,kind:'action',action:'draw',target:'canvas',text:`Try to draw your own ${l.name}!`},
  {id:`${l.id}-cast`,kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
  {id:`${l.id}-impact`,kind:'settling',durationMs:0,text:''},
  {id:`${l.id}-retry`,kind:'settling',durationMs:1000,text:'Try again'}
 ];}
-const authoredSteps:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS.flatMap(s=>s.id==='fire-impact'?[s,{id:'fire-retry',kind:'settling' as const,durationMs:1000,text:'Try again'}]:[s]),
+const authoredSteps:readonly Tutorial2Step[]=[
+ {id:'fire-enter',kind:'settling',durationMs:800,text:''},
+ {id:'fire-arrival-wait',kind:'settling',durationMs:1500,text:''},...TUTORIAL2_FIRE_STEPS.flatMap(s=>s.id==='fire-impact'?[s,{id:'fire-retry',kind:'settling' as const,durationMs:1000,text:'Try again'}]:[s]),
  {id:'nature-intro',kind:'dialogue',text:'Ah, a pesky nature slime, let me blast em away with fire!'},
  {id:'nature-spill',kind:'dialogue',text:'Whoops! I spilled my inkwell…'},
  {id:'nature-clear',kind:'action',action:'clear',target:'clear',text:'Clear the spilled ink.'},
@@ -31,8 +33,7 @@ const authoredSteps:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS.flatMap(s=
  {id:'water-potion-wait',kind:'settling',durationMs:1800,text:''},
  ...castingSteps(2),{id:'water-victory',kind:'dialogue',text:"Don't mess with witches! Nature absorbs water."}
 ];
-export const VICTORY_QUIP_WAIT_MS=2000;
-export const ELEMENT_STEPS:readonly Tutorial2Step[]=authoredSteps.flatMap(step=>step.kind==='dialogue'&&step.id.endsWith('-victory')?[step,{id:`${step.id}-wait`,kind:'settling' as const,durationMs:VICTORY_QUIP_WAIT_MS,text:''}]:[step.kind==='dialogue'?step:{...step,text:step.text.replace(/\.$/,'')}]);
+export const ELEMENT_STEPS:readonly Tutorial2Step[]=authoredSteps.map(step=>step.kind==='dialogue'?step:{...step,text:step.text.replace(/\.$/,'')});
 export const newElementTutorial=():Tutorial2FireState=>({...newTutorial2(ELEMENT_STEPS),resetSerial:0,retry:false});
 export const elementStep=(s:Tutorial2FireState)=>ELEMENT_STEPS[s.index];
 export const elementLesson=(s:Tutorial2FireState)=>(s.phase==='complete'?2:LESSONS.findIndex(l=>elementStep(s)?.id.startsWith(l.id))) as 0|1|2;

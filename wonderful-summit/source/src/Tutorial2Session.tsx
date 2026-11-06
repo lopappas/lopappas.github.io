@@ -3,6 +3,7 @@ import {createPortal} from 'react-dom';
 import type {CombatProps} from './combatTypes';
 import {FilaDialogue} from './FilaDialogue';
 import {TutorialText} from './TutorialText';
+import {TutorialQualityExplanation} from './TutorialQualityExplanation';
 import {pauseTutorial2,resumeTutorial2,tutorial2Step,tutorial2Journey,type Tutorial2Target} from './tutorial2';
 import {M4_STEPS as steps,M4_LESSONS as LESSONS,newM4Tutorial as newTutorial2Fire,m4Battle as elementBattle,m4Lesson as elementLesson,m4ActionAllowed as fireActionAllowed,replayM4 as replayTutorial2Fire,m4CanReplay as fireCanReplay,transitionM4 as transitionTutorial2Fire,resolveM4Cast as resolveTutorial2FireCast,relicAwarded,goblinDrawing,QUALITY_EXPLANATION,QUALITY_LINES} from './tutorial2Goblin';
 import {finishAmbush} from './tutorial2Elements';
@@ -33,9 +34,9 @@ function Tutorial2Dialog({title,text,label,onContinue,onExit}:{title:string;text
   const trap=(e:KeyboardEvent)=>{if(e.key!=='Tab')return;const items=Array.from(ref.current?.querySelectorAll<HTMLButtonElement>('button')??[]),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}};
   document.addEventListener('keydown',trap,true);return()=>{document.removeEventListener('keydown',trap,true);};
  },[]);
- return createPortal(<div className="t2-dialog-backdrop"><section ref={ref} className="t2-dialog" role="dialog" aria-modal="true" aria-labelledby="t2-dialog-title" aria-describedby="t2-dialog-text"><small>TUTORIAL 2.0</small><h1 id="t2-dialog-title">{title}</h1><div id="t2-dialog-text">{text===QUALITY_EXPLANATION?<><p>There are 5 types of spell casts:</p>{QUALITY_LINES.map((line,i)=><p key={i}>{i===1?<>Faint spells are <strong>weak</strong>, and mean you need to draw more carefully.</>:<TutorialText text={line}/>}</p>)}</>:<p><TutorialText text={text.replace(/\.$/,'')}/></p>}</div><button className="primary-small" onClick={onContinue}>{label}</button>{label!=='Return to menu'&&<button className="secondary-button" onClick={onExit}>Return to menu</button>}</section></div>,document.body);
+ return createPortal(<div className="t2-dialog-backdrop"><section ref={ref} className="t2-dialog" role="dialog" aria-modal="true" aria-labelledby="t2-dialog-title" aria-describedby="t2-dialog-text"><small>TUTORIAL 2.0</small><h1 id="t2-dialog-title">{title}</h1><div id="t2-dialog-text">{text===QUALITY_EXPLANATION?<TutorialQualityExplanation/>:<p><TutorialText text={text.replace(/\.$/,'')}/></p>}</div><button className="primary-small" onClick={onContinue}>{label}</button>{label!=='Return to menu'&&<button className="secondary-button" onClick={onExit}>Return to menu</button>}</section></div>,document.body);
 }
-export function Tutorial2Session({Combat,onExit}:{Combat:ComponentType<CombatProps>;onExit:()=>void}){
+function Tutorial2Content({Combat,onExit,dialogueFont}:{Combat:ComponentType<CombatProps>;onExit:()=>void;dialogueFont:string}){
  const [state,setState]=useState(()=>newTutorial2Fire(new URLSearchParams(location.search).get('milestone')==='4'));
  const [baseJourney]=useState(tutorial2Journey);
  const awarded=relicAwarded(state);
@@ -68,10 +69,15 @@ export function Tutorial2Session({Combat,onExit}:{Combat:ComponentType<CombatPro
   {!paused&&step&&['water-draw','water-cast'].includes(step.id)&&state.elapsedMs>=6000&&<Spotlight target="cast" text="" token={state.token} quiet/>}
   {!paused&&step?.id.endsWith('-retry')&&createPortal(<div className="t2-instruction t2-retry-notice" role="status">Try again</div>,document.body)}
   {fireCanReplay(state)&&createPortal(<button className="t2-replay" onClick={()=>setState(replayTutorial2Fire)}>Show me again</button>,document.body)}
-  {step?.kind==='dialogue'&&step.presentation!=='screen'&&<FilaDialogue key={state.token} text={step.text} holdMs={step.id.endsWith('-victory')?0:undefined} active={!paused} onTextProgress={text=>{if(step.id==='nature-spill'&&text.startsWith('Whoops!'))setSpilled(true);}} onComplete={()=>{const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'continue',token}));}}/>}
-  {!paused&&step?.id==='goblin-relic-award'&&createPortal(<div className="t2-instruction t2-retry-notice" role="status">Colorful Rock acquired!</div>,document.body)}
-  {!paused&&step?.kind==='dialogue'&&step.presentation==='screen'&&<Tutorial2Dialog title={step.id==='goblin-qualities'?'Make every spell count':'Your first relic'} text={step.text} label="Continue" onContinue={()=>{const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'continue',token}));}} onExit={onExit}/>}
+  {step?.kind==='dialogue'&&step.presentation!=='screen'&&<FilaDialogue key={state.token} text={step.text} fontFamily={dialogueFont} active={!paused} onTextProgress={text=>{if(step.id==='nature-spill'&&text.startsWith('Whoops!'))setSpilled(true);}} onComplete={()=>{const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'continue',token}));}}/>}
+  {!paused&&step?.kind==='dialogue'&&step.presentation==='screen'&&<Tutorial2Dialog title={step.id==='goblin-qualities'?'Make Every Spell Count':'Your first relic'} text={step.text} label="Continue" onContinue={()=>{const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'continue',token}));}} onExit={onExit}/>}
   {!paused&&step?.id==='goblin-relic-continue'&&createPortal(<><div className="t2-instruction t2-retry-notice">Tap anywhere to continue</div><button className="t2-continue-anywhere" aria-label="Tap anywhere to continue" onClick={e=>{e.preventDefault();e.stopPropagation();const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'action',action:'continue-anywhere',token}));}}/></>,document.body)}
   {(paused||complete)&&<Tutorial2Dialog title={paused?'Tutorial paused':'Preview complete'} text={paused?'Your place, drawing, and spellbook are kept. Resume whenever you are ready.':'Milestone 4 complete! The final slime battle is next in milestone 5.'} label={paused?'Resume':'Return to menu'} onContinue={paused?resume:onExit} onExit={onExit}/>}
  </>;
+}
+
+export function Tutorial2Session(props:{Combat:ComponentType<CombatProps>;onExit:()=>void}){
+ const [font,setFont]=useState<'loading'|'Kurale'|'Georgia'>('loading');
+ useEffect(()=>{let alive=true;document.fonts.load('16px Kurale').then(faces=>{if(alive)setFont(faces.length?'Kurale':'Georgia');}).catch(()=>{if(alive)setFont('Georgia');});return()=>{alive=false;};},[]);
+ return font==='loading'?<main className="app" aria-busy="true"/>:<Tutorial2Content {...props} dialogueFont={font}/>;
 }

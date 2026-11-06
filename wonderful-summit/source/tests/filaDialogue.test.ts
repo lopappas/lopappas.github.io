@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FILA_CHARACTER_MS,FILA_DIALOGUE_HOLD_MS,FILA_PUNCTUATION_PAUSE_MS,advanceFilaDialogue,filaDialogueFrame} from '../src/filaDialogue.ts';
+import {FILA_CHARACTER_MS,FILA_LETTER_FADE_MS,FILA_DIALOGUE_HOLD_MS,FILA_PUNCTUATION_PAUSE_MS,advanceFilaDialogue,filaDialogueFrame} from '../src/filaDialogue.ts';
 
-test('Fila types the complete line before waiting two seconds and resuming the lesson',()=>{
+test('Fila types the complete line before waiting 1.8 seconds and resuming the lesson',()=>{
  const text='Water dowses fire!',typingMs=Array.from(text).length*FILA_CHARACTER_MS+FILA_PUNCTUATION_PAUSE_MS;
  assert.equal(filaDialogueFrame(text,0).text,'');
  assert.equal(filaDialogueFrame(text,4*FILA_CHARACTER_MS).text,'Wate');
@@ -29,11 +29,17 @@ test('periods and exclamation marks each hold the revealed punctuation for an ex
   assert.equal(filaDialogueFrame(text,markAt+500+FILA_CHARACTER_MS-1).text,`A${punctuation}`);
   assert.equal(filaDialogueFrame(text,markAt+500+FILA_CHARACTER_MS).text,text);
  }
- assert.equal(filaDialogueFrame('A.!B',4*FILA_CHARACTER_MS+999).typed,false);
- assert.equal(filaDialogueFrame('A.!B',4*FILA_CHARACTER_MS+1000).typed,true);
+ assert.equal(filaDialogueFrame('A.!B',4*FILA_CHARACTER_MS+1000+FILA_LETTER_FADE_MS-1).typed,false);
+ assert.equal(filaDialogueFrame('A.!B',4*FILA_CHARACTER_MS+1000+FILA_LETTER_FADE_MS).typed,true);
 });
 
 test('letter fade timing retains punctuation pauses and complete Unicode characters',async()=>{
  const {filaCharacterTimes,FILA_CHARACTER_MS,FILA_PUNCTUATION_PAUSE_MS}=await import('../src/filaDialogue.ts');
  assert.deepEqual(filaCharacterTimes('A!💧'),[FILA_CHARACTER_MS,FILA_CHARACTER_MS*2,FILA_CHARACTER_MS*3+FILA_PUNCTUATION_PAUSE_MS]);
+});
+
+test('the reading pause lasts exactly 1.8 seconds and can be skipped only after full reveal',async()=>{
+ const {canSkipDialogueHold,FILA_LETTER_FADE_MS}=await import('../src/filaDialogue.ts');const text='Hi',finished=2*FILA_CHARACTER_MS+FILA_LETTER_FADE_MS;
+ assert.equal(FILA_DIALOGUE_HOLD_MS,1800);assert.equal(canSkipDialogueHold(text,finished-1,true),false);assert.equal(canSkipDialogueHold(text,finished,true),true);assert.equal(canSkipDialogueHold(text,finished,false),false);
+ assert.equal(filaDialogueFrame(text,finished+1799).complete,false);assert.equal(filaDialogueFrame(text,finished+1800).complete,true);
 });

@@ -23,9 +23,9 @@ export const GOBLIN_STEPS:readonly Tutorial2Step[]=[
  {id:'goblin-perfect-draw',kind:'demonstration',completion:'perfect',text:''},
  {id:'goblin-perfect-cast',kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
  {id:'goblin-perfect-impact',kind:'settling',durationMs:0,text:''},
+ {id:'goblin-defeat-wait',kind:'settling',durationMs:1800,text:''},
  {id:'goblin-qualities',kind:'dialogue',presentation:'screen',text:QUALITY_EXPLANATION},
- {id:'goblin-relic-explain',kind:'dialogue',presentation:'screen',text:RELIC_EXPLANATION},
- {id:'goblin-relic-award',kind:'settling',durationMs:1500,text:'Colorful Rock acquired!'},
+ {id:'goblin-relic-explain',kind:'dialogue',text:'The goblin dropped a relic. Neat!'},
  {id:'goblin-relic-inspect',kind:'action',action:'inspect',target:'relic-colorfulRock',text:'Tap Colorful Rock to inspect its magical effects'},
  {id:'goblin-relic-continue',kind:'action',action:'continue-anywhere',target:'relic-colorfulRock',text:'Tap anywhere to continue'}
 ];
@@ -51,7 +51,7 @@ export function resolveM4Cast(s:Tutorial2FireState,o:Tutorial2CastOutcome){
  if(!id?.endsWith('-impact'))return s;
  return good?{...s,index:s.index+1,token:s.token+1,elapsedMs:0}:{...s,index:M4_STEPS.findIndex(x=>x.id==='goblin-bad-draw'),token:s.token+1,elapsedMs:0,resetSerial:s.resetSerial+1};
 }
-export function relicAwarded(s:Tutorial2FireState){return s.phase==='complete'||s.index>=M4_STEPS.findIndex(x=>x.id==='goblin-relic-award');}
+export function relicAwarded(s:Tutorial2FireState){return s.phase==='complete'||s.index>=M4_STEPS.findIndex(x=>x.id==='goblin-relic-explain');}
 export function goblinDrawing(perfect:boolean,progress=1):Strokes{
  let path:Strokes[number];
  if(perfect)path=SPELLS.find(s=>s.id==='fire')!.strokes[0];
