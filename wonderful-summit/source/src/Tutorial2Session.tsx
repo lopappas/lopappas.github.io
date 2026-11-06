@@ -25,9 +25,9 @@ function Spotlight({target,text,token}:{target:Tutorial2Target;text:string;token
 function Tutorial2Dialog({title,text,label,onContinue,onExit}:{title:string;text:string;label:string;onContinue:()=>void;onExit:()=>void}){
  const ref=useRef<HTMLElement>(null);
  useEffect(()=>{
-  const previous=document.activeElement as HTMLElement|null;ref.current?.querySelector('button')?.focus();
+  ref.current?.querySelector('button')?.focus();
   const trap=(e:KeyboardEvent)=>{if(e.key!=='Tab')return;const items=Array.from(ref.current?.querySelectorAll<HTMLButtonElement>('button')??[]),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}};
-  document.addEventListener('keydown',trap,true);return()=>{document.removeEventListener('keydown',trap,true);if(previous?.isConnected)previous.focus();};
+  document.addEventListener('keydown',trap,true);return()=>{document.removeEventListener('keydown',trap,true);};
  },[]);
  return createPortal(<div className="t2-dialog-backdrop"><section ref={ref} className="t2-dialog" role="dialog" aria-modal="true" aria-labelledby="t2-dialog-title" aria-describedby="t2-dialog-text"><small>TUTORIAL 2.0</small><h1 id="t2-dialog-title">{title}</h1><p id="t2-dialog-text">{text}</p><button className="primary-small" onClick={onContinue}>{label}</button><button className="secondary-button" onClick={onExit}>Return to menu</button></section></div>,document.body);
 }
