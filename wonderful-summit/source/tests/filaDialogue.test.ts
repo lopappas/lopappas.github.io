@@ -32,3 +32,8 @@ test('periods and exclamation marks each hold the revealed punctuation for an ex
  assert.equal(filaDialogueFrame('A.!B',4*FILA_CHARACTER_MS+999).typed,false);
  assert.equal(filaDialogueFrame('A.!B',4*FILA_CHARACTER_MS+1000).typed,true);
 });
+
+test('letter fade timing retains punctuation pauses and complete Unicode characters',async()=>{
+ const {filaCharacterTimes,FILA_CHARACTER_MS,FILA_PUNCTUATION_PAUSE_MS}=await import('../src/filaDialogue.ts');
+ assert.deepEqual(filaCharacterTimes('A!💧'),[FILA_CHARACTER_MS,FILA_CHARACTER_MS*2,FILA_CHARACTER_MS*3+FILA_PUNCTUATION_PAUSE_MS]);
+});

@@ -26,7 +26,7 @@ test('nature clear and water heal/refill cannot be skipped by unrelated or stale
 });
 test('each 24 HP slime requires Steady or better with the correct advantageous spell',()=>{
  for(let lesson=0;lesson<3;lesson++)for(const quality of [48,59,60]){let b=launchSpell(elementBattle(lesson),quality,'blue',LESSONS[lesson].spell);for(let i=0;i<50;i++)b=stepBattle(b,.1);assert.equal(b.enemies[0].hp<=0,quality>=60);}
- for(const lesson of LESSONS){const s=at(`${lesson.id}-impact`);for(const result of [{spellId:null,quality:0,enemyHP:24},{spellId:lesson.spell,quality:59,enemyHP:1}]){const retry=resolveElementCast(s,{...result,token:s.token-1});assert.equal(elementStep(retry).id,`${lesson.id}-draw`);assert.equal(retry.resetSerial,s.resetSerial+1);assert.equal(retry.retry,true);}}
+ for(const lesson of LESSONS){const s=at(`${lesson.id}-impact`);for(const result of [{spellId:null,quality:0,enemyHP:24},{spellId:lesson.spell,quality:59,enemyHP:1}]){const retry=resolveElementCast(s,{...result,token:s.token-1});assert.equal(elementStep(retry).id,`${lesson.id}-retry`);assert.equal(retry.resetSerial,s.resetSerial+1);assert.equal(retry.retry,true);}}
 });
 test('water ambush deals real contact damage before the potion lesson and stops further attacks',()=>{
  let b=elementBattle(2,true);for(let i=0;i<50&&!b.playerHits;i++)b=stepBattle(b,.05);
@@ -35,7 +35,7 @@ test('water ambush deals real contact damage before the potion lesson and stops 
  b=drinkPotion(b,'heal');for(let i=0;i<100;i++)b=stepBattle(b,.1);assert.equal(b.playerHP,100);assert.equal(b.playerHits,1);assert.equal(b.potions.heal,0);
 });
 test('new lessons demonstrate canonical paths in the agreed direction and duration',()=>{
- assert.deepEqual(LESSONS.map(l=>l.duration),[4500,4000,5000]);
+ assert.deepEqual(LESSONS.map(l=>l.duration),[4500,4000,4000]);
  for(const l of LESSONS){const t=elementTrace(l.spell,1);assert.equal(recognize(t.strokes).spell?.id,l.spell);assert.equal(recognize(t.strokes).quality,100);}
  assert.deepEqual(elementTrace('fire',0).tip,{x:50,y:12});assert.ok(elementTrace('fire',.1).tip.x<50);
  assert.deepEqual(elementTrace('nature',0).tip,{x:20,y:20});assert.deepEqual(elementTrace('nature',1).strokes,SPELLS.find(s=>s.id==='nature')!.strokes);
@@ -69,4 +69,13 @@ test('potion press starts an explicit 1.8 second wait before the refill dialogue
  s=transitionElement(s,{type:'tick',deltaMs:1799,token:s.token});assert.equal(elementStep(s).id,'water-potion-wait');
  s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,'water-ink');
  let b=elementBattle(2,true);b.playerHP=88;b.approachAt=Infinity;b=drinkPotion(b,'heal');for(let i=0;i<18;i++)b=stepBattle(b,.1);assert.equal(b.playerHP,100);
+});
+
+test('sub-Steady casts show Try again for one active second, then return to the static guide',()=>{
+ for(const lesson of LESSONS){const impact=at(`${lesson.id}-impact`);let s=resolveElementCast(impact,{token:impact.token-1,spellId:lesson.spell,quality:59,enemyHP:8});
+ assert.equal(elementStep(s).id,`${lesson.id}-retry`);assert.equal(elementStep(s).text,'Try again');assert.equal(elementActionAllowed(s,'cast'),false);
+ s=transitionElement(s,{type:'tick',deltaMs:999,token:s.token});assert.equal(elementStep(s).id,`${lesson.id}-retry`);
+ const paused={...s,...pauseTutorial2(s)};assert.equal(transitionElement(paused,{type:'tick',deltaMs:5000,token:s.token}),paused);
+ s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,`${lesson.id}-draw`);
+ }
 });
