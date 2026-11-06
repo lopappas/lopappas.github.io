@@ -40,5 +40,6 @@ export function FilaDialogue({text,active,onComplete,onTextProgress,holdMs,fontF
  },[active,text]);
  return createPortal(<><aside ref={bubble} className="t2-fila-bubble" role="status" aria-label={`Filadora says: ${text}`} aria-hidden={!active} style={{...position,fontFamily,visibility:active&&position?'visible':'hidden'}}>
   <strong aria-hidden="true">Filadora</strong><p aria-hidden="true"><span className="t2-fila-measure"><TutorialText text={text}/></span><span className="t2-fila-typed"><FadingDialogueText text={text} elapsed={elapsed}/></span></p>
+  {canSkipDialogueHold(text,elapsed,active)&&<small className="t2-fila-continue-hint">Tap to continue</small>}
  </aside>{canSkipDialogueHold(text,elapsed,active)&&<button className="t2-dialogue-continue" aria-label="Continue" onClick={e=>{e.preventDefault();e.stopPropagation();if(!completed.current){completed.current=true;latest.current.onComplete();}}}/>}</>,document.body);
 }

@@ -1,5 +1,6 @@
 import {SPELLS} from './magic.ts';
 const terms=new Map(SPELLS.flatMap(s=>[[s.name.toLowerCase(),s.color],[s.element.toLowerCase(),s.color],[`${s.element.toLowerCase()} slime`,s.color]]));
+terms.set('non-elemental','#4b4b4b');
 const pattern=new RegExp(`\\b(${[...terms.keys()].sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')})\\b`,'gi');
 export function tutorialTextParts(text:string,visibleCharacters=Infinity){
  const parts:{text:string;color?:string}[]=[];let start=0,remaining=visibleCharacters;

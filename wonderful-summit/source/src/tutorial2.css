@@ -22,3 +22,5 @@
 .t2-quality-label{display:inline-block;background:#26382e;border-radius:4px;padding:0 4px;text-shadow:none}.t2-quality-label .spell-grade{display:inline}
 
 .t2-canvas-notice{transform:translate(-50%,-50%);pointer-events:none;text-align:center}
+
+.t2-fila-continue-hint{position:absolute;top:100%;right:4px;margin-top:4px;color:#fff;font-family:Fredoka,sans-serif;font-size:11px;line-height:1.3;text-shadow:0 1px 3px #14231c;white-space:nowrap}

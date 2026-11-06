@@ -67,7 +67,8 @@ test('potion press starts an explicit 1.8 second wait before the next spell less
  let s=at('water-heal');s=transitionElement(s,{type:'action',action:'heal',token:s.token});assert.equal(elementStep(s).id,'water-potion-wait');
  assert.equal(elementActionAllowed(s,'heal'),false);
  s=transitionElement(s,{type:'tick',deltaMs:1799,token:s.token});assert.equal(elementStep(s).id,'water-potion-wait');
- s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,'water-book');
+ s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,'water-recovered');assert.equal(elementStep(s).text,'Much better. You’ll pay for this water slime!');
+ s=transitionElement(s,{type:'continue',token:s.token});assert.equal(elementStep(s).id,'water-book');
  let b=elementBattle(2,true);b.playerHP=88;b.approachAt=Infinity;b=drinkPotion(b,'heal');for(let i=0;i<18;i++)b=stepBattle(b,.1);assert.equal(b.playerHP,100);
 });
 
@@ -91,5 +92,6 @@ test('the spill is cleared and ink refilled before Hearthspark is required',()=>
  assert.ok(ids.indexOf('nature-refill')<ids.indexOf('nature-draw'));
  assert.equal(ids.includes('water-refill'),false);
  let s=at('nature-refill');assert.equal(elementActionAllowed(s,'draw'),false);
- s=transitionElement(s,{type:'action',action:'refill',token:s.token});assert.equal(elementStep(s).id,'nature-book');
+ s=transitionElement(s,{type:'action',action:'refill',token:s.token});assert.equal(elementStep(s).id,'nature-refilled');assert.equal(elementStep(s).text,'Ok, back to taking down this nature slime.');
+ s=transitionElement(s,{type:'continue',token:s.token});assert.equal(elementStep(s).id,'nature-book');
 });

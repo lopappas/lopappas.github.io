@@ -26,3 +26,10 @@ test('elemental slime phrases and punctuation share one color while bare slime s
  assert.deepEqual(tutorialTextParts('slime'),[{text:'slime'}]);
  assert.deepEqual(tutorialTextParts('water slime!',9),[{text:'water sli',color:SPELLS.find(s=>s.id==='water')!.color}]);
 });
+
+test('non-elemental is dark gray throughout its typewriter reveal',()=>{
+ const text='Ah, a non-elemental enemy. Any spell will do';
+ const parts=tutorialTextParts(text);assert.equal(parts.map(p=>p.text).join(''),text);
+ assert.deepEqual(parts.filter(p=>p.color),[{text:'non-elemental',color:'#4b4b4b'}]);
+ assert.deepEqual(tutorialTextParts('Non-elemental',4),[{text:'Non-',color:'#4b4b4b'}]);
+});

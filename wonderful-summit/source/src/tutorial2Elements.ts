@@ -21,6 +21,7 @@ const authoredSteps:readonly Tutorial2Step[]=[
  {id:'nature-clear',kind:'action',action:'clear',target:'clear',text:'Clear the spilled ink.'},
  {id:'nature-ink',kind:'dialogue',text:'I need to refill my ink too.'},
  {id:'nature-refill',kind:'action',action:'refill',target:'refill',text:'Refill your ink'},
+ {id:'nature-refilled',kind:'dialogue',text:'Ok, back to taking down this nature slime.'},
  ...castingSteps(1),{id:'nature-victory',kind:'dialogue',text:'That was easy. Fire beats nature.'},
  {id:'water-enter',kind:'settling',durationMs:800,text:''},
  {id:'water-pre-attack',kind:'settling',durationMs:1500,text:''},
@@ -31,6 +32,7 @@ const authoredSteps:readonly Tutorial2Step[]=[
  {id:'water-arrival-wait',kind:'settling',durationMs:1500,text:''},
  {id:'water-heal',kind:'action',action:'heal',target:'heal',text:'Tap your health potion.'},
  {id:'water-potion-wait',kind:'settling',durationMs:1800,text:''},
+ {id:'water-recovered',kind:'dialogue',text:'Much better. You’ll pay for this water slime!'},
  ...castingSteps(2),{id:'water-victory',kind:'dialogue',text:"Don't mess with witches! Nature absorbs water."}
 ];
 export const ELEMENT_STEPS:readonly Tutorial2Step[]=authoredSteps.map(step=>step.kind==='dialogue'?step:{...step,text:step.text.replace(/\.$/,'')});
