@@ -46,7 +46,7 @@ test('pause and replay preserve the active lesson and invalidate prior cast resu
 });
 
 test('ambush and Belladora use separate ordered arrival and reading delays',()=>{
- for(const [id,duration,next] of [['nature-water-wait',1500,'water-pre-attack'],['water-pre-attack',1500,'water-ambush'],['water-hit-wait',1500,'water-injury'],['water-arrive',1000,'water-arrival-wait'],['water-arrival-wait',1500,'water-heal']] as const){
+ for(const [id,duration,next] of [['nature-victory-wait',2000,'water-enter'],['water-enter',800,'water-pre-attack'],['water-pre-attack',1500,'water-ambush'],['water-hit-wait',1500,'water-injury'],['water-arrive',1000,'water-arrival-wait'],['water-arrival-wait',1500,'water-heal']] as const){
   let s=at(id);s=transitionElement(s,{type:'tick',deltaMs:duration-1,token:s.token});assert.equal(elementStep(s).id,id);
   const paused={...s,...pauseTutorial2(s)};assert.equal(transitionElement(paused,{type:'tick',deltaMs:5000,token:s.token}),paused);
   s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,next);
@@ -77,5 +77,15 @@ test('sub-Steady casts show Try again for one active second, then return to the 
  s=transitionElement(s,{type:'tick',deltaMs:999,token:s.token});assert.equal(elementStep(s).id,`${lesson.id}-retry`);
  const paused={...s,...pauseTutorial2(s)};assert.equal(transitionElement(paused,{type:'tick',deltaMs:5000,token:s.token}),paused);
  s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,`${lesson.id}-draw`);
+ }
+});
+
+test('every victory quip waits two active seconds before the next enemy or completion',()=>{
+ for(const lesson of LESSONS){
+  let s=at(`${lesson.id}-victory`);s=transitionElement(s,{type:'continue',token:s.token});assert.equal(elementStep(s).id,`${lesson.id}-victory-wait`);
+  s=transitionElement(s,{type:'tick',deltaMs:1999,token:s.token});assert.equal(elementStep(s).id,`${lesson.id}-victory-wait`);
+  const paused={...s,...pauseTutorial2(s)};assert.equal(transitionElement(paused,{type:'tick',deltaMs:4000,token:s.token}),paused);
+  s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});
+  if(lesson.id==='water')assert.equal(s.phase,'complete');else assert.equal(elementStep(s).id,lesson.id==='fire'?'nature-intro':'water-enter');
  }
 });

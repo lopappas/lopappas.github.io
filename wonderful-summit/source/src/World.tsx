@@ -12,7 +12,7 @@ import {PetPurse} from './PetPurse';
 import {chronosAffected,chronosGrayAmount,chronosVisuals,enemyStatusLabel} from './timeVisuals';
 import {EnemyEffects} from './EnemyEffects';
 import {enemyElementColor,presentEnemies,projectilePosition,enemyY,targetedEnemy,potionPosition,POTION_FLIGHT_SECONDS,POTION_BREAK_SECONDS,type Battle} from './battle';
-export function World({burst,color,battle,hasRelics=false,practice=false,companion=true,companionPaused=false}:{burst:number;color:string;battle:Battle;hasRelics?:boolean;practice?:boolean;companion?:boolean;companionPaused?:boolean}){
+export function World({burst,color,battle,hasRelics=false,practice=false,companion=true,companionPaused=false,enemyEntrance}:{burst:number;color:string;battle:Battle;hasRelics?:boolean;practice?:boolean;companion?:boolean;companionPaused?:boolean;enemyEntrance?:'slide'|'fade'}){
 const [sad,setSad]=useState(false),[viewHeight,setViewHeight]=useState(410),[cloudY,setCloudY]=useState(210);
 const worldRef=useRef<HTMLDivElement>(null);
 const [flashBurst,setFlashBurst]=useState<Battle['blackFlashBurst']>(null);
@@ -97,6 +97,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 </g></g>
 {companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className="t2-companion-arrival" style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse sad={sad}/></g></g>}
 {presentEnemies(battle).map(e=>{const frozen=battle.freezeUntil>battle.time,status=enemyStatusLabel(e,battle),color=practice?'#e6b844':e.rocky?'#a5aaa4':e.element==='Fire'?'#ef9c70':e.element==='Water'?'#7ccbd6':e.element==='Nature'?'#99bf76':'#bcc3a2';return <PaletteGroup key={e.id} amount={chronosGrayAmount(e,battle.time)} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
+<g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
 <ellipse cy="22" rx={e.kind==='mother'?72:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<TargetCaret element={e.element} mother={e.kind==='mother'}/>}
 <g transform={e.kind==='mother'?'scale(2.1)':undefined}><g className={`${e.kind==='spider'?'spider':e.kind==='goblin'?'goblin':'slime'}${e.stunUntil>battle.time?' stunned':''}${(e.shield?.burnUntil??0)>battle.time?' shield-burning':''}${e.hurtUntil>battle.time?' slime-hit':''}${e.attackAt!==null?' slime-attacking':''}`} style={{filter:frozen?'hue-rotate(100deg) brightness(1.2)':undefined}}>
 {e.kind==='spider'?<SpiderArt color={color} clock={e.clock} moving={!frozen&&e.attackAt===null&&!e.push&&e.rootUntil<=battle.time&&e.stunUntil<=battle.time}/>:e.kind!=='goblin'?<><path d="M-36 12v-24h6v-16h10v-8h36v6h12v12h8v30h-6v8h-60v-8z" fill={practice?'#8c6224':'#2d493d'}/><path d="M-30 12v-22h6v-14h12v-6h24v6h12v12h6v24h-6v4h-48v-4z" fill={e.attackAt!==null?'#ebd588':color}/><path d="M-21-13v-7h9v-4h17v5h-16v6z" fill={practice?'#fff0a5':'#e3dfb0'}/><path d="M-13-9h5v8h-5zM10-9h5v8h-5zM-3 6h9v3h-9z" fill="#2d493d"/>{e.rocky&&<g shapeRendering="crispEdges"><path d="M-25-22h11v8h-11zM9-26h12v9H9zM-31 1h8v12h-8zM21 4h8v9h-8z" fill="#717d78"/><path d="M-10-28h6v5h5v7M19-13v7h6" fill="none" stroke="#53615b" strokeWidth="2"/></g>}</>:<g shapeRendering="crispEdges"><path d="M-29-50h58v33H-29zM-40-43h11v12h-11zM29-43h11v12H29z" fill="#91ac65"/><path d="M-21-49h43v9h-43zM-14-39h7v7h-7zM10-39h7v7h-7z" fill="#354132"/><path d="M-12-22h25v5h-25z" fill="#e7d7ae"/><path d="M-23-15h46v34h-46zM-28 17h18v8h-18zM11 17h18v8H11z" fill="#74584b"/><path d="M-18-10h36v7h-36z" fill="#bc9764"/><path d="M-45-15h14v47h-14zM-50-25h24v12h-24z" fill="#6b6760"/><path d="M-18-58h9v8h-9zM-4-63h9v13h-9zM10-58h9v8h-9z" fill="#dbba70"/></g>}
@@ -110,7 +111,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 </>}
 {e.attackAt!==null&&<text x="45" y="-27" fill="#f4aa80" fontSize="30">!</text>}
 {status&&<text x="0" y={e.kind==='mother'?-145:-97} textAnchor="middle" fill="#ece2b7" fontSize="18">{status}</text>}
-</PaletteGroup>;})}
+</g></PaletteGroup>;})}
 {battle.motherSplit&&battle.time-battle.motherSplit.at<2.6&&(()=>{
  const split=battle.motherSplit,age=battle.time-split.at,c=split.element==='Fire'?'#ef9c70':split.element==='Water'?'#7ccbd6':'#99bf76';
  return <g transform={`translate(${split.x} ${enemyY(1)})`} pointerEvents="none" aria-label={age<2?'Slime Mother trembles before splitting':'Slime Mother bursts into three slimes'}>

@@ -18,7 +18,7 @@ const authoredSteps:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS.flatMap(s=
  {id:'nature-spill',kind:'dialogue',text:'Whoops! I spilled my inkwell…'},
  {id:'nature-clear',kind:'action',action:'clear',target:'clear',text:'Clear the spilled ink.'},
  ...castingSteps(1),{id:'nature-victory',kind:'dialogue',text:'That was easy. Fire beats nature.'},
- {id:'nature-water-wait',kind:'settling',durationMs:1500,text:''},
+ {id:'water-enter',kind:'settling',durationMs:800,text:''},
  {id:'water-pre-attack',kind:'settling',durationMs:1500,text:''},
  {id:'water-ambush',kind:'settling',durationMs:0,text:''},
  {id:'water-hit-wait',kind:'settling',durationMs:1500,text:''},
@@ -31,7 +31,8 @@ const authoredSteps:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS.flatMap(s=
  {id:'water-refill',kind:'action',action:'refill',target:'refill',text:'Refill your ink.'},
  ...castingSteps(2),{id:'water-victory',kind:'dialogue',text:"Don't mess with witches! Nature absorbs water."}
 ];
-export const ELEMENT_STEPS:readonly Tutorial2Step[]=authoredSteps.map(step=>step.kind==='dialogue'?step:{...step,text:step.text.replace(/\.$/,'')});
+export const VICTORY_QUIP_WAIT_MS=2000;
+export const ELEMENT_STEPS:readonly Tutorial2Step[]=authoredSteps.flatMap(step=>step.kind==='dialogue'&&step.id.endsWith('-victory')?[step,{id:`${step.id}-wait`,kind:'settling' as const,durationMs:VICTORY_QUIP_WAIT_MS,text:''}]:[step.kind==='dialogue'?step:{...step,text:step.text.replace(/\.$/,'')}]);
 export const newElementTutorial=():Tutorial2FireState=>({...newTutorial2(ELEMENT_STEPS),resetSerial:0,retry:false});
 export const elementStep=(s:Tutorial2FireState)=>ELEMENT_STEPS[s.index];
 export const elementLesson=(s:Tutorial2FireState)=>(s.phase==='complete'?2:LESSONS.findIndex(l=>elementStep(s)?.id.startsWith(l.id))) as 0|1|2;
