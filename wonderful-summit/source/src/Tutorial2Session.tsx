@@ -1,6 +1,7 @@
 import React,{useEffect,useLayoutEffect,useRef,useState,type ComponentType} from 'react';
 import {createPortal} from 'react-dom';
 import type {CombatProps} from './combatTypes';
+import {FilaDialogue} from './FilaDialogue';
 import {pauseTutorial2,resumeTutorial2,tutorial2Step,tutorial2Journey,type Tutorial2Target} from './tutorial2';
 import {DEWDROP_DEMO_MS,TUTORIAL2_FIRE_STEPS as steps,newTutorial2Fire,tutorial2FireBattle,fireActionAllowed,replayTutorial2Fire,fireCanReplay,transitionTutorial2Fire,resolveTutorial2FireCast} from './tutorial2Fire';
 import './tutorial2.css';
@@ -52,6 +53,7 @@ export function Tutorial2Session({Combat,onExit}:{Combat:ComponentType<CombatPro
   {createPortal(<nav className="t2-controls" aria-label="Tutorial 2.0 controls"><button onClick={paused?resume:pause} disabled={complete}>{paused?'Resume':'Pause'}</button><button onClick={onExit}>Menu</button></nav>,document.body)}
   {!paused&&step&&(step.kind==='action'||step.kind==='demonstration'||step.kind==='settling')&&<Spotlight target={step.kind==='action'?step.target:'canvas'} text={state.retry&&step.id==='fire-draw'?'Try again: draw Dewdrop over the guide, then hold Cast. Aim for Steady (60%) or better.':step.text} token={state.token}/>}
   {fireCanReplay(state)&&createPortal(<button className="t2-replay" onClick={()=>setState(replayTutorial2Fire)}>Show me again</button>,document.body)}
-  {(paused||complete||step?.kind==='dialogue')&&<Tutorial2Dialog key={paused?'paused':state.token} title={paused?'Tutorial paused':complete?'Preview complete':step?.id==='fire-victory'?'Fire slime defeated':'Fila'} text={paused?'Your place, drawing, and spellbook are kept. Resume whenever you are ready.':complete?'Thanks for trying the Tutorial 2.0 preview.':step!.text} label={paused?'Resume':complete||step?.id==='fire-victory'?'Return to menu':'Continue'} onContinue={paused?resume:complete||step?.id==='fire-victory'?onExit:()=>{const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'continue',token}));}} onExit={onExit}/>}
+  {step?.kind==='dialogue'&&<FilaDialogue key={state.token} text={step.text} active={!paused} onComplete={()=>{const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'continue',token}));}}/>}
+  {(paused||complete)&&<Tutorial2Dialog title={paused?'Tutorial paused':'Preview complete'} text={paused?'Your place, drawing, and spellbook are kept. Resume whenever you are ready.':'Thanks for trying the Tutorial 2.0 preview.'} label={paused?'Resume':'Return to menu'} onContinue={paused?resume:onExit} onExit={onExit}/>}
  </>;
 }

@@ -74,7 +74,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
  const angle=i*Math.PI*2/24,reach=35+(i%4)*12;
  return <g key={i} className="robes-glitter" style={{'--glitter-x':`${Math.cos(angle)*reach}px`,'--glitter-y':`${Math.sin(angle)*reach*.85}px`,'--glitter-delay':`${i%4*25}ms`} as React.CSSProperties}><path d="M0-4 1-1 4 0 1 1 0 4-1 1-4 0-1-1Z" fill="#fff" transform={`translate(${Math.cos(angle)*12} ${Math.sin(angle)*18}) scale(${.65+i%3*.22})`}/></g>;
 })}</g>}
-<g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" shapeRendering="crispEdges" transform="translate(190 320) scale(5)" aria-label="Fila, a little pixel witch holding a paintbrush">
+<g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" data-tutorial2-speaker="fila" shapeRendering="crispEdges" transform="translate(190 320) scale(5)" aria-label="Fila, a little pixel witch holding a paintbrush">
 {battle.rejectionUntil>battle.time&&<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#fff" stroke="#fff" strokeWidth="3" opacity=".65" className="rejection-aura"/>}
 {/* A tiny stepped silhouette and a limited palette keep Fila readable at phone size. */}
 <path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#352e46"/>

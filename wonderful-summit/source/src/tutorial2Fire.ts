@@ -9,7 +9,7 @@ export const TUTORIAL2_FIRE_STEPS:readonly Tutorial2Step[]=[
  {id:'fire-close',kind:'action',action:'close',target:'book-close',text:'Tap Ready to close the spellbook.'},
  {id:'fire-demo',kind:'demonstration',completion:'dewdrop',text:'Watch the brush start at the top and draw Dewdrop counterclockwise.'},
  {id:'fire-draw',kind:'action',action:'draw',target:'canvas',text:'Draw Dewdrop over the guide.'},
- {id:'fire-cast',kind:'action',action:'cast',target:'cast',text:'Hold Cast for half a second. Aim for Steady (60%) or better.'},
+ {id:'fire-cast',kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
  {id:'fire-impact',kind:'settling',durationMs:0,text:'Watch your water spell hit the slime.'},
  {id:'fire-victory',kind:'dialogue',text:'Of course I won, water dowses fire!'}
 ];

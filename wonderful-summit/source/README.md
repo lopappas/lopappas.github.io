@@ -75,3 +75,5 @@ The explicit sequence, token-checked callbacks, control restrictions, highlights
 Direct preview: `https://lopappas.github.io/wonderful-summit/?tutorial=2`. Exit returns to the menu; reloading this link starts a fresh lesson.
 
 Next: nature/water lessons (milestone 3), the accuracy goblin, final independent combat, verification, and removal of the old tutorial. No old tutorial code or exclusive tests have been removed.
+
+Fila dialogue in Tutorial 2.0 always uses a canvas-textured bubble above and to her right, without a spotlight or dark backdrop. Each line types at 32 ms per character, then stays for 2.2 seconds before automatically advancing. Pause and hidden-page time freeze both typing and the reading delay. Future dialogue steps inherit this presentation. The cast instruction reads **Hold Cast!**.
