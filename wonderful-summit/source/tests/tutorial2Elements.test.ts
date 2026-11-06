@@ -18,7 +18,7 @@ test('all three elemental lessons run in order through the real action and resul
  assert.equal(s.phase,'complete');assert.deepEqual([...lessons],[0,1,2]);
 });
 test('nature clear and water heal/refill cannot be skipped by unrelated or stale events',()=>{
- for(const [id,action] of [['nature-clear','clear'],['water-heal','heal'],['water-refill','refill']] as const){
+ for(const [id,action] of [['nature-clear','clear'],['water-heal','heal'],['nature-refill','refill']] as const){
   const s=at(id);assert.equal(transitionElement(s,{type:'action',action:'cast',token:s.token}),s);
   assert.equal(transitionElement(s,{type:'action',action,token:s.token-1}),s);
   assert.equal(transitionElement(s,{type:'action',action,token:s.token}).index,s.index+1);
@@ -63,11 +63,11 @@ test('Little Sprout cast reminder waits six active seconds across drawing and ig
  assert.equal(transitionElement(cast,{type:'tick',deltaMs:9000,token:cast.token}),cast);
 });
 
-test('potion press starts an explicit 1.8 second wait before the refill dialogue',()=>{
+test('potion press starts an explicit 1.8 second wait before the next spell lesson',()=>{
  let s=at('water-heal');s=transitionElement(s,{type:'action',action:'heal',token:s.token});assert.equal(elementStep(s).id,'water-potion-wait');
  assert.equal(elementActionAllowed(s,'heal'),false);
  s=transitionElement(s,{type:'tick',deltaMs:1799,token:s.token});assert.equal(elementStep(s).id,'water-potion-wait');
- s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,'water-ink');
+ s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,'water-book');
  let b=elementBattle(2,true);b.playerHP=88;b.approachAt=Infinity;b=drinkPotion(b,'heal');for(let i=0;i<18;i++)b=stepBattle(b,.1);assert.equal(b.playerHP,100);
 });
 
@@ -88,4 +88,14 @@ test('every victory quip waits two active seconds before the next enemy or compl
   s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});
   if(lesson.id==='water')assert.equal(s.phase,'complete');else assert.equal(elementStep(s).id,lesson.id==='fire'?'nature-intro':'water-enter');
  }
+});
+
+test('the spill is cleared and ink refilled before Hearthspark is required',()=>{
+ const ids=ELEMENT_STEPS.map(s=>s.id);
+ assert.ok(ids.indexOf('nature-spill')<ids.indexOf('nature-clear'));
+ assert.ok(ids.indexOf('nature-clear')<ids.indexOf('nature-refill'));
+ assert.ok(ids.indexOf('nature-refill')<ids.indexOf('nature-draw'));
+ assert.equal(ids.includes('water-refill'),false);
+ let s=at('nature-refill');assert.equal(elementActionAllowed(s,'draw'),false);
+ s=transitionElement(s,{type:'action',action:'refill',token:s.token});assert.equal(elementStep(s).id,'nature-book');
 });

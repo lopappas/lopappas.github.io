@@ -7,8 +7,8 @@ export const TUTORIAL2_FIRE_STEPS:readonly Tutorial2Step[]=[
  {id:'fire-book',kind:'action',action:'book',target:'book',text:'Open your spellbook.'},
  {id:'fire-select',kind:'action',action:'select',target:'spell-water',spellId:'water',text:'Select Dewdrop, your water spell.'},
  {id:'fire-close',kind:'action',action:'close',target:'book-close',text:'Close your spellbook.'},
- {id:'fire-demo',kind:'demonstration',completion:'dewdrop',text:'Here is how to draw a Dewdrop.'},
- {id:'fire-draw',kind:'action',action:'draw',target:'canvas',text:'Draw Dewdrop over the guide.'},
+ {id:'fire-demo',kind:'demonstration',completion:'dewdrop',text:'Dewdrop casting tutorial'},
+ {id:'fire-draw',kind:'action',action:'draw',target:'canvas',text:'Try to draw your own Dewdrop!'},
  {id:'fire-cast',kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
  {id:'fire-impact',kind:'settling',durationMs:0,text:''},
  {id:'fire-victory',kind:'dialogue',text:'Of course I won, water dowses fire!'}

@@ -7,8 +7,8 @@ function castingSteps(i:1|2):Tutorial2Step[]{const l=LESSONS[i];return[
  {id:`${l.id}-book`,kind:'action',action:'book',target:'book',text:'Open your spellbook.'},
  {id:`${l.id}-select`,kind:'action',action:'select',spellId:l.spell,target:`spell-${l.spell}`,text:`Select ${l.name}, your ${i===1?'fire':'nature'} spell.`},
  {id:`${l.id}-close`,kind:'action',action:'close',target:'book-close',text:'Close your spellbook.'},
- {id:`${l.id}-demo`,kind:'demonstration',completion:l.spell,text:`Here is how to draw ${l.name}.`},
- {id:`${l.id}-draw`,kind:'action',action:'draw',target:'canvas',text:`Draw ${l.name} over the guide.`},
+ {id:`${l.id}-demo`,kind:'demonstration',completion:l.spell,text:`${l.name} casting tutorial`},
+ {id:`${l.id}-draw`,kind:'action',action:'draw',target:'canvas',text:`Try to draw your own ${l.name}!`},
  {id:`${l.id}-cast`,kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
  {id:`${l.id}-impact`,kind:'settling',durationMs:0,text:''},
  {id:`${l.id}-retry`,kind:'settling',durationMs:1000,text:'Try again'}
@@ -17,6 +17,8 @@ const authoredSteps:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS.flatMap(s=
  {id:'nature-intro',kind:'dialogue',text:'Ah, a pesky nature slime, let me blast em away with fire!'},
  {id:'nature-spill',kind:'dialogue',text:'Whoops! I spilled my inkwell…'},
  {id:'nature-clear',kind:'action',action:'clear',target:'clear',text:'Clear the spilled ink.'},
+ {id:'nature-ink',kind:'dialogue',text:'I need to refill my ink too.'},
+ {id:'nature-refill',kind:'action',action:'refill',target:'refill',text:'Refill your ink'},
  ...castingSteps(1),{id:'nature-victory',kind:'dialogue',text:'That was easy. Fire beats nature.'},
  {id:'water-enter',kind:'settling',durationMs:800,text:''},
  {id:'water-pre-attack',kind:'settling',durationMs:1500,text:''},
@@ -27,8 +29,6 @@ const authoredSteps:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS.flatMap(s=
  {id:'water-arrival-wait',kind:'settling',durationMs:1500,text:''},
  {id:'water-heal',kind:'action',action:'heal',target:'heal',text:'Tap your health potion.'},
  {id:'water-potion-wait',kind:'settling',durationMs:1800,text:''},
- {id:'water-ink',kind:'dialogue',text:'I need to refill my ink too.'},
- {id:'water-refill',kind:'action',action:'refill',target:'refill',text:'Refill your ink.'},
  ...castingSteps(2),{id:'water-victory',kind:'dialogue',text:"Don't mess with witches! Nature absorbs water."}
 ];
 export const VICTORY_QUIP_WAIT_MS=2000;

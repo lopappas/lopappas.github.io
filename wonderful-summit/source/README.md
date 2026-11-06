@@ -89,3 +89,5 @@ Elemental slime phrases are fully colored (including “slime” and adjacent pu
 Fila’s text reveals with a gentle 220 ms fade per character and no insertion cursor, preserving typing speed and punctuation pauses. Little Sprout’s demonstration takes 4 seconds. Instruction popups omit final periods. The inkwell spill plays the potion bottle sound. Casts below 60% in any elemental lesson show a one-second, pause-safe “Try again” notice before restoring the static-guide drawing step.
 
 All Tutorial 2.0 victory quips are followed by a two-second pause before advancing. New tutorial enemies slide in from the right over 800 ms; the Water slime instead fades in over 800 ms at contact range, then waits its existing 1.5 seconds before attacking. Enemy entry animations freeze when the tutorial is paused.
+
+Casting demonstrations are labeled “<spell> casting tutorial”; drawing prompts say “Try to draw your own <spell>!”. Spilling the inkwell empties ink to zero. To keep the lesson playable, the refill lesson now follows clearing the spill, before Hearthspark; the Water lesson continues from healing to Little Sprout without a second forced emptying.
