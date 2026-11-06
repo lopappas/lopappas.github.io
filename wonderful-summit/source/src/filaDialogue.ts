@@ -1,4 +1,4 @@
-export const FILA_CHARACTER_MS=48;
+export const FILA_CHARACTER_MS=48/1.15;
 export const FILA_DIALOGUE_HOLD_MS=1800;
 export const FILA_PUNCTUATION_PAUSE_MS=500;
 

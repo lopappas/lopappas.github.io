@@ -15,8 +15,7 @@ export const GOBLIN_STEPS:readonly Tutorial2Step[]=[
  {id:'goblin-enter',kind:'settling',durationMs:800,text:''},
  {id:'goblin-intro',kind:'dialogue',text:'Ah, a non-elemental enemy. Any spell will do, it just won\'t be super effective. I will use a good old Hearthspark.'},
  {id:'goblin-nephew',kind:'dialogue',text:'Oh! I remember, I have a spell from my nephew, let me use it to take care of this.'},
- {id:'goblin-bad-draw',kind:'demonstration',completion:'bad',text:''},
- {id:'goblin-bad-cast',kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
+ {id:'goblin-bad-cast',kind:'action',action:'cast',target:'cast',text:''},
  {id:'goblin-bad-impact',kind:'settling',durationMs:0,text:''},
  {id:'goblin-silence',kind:'dialogue',text:'...'},
  {id:'goblin-passion',kind:'dialogue',text:'I need to teach my nephew to draw spells with PASSION and PRECISION!'},
@@ -26,7 +25,8 @@ export const GOBLIN_STEPS:readonly Tutorial2Step[]=[
  {id:'goblin-defeat-wait',kind:'settling',durationMs:1800,text:''},
  {id:'goblin-qualities',kind:'dialogue',presentation:'screen',text:QUALITY_EXPLANATION},
  {id:'goblin-relic-explain',kind:'dialogue',text:'The goblin dropped a relic. Neat!'},
- {id:'goblin-relic-inspect',kind:'action',action:'inspect',target:'relic-colorfulRock',text:'Tap Colorful Rock to inspect its magical effects'},
+ {id:'goblin-relic-inspect',kind:'action',action:'inspect',target:'relic-colorfulRock',text:'Tap relic to inspect its magical effects'},
+ {id:'goblin-relic-reading',kind:'settling',durationMs:1000,text:''},
  {id:'goblin-relic-continue',kind:'action',action:'continue-anywhere',target:'relic-colorfulRock',text:'Tap anywhere to continue'}
 ];
 export const M4_STEPS=[...ELEMENT_STEPS,...GOBLIN_STEPS];
@@ -49,7 +49,7 @@ export function resolveM4Cast(s:Tutorial2FireState,o:Tutorial2CastOutcome){
  const id=M4_STEPS[s.index]?.id;
  const good=o.spellId==='fire'&&(id==='goblin-bad-impact'&&o.quality===48&&Math.abs(o.enemyHP-51.5)<.001||id==='goblin-perfect-impact'&&o.quality===100&&o.enemyHP<=0);
  if(!id?.endsWith('-impact'))return s;
- return good?{...s,index:s.index+1,token:s.token+1,elapsedMs:0}:{...s,index:M4_STEPS.findIndex(x=>x.id==='goblin-bad-draw'),token:s.token+1,elapsedMs:0,resetSerial:s.resetSerial+1};
+ return good?{...s,index:s.index+1,token:s.token+1,elapsedMs:0}:{...s,index:M4_STEPS.findIndex(x=>x.id==='goblin-bad-cast'),token:s.token+1,elapsedMs:0,resetSerial:s.resetSerial+1};
 }
 export function relicAwarded(s:Tutorial2FireState){return s.phase==='complete'||s.index>=M4_STEPS.findIndex(x=>x.id==='goblin-relic-explain');}
 export function goblinDrawing(perfect:boolean,progress=1):Strokes{

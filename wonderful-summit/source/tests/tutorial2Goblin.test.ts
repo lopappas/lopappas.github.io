@@ -36,7 +36,11 @@ test('the relic dialogue leads directly to inspection with no old reward screen 
  let s=at('goblin-qualities');assert.equal(relicAwarded(s),false);s=transitionM4(s,{type:'continue',token:s.token});assert.equal(M4_STEPS[s.index].text,'The goblin dropped a relic. Neat!');assert.equal(M4_STEPS[s.index].presentation,undefined);assert.equal(relicAwarded(s),true);
  s=transitionM4(s,{type:'continue',token:s.token});assert.equal(M4_STEPS[s.index].id,'goblin-relic-inspect');
  assert.equal(transitionM4(s,{type:'action',action:'continue-anywhere',token:s.token}),s);
- s=transitionM4(s,{type:'action',action:'inspect',token:s.token});assert.equal(M4_STEPS[s.index].id,'goblin-relic-continue');
+ s=transitionM4(s,{type:'action',action:'inspect',token:s.token});assert.equal(M4_STEPS[s.index].id,'goblin-relic-reading');
+ assert.equal(transitionM4(s,{type:'action',action:'continue-anywhere',token:s.token}),s);
+ s=transitionM4(s,{type:'tick',deltaMs:999,token:s.token});assert.equal(M4_STEPS[s.index].id,'goblin-relic-reading');
+ const paused={...s,...pauseTutorial2(s)};assert.equal(transitionM4(paused,{type:'tick',deltaMs:9999,token:s.token}),paused);
+ s=transitionM4(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(M4_STEPS[s.index].id,'goblin-relic-continue');
  const token=s.token;s=transitionM4(s,{type:'action',action:'continue-anywhere',token});assert.equal(s.phase,'complete');assert.equal(relicAwarded(s),true);assert.equal(transitionM4(s,{type:'action',action:'continue-anywhere',token}),s);
 });
 test('the goblin defeat waits 1.8 active seconds before the quality explanation',()=>{
@@ -48,4 +52,10 @@ test('the goblin defeat waits 1.8 active seconds before the quality explanation'
 test('milestone 4 preview starts at the goblin while the normal preview still begins with Fire',()=>{
  assert.equal(M4_STEPS[newM4Tutorial().index].id,'fire-enter');
  assert.equal(M4_STEPS[newM4Tutorial(true).index].id,'goblin-enter');
+});
+
+test('nephew spell appears complete immediately with no demonstration or cast instruction',()=>{
+ let s=at('goblin-nephew');s=transitionM4(s,{type:'continue',token:s.token});
+ assert.equal(M4_STEPS[s.index].id,'goblin-bad-cast');assert.equal(M4_STEPS[s.index].text,'');assert.equal(m4ActionAllowed(s,'cast'),true);
+ assert.equal(recognize(goblinDrawing(false),['fire','water','nature']).quality,48);
 });

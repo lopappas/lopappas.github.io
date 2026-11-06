@@ -43,3 +43,7 @@ test('the reading pause lasts exactly 1.8 seconds and can be skipped only after 
  assert.equal(FILA_DIALOGUE_HOLD_MS,1800);assert.equal(canSkipDialogueHold(text,finished-1,true),false);assert.equal(canSkipDialogueHold(text,finished,true),true);assert.equal(canSkipDialogueHold(text,finished,false),false);
  assert.equal(filaDialogueFrame(text,finished+1799).complete,false);assert.equal(filaDialogueFrame(text,finished+1800).complete,true);
 });
+
+test('dialogue character rate is 15 percent faster without shortening reading or punctuation holds',()=>{
+ assert.equal(FILA_CHARACTER_MS,48/1.15);assert.equal(FILA_PUNCTUATION_PAUSE_MS,500);assert.equal(FILA_DIALOGUE_HOLD_MS,1800);
+});

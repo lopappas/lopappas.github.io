@@ -20,3 +20,5 @@
 
 .t2-fila-bubble strong{font-family:inherit;font-weight:700;font-synthesis:weight}.t2-dialogue-continue{position:fixed;inset:0;z-index:10019;width:100%;height:100%;border:0;background:transparent;cursor:default}.t2-quality-explanation .spell-grade{font-size:inherit;line-height:inherit;min-width:0}.t2-quality-label{text-shadow:0 1px 2px #3a234b99}.t2-quality-faint,.t2-quality-steady{color:#e1cfaa}
 .t2-quality-label{display:inline-block;background:#26382e;border-radius:4px;padding:0 4px;text-shadow:none}.t2-quality-label .spell-grade{display:inline}
+
+.t2-canvas-notice{transform:translate(-50%,-50%);pointer-events:none;text-align:center}
