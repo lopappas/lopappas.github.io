@@ -21,6 +21,7 @@ import {CombatRelics} from './CombatRelics';
 import {BottleCapture} from './BottleCapture';
 import {SeaMerchant} from './SeaMerchant';
 import {RunPotions} from './RunPotions';
+import {Tutorial2Session} from './Tutorial2Session';
 import {TutorialSession} from './TutorialSession';
 import {useDeveloperTarget} from './Developer';
 import {applyDeveloperCommand} from './developerCommands';
@@ -45,7 +46,7 @@ function Opening({onStart}:{onStart:()=>void}){
 function stockOwned(run:Run,s:Stock){return s.kind==='randomSpell'?!SPELLS.some(spell=>!spell.developerOnly&&!run.spells.includes(spell.id)):s.kind==='spell'?run.spells.includes(s.item as Spell['id']):s.kind==='relic'?run.relics.includes(s.item as RelicId):false;}
 function stockName(s:Stock){return s.kind==='randomSpell'?'Random spell':s.kind==='spell'?SPELLS.find(x=>x.id===s.item)!.name:s.kind==='potion'?potionName(s.item as Potion):RELICS[s.item as RelicId].name;}
 export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
- const [practicing,setPracticing]=useState(false);
+ const [practicing,setPracticing]=useState(false),[tutorial2Preview,setTutorial2Preview]=useState(false);
  const [discoveries,setDiscoveries]=useState<Discoveries>({});
  const [run,setRun]=useState<Run>(()=>newRun()),[relic,setRelic]=useState<RelicId>('amber'),[replacingPotion,setReplacingPotion]=useState(false),[bottleReturning,setBottleReturning]=useState(false);
  useDeveloperTarget(command=>{const next=applyDeveloperCommand(run,command);setRun(next);if(next===run&&command.type==='potion')return 'Purse is full.';if(next===run&&command.type==='travel')return 'Return to the trail and finish any bottle first.';},0,{canTravel:run.screen==='map'&&!run.pendingBottle,onOpen:()=>setRun(unlockDeveloperTrail)});
@@ -67,8 +68,9 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  const stats=<div className="run-stats"><span className="run-stat" aria-label={`Health: ${run.health} out of 100`}>♡ {run.health}/100</span><RunPotions onDrinkHealing={id=>update(r=>drinkTrailHealing(r,id),'bottle')} visibleSlots key={`${run.screen}-${run.node}`} run={run} onDrop={(id,bottleIndex)=>update(r=>discardPotion(r,id,bottleIndex))}/><span className="run-stat" aria-label={`Gold: ${run.gold}`}>◈ {run.gold}</span></div>;
  if(run.pendingBottle)return <BottleCapture stats={stats} inkMultiplier={run.relics.includes('feather')?.8:1} known={run.spells} upgrades={run.upgrades} onSeal={spell=>{setBottleReturning(true);update(r=>sealBottle(r,spell));}}/>;
  if(run.screen==='opening')return <main className="app opening-shell"><Opening onStart={()=>update(finishOpening)}/></main>;
+ if(tutorial2Preview)return <Tutorial2Session Combat={Combat} onExit={()=>setTutorial2Preview(false)}/>;
  if(practicing)return <Practice Combat={Combat} onExit={()=>setPracticing(false)}/>;
- if(run.screen==='menu')return <main className="app main-menu"><header className="topbar"><span className="brand">☾ Wonderful Summit</span><div className="header-actions"><SettingsButton/><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/></div></header><div className="menu-scene"><span className="menu-moon" aria-hidden="true">☾</span><h1 className="menu-title grade-wonderful" aria-label="Wonderful Summit"><span aria-hidden="true"><RainbowLetters text="Wonderful"/></span><br/><strong aria-hidden="true"><RainbowLetters text="Summit" offset={9}/></strong></h1><TitleMountain/></div><footer className="screen-confirmation menu-actions"><button className="primary-small" onClick={()=>{const next=selectMode(run,'new');setRelic(next.keepsakeOffers[0]);update(()=>next);}}>New game</button><button className="secondary-button" onClick={()=>update(r=>selectMode(r,'tutorial'))}>Tutorial</button><button className="secondary-button" onClick={()=>setPracticing(true)}>Practice</button><EncyclopediaButton discoveries={discoveries}/></footer></main>;
+ if(run.screen==='menu')return <main className="app main-menu"><header className="topbar"><span className="brand">☾ Wonderful Summit</span><div className="header-actions"><SettingsButton/><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/></div></header><div className="menu-scene"><span className="menu-moon" aria-hidden="true">☾</span><h1 className="menu-title grade-wonderful" aria-label="Wonderful Summit"><span aria-hidden="true"><RainbowLetters text="Wonderful"/></span><br/><strong aria-hidden="true"><RainbowLetters text="Summit" offset={9}/></strong></h1><TitleMountain/></div><footer className="screen-confirmation menu-actions"><button className="primary-small" onClick={()=>{const next=selectMode(run,'new');setRelic(next.keepsakeOffers[0]);update(()=>next);}}>New game</button><button className="secondary-button" onClick={()=>update(r=>selectMode(r,'tutorial'))}>The old tutorial</button><button className="secondary-button" onClick={()=>setTutorial2Preview(true)}>Tutorial 2.0 preview</button><button className="secondary-button" onClick={()=>setPracticing(true)}>Practice</button><EncyclopediaButton discoveries={discoveries}/></footer></main>;
  if(run.screen==='tutorial')return <TutorialSession Combat={Combat} onExit={()=>update(()=>returnToMenu())}/>;
  if(run.screen==='battle')return <Combat key={run.node} journey={run} onReviewReady={()=>setRun(markSpellsReviewed)} onDeveloperCommand={command=>setRun(r=>applyDeveloperCommand(r,command))} onFinish={battle=>update(r=>finishBattle(r,battle))}/>;
  const reward=run.reward,selectedRelic=run.keepsakeOffers.includes(relic)?relic:run.keepsakeOffers[0];
@@ -105,3 +107,4 @@ function SpellChoices({offers,selected,skipped,onChoose,onSkip}:{offers:Spell['i
  const done=!!selected||!!skipped;
  return <section className="spell-offer-choice" aria-label="Choose a spell"><h2>Learn one spell</h2><div className="reward-spells">{offers.map(id=>{const spell=SPELLS.find(s=>s.id===id)!;return <button key={id} className={`${spellRarityClass(spell.rarity)}${selected===id?' selected':''}`} aria-label={`${spell.name}, ${spell.rarity}${selected===id?', learned':''}`} disabled={done} onClick={()=>onChoose(id)}><em className="rarity-label">{spell.rarity}</em><Icon spell={spell}/><strong><LessonText text={spell.name}/></strong><small><LessonText text={spell.description}/></small></button>;})}</div><button className="skip-spell-button" disabled={done} onClick={onSkip}>{skipped?'Skipped':'Skip'}</button></section>;
 }
+

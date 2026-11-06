@@ -61,3 +61,13 @@ Moss Locket heals 10 health after each victory, capped at 100. Firestorm, Drudge
 Spell rewards occur every third combat victory and offer two distinct unlearned spells (or fewer if the collection is nearly complete). Regular battles begin with a player-controlled review: large spell symbols and names in stable spellbook element groups. Newly learned spells get a subtle highlight until acknowledged with Ready. The review stays open indefinitely; Ready dismisses it immediately and starts combat. Battle time, input and enemy countdowns remain paused until then. Tutorial and practice retain their existing entry flows.
 
 Pre-battle review hides visible element headings while retaining grouped spell positions and accessible group labels. Tapping a spell immediately opens a compact description dialog using the live spell description. Close it with its 44px close target, an outside click, or Escape; focus returns to the inspected spell. The underlying review is inert during inspection, and outside dismissal never starts combat. Ready remains the only way to begin combat.
+
+
+
+## Tutorial 2.0 — milestone 1
+
+The menu offers a separate **Tutorial 2.0 preview**, while **The old tutorial** remains available until the final cleanup milestone. The preview uses the real combat controls: dialogue → open spellbook → explicitly select Dewdrop → close book → draw a mark → clear it → completion. It is a foundation review, not the full replacement tutorial.
+
+`src/tutorial2.ts` owns explicit step definitions, action permissions, token-checked completion, pause/resume, and future demonstration/settling phases. `Tutorial2Session.tsx` provides tap-through dialogue, focus handling, an obvious spotlight/arrow, and always-available Pause/Menu controls. The shared Combat and Spellbook enforce permissions at their handlers as well as disabling controls. Pausing preserves the drawing and pauses an in-flight book close; leaving cleans up listeners and timers. The preview enemy cannot approach or attack.
+
+Next: the complete fire-slime lesson and animated Dewdrop tracing (milestone 2), followed by nature/water lessons, the accuracy goblin, final independent combat, verification, and removal of the old tutorial. No old tutorial code or exclusive tests have been removed.

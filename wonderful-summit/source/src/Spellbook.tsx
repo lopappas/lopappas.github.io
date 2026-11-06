@@ -15,8 +15,8 @@ function MarkedSpellName({name,marked}:{name:string;marked:boolean}){
  return <>{name.slice(0,split)}<span className="spell-name-ending">{name.slice(split)}<sup className="wonderful-diamond" aria-label="True Wonderful achieved">◆</sup></span></>;
 }
 type UpgradePage={selected:boolean;used:boolean;confirmed:boolean;celebrating:boolean;damageBonus:number;onConfirm:()=>void};
-type Props={wonderful?:SpellId[];known:SpellId[];upgrades:Partial<Record<SpellId,number>>;reference:Spell;pageFlash:number;closing:boolean;inCombat?:boolean;openingDurationMs?:number;traceCooldown?:GuideCooldown;tutorialHint?:{text:string;spellId?:SpellId;accent?:SpellAccent};upgrade?:UpgradePage;onSelect:(spell:Spell)=>void;onClose:()=>void};
-export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closing,inCombat=false,openingDurationMs=BOOK_TRANSITION_MS,traceCooldown,tutorialHint,upgrade,onSelect,onClose}:Props){
+type Props={tutorial2?:import('./tutorial2').Tutorial2Controls;wonderful?:SpellId[];known:SpellId[];upgrades:Partial<Record<SpellId,number>>;reference:Spell;pageFlash:number;closing:boolean;inCombat?:boolean;openingDurationMs?:number;traceCooldown?:GuideCooldown;tutorialHint?:{text:string;spellId?:SpellId;accent?:SpellAccent};upgrade?:UpgradePage;onSelect:(spell:Spell)=>void;onClose:()=>void};
+export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closing,inCombat=false,openingDurationMs=BOOK_TRANSITION_MS,traceCooldown,tutorialHint,upgrade,onSelect,onClose,tutorial2}:Props){
  const dialog=useRef<HTMLElement>(null),closeRef=useRef(onClose);closeRef.current=onClose;
  const level=upgrades[reference.id]??0,preview=upgrade?spellUpgradePreview(reference.id,upgrade.confirmed?Math.max(0,level-1):level,upgrade.damageBonus):null;
  const [traceReady,setTraceReady]=useState(()=>!!traceCooldown?.isReady(performance.now()));
@@ -25,8 +25,8 @@ export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closi
  const pagesDisabled=closing||!!upgrade?.confirmed;
  useEffect(()=>{
   const previous=document.activeElement as HTMLElement|null,modal=dialog.current!;
-  modal.querySelector<HTMLButtonElement>('button')?.focus();
-  const key=(e:KeyboardEvent)=>{
+  modal.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
+  const key=(e:KeyboardEvent)=>{if(e.defaultPrevented)return;
    if(e.key==='Escape'){e.preventDefault();closeRef.current();}
    if(e.key==='Tab'){
     const items=Array.from(modal.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')),first=items[0],last=items.at(-1);
@@ -37,17 +37,17 @@ export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closi
   window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus();};
  },[]);
  return createPortal(<div className={`modal-backdrop book-backdrop${closing?' book-closing':''}`} style={{'--book-duration':`${closing?BOOK_TRANSITION_MS:openingDurationMs}ms`} as React.CSSProperties} onClick={onClose}>
-  <section ref={dialog} className={`book-modal${inCombat?' combat-spellbook':''}`} role="dialog" aria-modal="true" aria-labelledby="book-title" onClick={e=>e.stopPropagation()}>
-   <button className="close-modal" onClick={onClose} aria-label="Close spellbook">×</button><span id="book-title" className="eyebrow">FILA'S SPELLS</span>
+  <section ref={dialog} inert={!!tutorial2&&(tutorial2.paused||tutorial2.blocking)} className={`book-modal${inCombat?' combat-spellbook':''}`} role="dialog" aria-modal="true" aria-labelledby="book-title" onClick={e=>e.stopPropagation()}>
+   <button disabled={!!tutorial2&&!tutorial2.canAction('close')} className="close-modal" onClick={onClose} aria-label="Close spellbook">×</button><span id="book-title" className="eyebrow">FILA'S SPELLS</span>
    {tutorialHint&&<p className="book-tutorial-task"><LessonText text={tutorialHint.text} accent={tutorialHint.accent}/></p>}
    <div className="book-elements" aria-label="Spells by element">{spellbookColumns(known).map(column=><section className="spell-column" key={column.element} aria-label={`${column.element} spells`} style={{'--element-color':column.color} as React.CSSProperties}>
-    <h3><LessonText text={column.element}/></h3>{column.spells.map(spell=><button key={spell.id} aria-label={`${spellName(spell.id,upgrades[spell.id]??0)}, ${spell.rarity}`} className={`${spellRarityClass(spell.rarity)} ${reference.id===spell.id?'active':''}${tutorialHint?.spellId===spell.id?' tutorial-focus':''}`} aria-pressed={reference.id===spell.id} disabled={pagesDisabled||!!upgrade&&!isUpgradableSpell(spell.id)} onClick={()=>onSelect(spell)}><span className="spell-name" style={{color:spell.color}}><MarkedSpellName name={spellName(spell.id,upgrades[spell.id]??0)} marked={wonderful.includes(spell.id)}/></span></button>)}
+    <h3><LessonText text={column.element}/></h3>{column.spells.map(spell=><button data-tutorial2-target={`spell-${spell.id}`} key={spell.id} aria-label={`${spellName(spell.id,upgrades[spell.id]??0)}, ${spell.rarity}`} className={`${spellRarityClass(spell.rarity)} ${reference.id===spell.id?'active':''}${tutorialHint?.spellId===spell.id?' tutorial-focus':''}`} aria-pressed={reference.id===spell.id} disabled={!!tutorial2&&!tutorial2.canAction('select',spell.id)||pagesDisabled||!!upgrade&&!isUpgradableSpell(spell.id)} onClick={()=>onSelect(spell)}><span className="spell-name" style={{color:spell.color}}><MarkedSpellName name={spellName(spell.id,upgrades[spell.id]??0)} marked={wonderful.includes(spell.id)}/></span></button>)}
    </section>)}</div>
    <em className="rarity-label book-rarity">{reference.rarity}</em><div className="book-sigil-frame"><button key={pageFlash} className={`large-sigil page-border ${spellRarityClass(reference.rarity)}`} style={{color:reference.color,'--page-color':reference.color} as React.CSSProperties} onClick={()=>onSelect(reference)} disabled={pagesDisabled} aria-label={`View ${spellName(reference.id,level)} sigil`}><Sigil spell={reference}/></button>{upgrade?.celebrating&&<svg className="upgrade-rainbow" viewBox="0 0 120 120" aria-hidden="true"><g>{Array.from({length:8},(_,i)=><circle key={i} cx="60" cy="60" r="55" fill="none" stroke={`hsl(${i*45} 90% 70%)`} strokeWidth="5" strokeDasharray={`${Math.PI*110/8} ${Math.PI*110*7/8}`} strokeDashoffset={-i*Math.PI*110/8}/>)}</g></svg>}</div>
    <h3><span className="spell-name" style={{color:reference.color}}><MarkedSpellName name={spellName(reference.id,level)} marked={wonderful.includes(reference.id)}/></span></h3><p><LessonText text={reference.id==='firestorm'&&level>=1?reference.description.replace('2 damage every','3 damage every'):reference.description}/></p>
    {upgrade?<div className="upgrade-preview" aria-live="polite">{!upgrade.selected?<p>Choose a spell to upgrade.</p>:preview?<><strong style={{color:reference.color}}>{!upgrade.confirmed&&'Upgrade to '}<MarkedSpellName name={preview.nextName} marked={wonderful.includes(reference.id)}/></strong><p>{preview.knockback?`Knockback bonus: +${preview.currentBonus}% → +${preview.nextBonus}%`:preview.thistle?`Thorn damage every 0.5 seconds: ${preview.currentDamage} → ${preview.nextDamage}`:preview.bog?'Upgraded Drudge Bog also increases spell duration.':preview.firestorm?`Rain damage: ${preview.currentTick} → ${preview.nextTick} every 0.5 seconds`:preview.duration?`Duration bonus: +${preview.currentBonus}% → +${preview.nextBonus}%`:<>Direct damage bonus: +{preview.currentBonus}% → +{preview.nextBonus}%</>}</p>{preview.thistle&&<small>Damage threshold: {preview.currentThreshold} → {preview.nextThreshold} (+15%)</small>}{!preview.duration&&!preview.firestorm&&!preview.bog&&!preview.thistle&&!preview.knockback&&<small>Steady (60%) damage: {preview.currentDamage} → {preview.nextDamage}<br/>Before elemental advantage.</small>}</>:<p>Fully upgraded.</p>}</div>:<div className="book-tip">Keep the overall shape and proportions. Any size or position works. Stroke order does not matter.</div>}
    {upgrade&&<button className="primary-small" disabled={closing||!upgrade.selected||upgrade.used||!preview} onClick={upgrade.onConfirm}>{upgrade.confirmed?'Upgraded!':'Confirm upgrade'}</button>}
-   <button className={`${upgrade?'secondary-button upgrade-close':'primary-small'}${(inCombat&&traceReady&&!closing||upgrade?.confirmed)?' trace-ready':''}`} onClick={onClose}>{inCombat?'Ready':'Close'}</button>
+   <button data-tutorial2-target="book-close" disabled={!!tutorial2&&!tutorial2.canAction('close')||closing} className={`${upgrade?'secondary-button upgrade-close':'primary-small'}${(inCombat&&traceReady&&!closing||upgrade?.confirmed)?' trace-ready':''}`} onClick={onClose}>{inCombat?'Ready':'Close'}</button>
   </section>
  </div>,document.body);
 }
@@ -65,4 +65,5 @@ export function TravelSpellbook({known,upgrades,upgrade,wonderful=[]}:{wonderful
  const developerHold=useDeveloperHold(show);
  return <><button className={upgrade?'camp-choice':'book-button'} disabled={!!upgrade?.used||!!upgrade&&known.every(id=>!isUpgradableSpell(id)||(upgrades[id]??0)>=1)} {...(upgrade?{onClick:show}:developerHold)} aria-label={upgrade?'Choose a spell to upgrade':'Open spellbook'}>{upgrade?<><strong>Upgrade</strong><small>Choose a spell in your spellbook</small></>:<><span aria-hidden="true">▤</span> Spellbook</>}</button>{open&&<Spellbook wonderful={wonderful} known={known} upgrades={upgrades} reference={reference} pageFlash={pageFlash} closing={closing} upgrade={upgrade?{selected,confirmed,celebrating,used:upgrade.used,damageBonus:upgrade.damageBonus,onConfirm:confirm}:undefined} onSelect={select} onClose={close}/>}</>;
 }
+
 
