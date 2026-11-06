@@ -6,7 +6,7 @@ export const TUTORIAL2_FIRE_STEPS:readonly Tutorial2Step[]=[
  {id:'fire-intro',kind:'dialogue',text:'Oh no! A slime has come to attack my village! I have a water spell to handle this.'},
  {id:'fire-book',kind:'action',action:'book',target:'book',text:'Open your spellbook.'},
  {id:'fire-select',kind:'action',action:'select',target:'spell-water',spellId:'water',text:'Select Dewdrop, your water spell.'},
- {id:'fire-close',kind:'action',action:'close',target:'book-close',text:'Tap Ready to close the spellbook.'},
+ {id:'fire-close',kind:'action',action:'close',target:'book-close',text:'Close your spellbook.'},
  {id:'fire-demo',kind:'demonstration',completion:'dewdrop',text:'Here is how to draw a Dewdrop.'},
  {id:'fire-draw',kind:'action',action:'draw',target:'canvas',text:'Draw Dewdrop over the guide.'},
  {id:'fire-cast',kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
