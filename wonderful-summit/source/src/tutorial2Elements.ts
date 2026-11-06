@@ -1,0 +1,58 @@
+import {SPELLS,type SpellId,type Point} from './magic.ts';
+import {TUTORIAL2_FIRE_STEPS,tutorial2FireBattle,type Tutorial2FireState,type Tutorial2CastOutcome} from './tutorial2Fire.ts';
+import {newTutorial2,transitionTutorial2,type Tutorial2Step,type Tutorial2Event,type Tutorial2Action} from './tutorial2.ts';
+import {CONTACT_X} from './battle.ts';
+export const LESSONS=[{id:'fire',spell:'water',name:'Dewdrop',duration:4500},{id:'nature',spell:'fire',name:'Hearthspark',duration:4000},{id:'water',spell:'nature',name:'Little Sprout',duration:5000}] as const;
+function castingSteps(i:1|2):Tutorial2Step[]{const l=LESSONS[i];return[
+ {id:`${l.id}-book`,kind:'action',action:'book',target:'book',text:'Open your spellbook.'},
+ {id:`${l.id}-select`,kind:'action',action:'select',spellId:l.spell,target:`spell-${l.spell}`,text:`Select ${l.name}, your ${i===1?'fire':'nature'} spell.`},
+ {id:`${l.id}-close`,kind:'action',action:'close',target:'book-close',text:'Close your spellbook.'},
+ {id:`${l.id}-demo`,kind:'demonstration',completion:l.spell,text:`Here is how to draw ${l.name}.`},
+ {id:`${l.id}-draw`,kind:'action',action:'draw',target:'canvas',text:`Draw ${l.name} over the guide.`},
+ {id:`${l.id}-cast`,kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
+ {id:`${l.id}-impact`,kind:'settling',durationMs:0,text:''}
+];}
+export const ELEMENT_STEPS:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS,
+ {id:'nature-intro',kind:'dialogue',text:'Ah, a pesky nature slime, let me blast em away with fire!'},
+ {id:'nature-spill',kind:'dialogue',text:'Whoops! Spilled some ink.'},
+ {id:'nature-clear',kind:'action',action:'clear',target:'clear',text:'Clear the spilled ink.'},
+ ...castingSteps(1),{id:'nature-victory',kind:'dialogue',text:'That was easy. Fire burns nature.'},
+ {id:'water-ambush',kind:'settling',durationMs:0,text:''},
+ {id:'water-injury',kind:'dialogue',text:'Ow! What... Where did this guy come from?? I need a health potion... Belladora! Where are you!'},
+ {id:'water-heal',kind:'action',action:'heal',target:'heal',text:'Tap your health potion.'},
+ {id:'water-ink',kind:'dialogue',text:'I need to refill my ink too.'},
+ {id:'water-refill',kind:'action',action:'refill',target:'refill',text:'Refill your ink.'},
+ ...castingSteps(2),{id:'water-victory',kind:'dialogue',text:"Don't mess with witches! Nature absorbs water."}
+];
+export const newElementTutorial=():Tutorial2FireState=>({...newTutorial2(ELEMENT_STEPS),resetSerial:0,retry:false});
+export const elementStep=(s:Tutorial2FireState)=>ELEMENT_STEPS[s.index];
+export const elementLesson=(s:Tutorial2FireState)=>(s.phase==='complete'?2:LESSONS.findIndex(l=>elementStep(s)?.id.startsWith(l.id))) as 0|1|2;
+function jump(s:Tutorial2FireState,id:string,reset=false){return{...s,index:ELEMENT_STEPS.findIndex(x=>x.id===id),token:s.token+1,elapsedMs:0,resetSerial:s.resetSerial+(reset?1:0)};}
+export function elementActionAllowed(s:Tutorial2FireState,action:Tutorial2Action,spellId?:SpellId){
+ const step=elementStep(s);if(s.phase!=='running')return false;
+ if(/-(draw|cast)$/.test(step.id)&&['draw','clear'].includes(action))return true;
+ return step.kind==='action'&&step.action===action&&(!step.spellId||step.spellId===spellId);
+}
+export const elementCanReplay=(s:Tutorial2FireState)=>s.phase==='running'&&/-(draw|cast)$/.test(elementStep(s).id);
+export const replayElement=(s:Tutorial2FireState)=>elementCanReplay(s)?jump(s,`${LESSONS[elementLesson(s)].id}-demo`,true):s;
+export function transitionElement(s:Tutorial2FireState,e:Tutorial2Event){
+ if(s.phase!=='running'||e.token!==s.token||elementStep(s).kind==='settling')return s;
+ if(e.type==='action'&&e.action==='clear'&&elementCanReplay(s))return jump(s,`${LESSONS[elementLesson(s)].id}-draw`,true);
+ const next=transitionTutorial2(ELEMENT_STEPS,s,e);return next===s?s:{...s,...next,retry:false};
+}
+export function resolveElementCast(s:Tutorial2FireState,o:Tutorial2CastOutcome){
+ if(s.phase!=='running'||!elementStep(s).id.endsWith('-impact')||o.token!==s.token-1)return s;
+ const l=LESSONS[elementLesson(s)];return o.spellId===l.spell&&o.quality>=60&&o.enemyHP<=0?jump(s,`${l.id}-victory`):{...jump(s,`${l.id}-draw`,true),retry:true};
+}
+export const finishAmbush=(s:Tutorial2FireState,token:number)=>s.phase==='running'&&s.token===token&&elementStep(s).id==='water-ambush'?jump(s,'water-injury'):s;
+export function elementBattle(lesson:number,ambush=false){
+ const b=tutorial2FireBattle();return{...b,playerHP:100,potions:{...b.potions,heal:lesson===2&&!ambush?0:1},approachAt:ambush?0:Infinity,enemies:b.enemies.map(e=>({...e,element:lesson===1?'Nature' as const:lesson===2?'Water' as const:'Fire' as const,x:ambush?CONTACT_X:e.x}))};
+}
+export function elementTrace(spellId:SpellId,progress:number){
+ const spell=SPELLS.find(s=>s.id===spellId)!;
+ const paths=spellId==='water'?[([...spell.strokes[0]].reverse())]:spellId==='fire'?[([...spell.strokes[0]].reverse())]:spell.strokes;
+ const total=paths.reduce((sum,path)=>sum+path.slice(1).reduce((n,p,i)=>n+Math.hypot(p.x-path[i].x,p.y-path[i].y),0),0);
+ let remaining=total*Math.max(0,Math.min(1,progress));const strokes:Point[][]=[];let tip=paths[0][0];
+ for(const path of paths){const partial=[path[0]];for(let i=1;i<path.length;i++){const a=path[i-1],b=path[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(remaining>=length){partial.push(b);remaining-=length;tip=b;}else{const t=length?remaining/length:0;tip={x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};partial.push(tip);strokes.push(partial);return{strokes,tip};}}strokes.push(partial);}
+ return{strokes,tip};
+}

@@ -7,3 +7,5 @@
 @font-face{font-family:Kurale;src:url("./fonts/Kurale-Regular.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}.t2-fila-bubble{font-family:Kurale,Georgia,serif;font-size:16px;line-height:1.25;color:#54405e}.t2-fila-bubble strong{font-family:Kurale,Georgia,serif;font-size:13px;font-weight:400;letter-spacing:.4px}
 
 .t2-term{text-shadow:0 1px 1px #15251b55}
+
+.tutorial2-app .t2-companion-arrival{animation:t2-purse-arrive 1s ease-out both}@keyframes t2-purse-arrive{from{transform:translateX(-200px)}to{transform:translateX(0)}}

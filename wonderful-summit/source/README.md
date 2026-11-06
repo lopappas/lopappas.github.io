@@ -64,7 +64,7 @@ Pre-battle review hides visible element headings while retaining grouped spell p
 
 
 
-## Tutorial 2.0 — milestone 2
+## Tutorial 2.0 — milestone 3
 
 The menu offers a separate **Tutorial 2.0 preview**, while **The old tutorial** remains available until the final cleanup milestone. The preview now runs the complete fire-slime lesson: village dialogue → spellbook → explicit Dewdrop selection → Ready → 4.5-second counterclockwise brush demonstration → draw over a persistent guide → hold Cast → impact → victory dialogue.
 
@@ -74,8 +74,10 @@ The explicit sequence, token-checked callbacks, control restrictions, highlights
 
 Direct preview: `https://lopappas.github.io/wonderful-summit/?tutorial=2`. Exit returns to the menu; reloading this link starts a fresh lesson.
 
-Next: nature/water lessons (milestone 3), the accuracy goblin, final independent combat, verification, and removal of the old tutorial. No old tutorial code or exclusive tests have been removed.
+Next: the accuracy goblin (milestone 4), final independent combat, verification, and removal of the old tutorial. No old tutorial code or exclusive tests have been removed.
 
 Fila dialogue in Tutorial 2.0 always uses a canvas-textured bubble above and to her right, without a spotlight or dark backdrop. Each line types at 48 ms per character, with an additional 500 ms pause after every period or exclamation mark, then stays for 2.2 seconds before automatically advancing. Pause and hidden-page time freeze both typing and the reading delay. Future dialogue steps inherit this presentation. The cast instruction reads **Hold Cast!**. Fila’s dialogue uses the bundled Kurale storybook font (SIL Open Font License).
 
 Fila bubbles use compact padding and line spacing, positioned further above Fila. All Tutorial 2.0 dialogue and instruction text colors complete element and spell names from the live spell catalog; typewriter fragments retain the color of the full term.
+
+Milestone 3 continues directly into a 24 HP Nature slime, spilled-ink clearing lesson and 4-second counterclockwise Hearthspark demonstration. Next, a Water slime spawns at contact range and lands one real attack. Belladora arrives smiling from the left for the tap-to-heal lesson; the tutorial waits for actual potion healing. Ink is set empty for the refill lesson, which waits for completion and pauses its timer with the tutorial. Little Sprout is demonstrated over 5 seconds: left top branch through the V, then from the V’s corner down the stem, without a connecting line. Each lesson retains a static guide, optional replay and fresh retry against its own slime. The preview ends after the water victory dialogue.

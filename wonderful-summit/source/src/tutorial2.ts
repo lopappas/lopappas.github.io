@@ -56,7 +56,7 @@ export function tutorial2FoundationBattle():Battle{
  return{...newBattle('active','slime',()=>0),approachAt:Infinity,potions:{heal:1,freeze:0,ink:0}};
 }
 export type Tutorial2Controls={
- initialBattle:Battle;token:number;paused:boolean;blocking:boolean;resetSerial?:number;trace?:{progress:number;demonstrating:boolean};onCastOutcome?:(outcome:import('./tutorial2Fire').Tutorial2CastOutcome)=>void;
+ initialBattle:Battle;resetBattle?:Battle;token:number;paused:boolean;blocking:boolean;resetSerial?:number;setup?:'spill'|'empty';ambush?:boolean;companion?:boolean;onAmbush?:(token:number)=>void;trace?:{progress:number;demonstrating:boolean;spellId?:SpellId};onCastOutcome?:(outcome:import('./tutorial2Fire').Tutorial2CastOutcome)=>void;
  canAction:(action:Tutorial2Action,spellId?:SpellId)=>boolean;
  onAction:(action:Tutorial2Action,token:number,spellId?:SpellId)=>void;
 };
