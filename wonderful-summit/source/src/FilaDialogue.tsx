@@ -1,8 +1,16 @@
 import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {TutorialText} from './TutorialText';
-import {advanceFilaDialogue,filaDialogueFrame} from './filaDialogue';
+import {tutorialTextParts} from './tutorialText';
+import {FILA_LETTER_FADE_MS,filaCharacterTimes,advanceFilaDialogue,filaDialogueFrame} from './filaDialogue';
 
+function FadingDialogueText({text,elapsed}:{text:string;elapsed:number}){
+ const times=filaCharacterTimes(text);let index=0;
+ return <>{tutorialTextParts(text).map((part,i)=><span key={i} className={part.color?'t2-term':undefined} style={part.color?{color:part.color}:undefined}>{(part.text.match(/\S+|\s+/g)??[]).map((word,j)=>{
+  if(/^\s+$/.test(word)){index+=Array.from(word).length;return word;}
+  return <span key={j} className="t2-fila-word">{Array.from(word,character=>{const at=times[index++];return <span key={at} style={{opacity:Math.max(0,Math.min(1,(elapsed-at)/FILA_LETTER_FADE_MS))}}>{character}</span>;})}</span>;
+ })}</span>)}</>;
+}
 // All Tutorial 2.0 dialogue steps use this presentation, including future lessons.
 export function FilaDialogue({text,active,onComplete,onTextProgress,holdMs}:{text:string;active:boolean;onComplete:()=>void;onTextProgress?:(text:string)=>void;holdMs?:number}){
  const bubble=useRef<HTMLElement>(null),latest=useRef({active,onComplete,onTextProgress});latest.current={active,onComplete,onTextProgress};
@@ -29,8 +37,7 @@ export function FilaDialogue({text,active,onComplete,onTextProgress,holdMs}:{tex
    }frame=requestAnimationFrame(place);
   };place();return()=>cancelAnimationFrame(frame);
  },[active,text]);
- const line=filaDialogueFrame(text,elapsed,holdMs);
  return createPortal(<aside ref={bubble} className="t2-fila-bubble" role="status" aria-label={`Fila says: ${text}`} aria-hidden={!active} style={{...position,visibility:active&&position?'visible':'hidden'}}>
-  <strong aria-hidden="true">Fila</strong><p aria-hidden="true"><span className="t2-fila-measure"><TutorialText text={text}/></span><span className="t2-fila-typed"><TutorialText text={text} visibleCharacters={Array.from(line.text).length}/>{!line.typed&&<i className="t2-fila-caret"/>}</span></p>
+  <strong aria-hidden="true">Fila</strong><p aria-hidden="true"><span className="t2-fila-measure"><TutorialText text={text}/></span><span className="t2-fila-typed"><FadingDialogueText text={text} elapsed={elapsed}/></span></p>
  </aside>,document.body);
 }

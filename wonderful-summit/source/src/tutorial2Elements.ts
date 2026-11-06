@@ -2,7 +2,7 @@ import {SPELLS,type SpellId,type Point} from './magic.ts';
 import {TUTORIAL2_FIRE_STEPS,tutorial2FireBattle,type Tutorial2FireState,type Tutorial2CastOutcome} from './tutorial2Fire.ts';
 import {newTutorial2,transitionTutorial2,type Tutorial2Step,type Tutorial2Event,type Tutorial2Action} from './tutorial2.ts';
 import {CONTACT_X} from './battle.ts';
-export const LESSONS=[{id:'fire',spell:'water',name:'Dewdrop',duration:4500},{id:'nature',spell:'fire',name:'Hearthspark',duration:4000},{id:'water',spell:'nature',name:'Little Sprout',duration:5000}] as const;
+export const LESSONS=[{id:'fire',spell:'water',name:'Dewdrop',duration:4500},{id:'nature',spell:'fire',name:'Hearthspark',duration:4000},{id:'water',spell:'nature',name:'Little Sprout',duration:4000}] as const;
 function castingSteps(i:1|2):Tutorial2Step[]{const l=LESSONS[i];return[
  {id:`${l.id}-book`,kind:'action',action:'book',target:'book',text:'Open your spellbook.'},
  {id:`${l.id}-select`,kind:'action',action:'select',spellId:l.spell,target:`spell-${l.spell}`,text:`Select ${l.name}, your ${i===1?'fire':'nature'} spell.`},
@@ -10,9 +10,10 @@ function castingSteps(i:1|2):Tutorial2Step[]{const l=LESSONS[i];return[
  {id:`${l.id}-demo`,kind:'demonstration',completion:l.spell,text:`Here is how to draw ${l.name}.`},
  {id:`${l.id}-draw`,kind:'action',action:'draw',target:'canvas',text:`Draw ${l.name} over the guide.`},
  {id:`${l.id}-cast`,kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
- {id:`${l.id}-impact`,kind:'settling',durationMs:0,text:''}
+ {id:`${l.id}-impact`,kind:'settling',durationMs:0,text:''},
+ {id:`${l.id}-retry`,kind:'settling',durationMs:1000,text:'Try again'}
 ];}
-export const ELEMENT_STEPS:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS,
+const authoredSteps:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS.flatMap(s=>s.id==='fire-impact'?[s,{id:'fire-retry',kind:'settling' as const,durationMs:1000,text:'Try again'}]:[s]),
  {id:'nature-intro',kind:'dialogue',text:'Ah, a pesky nature slime, let me blast em away with fire!'},
  {id:'nature-spill',kind:'dialogue',text:'Whoops! I spilled my inkwell…'},
  {id:'nature-clear',kind:'action',action:'clear',target:'clear',text:'Clear the spilled ink.'},
@@ -30,6 +31,7 @@ export const ELEMENT_STEPS:readonly Tutorial2Step[]=[...TUTORIAL2_FIRE_STEPS,
  {id:'water-refill',kind:'action',action:'refill',target:'refill',text:'Refill your ink.'},
  ...castingSteps(2),{id:'water-victory',kind:'dialogue',text:"Don't mess with witches! Nature absorbs water."}
 ];
+export const ELEMENT_STEPS:readonly Tutorial2Step[]=authoredSteps.map(step=>step.kind==='dialogue'?step:{...step,text:step.text.replace(/\.$/,'')});
 export const newElementTutorial=():Tutorial2FireState=>({...newTutorial2(ELEMENT_STEPS),resetSerial:0,retry:false});
 export const elementStep=(s:Tutorial2FireState)=>ELEMENT_STEPS[s.index];
 export const elementLesson=(s:Tutorial2FireState)=>(s.phase==='complete'?2:LESSONS.findIndex(l=>elementStep(s)?.id.startsWith(l.id))) as 0|1|2;
@@ -46,12 +48,13 @@ export function transitionElement(s:Tutorial2FireState,e:Tutorial2Event){
  const step=elementStep(s);
  if(e.type==='tick'&&['water-draw','water-cast'].includes(step.id)&&Number.isFinite(e.deltaMs)&&e.deltaMs>0)return s.elapsedMs>=6000?s:{...s,elapsedMs:Math.min(6000,s.elapsedMs+e.deltaMs)};
  if(step.kind==='settling'&&step.durationMs===0)return s;
+ if(step.id.endsWith('-retry')&&e.type==='tick'&&Number.isFinite(e.deltaMs)&&e.deltaMs>0&&s.elapsedMs+e.deltaMs>=1000)return{...jump(s,`${LESSONS[elementLesson(s)].id}-draw`),retry:true};
  if(e.type==='action'&&e.action==='clear'&&elementCanReplay(s))return jump(s,`${LESSONS[elementLesson(s)].id}-draw`,true);
  const next=transitionTutorial2(ELEMENT_STEPS,s,e);return next===s?s:{...s,...next,elapsedMs:step.id==='water-draw'&&e.type==='action'&&e.action==='draw'?s.elapsedMs:next.elapsedMs,retry:e.type==='tick'?s.retry:false};
 }
 export function resolveElementCast(s:Tutorial2FireState,o:Tutorial2CastOutcome){
  if(s.phase!=='running'||!elementStep(s).id.endsWith('-impact')||o.token!==s.token-1)return s;
- const l=LESSONS[elementLesson(s)];return o.spellId===l.spell&&o.quality>=60&&o.enemyHP<=0?jump(s,`${l.id}-victory`):{...jump(s,`${l.id}-draw`,true),retry:true};
+ const l=LESSONS[elementLesson(s)];return o.spellId===l.spell&&o.quality>=60&&o.enemyHP<=0?jump(s,`${l.id}-victory`):{...jump(s,`${l.id}-${o.quality<60?'retry':'draw'}`,true),retry:true};
 }
 export const finishAmbush=(s:Tutorial2FireState,token:number)=>s.phase==='running'&&s.token===token&&elementStep(s).id==='water-ambush'?jump(s,'water-hit-wait'):s;
 export function elementBattle(lesson:number,ambush=false){
