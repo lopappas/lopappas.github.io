@@ -15,7 +15,7 @@ function castingSteps(i:1|2):Tutorial2Step[]{const l=LESSONS[i];return[
 ];}
 const authoredSteps:readonly Tutorial2Step[]=[
  {id:'fire-enter',kind:'settling',durationMs:800,text:''},
- {id:'fire-arrival-wait',kind:'settling',durationMs:1500,text:''},...TUTORIAL2_FIRE_STEPS.flatMap(s=>s.id==='fire-impact'?[s,{id:'fire-retry',kind:'settling' as const,durationMs:1000,text:'Try again'}]:[s]),
+ {id:'fire-arrival-wait',kind:'settling',durationMs:1000,text:''},...TUTORIAL2_FIRE_STEPS.flatMap(s=>s.id==='fire-impact'?[s,{id:'fire-retry',kind:'settling' as const,durationMs:1000,text:'Try again'}]:[s]),
  {id:'nature-intro',kind:'dialogue',text:'Ah, a pesky nature slime, let me blast em away with fire!'},
  {id:'nature-spill',kind:'dialogue',text:'Whoops! I spilled my inkwell…'},
  {id:'nature-clear',kind:'action',action:'clear',target:'clear',text:'Clear the spilled ink.'},

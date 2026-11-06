@@ -64,7 +64,7 @@ Pre-battle review hides visible element headings while retaining grouped spell p
 
 
 
-## Tutorial 2.0 — milestone 4
+## Tutorial 2.0 — milestone 5
 
 The menu offers a separate **Tutorial 2.0 preview**, while **The old tutorial** remains available until the final cleanup milestone. The preview now runs the complete fire-slime lesson: village dialogue → spellbook → explicit Dewdrop selection → Ready → 4.5-second counterclockwise brush demonstration → draw over a persistent guide → hold Cast → impact → victory dialogue.
 
@@ -74,7 +74,7 @@ The explicit sequence, token-checked callbacks, control restrictions, highlights
 
 Direct preview: `https://lopappas.github.io/wonderful-summit/?tutorial=2`. Exit returns to the menu; reloading this link starts a fresh lesson.
 
-Next: final independent combat (milestone 5), verification, and removal of the old tutorial. No old tutorial code or exclusive tests have been removed.
+Next: verification, then removal of the old tutorial in its planned cleanup milestone. No old tutorial code or exclusive tests have been removed.
 
 Fila dialogue in Tutorial 2.0 always uses a canvas-textured bubble above and to her right, without a spotlight or dark backdrop. Each line types at 48 ms per character, with an additional 500 ms pause after every period or exclamation mark, then stays for 2.2 seconds before automatically advancing. Pause and hidden-page time freeze both typing and the reading delay. Future dialogue steps inherit this presentation. The cast instruction reads **Hold Cast!**. Fila’s dialogue uses the bundled Kurale storybook font (SIL Open Font License).
 
@@ -97,3 +97,5 @@ Milestone 4 adds a stationary 58 HP non-elemental goblin. The nephew’s visibly
 Focused milestone 4 review: `https://lopappas.github.io/wonderful-summit/?tutorial=2&milestone=4`. The regular preview still starts with the Fire slime and continues through all four lessons.
 
 Dialogue pacing update: the Fire slime arrives for 800 ms, then waits 1.5 seconds before Filadora speaks. All player dialogue uses a shared 1.8-second reading hold with an unadvertised tap-to-continue during that hold. Kurale is loaded before starting the tutorial (with a stable Georgia fallback on failure); the speaker name is bold Filadora. Goblin defeat has its own 1.8-second pause. Quality explanation labels use the game’s grade styling, with weak/average/amazing/the best emphasized. The relic screen is replaced by “The goblin dropped a relic. Neat!”, then immediate inspection guidance after that dialogue. Casting titles now read “Tutorial: How to draw <spell>”.
+
+Milestone 5 continues from Colorful Rock inspection into a normal, full-health elemental slime chosen once per tutorial. It slides in from the right (including Water), then the final battle reminder waits for Continue. Combat allows free drawing, clearing, spellbook selection, casting, refilling and healing with no forced guides or spotlights. Filadora starts this fight with 100 health, 100 ink, one health potion and Colorful Rock. A defeat offers Retry final battle, restoring those resources and the same slime without repeating earlier lessons. A real victory waits 1.8 active seconds, then shows Tutorial complete and Return to menu. Pause and hidden-page behavior apply throughout. Focused review: `https://lopappas.github.io/wonderful-summit/?tutorial=2&milestone=5`. The initial Fire slime now waits 1 second after its 800 ms slide before Filadora speaks.

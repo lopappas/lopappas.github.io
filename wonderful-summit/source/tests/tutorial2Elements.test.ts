@@ -46,7 +46,7 @@ test('pause and replay preserve the active lesson and invalidate prior cast resu
 });
 
 test('ambush and Belladora use separate ordered arrival and reading delays',()=>{
- for(const [id,duration,next] of [['fire-enter',800,'fire-arrival-wait'],['fire-arrival-wait',1500,'fire-intro'],['water-enter',800,'water-pre-attack'],['water-pre-attack',1500,'water-ambush'],['water-hit-wait',1500,'water-injury'],['water-arrive',1000,'water-arrival-wait'],['water-arrival-wait',1500,'water-heal']] as const){
+ for(const [id,duration,next] of [['fire-enter',800,'fire-arrival-wait'],['fire-arrival-wait',1000,'fire-intro'],['water-enter',800,'water-pre-attack'],['water-pre-attack',1500,'water-ambush'],['water-hit-wait',1500,'water-injury'],['water-arrive',1000,'water-arrival-wait'],['water-arrival-wait',1500,'water-heal']] as const){
   let s=at(id);s=transitionElement(s,{type:'tick',deltaMs:duration-1,token:s.token});assert.equal(elementStep(s).id,id);
   const paused={...s,...pauseTutorial2(s)};assert.equal(transitionElement(paused,{type:'tick',deltaMs:5000,token:s.token}),paused);
   s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,next);
