@@ -13,6 +13,9 @@ Updated: 2026-11-07
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
+Latest presentation update: tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows “version 0.1.0” at the top left directly below the header. package.json is the single version source; README documents release numbering and npm version commands. Starting release baseline: 0.1.0.
+Validation for this update: 50 tutorial tests pass; TypeScript and production build pass. Source and matching build are committed together. No browser pass was performed; live deployment has not yet been verified.
+
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
 Earlier completed changes: title card waits for every bundled font before mounting; title-screen pencil-audio priming is explicitly muted until dialogue lettering. Credits return prompt uses the Wonderful rainbow lettering. Encyclopedia subtitle removed. Theodora's name is 15% smaller, portrait 20% smaller, and dialogue types 20% faster. Starter relic heading is “Filadora's starter relic”; duplicate robe details above its inspection icon are removed.

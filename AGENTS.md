@@ -31,10 +31,13 @@ These instructions apply to Wonderful Summit in this repository.
 - Distinguish committed, deployment pending, and verified live. Never claim a change is live based only on a commit or build success.
 
 ## Project decisions
-- The new tutorial is called "Tutorial 2.0"; the previous one is "the old tutorial".
-- Tutorial 2.0 is the main tutorial. Milestone 7 removed the old tutorial and its exclusive tests; retain shared game coverage.
+- Player-facing tutorial labels use "Tutorial". Internal Tutorial 2.0 module names remain unchanged.
+- The current tutorial is the main tutorial. Milestone 7 removed the old tutorial and its exclusive tests; retain shared game coverage.
 - The user has explicitly approved the unrestricted developer panel for the live game.
 - Preserve existing spell balance and behavior outside the requested change.
+
+## Release versions
+- Home shows the package.json version below its header. Start at 0.1.0; use MAJOR.MINOR.PATCH and bump once per published release. See source/README.md for commands.
 
 ## Handoffs
 - After a completed milestone or significant change, replace outdated information in PROJECT_STATUS.md with the current state, validation, unresolved issues, and next work.

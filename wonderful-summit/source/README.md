@@ -15,6 +15,14 @@ npm run build
 
 The static build is written to `dist-pages/`. Copy its contents into the parent `wonderful-summit/` folder to update the hosted game. Relative asset URLs support subfolder hosting.
 
+## Game versions
+
+The home page displays `version 0.1.0` directly below its header. `package.json` is the single source of truth for this release number; the production build reads it automatically.
+
+Use `MAJOR.MINOR.PATCH`: patch for fixes and small presentation changes (0.1.1), minor for new features (0.2.0), and 1.0.0 for the first stable release. Start at 0.1.0 for the current development baseline. Bump once per published release, not once per commit.
+
+From this directory run `npm version patch --no-git-tag-version` (or `minor` / `major`) to update both package files, then build and publish the source and matching output together. Git remains the code history; this number identifies the player-facing release.
+
 ## Rarity balance
 
 Uncommon spells cost 40 gold and Legendary spells cost 60. Spell rewards and merchant spell slots use 90:10 Uncommon/Legendary tier weights. Elite relic drops and merchant relic slots use 60:30:10 Common/Uncommon/Rare tier weights, with prices of 45/60/75 gold. Each tier shares its weight equally among eligible items; missing tiers redistribute their weight proportionally. Offers exclude owned spells, prefer unowned relics, and never repeat an item within the same selection. Theodora's Keepsakes stay outside merchant and reward pools.
