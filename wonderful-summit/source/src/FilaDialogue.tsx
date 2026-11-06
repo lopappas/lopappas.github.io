@@ -2,7 +2,7 @@ import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {TutorialText} from './TutorialText';
 import {tutorialTextParts} from './tutorialText';
-import {canSkipDialogueHold,FILA_LETTER_FADE_MS,filaCharacterTimes,advanceFilaDialogue,filaDialogueFrame} from './filaDialogue';
+import {canContinueFilaDialogue,FILA_LETTER_FADE_MS,filaCharacterTimes,advanceFilaDialogue,filaDialogueFrame} from './filaDialogue';
 
 function FadingDialogueText({text,elapsed}:{text:string;elapsed:number}){
  const times=filaCharacterTimes(text);let index=0;
@@ -12,8 +12,9 @@ function FadingDialogueText({text,elapsed}:{text:string;elapsed:number}){
  })}</span>)}</>;
 }
 // All Tutorial 2.0 dialogue steps use this presentation, including future lessons.
-export function FilaDialogue({text,active,onComplete,onTextProgress,holdMs,fontFamily='Kurale'}:{text:string;active:boolean;onComplete:()=>void;onTextProgress?:(text:string)=>void;holdMs?:number;fontFamily?:string}){
+export function FilaDialogue({text,active,onComplete,onTextProgress,fontFamily='Kurale'}:{text:string;active:boolean;onComplete:()=>void;onTextProgress?:(text:string)=>void;fontFamily?:string}){
  const completed=useRef(false);
+ const [acknowledged,setAcknowledged]=useState(false);
  const bubble=useRef<HTMLElement>(null),latest=useRef({active,onComplete,onTextProgress});latest.current={active,onComplete,onTextProgress};
  const [elapsed,setElapsed]=useState(0),[position,setPosition]=useState<{top:number;left:number;width:number}|null>(null);
  useEffect(()=>{
@@ -21,8 +22,8 @@ export function FilaDialogue({text,active,onComplete,onTextProgress,holdMs,fontF
   const visibility=()=>{last=performance.now();};document.addEventListener('visibilitychange',visibility);
   const tick=(now:number)=>{
    elapsedMs=advanceFilaDialogue(elapsedMs,now-last,latest.current.active&&!document.hidden);last=now;setElapsed(elapsedMs);
-   const line=filaDialogueFrame(text,elapsedMs,holdMs);latest.current.onTextProgress?.(line.text);
-   if(line.complete&&!completed.current){finished=true;completed.current=true;latest.current.onComplete();}else frame=requestAnimationFrame(tick);
+   const line=filaDialogueFrame(text,elapsedMs);latest.current.onTextProgress?.(line.text);
+   if(line.typed||completed.current)finished=true;else frame=requestAnimationFrame(tick);
   };frame=requestAnimationFrame(tick);
   return()=>{if(!finished)cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visibility);};
  },[text]);
@@ -40,6 +41,6 @@ export function FilaDialogue({text,active,onComplete,onTextProgress,holdMs,fontF
  },[active,text]);
  return createPortal(<><aside ref={bubble} className="t2-fila-bubble" role="status" aria-label={`Filadora says: ${text}`} aria-hidden={!active} style={{...position,fontFamily,visibility:active&&position?'visible':'hidden'}}>
   <strong aria-hidden="true">Filadora</strong><p aria-hidden="true"><span className="t2-fila-measure"><TutorialText text={text}/></span><span className="t2-fila-typed"><FadingDialogueText text={text} elapsed={elapsed}/></span></p>
-  {canSkipDialogueHold(text,elapsed,active)&&<small className="t2-fila-continue-hint">Tap to continue</small>}
- </aside>{canSkipDialogueHold(text,elapsed,active)&&<button className="t2-dialogue-continue" aria-label="Continue" onClick={e=>{e.preventDefault();e.stopPropagation();if(!completed.current){completed.current=true;latest.current.onComplete();}}}/>}</>,document.body);
+  {canContinueFilaDialogue(text,elapsed,active,acknowledged)&&<small className="t2-fila-continue-hint">Tap to continue</small>}
+ </aside>{canContinueFilaDialogue(text,elapsed,active,acknowledged)&&<button className="t2-dialogue-continue" aria-label="Tap to continue" onClick={e=>{e.preventDefault();e.stopPropagation();if(canContinueFilaDialogue(text,elapsed,latest.current.active,completed.current)){completed.current=true;setAcknowledged(true);latest.current.onComplete();}}}/>}</>,document.body);
 }
