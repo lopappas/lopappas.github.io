@@ -1,7 +1,8 @@
 import React,{useEffect,useLayoutEffect,useRef,useState,type ComponentType} from 'react';
 import {createPortal} from 'react-dom';
 import type {CombatProps} from './combatTypes';
-import {canTutorial2Action,newTutorial2,pauseTutorial2,resumeTutorial2,transitionTutorial2,tutorial2Step,tutorial2Journey,tutorial2FoundationBattle,TUTORIAL2_FOUNDATION_STEPS as steps,type Tutorial2Target} from './tutorial2';
+import {pauseTutorial2,resumeTutorial2,tutorial2Step,tutorial2Journey,type Tutorial2Target} from './tutorial2';
+import {DEWDROP_DEMO_MS,TUTORIAL2_FIRE_STEPS as steps,newTutorial2Fire,tutorial2FireBattle,fireActionAllowed,replayTutorial2Fire,fireCanReplay,transitionTutorial2Fire,resolveTutorial2FireCast} from './tutorial2Fire';
 import './tutorial2.css';
 
 type Rect={top:number;left:number;width:number;height:number};
@@ -29,22 +30,28 @@ function Tutorial2Dialog({title,text,label,onContinue,onExit}:{title:string;text
   const trap=(e:KeyboardEvent)=>{if(e.key!=='Tab')return;const items=Array.from(ref.current?.querySelectorAll<HTMLButtonElement>('button')??[]),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}};
   document.addEventListener('keydown',trap,true);return()=>{document.removeEventListener('keydown',trap,true);};
  },[]);
- return createPortal(<div className="t2-dialog-backdrop"><section ref={ref} className="t2-dialog" role="dialog" aria-modal="true" aria-labelledby="t2-dialog-title" aria-describedby="t2-dialog-text"><small>TUTORIAL 2.0</small><h1 id="t2-dialog-title">{title}</h1><p id="t2-dialog-text">{text}</p><button className="primary-small" onClick={onContinue}>{label}</button><button className="secondary-button" onClick={onExit}>Return to menu</button></section></div>,document.body);
+ return createPortal(<div className="t2-dialog-backdrop"><section ref={ref} className="t2-dialog" role="dialog" aria-modal="true" aria-labelledby="t2-dialog-title" aria-describedby="t2-dialog-text"><small>TUTORIAL 2.0</small><h1 id="t2-dialog-title">{title}</h1><p id="t2-dialog-text">{text}</p><button className="primary-small" onClick={onContinue}>{label}</button>{label!=='Return to menu'&&<button className="secondary-button" onClick={onExit}>Return to menu</button>}</section></div>,document.body);
 }
 export function Tutorial2Session({Combat,onExit}:{Combat:ComponentType<CombatProps>;onExit:()=>void}){
- const [state,setState]=useState(()=>newTutorial2(steps));
- const [journey]=useState(tutorial2Journey),[battle]=useState(tutorial2FoundationBattle);
+ const [state,setState]=useState(newTutorial2Fire);
+ const [journey]=useState(tutorial2Journey),[battle]=useState(tutorial2FireBattle);
+ const [demoProgress,setDemoProgress]=useState(0);
  const latest=useRef(state);latest.current=state;
  const step=tutorial2Step(steps,state),paused=state.phase==='paused',complete=state.phase==='complete';
- const pause=()=>setState(pauseTutorial2),resume=()=>setState(resumeTutorial2);
+ const pause=()=>setState(s=>({...s,...pauseTutorial2(s)})),resume=()=>setState(s=>({...s,...resumeTutorial2(s)}));
  useEffect(()=>{
-  const key=(e:KeyboardEvent)=>{if(e.key!=='Escape')return;e.preventDefault();e.stopImmediatePropagation();setState(s=>s.phase==='paused'?resumeTutorial2(s):pauseTutorial2(s));};
+  if(step?.kind!=='demonstration')return;let frame=0,last=performance.now(),elapsed=0;setDemoProgress(0);const token=state.token;
+  const tick=(now:number)=>{if(latest.current.phase!=='paused'&&!document.hidden)elapsed+=Math.max(0,now-last);last=now;setDemoProgress(Math.min(1,elapsed/DEWDROP_DEMO_MS));if(elapsed>=DEWDROP_DEMO_MS)setState(s=>transitionTutorial2Fire(s,{type:'demonstration-finished',completion:'dewdrop',token}));else frame=requestAnimationFrame(tick);};frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);
+ },[state.token]);
+ useEffect(()=>{
+  const key=(e:KeyboardEvent)=>{if(e.key!=='Escape')return;e.preventDefault();e.stopImmediatePropagation();setState(s=>({...s,...(s.phase==='paused'?resumeTutorial2(s):pauseTutorial2(s))}));};
   const visibility=()=>{if(document.hidden)pause();};window.addEventListener('keydown',key,true);document.addEventListener('visibilitychange',visibility);
   return()=>{window.removeEventListener('keydown',key,true);document.removeEventListener('visibilitychange',visibility);};
  },[]);
- return <><Combat journey={journey} tutorial2={{initialBattle:battle,token:state.token,paused,blocking:step?.kind!=='action',canAction:(action,spellId)=>canTutorial2Action(steps,latest.current,action,spellId),onAction:(action,token,spellId)=>setState(s=>transitionTutorial2(steps,s,{type:'action',action,token,spellId}))}} onFinish={onExit}/>
+ return <><Combat journey={journey} tutorial2={{initialBattle:battle,token:state.token,paused,blocking:complete||step?.kind==='dialogue'||step?.kind==='demonstration',resetSerial:state.resetSerial,trace:['fire-demo','fire-draw','fire-cast','fire-impact'].includes(step?.id??'')?{progress:step?.id==='fire-demo'?demoProgress:1,demonstrating:step?.id==='fire-demo'}:undefined,canAction:(action,spellId)=>fireActionAllowed(latest.current,action,spellId),onAction:(action,token,spellId)=>setState(s=>transitionTutorial2Fire(s,{type:'action',action,token,spellId})),onCastOutcome:outcome=>setState(s=>resolveTutorial2FireCast(s,outcome))}} onFinish={onExit}/>
   {createPortal(<nav className="t2-controls" aria-label="Tutorial 2.0 controls"><button onClick={paused?resume:pause} disabled={complete}>{paused?'Resume':'Pause'}</button><button onClick={onExit}>Menu</button></nav>,document.body)}
-  {!paused&&step?.kind==='action'&&<Spotlight target={step.target} text={step.text} token={state.token}/>}
-  {(paused||complete||step?.kind==='dialogue')&&<Tutorial2Dialog key={paused?'paused':state.token} title={paused?'Tutorial paused':complete?'Preview complete':'One step at a time'} text={paused?'Your place, drawing, and spellbook are kept. Resume whenever you are ready.':complete?'Thanks for trying the Tutorial 2.0 preview.':step!.text} label={paused?'Resume':complete?'Return to menu':'Continue'} onContinue={paused?resume:complete?onExit:()=>{const token=state.token;setState(s=>transitionTutorial2(steps,s,{type:'continue',token}));}} onExit={onExit}/>}
+  {!paused&&step&&(step.kind==='action'||step.kind==='demonstration'||step.kind==='settling')&&<Spotlight target={step.kind==='action'?step.target:'canvas'} text={state.retry&&step.id==='fire-draw'?'Try again: draw Dewdrop over the guide, then hold Cast. Aim for Steady (60%) or better.':step.text} token={state.token}/>}
+  {fireCanReplay(state)&&createPortal(<button className="t2-replay" onClick={()=>setState(replayTutorial2Fire)}>Show me again</button>,document.body)}
+  {(paused||complete||step?.kind==='dialogue')&&<Tutorial2Dialog key={paused?'paused':state.token} title={paused?'Tutorial paused':complete?'Preview complete':step?.id==='fire-victory'?'Fire slime defeated':'Fila'} text={paused?'Your place, drawing, and spellbook are kept. Resume whenever you are ready.':complete?'Thanks for trying the Tutorial 2.0 preview.':step!.text} label={paused?'Resume':complete||step?.id==='fire-victory'?'Return to menu':'Continue'} onContinue={paused?resume:complete||step?.id==='fire-victory'?onExit:()=>{const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'continue',token}));}} onExit={onExit}/>}
  </>;
 }

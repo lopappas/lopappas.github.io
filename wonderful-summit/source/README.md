@@ -64,12 +64,14 @@ Pre-battle review hides visible element headings while retaining grouped spell p
 
 
 
-## Tutorial 2.0 — milestone 1
+## Tutorial 2.0 — milestone 2
 
-The menu offers a separate **Tutorial 2.0 preview**, while **The old tutorial** remains available until the final cleanup milestone. The preview uses the real combat controls: dialogue → open spellbook → explicitly select Dewdrop → close book → draw a mark → clear it → completion. It is a foundation review, not the full replacement tutorial.
+The menu offers a separate **Tutorial 2.0 preview**, while **The old tutorial** remains available until the final cleanup milestone. The preview now runs the complete fire-slime lesson: village dialogue → spellbook → explicit Dewdrop selection → Ready → 4.5-second counterclockwise brush demonstration → draw over a persistent guide → hold Cast → impact → victory dialogue.
 
-`src/tutorial2.ts` owns explicit step definitions, action permissions, token-checked completion, pause/resume, and future demonstration/settling phases. `Tutorial2Session.tsx` provides tap-through dialogue, focus handling, an obvious spotlight, and always-available Pause/Menu controls. The shared Combat and Spellbook enforce permissions at their handlers as well as disabling controls. Pausing preserves the drawing and pauses an in-flight book close; leaving cleans up listeners and timers. The preview enemy cannot approach or attack.
+The Fire slime has 24 HP and cannot approach or attack. No relics or upgrades modify damage. A 60% Steady Dewdrop defeats it in one hit; Faint casts cannot. Wrong spells, fizzles, and insufficient hits reset the enemy, drawing and ink. Optional **Show me again** replays the demonstration; ordinary retries restore only the static guide. Player ink renders above the guide. Drawing and clearing stay available while preparing to cast; early release never advances the lesson.
 
-Next: the complete fire-slime lesson and animated Dewdrop tracing (milestone 2), followed by nature/water lessons, the accuracy goblin, final independent combat, verification, and removal of the old tutorial. No old tutorial code or exclusive tests have been removed.
+The explicit sequence, token-checked callbacks, control restrictions, highlights and pause/resume foundation remain shared. The brush pauses while the tutorial is paused or the page is hidden. Cast results are acknowledged after projectile impact, and stale outcomes cannot complete another attempt.
 
-Direct preview link: `https://lopappas.github.io/wonderful-summit/?tutorial=2`. Returning to the menu does not reset the preview on that page; reloading the direct link intentionally starts a fresh preview.
+Direct preview: `https://lopappas.github.io/wonderful-summit/?tutorial=2`. Exit returns to the menu; reloading this link starts a fresh lesson.
+
+Next: nature/water lessons (milestone 3), the accuracy goblin, final independent combat, verification, and removal of the old tutorial. No old tutorial code or exclusive tests have been removed.
