@@ -20,3 +20,9 @@ test('adjacent periods and exclamations inherit term color during typing too',()
  assert.deepEqual(tutorialTextParts('Dewdrop!',8),[{text:'Dewdrop!',color:SPELLS.find(s=>s.id==='water')!.color}]);
  assert.equal(tutorialTextParts('water! Next.').map(p=>p.text).join(''),'water! Next.');
 });
+
+test('elemental slime phrases and punctuation share one color while bare slime stays uncolored',()=>{
+ for(const [phrase,spellId] of [['water slime.','water'],['Fire slime!','fire'],['nature slime','nature']] as const){assert.deepEqual(tutorialTextParts(phrase),[{text:phrase,color:SPELLS.find(s=>s.id===spellId)!.color}]);}
+ assert.deepEqual(tutorialTextParts('slime'),[{text:'slime'}]);
+ assert.deepEqual(tutorialTextParts('water slime!',9),[{text:'water sli',color:SPELLS.find(s=>s.id==='water')!.color}]);
+});

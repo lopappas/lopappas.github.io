@@ -46,7 +46,7 @@ test('pause and replay preserve the active lesson and invalidate prior cast resu
 });
 
 test('ambush and Belladora use separate ordered arrival and reading delays',()=>{
- for(const [id,duration,next] of [['nature-water-wait',1500,'water-ambush'],['water-hit-wait',1500,'water-injury'],['water-arrive',1000,'water-arrival-wait'],['water-arrival-wait',1500,'water-heal']] as const){
+ for(const [id,duration,next] of [['nature-water-wait',1500,'water-pre-attack'],['water-pre-attack',1500,'water-ambush'],['water-hit-wait',1500,'water-injury'],['water-arrive',1000,'water-arrival-wait'],['water-arrival-wait',1500,'water-heal']] as const){
   let s=at(id);s=transitionElement(s,{type:'tick',deltaMs:duration-1,token:s.token});assert.equal(elementStep(s).id,id);
   const paused={...s,...pauseTutorial2(s)};assert.equal(transitionElement(paused,{type:'tick',deltaMs:5000,token:s.token}),paused);
   s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,next);
@@ -61,4 +61,12 @@ test('Little Sprout cast reminder waits six active seconds across drawing and ig
  s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(s.elapsedMs,6000);
  const cast=transitionElement(s,{type:'action',action:'cast',token:s.token});assert.equal(elementStep(cast).id,'water-impact');
  assert.equal(transitionElement(cast,{type:'tick',deltaMs:9000,token:cast.token}),cast);
+});
+
+test('potion press starts an explicit 1.8 second wait before the refill dialogue',()=>{
+ let s=at('water-heal');s=transitionElement(s,{type:'action',action:'heal',token:s.token});assert.equal(elementStep(s).id,'water-potion-wait');
+ assert.equal(elementActionAllowed(s,'heal'),false);
+ s=transitionElement(s,{type:'tick',deltaMs:1799,token:s.token});assert.equal(elementStep(s).id,'water-potion-wait');
+ s=transitionElement(s,{type:'tick',deltaMs:1,token:s.token});assert.equal(elementStep(s).id,'water-ink');
+ let b=elementBattle(2,true);b.playerHP=88;b.approachAt=Infinity;b=drinkPotion(b,'heal');for(let i=0;i<18;i++)b=stepBattle(b,.1);assert.equal(b.playerHP,100);
 });
