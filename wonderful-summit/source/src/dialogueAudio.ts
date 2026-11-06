@@ -5,16 +5,16 @@ export function filaIsWriting(text:string,elapsed:number){
  const characters=Array.from(text);
  return filaCharacterTimes(text).some((time,i)=>time>elapsed&&time-elapsed<=FILA_CHARACTER_MS&&!/\s/.test(characters[i]));
 }
-type WritingMedia={loop:boolean;volume:number;currentTime:number;play:()=>Promise<void>;pause:()=>void};
+type WritingMedia={loop:boolean;muted:boolean;volume:number;currentTime:number;play:()=>Promise<void>;pause:()=>void};
 export function createWritingAudio(media:WritingMedia,volume:()=>number){
  let wanted=false,playing=false,disposed=false;
  media.loop=true;
- function stop(){playing=false;media.pause();media.currentTime=0;}
+ function stop(){playing=false;media.muted=true;media.pause();media.currentTime=0;}
  function sync(){
   if(disposed)return;
   media.volume=Math.max(0,Math.min(1,volume()*WRITING_SOUND_VOLUME));
   if(!wanted||media.volume===0){if(playing)stop();return;}
-  if(playing)return;playing=true;
+  if(playing)return;playing=true;media.muted=false;
   try{void media.play().then(()=>{if(disposed||!wanted)stop();}).catch(()=>{playing=false;});}catch{playing=false;}
  }
  return{setWriting(value:boolean){wanted=value;sync();},sync,dispose(){disposed=true;wanted=false;stop();}};
@@ -30,6 +30,6 @@ export function primeWritingMedia(){
  if(primed||typeof Audio==='undefined')return;
  const media=getWritingMedia();primed=true;
  if(!media.paused)return;
- media.volume=0;
- void media.play().then(()=>{if(media.volume===0){media.pause();media.currentTime=0;}}).catch(()=>{primed=false;});
+ media.muted=true;media.volume=0;
+ void media.play().then(()=>{if(media.muted){media.pause();media.currentTime=0;}}).catch(()=>{primed=false;});
 }

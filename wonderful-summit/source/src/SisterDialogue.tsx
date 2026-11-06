@@ -12,7 +12,7 @@ export function SisterDialogue({potionIcon}:{potionIcon:ReactNode}){
   let count=0,timer:ReturnType<typeof setTimeout>|null=null;
   function typeNext(){
    count++;setVisibleCount(count);
-   if(count<DIALOGUE.length)timer=setTimeout(typeNext,/[,.…!?]/.test(DIALOGUE[count-1])?130:20);
+   if(count<DIALOGUE.length)timer=setTimeout(typeNext,/[,.…!?]/.test(DIALOGUE[count-1])?130/1.2:20/1.2);
   }
   function reveal(){if(timer)clearTimeout(timer);timer=null;count=DIALOGUE.length;setVisibleCount(count);}
   const onMotionChange=()=>{if(motion.matches)reveal();};
