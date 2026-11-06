@@ -4,7 +4,7 @@ Verified against GitHub master 04817e415f13ad78be13e36b67f02251b9172b17 on 2026-
 
 ## Automated result
 
-519 tests passed, zero failures; TypeScript and production build passed. No runtime progression defect was found in this pass. The old tutorial and its exclusive tests remain intact.
+519 tests passed, zero failures; TypeScript and production build passed. No runtime progression defect was found in this pass. The old tutorial was still present during this historical verification; it is removed in Milestone 7.
 
 Run the complete regression suite from wonderful-summit/source/:
 
@@ -26,7 +26,7 @@ npm run build
 - Relic inspection reaches the reading-delay gate before dismissal; the final battle uses real elemental damage and reaches victory and completion.
 - Replay and final retry invalidate outcomes from prior attempts and keep the relic award.
 
-Existing focused tests additionally cover timing boundaries, guide direction and recognition at different sizes, canonical spell grades, control restrictions, final defeat/resource reset, dialogue/audio lifecycle, fonts and text colors. Full-suite execution also checks the old tutorial and normal game behavior.
+Existing focused tests additionally cover timing boundaries, guide direction and recognition at different sizes, canonical spell grades, control restrictions, final defeat/resource reset, dialogue/audio lifecycle, fonts and text colors. The retained suite checks Tutorial 2.0 and normal game behavior.
 
 ## Manual release checklist — user verified
 
@@ -41,8 +41,8 @@ User sign-off received on 2026-11-07: “I verified the manual browser and physi
 - [x] Check narrow/short portrait layouts and landscape, large text, reduced motion, keyboard focus, and VoiceOver labels; instructions must not cover required targets.
 - [x] Check actual sound/volume and scrolling on a physical iPhone/Safari and Android/Chrome.
 
-## Next milestone
+## Cleanup milestone
 
 Milestone 6 is complete with automated results and user-confirmed manual/device verification.
 
-Old-tutorial removal is a separate requested cleanup milestone. Do not remove its code, menu entry or exclusive tests as part of verification. Keep current milestones 1–5 behavior unchanged unless a verified defect requires a fix.
+Milestone 7 removes the old tutorial session, state machine, combat hooks, spellbook hints, styles and exclusive tests. The main menu now has one Tutorial entry, opening Tutorial 2.0. Shared resistance tests and mode-entry guards remain; existing review URLs are compatible. No lesson sequence or spell balance changes are intended.

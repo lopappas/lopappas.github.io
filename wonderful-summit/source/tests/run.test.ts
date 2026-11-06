@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {chooseShopSpell,skipShopSpell,ROUTE,newRun,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,camp,potionCount,battleForRun,RELICS,discardPotion,skipRewardPotion,type Run} from '../src/run.ts';
+import {finishOpening,selectMode,returnToMenu,chooseShopSpell,skipShopSpell,ROUTE,newRun,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,camp,potionCount,battleForRun,RELICS,discardPotion,skipRewardPotion,type Run} from '../src/run.ts';
 import {SPELLS,isCheckmark,recognize,type SpellId} from '../src/magic.ts';
 import {hitWithSpell,stepBattle,launchSpell,nearestEnemy,targetedEnemy,presentEnemies,drinkPotion} from '../src/battle.ts';
 const rng=()=>.1;
@@ -127,3 +127,15 @@ test('Continue leaves uncollected potions behind without granting or replacing i
 });
 
 
+
+test('tutorial and new-game routes are guarded, isolated, and return to a fresh menu',()=>{
+ const opening=newRun(),menu=finishOpening(opening);
+ assert.equal(selectMode(opening,'tutorial'),opening);
+ const tutorial=selectMode({...menu,gold:999,health:1},'tutorial');
+ assert.equal(tutorial.screen,'tutorial');assert.equal(tutorial.gold,0);assert.equal(tutorial.health,100);
+ assert.deepEqual(selectMode(tutorial,'new'),tutorial);
+ const returned=returnToMenu();assert.equal(returned.screen,'menu');
+ assert.equal(selectMode(returned,'tutorial').screen,'tutorial');
+ const normal=selectMode(returned,'new',()=>0);assert.equal(normal.screen,'sister');assert.equal(normal.keepsakeOffers.length,3);
+ assert.equal(selectMode(normal,'tutorial'),normal);
+});

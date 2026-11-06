@@ -32,7 +32,7 @@ These instructions apply to Wonderful Summit in this repository.
 
 ## Project decisions
 - The new tutorial is called "Tutorial 2.0"; the previous one is "the old tutorial".
-- Preserve the old tutorial and its exclusive tests until the user requests its cleanup milestone.
+- Tutorial 2.0 is the main tutorial. Milestone 7 removed the old tutorial and its exclusive tests; retain shared game coverage.
 - The user has explicitly approved the unrestricted developer panel for the live game.
 - Preserve existing spell balance and behavior outside the requested change.
 

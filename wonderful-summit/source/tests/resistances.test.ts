@@ -2,7 +2,6 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,PLAYER_SPELLS} from '../src/magic.ts';
 import {newBattle,hitWithSpell,launchSpell,stepBattle,spellDamage,spellKnockback,burnDamage,drinkPotion} from '../src/battle.ts';
-import {newTutorial,beginTutorial,handleTutorialEvent,tutorialLessonInfo,TUTORIAL_LESSONS,stepTutorialBattle} from '../src/tutorial.ts';
 
 test('all spells respect the complete elemental damage and knockback matrix, including neutral enemies',()=>{
  const beats={Water:'Fire',Fire:'Nature',Nature:'Water'} as const;
@@ -73,15 +72,5 @@ test('normal resistance reduces direct damage and push but preserves full slow a
  let burning=hitWithSpell(water,100,'bolt');assert.equal(burning.enemies[0].burn!.ticks,3);assert.equal(burning.enemies[0].burn!.damage,16);
  const afterDirect=burning.enemies[0].hp;for(let i=0;i<310;i++)burning=stepBattle(burning,.01);
  assert.equal(afterDirect-burning.enemies[0].hp,48);assert.equal(burning.enemies[0].burn,null);
-});
-
-test('resistance lesson follows advantages and completes via Continue with a safe pause',()=>{
- assert.deepEqual(TUTORIAL_LESSONS.slice(2,5),['elements','resistances','remember']);
- const s={...newTutorial(),lesson:'resistances' as const},info=tutorialLessonInfo(s.lesson,s.checkpoint.battle);
- assert.equal(info.title,'Elemental resistances');assert.ok(info.briefing.includes('Elemental creatures **strongly** resist their own element:'));
- assert.strictEqual(stepTutorialBattle(s.checkpoint.battle,20,true,s.lesson),s.checkpoint.battle);
- const completing=beginTutorial(s);assert.equal(completing.phase,'settling');
- const next=handleTutorialEvent(completing,{type:'settling-tick',deltaMs:1000},s.checkpoint);
- assert.equal(next.lesson,'remember');assert.equal(next.phase,'briefing');
 });
 

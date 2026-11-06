@@ -67,19 +67,8 @@
 .menu-scene h1{position:relative;z-index:1;font-size:38px;font-weight:400;line-height:1.05;text-align:center;color:#f2e2ba;text-shadow:0 3px 12px #2a443b;margin:30px 0}.menu-scene h1 strong{font-size:62px;font-weight:500}
 .menu-scene>svg{position:absolute;bottom:0;width:100%;height:70%}.menu-moon{position:absolute;right:38px;top:30px;font-size:42px;color:#ead3a2}
 .menu-actions{display:grid;gap:8px}.menu-actions>.secondary-button{margin:0;min-height:46px;color:#e7dfc8}
-.tutorial-pause-button{background:#344337;border:1px solid #6b765c;border-radius:6px;color:#dedfc8;font-size:12px;padding:7px 12px}
-.tutorial-break-backdrop{z-index:50}.tutorial-break{width:340px;max-width:100%;max-height:calc(100svh - 32px);overflow:auto;background:#ebe0c1;color:#4e5543;border:1px solid #b2a57e;border-radius:14px;padding:24px;text-align:center;box-shadow:0 25px 100px #14251e77}
-.tutorial-emblem{display:block;color:#937ba7;font-size:36px}.tutorial-break h1{font-size:25px;font-weight:500;margin:12px 0}.tutorial-break p{font-size:13px;margin:12px 0 22px}.tutorial-break .secondary-button{color:#59684f;border-color:#879174}.tutorial-menu-button{display:block;width:100%;margin-top:12px;border:0;background:transparent;color:#76694f;font:inherit;font-size:12px;padding:8px}
 @media(max-width:374px){.main-menu .brand{font-size:16px}.menu-scene h1{font-size:32px}.menu-scene h1 strong{font-size:52px}}
 
-.tutorial-task{display:flex;align-items:center;gap:10px;flex-shrink:0;min-height:43px;padding:7px 12px;background:#e8dcbb;color:#4c5845;border-bottom:1px solid #b9aa7b;font-size:12px;line-height:1.35}
-.tutorial-task>small{flex-shrink:0;font-size:10px;border:1px solid #a99b75;border-radius:20px;padding:4px 6px;color:#77684b}
-.tutorial-focus:not(:disabled){outline:2px solid #efd584!important;outline-offset:3px;animation:tutorialFocus 1.5s ease-in-out infinite}
-@keyframes tutorialFocus{50%{outline-color:#bfa760;outline-offset:5px}}
-.tutorial-lesson-number{display:block;color:#8d7b59;font-size:10px;margin-top:6px}
-.tutorial-break p{line-height:1.6}
-.book-modal>.book-tutorial-task{font-size:12px;padding:9px 7px;background:#d8ccb0;border:1px solid #b5a57c;border-radius:6px;line-height:1.4;margin:14px 0 0}
-@media(prefers-reduced-motion:reduce){.tutorial-focus:not(:disabled){animation:none}}
 
 .spell-name{font-weight:500;text-shadow:0 1px 1px #30433b88}
 
@@ -145,7 +134,6 @@
 .opening-ready .check-example{opacity:.45;transform:translateY(0)}
 .opening-waiting .opening-paper canvas{pointer-events:none}
 
-.tutorial-break p strong{font-weight:600}
 
 .run-panel .merchant-name{font-family:Georgia,'Palatino Linotype','Book Antiqua',serif;font-size:28px;font-style:italic;font-weight:400;line-height:1.2;letter-spacing:1px;color:#ead4aa;text-shadow:0 2px 8px #14251e66;margin:10px 0 3px}
 .npc-art.merchant-art{width:360px;max-width:100%;height:auto;margin:0 auto}
