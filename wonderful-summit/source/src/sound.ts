@@ -1,3 +1,4 @@
+import {primeWritingMedia} from './dialogueAudio.ts';
 import {audioPreferences,audioChannelVolume,loadAudioPreferences} from './audioPreferences.ts';
 import type {Element,Spell} from './magic';
 
@@ -259,7 +260,7 @@ const spellAudio=createSpellAudio();
 audioPreferences.subscribe(spellAudio.refreshVolume);
 export function stopSpellAmbience(){spellAudio.stopAmbience();}
 export function setSpellAmbience(levels:{rain:number;swamp:number}){spellAudio.setAmbience(levels);}
-export function unlockSpellAudio(){spellAudio.unlock();}
+export function unlockSpellAudio(){spellAudio.unlock();primeWritingMedia();}
 export function playSpellSound(kind:SoundKind,quality:number){spellAudio.play(kind,quality);}
 
 export function playUISound(kind:UISound){spellAudio.unlock();spellAudio.play(kind,0);}
@@ -281,3 +282,4 @@ export function installSpellAudio(){
   window.removeEventListener('focus',spellAudio.wake);window.removeEventListener('pageshow',spellAudio.wake);window.removeEventListener('pagehide',spellAudio.sleep);
  };
 }
+

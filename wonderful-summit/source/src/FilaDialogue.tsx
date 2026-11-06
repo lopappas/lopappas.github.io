@@ -1,5 +1,7 @@
 import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
+import {createWritingAudio,filaIsWriting,getWritingMedia} from './dialogueAudio';
+import {audioPreferences,audioChannelVolume} from './audioPreferences';
 import {TutorialText} from './TutorialText';
 import {tutorialTextParts} from './tutorialText';
 import {canContinueFilaDialogue,FILA_LETTER_FADE_MS,filaCharacterTimes,advanceFilaDialogue,filaDialogueFrame} from './filaDialogue';
@@ -14,18 +16,26 @@ function FadingDialogueText({text,elapsed}:{text:string;elapsed:number}){
 // All Tutorial 2.0 dialogue steps use this presentation, including future lessons.
 export function FilaDialogue({text,active,onComplete,onTextProgress,fontFamily='Kurale'}:{text:string;active:boolean;onComplete:()=>void;onTextProgress?:(text:string)=>void;fontFamily?:string}){
  const completed=useRef(false);
+ const writingRef=useRef<ReturnType<typeof createWritingAudio>|null>(null);
+ useEffect(()=>{if(!active)writingRef.current?.setWriting(false);},[active]);
  const [acknowledged,setAcknowledged]=useState(false);
  const bubble=useRef<HTMLElement>(null),latest=useRef({active,onComplete,onTextProgress});latest.current={active,onComplete,onTextProgress};
  const [elapsed,setElapsed]=useState(0),[position,setPosition]=useState<{top:number;left:number;width:number}|null>(null);
  useEffect(()=>{
   let frame=0,last=performance.now(),elapsedMs=0,finished=false;
-  const visibility=()=>{last=performance.now();};document.addEventListener('visibilitychange',visibility);
+  const audio=getWritingMedia(),writing=createWritingAudio(audio,()=>audioChannelVolume('effects'));audio.preload='auto';
+  const unsubscribe=audioPreferences.subscribe(writing.sync);
+  const gesture=()=>{if(latest.current.active&&!document.hidden)writing.sync();};
+  document.addEventListener('pointerdown',gesture);document.addEventListener('keydown',gesture);
+  const visibility=()=>{last=performance.now();if(document.hidden)writing.setWriting(false);};document.addEventListener('visibilitychange',visibility);
+  writingRef.current=writing;
   const tick=(now:number)=>{
    elapsedMs=advanceFilaDialogue(elapsedMs,now-last,latest.current.active&&!document.hidden);last=now;setElapsed(elapsedMs);
+   writing.setWriting(latest.current.active&&!document.hidden&&filaIsWriting(text,elapsedMs));
    const line=filaDialogueFrame(text,elapsedMs);latest.current.onTextProgress?.(line.text);
    if(line.typed||completed.current)finished=true;else frame=requestAnimationFrame(tick);
   };frame=requestAnimationFrame(tick);
-  return()=>{if(!finished)cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visibility);};
+  return()=>{if(!finished)cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visibility);document.removeEventListener('pointerdown',gesture);document.removeEventListener('keydown',gesture);unsubscribe();writing.dispose();writingRef.current=null;};
  },[text]);
  useLayoutEffect(()=>{
   let frame=0,last='';
