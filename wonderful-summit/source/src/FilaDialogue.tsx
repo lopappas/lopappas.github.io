@@ -1,5 +1,6 @@
 import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
+import {TutorialText} from './TutorialText';
 import {advanceFilaDialogue,filaDialogueFrame} from './filaDialogue';
 
 // All Tutorial 2.0 dialogue steps use this presentation, including future lessons.
@@ -22,13 +23,13 @@ export function FilaDialogue({text,active,onComplete}:{text:string;active:boolea
    if(fila&&world){
     const f=fila.getBoundingClientRect(),w=world.getBoundingClientRect(),width=Math.min(290,w.width-24);
     const left=Math.max(w.left+12,Math.min(w.right-width-12,f.left+f.width*.6));
-    const top=Math.max(w.top+52,f.top-(bubble.current?.offsetHeight??135)-14),key=[left,top,width].join(',');
+    const top=Math.max(w.top+52,f.top-(bubble.current?.offsetHeight??100)-64),key=[left,top,width].join(',');
     if(key!==last){last=key;setPosition({left,top,width});}
    }frame=requestAnimationFrame(place);
   };place();return()=>cancelAnimationFrame(frame);
  },[active,text]);
  const line=filaDialogueFrame(text,elapsed);
  return createPortal(<aside ref={bubble} className="t2-fila-bubble" role="status" aria-label={`Fila says: ${text}`} aria-hidden={!active} style={{...position,visibility:active&&position?'visible':'hidden'}}>
-  <strong aria-hidden="true">Fila</strong><p aria-hidden="true"><span className="t2-fila-measure">{text}</span><span className="t2-fila-typed">{line.text}{!line.typed&&<i className="t2-fila-caret"/>}</span></p>
+  <strong aria-hidden="true">Fila</strong><p aria-hidden="true"><span className="t2-fila-measure"><TutorialText text={text}/></span><span className="t2-fila-typed"><TutorialText text={text} visibleCharacters={Array.from(line.text).length}/>{!line.typed&&<i className="t2-fila-caret"/>}</span></p>
  </aside>,document.body);
 }

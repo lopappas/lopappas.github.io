@@ -2,6 +2,7 @@ import React,{useEffect,useLayoutEffect,useRef,useState,type ComponentType} from
 import {createPortal} from 'react-dom';
 import type {CombatProps} from './combatTypes';
 import {FilaDialogue} from './FilaDialogue';
+import {TutorialText} from './TutorialText';
 import {pauseTutorial2,resumeTutorial2,tutorial2Step,tutorial2Journey,type Tutorial2Target} from './tutorial2';
 import {DEWDROP_DEMO_MS,TUTORIAL2_FIRE_STEPS as steps,newTutorial2Fire,tutorial2FireBattle,fireActionAllowed,replayTutorial2Fire,fireCanReplay,transitionTutorial2Fire,resolveTutorial2FireCast} from './tutorial2Fire';
 import './tutorial2.css';
@@ -22,7 +23,7 @@ function Spotlight({target,text,token}:{target:Tutorial2Target;text:string;token
  },[target,token]);
  if(!rect)return null;
  const below=rect.top<155,top=below?rect.top+rect.height+16:rect.top-85;
- return createPortal(<><div className="t2-spotlight" aria-hidden="true" style={{top:rect.top-5,left:rect.left-5,width:rect.width+10,height:rect.height+10}}/><div id="t2-instruction" key={token} className="t2-instruction" role="status" style={{top:Math.max(62,Math.min(innerHeight-100,top)),left:Math.max(12,Math.min(innerWidth-292,rect.left+rect.width/2-140))}}><strong>{text}</strong></div></>,document.body);
+ return createPortal(<><div className="t2-spotlight" aria-hidden="true" style={{top:rect.top-5,left:rect.left-5,width:rect.width+10,height:rect.height+10}}/><div id="t2-instruction" key={token} className="t2-instruction" role="status" style={{top:Math.max(62,Math.min(innerHeight-100,top)),left:Math.max(12,Math.min(innerWidth-292,rect.left+rect.width/2-140))}}><strong><TutorialText text={text}/></strong></div></>,document.body);
 }
 function Tutorial2Dialog({title,text,label,onContinue,onExit}:{title:string;text:string;label:string;onContinue:()=>void;onExit:()=>void}){
  const ref=useRef<HTMLElement>(null);
@@ -31,7 +32,7 @@ function Tutorial2Dialog({title,text,label,onContinue,onExit}:{title:string;text
   const trap=(e:KeyboardEvent)=>{if(e.key!=='Tab')return;const items=Array.from(ref.current?.querySelectorAll<HTMLButtonElement>('button')??[]),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}};
   document.addEventListener('keydown',trap,true);return()=>{document.removeEventListener('keydown',trap,true);};
  },[]);
- return createPortal(<div className="t2-dialog-backdrop"><section ref={ref} className="t2-dialog" role="dialog" aria-modal="true" aria-labelledby="t2-dialog-title" aria-describedby="t2-dialog-text"><small>TUTORIAL 2.0</small><h1 id="t2-dialog-title">{title}</h1><p id="t2-dialog-text">{text}</p><button className="primary-small" onClick={onContinue}>{label}</button>{label!=='Return to menu'&&<button className="secondary-button" onClick={onExit}>Return to menu</button>}</section></div>,document.body);
+ return createPortal(<div className="t2-dialog-backdrop"><section ref={ref} className="t2-dialog" role="dialog" aria-modal="true" aria-labelledby="t2-dialog-title" aria-describedby="t2-dialog-text"><small>TUTORIAL 2.0</small><h1 id="t2-dialog-title">{title}</h1><p id="t2-dialog-text"><TutorialText text={text}/></p><button className="primary-small" onClick={onContinue}>{label}</button>{label!=='Return to menu'&&<button className="secondary-button" onClick={onExit}>Return to menu</button>}</section></div>,document.body);
 }
 export function Tutorial2Session({Combat,onExit}:{Combat:ComponentType<CombatProps>;onExit:()=>void}){
  const [state,setState]=useState(newTutorial2Fire);
