@@ -46,7 +46,7 @@ export function Encyclopedia({discoveries,onClose,preview=ENCYCLOPEDIA_PREVIEW}:
   <section className="encyclopedia-journal" ref={modal} role="dialog" aria-modal="true" aria-labelledby="encyclopedia-title" onClick={e=>e.stopPropagation()}>
    <div className="journal-binding" aria-hidden="true">{Array.from({length:8},(_,i)=><i key={i}/>)}</div>
    <header className="journal-header"><h1 id="encyclopedia-title">Encyclopedia</h1><button className="journal-close" onClick={onClose} aria-label="Close encyclopedia">×</button>
-    <nav className="journal-chapters" aria-label="Encyclopedia chapters">{CHAPTERS.map((id,i)=><button key={id} data-chapter={id} aria-pressed={chapter===id} onClick={()=>{lastEntry.current=null;setChapter(id);setEntry(null);}}><small aria-hidden="true">0{i+1}</small>{TITLES[id]}</button>)}</nav>
+    <nav className="journal-chapters" aria-label="Encyclopedia chapters">{CHAPTERS.map(id=><button key={id} data-chapter={id} aria-pressed={chapter===id} onClick={()=>{lastEntry.current=null;setChapter(id);setEntry(null);}}>{TITLES[id]}</button>)}</nav>
    </header>
    <div ref={scroll} className="journal-scroll">
     {entry?<article className="journal-entry">

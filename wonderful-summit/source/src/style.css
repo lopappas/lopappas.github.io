@@ -329,3 +329,14 @@
 /* Keep the release number directly below the home header, aligned left. */
 .menu-version{display:block;flex-shrink:0;margin:0;padding:6px 16px;font-size:11px;line-height:1.3;color:#c4d1bc;background:#314d46;text-align:left}
 @media(max-width:374px){.menu-version{padding-left:12px;padding-right:12px}}
+
+/* Idle starter sigils yield to the checkmark after the title-screen tap. */
+.opening-starter-sigils{position:absolute;inset:0;pointer-events:none;opacity:1;transition:opacity .55s ease}
+.opening-starter-sigil{position:absolute;top:17%;width:24%;height:66%;opacity:0;animation:openingSigilFade 12s ease-in-out infinite}
+.opening-sigil-fire{left:10%;animation-duration:10s;animation-delay:-2s}
+.opening-sigil-water{left:38%;animation-duration:12s;animation-delay:-7s}
+.opening-sigil-nature{left:66%;animation-duration:14s;animation-delay:-11s}
+.opening-ready .opening-starter-sigils{opacity:0}
+.opening-ready .opening-starter-sigil{animation-play-state:paused}
+@keyframes openingSigilFade{0%,100%{opacity:0}40%,60%{opacity:.65}}
+@media(prefers-reduced-motion:reduce){.opening-starter-sigil{animation:none;opacity:.35}.opening-starter-sigils,.opening-paper>.check-example{transition:none}}
