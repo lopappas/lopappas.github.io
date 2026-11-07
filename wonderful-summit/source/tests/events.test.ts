@@ -30,7 +30,7 @@ test('every completed attempt is final, including fizzles, and unlearned spells 
 test('success unlocks exactly one normal campsite action, without combat rewards or spending combat buffs',()=>{
  const initial={...visit(),furyReady:true,relics:['moss','lotus'] as Run['relics']},lit=castTrailEvent(initial,'fire',65);
  assert.equal(lit.combats,initial.combats);assert.equal(lit.gold,initial.gold);assert.deepEqual(lit.potions,initial.potions);assert.equal(lit.reward,null);assert.equal(lit.health,20);assert.equal(lit.furyReady,true);assert.equal(leaveNode(lit),lit);
- const rested=camp(lit);assert.equal(rested.health,90);assert.equal(rested.campUsed,true);assert.equal(camp(rested,'fire'),rested);
+ const rested=camp(lit);assert.equal(rested.health,80);assert.equal(rested.campUsed,true);assert.equal(camp(rested,'fire'),rested);
  const upgraded=camp(lit,'fire');assert.equal(upgraded.upgrades.fire,1);assert.equal(upgraded.health,20);assert.equal(camp(upgraded),upgraded);
  const maxed={...lit,upgrades:{fire:1}};assert.equal(camp(maxed,'fire'),maxed);assert.equal(camp(lit,'bolt'),lit);
  for(const completed of [rested,upgraded]){const next=leaveNode(completed);assert.equal(next.screen,'map');assert.equal(next.node,eventNode+1);assert.equal(next.event,null);assert.equal(battleForRun(next).encounter,'shieldPack');}

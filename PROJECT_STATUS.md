@@ -13,10 +13,12 @@ Updated: 2026-11-07
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest presentation update (version 0.1.1): home action is “Play”. Before the opening tap, the canvas shows Fire/Water/Nature starter sigils fading independently; tapping fades them out and reveals the checkmark. Theodora's run-opening dialogue is 15% slower than the previous release; tutorial timing is unchanged. Removed “FILA'S SPELLS” from the shared spellbook, numeric prefixes from encyclopedia tabs, and “Before you climb…” from the run start.
+Latest update (version 0.1.2): removed the opening canvas's fading starter sigils. The checkmark still fades in after the title-screen tap. Theodora's heading is “Choose a keepsake:”. Resting restores 60 health, capped at 100, in regular camps and the lit Forgotten Campsite; rest still consumes the single camp action.
+
+Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents release numbering; 0.1.0 is the starting baseline.
-Validation for this update: 44 relevant run/spellbook/recognition tests pass; TypeScript and production build pass. Source and matching build are committed together. No browser visual verification was performed; live deployment has not yet been verified.
+Validation for this update: 42 relevant run/spellbook/campsite tests pass; TypeScript and production build pass. Source and matching build are committed together. No browser visual verification was performed; live deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 

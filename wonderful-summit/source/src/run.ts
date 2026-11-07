@@ -116,7 +116,7 @@ export function drinkTrailHealing(run:Run,id:Potion='heal'):Run{
 }
 export function camp(run:Run,spell?:SpellId):Run{if(run.pendingBottle||(run.pendingSpellOffers?.length??0)>0||!(run.screen==='camp'||run.screen==='event'&&run.event?.outcome==='lit')||run.campUsed||spell&&(!run.spells.includes(spell)||!isUpgradableSpell(spell)))return run;
  if(spell&&((run.upgrades[spell]??0)>=1))return run;
- return spell?{...run,campUsed:true,upgrades:{...run.upgrades,[spell]:(run.upgrades[spell]??0)+1}}:{...run,campUsed:true,health:Math.min(100,run.health+70)};
+ return spell?{...run,campUsed:true,upgrades:{...run.upgrades,[spell]:(run.upgrades[spell]??0)+1}}:{...run,campUsed:true,health:Math.min(100,run.health+60)};
 }
 
 export function sealBottle(run:Run,spell:BottledSpell):Run{

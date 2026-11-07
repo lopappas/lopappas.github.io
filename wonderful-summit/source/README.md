@@ -17,7 +17,7 @@ The static build is written to `dist-pages/`. Copy its contents into the parent 
 
 ## Game versions
 
-The home page displays `version 0.1.1` directly below its header. `package.json` is the single source of truth for this release number; the production build reads it automatically.
+The home page displays `version 0.1.2` directly below its header. `package.json` is the single source of truth for this release number; the production build reads it automatically.
 
 Use `MAJOR.MINOR.PATCH`: patch for fixes and small presentation changes (0.1.1), minor for new features (0.2.0), and 1.0.0 for the first stable release. Start at 0.1.0 for the current development baseline. Bump once per published release, not once per commit.
 

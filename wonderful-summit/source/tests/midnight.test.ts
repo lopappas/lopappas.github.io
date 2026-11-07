@@ -43,8 +43,8 @@ test('every third combat offers two distinct unknown spells, or all remaining sp
   const r={...newRun(),screen:'battle' as const,combats,spells:PLAYER_SPELLS.slice(0,PLAYER_SPELLS.length-remaining).map(s=>s.id)},b={...battleForRun(r),phase:'victory' as const};const reward=finishBattle(r,b,()=>.4).reward!;assert.equal(reward.offers.length,(combats+1)%3===0?Math.min(2,remaining):0);assert.equal(new Set(reward.offers).size,reward.offers.length);assert.ok(reward.offers.every(s=>!r.spells.includes(s)));
  }
 });
-test('both camps restore 70 HP capped at 100 and the cozy rest jingle is bounded',()=>{
- for(const node of [4,9])for(const health of [1,29,30,60,100]){const r=camp({...newRun(),screen:'camp',node,health});assert.equal(r.health,Math.min(100,health+70));assert.equal(camp(r),r);}
+test('both camps restore 60 HP capped at 100 and the cozy rest jingle is bounded',()=>{
+ for(const node of [4,9])for(const health of [1,29,30,60,100]){const r=camp({...newRun(),screen:'camp',node,health});assert.equal(r.health,Math.min(100,health+60));assert.equal(camp(r),r);}
  const samples=soundSamples('rest');assert.equal(samples.length,Math.ceil(SOUND_RATE*1.25));assert.equal(Math.abs(samples[0]),0);assert.ok(Math.abs(samples.at(-1)!)<.002);assert.ok(samples.every(s=>Number.isFinite(s)&&Math.abs(s)<=.901));assert.ok(samples.some(s=>Math.abs(s)>.1));
 });
 test('upper meadow has one random slime plus a separately rolled shield slime arriving at seven seconds',()=>{
