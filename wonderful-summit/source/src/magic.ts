@@ -86,7 +86,12 @@ export function spellPower(id:SpellId,quality:number){
 export function knockback(quality:number){return accuracyStrength(quality).knockback;}
 export const HOLD_MS=500;
 export function castHoldMs(mindRune=false){return HOLD_MS*(mindRune?.75:1);}
-export function spellInkColor(progress:number,elementColor?:string){return progress>=.5&&elementColor?chargeColor(progress,elementColor):'#000000';}
+export function spellInkColor(progress:number,elementColor?:string){
+ const blend=Math.max(0,Math.min(1,(progress-.4)/.5));
+ if(!elementColor||blend===0)return '#000000';
+ if(blend===1)return elementColor;
+ return '#'+elementColor.slice(1).match(/.{2}/g)!.map(channel=>Math.round(parseInt(channel,16)*blend).toString(16).padStart(2,'0')).join('');
+}
 export function chargeColor(progress:number,elementColor?:string){return progress>=.5&&elementColor?elementColor:'#d9b9ff';}
 export const REFILL_MS=1000;
 export function refillDurationMs(ink:number){return Math.max(0,100-Math.max(0,Math.min(100,ink)))*10;}

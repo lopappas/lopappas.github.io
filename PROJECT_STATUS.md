@@ -13,7 +13,7 @@ Updated: 2026-11-09
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.41): drawn spell ink starts black and changes to the recognized element color at the cast bar's halfway point. Canceled holds return ink to black; completed casts retain color through launch/sealing. Applies to combat, tutorial, practice, campsite and bottle canvases. Combat and trail potion-slot borders use shared Common/Rare/Keepsake rarity colors. Full Belladora shows two protruding bottles only in combat, respecting Birkin-stock capacity.
+Latest update (version 0.1.42): drawn spell ink starts black and blends smoothly into the recognized spell color from 40% through 90% of cast progress. Canceled holds return ink to black; completed casts retain color through launch/sealing. Applies to combat, tutorial, practice, campsite and bottle canvases. Combat and trail potion-slot borders use shared Common/Rare/Keepsake rarity colors. Full Belladora shows two protruding bottles only in combat, respecting Birkin-stock capacity.
 
 Settings → Version History remains below Audio and above Credits, with the shared summit window and newest releases first.
 
@@ -26,7 +26,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: full suite initially passed 499/500 tests; the sole failure was a stale campsite expectation of +70 instead of the previously implemented +60. Corrected that assertion; all 17 tests in the affected potion, spell-ink and release-version files pass. TypeScript and production build pass. Server-render checks cover full/partial base and expanded capacity, no merchant bottles and trail rarity classes. No browser visual verification was performed. Source and matching build are published together; live deployment has not yet been verified.
+Validation for this update: spell-ink, magic and release-version tests pass; TypeScript and production build pass. Ink tests cover black through 40%, progressive color blending, exact element color from 90%, canceled progress and unrecognized drawings. No browser visual verification was performed. Source and matching build are published together; live deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
