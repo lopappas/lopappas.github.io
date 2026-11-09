@@ -13,14 +13,18 @@ Updated: 2026-11-09
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.3): ending-screen relic inspection text is black, overriding the run panel's pale text. Birkin-stock makes Belladora 15% larger in combat and at the merchant, anchored at her feet. Her frown persists throughout combat defeat, beyond the temporary hit reaction.
+Latest update (version 0.1.40): Settings → Version History appears immediately below Audio and above Credits. A shared summit window gives History and Credits the same background, keyboard focus handling, Escape and tap-anywhere return. History lists all numbered releases newest first with brief bullets. Earlier 0.1.0–0.1.3 releases display as 0.1.00–0.1.03.
+
+Version rules: small releases add 1; bigger releases advance to the next ten (0.1.40 → 0.1.50). Change the middle segment only at the user's request. Package versions remain npm-compatible; labels pad the release segment. npm run version:small / version:feature update both package files. Every release must add notes in src/versionHistory.ts; gameVersion tests guard history/version consistency.
+
+Ending relic text remains black. Birkin-stock enlarges Belladora by 15% in combat and the merchant scene; her defeat frown persists.
 
 Opening starter sigils remain removed; the checkmark fades in after the title-screen tap. Theodora's heading is “Choose a keepsake:”. Regular and lit Forgotten Campsite rest restores 60 health, capped at 100, consuming the single camp action.
 
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
-Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents release numbering; 0.1.0 is the starting baseline.
-Validation for this update: 25 relevant run/potion-relic tests pass; TypeScript and production build pass. Server-render checks confirm normal and enlarged Belladora, merchant enlargement and a defeat frown even with no recent hit. Source and matching build are committed together. No browser visual verification was performed; live deployment has not yet been verified.
+Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
+Validation for this update: four versioning tests and four audio-preference tests pass; TypeScript and production build pass. Server-render checks confirm history ordering, padded versions, summit dialog and preserved credit content. Source and matching build are committed together. No browser visual verification was performed; live deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
@@ -44,7 +48,8 @@ Paths below are relative to wonderful-summit/source/:
 - Presentation: src/Tutorial2Session.tsx, src/FilaDialogue.tsx, src/tutorial2.css.
 - Sequence: src/tutorial2Elements.ts, src/tutorial2Goblin.ts, src/tutorial2Final.ts.
 - Dialogue/audio: src/filaDialogue.ts, src/dialogueAudio.ts, src/sound.ts.
-- Credits: src/Settings.tsx, src/Credits.tsx, src/TitleMountain.tsx.
+- Settings/history/credits: src/Settings.tsx, src/SummitWindow.tsx, src/Credits.tsx, src/VersionHistory.tsx, src/versionHistory.ts.
+- Release numbering: src/gameVersion.ts, scripts/bump-version.mjs, tests/gameVersion.test.ts.
 - Recording/license: src/audio/frostnox_quick-pencil-writing.ogg and src/audio/ATTRIBUTION.txt.
 
 ## Remaining work

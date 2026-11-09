@@ -1,0 +1,11 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {nextGameVersion,formatGameVersion} from '../src/gameVersion.ts';
+const kind=process.argv[2];
+if(kind!=='small'&&kind!=='feature')throw new Error('Use npm run version:small or npm run version:feature.');
+const pkg=JSON.parse(readFileSync('package.json','utf8'));
+const lock=JSON.parse(readFileSync('package-lock.json','utf8'));
+const next=nextGameVersion(pkg.version,kind);
+pkg.version=next;lock.version=next;lock.packages[''].version=next;
+writeFileSync('package.json',JSON.stringify(pkg,null,2)+'\n');
+writeFileSync('package-lock.json',JSON.stringify(lock,null,2)+'\n');
+console.log(`version ${formatGameVersion(next)} — add this release to src/versionHistory.ts before publishing.`);

@@ -37,7 +37,10 @@ These instructions apply to Wonderful Summit in this repository.
 - Preserve existing spell balance and behavior outside the requested change.
 
 ## Release versions
-- Home shows the package.json version below its header. Start at 0.1.0; use MAJOR.MINOR.PATCH and bump once per published release. See source/README.md for commands.
+- Current scheme: 0.1.40, displaying the last segment with two digits (e.g. 0.1.03). package.json remains the source for the home label.
+- Small changes add 1 to the last segment; bigger changes advance to the next ten. Change the middle number only when the user specifies it; ask before exceeding 99.
+- Use `npm run version:small` / `npm run version:feature` from wonderful-summit/source/, or an explicit version when requested. Bump once per published release.
+- Add brief player-facing notes to the top of src/versionHistory.ts for every release; “Bug fix” is enough for small fixes. Retain prior entries. Run tests/gameVersion.test.ts when releasing. See source/README.md for details.
 
 ## Handoffs
 - After a completed milestone or significant change, replace outdated information in PROJECT_STATUS.md with the current state, validation, unresolved issues, and next work.

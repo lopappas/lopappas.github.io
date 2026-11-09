@@ -15,13 +15,15 @@ npm run build
 
 The static build is written to `dist-pages/`. Copy its contents into the parent `wonderful-summit/` folder to update the hosted game. Relative asset URLs support subfolder hosting.
 
-## Game versions
+## Game versions and history
 
-The home page displays `version 0.1.3` directly below its header. `package.json` is the single source of truth for this release number; the production build reads it automatically.
+The home page displays `version 0.1.40` below its header. `package.json` is the version source; display labels pad the last segment to two digits (0.1.03). Package files retain numeric segments so npm remains compatible.
 
-Use `MAJOR.MINOR.PATCH`: patch for fixes and small presentation changes (0.1.1), minor for new features (0.2.0), and 1.0.0 for the first stable release. Start at 0.1.0 for the current development baseline. Bump once per published release, not once per commit.
+Small changes increase the last segment by one: 0.1.40 → 0.1.41. Bigger changes (a new encounter, spell or feature) advance to the next ten: 0.1.40 or 0.1.44 → 0.1.50. Only change the middle segment when the user explicitly requests it. Do not automatically roll over after 99; ask the user for the next middle number.
 
-From this directory run `npm version patch --no-git-tag-version` (or `minor` / `major`) to update both package files, then build and publish the source and matching output together. Git remains the code history; this number identifies the player-facing release.
+Run `npm run version:small` or `npm run version:feature` to update both package files. For an explicit user-specified release, use `npm version 0.1.40 --no-git-tag-version` with the requested numeric version. Bump once per published release.
+
+Add every release to the top of `src/versionHistory.ts`, with a few brief player-facing bullet points. “Bug fix” is enough for a small fix. Keep earlier entries unchanged. Settings → Version History shows them newest first, using the credits-style summit background and tap-anywhere return. Versions 0.1.00–0.1.03 are the earlier numbered releases displayed with two digits; unnumbered development predates this history. The history test checks ordering, duplicates, nonempty notes and agreement with the current package version. Build and publish the source and matching output together.
 
 ## Rarity balance
 

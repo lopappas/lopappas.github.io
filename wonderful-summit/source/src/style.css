@@ -332,3 +332,11 @@
 
 /* Ending panels must not inherit the run screen's pale paragraph colors. */
 .ending-relics .relic-detail,.ending-relics .relic-detail :is(h2,p,strong,.rarity-label,.spell-name){color:#000!important;text-shadow:none;opacity:1}
+
+.settings-history-tab{margin-top:12px}
+.version-history .credits-copy{width:min(460px,100%)}
+.version-history-list{list-style:none;margin:0 0 24px;padding:0;text-align:left}
+.version-history-list>li{padding:18px 0;border-bottom:1px solid #d9c49b55}
+.version-history .credits-copy h2{margin:0 0 8px;font-family:Kurale,Georgia,serif;font-size:23px;font-weight:400;letter-spacing:0;text-transform:none;color:#fff5d9}
+.version-history-list ul{list-style:disc;margin:0;padding-left:21px;color:#eee7d1;font-size:14px;line-height:1.7}
+.version-history-list ul li{padding:2px 0}
