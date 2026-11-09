@@ -13,7 +13,7 @@ Updated: 2026-11-10
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.52): restored version 0.1.43 gameplay and visuals. Original elemental colors and the smooth black-to-element ink transition from 40% to 90% cast progress are restored. The quality palettes, Ancient pink theme, rumble and dissolve effects from 0.1.50–0.1.51 are removed. Version labels show 0.1.52; release history is retained.
+Latest update (version 0.1.53): version 0.1.52 gameplay and original element colors remain, with gentle cast rumble and dissolving ink restored. Rumble starts with the ink transition at 40% cast progress and builds to at most 1 CSS pixel. Cast ink dissolves over 350 ms while parchment stays steady. The shared effects apply to combat/tutorial/practice, campsite and bottle canvases. Reduced motion uses a simple fade. Quality palettes and Ancient pink theme are not restored.
 
 Belladora has no protruding potions. Drawn ink remains 3.45 CSS pixels wide; opening version and potion rarity borders remain.
 
@@ -28,7 +28,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 500 retained tests pass; TypeScript and production build pass. Changed gameplay files were restored directly from the 0.1.43 GitHub commit. Source and matching production build are included together. Browser visuals and live deployment have not yet been verified.
+Validation for this update: all 503 tests pass; TypeScript and production build pass. Tests cover bounded rumble, reduced motion, complete dissolve and unchanged drawing geometry. Source and matching production build are included together. Browser visuals and live deployment have not yet been verified. Historical queued Pages runs have rejected cancellation as not in progress.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 

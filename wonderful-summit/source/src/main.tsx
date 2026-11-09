@@ -1,3 +1,4 @@
+import {useSpellInk} from './useSpellInk';
 import {rarityClass} from './rarity';
 import {OpeningSpellReview} from './OpeningSpellReview';
 import {combatOpening} from './combatOpening';
@@ -9,11 +10,11 @@ import {SettingsButton} from './Settings';
 import {worstDrawing,bestDrawing,snapshotDrawing} from './drawings';
 import {createPortal} from 'react-dom';
 import {BottleCapture} from './BottleCapture';
-import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import '@fontsource/fredoka/latin-400.css';
 import '@fontsource/fredoka/latin-500.css';
 import '@fontsource/fredoka/latin-600.css';
-import {SPELLS,recognize,grade,power,inkCost,castHoldMs,REFILL_MS,refillDurationMs,refillInk,chargeColor,spellInkColor,type Point,type Strokes,type Spell} from './magic';
+import {SPELLS,recognize,grade,power,inkCost,castHoldMs,REFILL_MS,refillDurationMs,refillInk,chargeColor,type Point,type Strokes,type Spell} from './magic';
 import {Tutorial2Trace} from './Tutorial2Trace';
 import {World} from './World';
 import {alchemizeBlockReason,amuletDamageMultiplier,cloverAccuracyBonus,staleMultiplier,SPELL_COOLDOWNS,spellCooldownRemaining,robesBonus,cloverReady,relicAccuracyBonus,effectiveAccuracy,prepareRelicCast,releaseMultiplier,bogTickDamage,midnightBonus,fizzleSpell,newBattle,stepBattle,potionImpactIds,launchSpell,spellTarget,nearestEnemy,spellDamage,firestormTickDamage,drinkPotion,ENCOUNTERS,potionRarity,potionName,POTIONS,type Potion,type Encounter,type Battle} from './battle';
@@ -81,11 +82,9 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
  }
 
  const tint=chargeColor(charge,chargingSpell.current?.color);
- const inkColor=spellInkColor(launch?1:charge,chargingSpell.current?.color),inkColorRef=useRef(inkColor);
- inkColorRef.current=inkColor;
- useLayoutEffect(()=>{paint();},[inkColor]);
+ const paint=useSpellInk(canvas,strokes,charge,chargingSpell.current?.color,launch,paused);
  const statusRef=useRef({reload,launch,book,help});statusRef.current={reload,launch,book,help};
- function paint(){const el=canvas.current;if(!el)return;const ctx=el.getContext('2d');if(!ctx)return;ctx.clearRect(0,0,el.width,el.height);const dpr=window.devicePixelRatio||1;ctx.save();ctx.scale(dpr,dpr);ctx.strokeStyle=inkColorRef.current;ctx.lineWidth=3.45;ctx.lineCap='round';ctx.lineJoin='round';for(const s of strokes.current){ctx.beginPath();s.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();}ctx.restore();}
+
  useEffect(()=>{if(tutorial2){cancelCharge();active.current=null;}},[tutorial2?.token,tutorial2?.paused,tutorial2?.blocking]);
  function cancelCharge(){if(hold.current)cancelAnimationFrame(hold.current.id);hold.current=null;setCharge(0);}
  useEffect(()=>{if(!help)return;const previous=document.activeElement as HTMLElement|null;const modal=document.querySelector<HTMLElement>('[role="dialog"]');modal?.querySelector<HTMLButtonElement>('button')?.focus();const key=(e:KeyboardEvent)=>{if(e.key==='Escape')closeHelp();if(e.key==='Tab'&&modal){const items=Array.from(modal.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],[tabindex="0"]'));const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);previous?.focus();};},[help]);
