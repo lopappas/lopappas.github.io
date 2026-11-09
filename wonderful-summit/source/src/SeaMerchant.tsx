@@ -2,7 +2,7 @@ import React from 'react';
 import {PetPurse} from './PetPurse';
 
 /** Chunky silhouettes and a small pixel grid keep the roadside camp retro. */
-export function SeaMerchant(){return <svg className="npc-art merchant-art" viewBox="0 0 180 96" role="img" aria-label="A smiling Belladora purse to the left of the sea urchin merchant, beside a blue tent and a wooden table with three potions, two rocks, and three scrolls.">
+export function SeaMerchant({purseExpanded=false}:{purseExpanded?:boolean}){return <svg className="npc-art merchant-art" viewBox="0 0 180 96" role="img" aria-label="A smiling Belladora purse to the left of the sea urchin merchant, beside a blue tent and a wooden table with three potions, two rocks, and three scrolls.">
  <g shapeRendering="crispEdges">
   <path d="M8 84h164v4H8z" fill="#1c3029"/>
   {/* Blue tent, with a stair-stepped canvas roof. */}
@@ -36,5 +36,5 @@ export function SeaMerchant(){return <svg className="npc-art merchant-art" viewB
   {[45,50,55].map(y=><g key={y}><path d={`M149 ${y}h20v4h-20z`} fill="#9b7855"/><path d={`M150 ${y}h18v3h-18z`} fill="#ead7a9"/><path d={`M157 ${y}h2v3h-2z`} fill="#ae6979"/></g>)}
  </g>
  {/* Reuse Belladora's exact in-game design, with her happy expression. */}
- <g transform="translate(35 65) scale(.5)"><PetPurse/></g>
+ <g transform="translate(35 65) scale(.5)"><PetPurse expanded={purseExpanded}/></g>
 </svg>}

@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-07
+Updated: 2026-11-09
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,12 +13,14 @@ Updated: 2026-11-07
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.2): removed the opening canvas's fading starter sigils. The checkmark still fades in after the title-screen tap. Theodora's heading is “Choose a keepsake:”. Resting restores 60 health, capped at 100, in regular camps and the lit Forgotten Campsite; rest still consumes the single camp action.
+Latest update (version 0.1.3): ending-screen relic inspection text is black, overriding the run panel's pale text. Birkin-stock makes Belladora 15% larger in combat and at the merchant, anchored at her feet. Her frown persists throughout combat defeat, beyond the temporary hit reaction.
+
+Opening starter sigils remain removed; the checkmark fades in after the title-screen tap. Theodora's heading is “Choose a keepsake:”. Regular and lit Forgotten Campsite rest restores 60 health, capped at 100, consuming the single camp action.
 
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents release numbering; 0.1.0 is the starting baseline.
-Validation for this update: 42 relevant run/spellbook/campsite tests pass; TypeScript and production build pass. Source and matching build are committed together. No browser visual verification was performed; live deployment has not yet been verified.
+Validation for this update: 25 relevant run/potion-relic tests pass; TypeScript and production build pass. Server-render checks confirm normal and enlarged Belladora, merchant enlargement and a defeat frown even with no recent hit. Source and matching build are committed together. No browser visual verification was performed; live deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
