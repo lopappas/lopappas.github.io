@@ -342,6 +342,3 @@
 .version-history-list ul li{padding:2px 0}
 
 .opening-version{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));z-index:6;color:#eee7d1;font-size:11px;line-height:1.3;text-shadow:0 1px 4px #14251e;pointer-events:none}
-
-/* Casting dissolves the ink in place; the parchment remains steady. */
-.launch .paper{animation:none}

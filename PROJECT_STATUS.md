@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-09
+Updated: 2026-11-10
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,7 @@ Updated: 2026-11-09
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.51, republishing version 0.1.50): the exact approved Fire/Water/Nature/Ancient quality palettes drive drawn ink colors. Steady colors are the spell catalog defaults; Ancient is pink throughout spell names, icons, encyclopedia art and Chronos flashes. Ink blends from black during 40%–90% cast progress, gently rumbles from 40% until cast (at most 1 CSS pixel), then dissolves into fading fragments over 350 ms. The parchment stays in place. Effects are shared across combat, tutorial, practice, campsite and bottle canvases; reduced motion uses a simple fade. Canceled casts return to black without rumble. Drawing geometry, recognition, ink consumption and combat balance are unchanged.
+Latest update (version 0.1.52): restored version 0.1.43 gameplay and visuals. Original elemental colors and the smooth black-to-element ink transition from 40% to 90% cast progress are restored. The quality palettes, Ancient pink theme, rumble and dissolve effects from 0.1.50–0.1.51 are removed. Version labels show 0.1.52; release history is retained.
 
 Belladora has no protruding potions. Drawn ink remains 3.45 CSS pixels wide; opening version and potion rarity borders remain.
 
@@ -28,7 +28,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 504 tests pass; TypeScript and production build pass. New tests cover exact palette/grade boundaries, base catalog colors, transition endpoints, bounded rumble, reduced motion, complete dissolve and preserved drawing geometry. Browser visual QA is unverified because the managed preview daemon is unavailable. Source and matching production build are included together. The user explicitly approved publishing the complete source/build payload to the public GitHub repository; live deployment has not yet been verified.
+Validation for this update: all 500 retained tests pass; TypeScript and production build pass. Changed gameplay files were restored directly from the 0.1.43 GitHub commit. Source and matching production build are included together. Browser visuals and live deployment have not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
