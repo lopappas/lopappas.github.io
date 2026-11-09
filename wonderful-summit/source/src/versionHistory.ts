@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.43',changes:['Removed protruding potions from Belladora.','Drawn spell ink is 15% thicker.','Added the version number to the opening screen.']},
  {version:'0.1.42',changes:['Spell ink gradually blends from black to its element color between 40% and 90% of casting.']},
  {version:'0.1.41',changes:['Spell ink changes to its element color with the cast bar.','Potion slots show potion rarity colors.','Belladora shows two bottles in combat when full.']},
  {version:'0.1.40',changes:['Added Version History in Settings.','Introduced two-digit release numbers.']},

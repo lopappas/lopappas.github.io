@@ -11,7 +11,7 @@ import {WoodenShieldArt} from './WoodenShieldArt';
 import {PetPurse} from './PetPurse';
 import {chronosAffected,chronosGrayAmount,chronosVisuals,enemyStatusLabel} from './timeVisuals';
 import {EnemyEffects} from './EnemyEffects';
-import {POTION_IDS,enemyElementColor,presentEnemies,projectilePosition,enemyY,targetedEnemy,potionPosition,POTION_FLIGHT_SECONDS,POTION_BREAK_SECONDS,type Battle} from './battle';
+import {enemyElementColor,presentEnemies,projectilePosition,enemyY,targetedEnemy,potionPosition,POTION_FLIGHT_SECONDS,POTION_BREAK_SECONDS,type Battle} from './battle';
 export function World({burst,color,battle,hasRelics=false,purseExpanded=false,practice=false,companion=true,companionPaused=false,enemyEntrance}:{burst:number;color:string;battle:Battle;hasRelics?:boolean;purseExpanded?:boolean;practice?:boolean;companion?:boolean;companionPaused?:boolean;enemyEntrance?:'slide'|'fade'}){
 const [sad,setSad]=useState(false),[viewHeight,setViewHeight]=useState(410),[cloudY,setCloudY]=useState(210);
 const worldRef=useRef<HTMLDivElement>(null);
@@ -95,7 +95,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 <path d="M15 22h4v2h-4z" fill="#9c83bc"/>
 <path d="M19 22h4v2h-4z" fill="#f2cea6"/>
 </g></g>
-{companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse full={!practice&&POTION_IDS.reduce((total,id)=>total+(battle.potions[id]??0),0)>=battle.potionCapacity} expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
+{companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
 {presentEnemies(battle).map(e=>{const frozen=battle.freezeUntil>battle.time,status=enemyStatusLabel(e,battle),color=practice?'#e6b844':e.rocky?'#a5aaa4':e.element==='Fire'?'#ef9c70':e.element==='Water'?'#7ccbd6':e.element==='Nature'?'#99bf76':'#bcc3a2';return <PaletteGroup key={e.id} amount={chronosGrayAmount(e,battle.time)} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
 <ellipse cy="22" rx={e.kind==='mother'?72:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<TargetCaret element={e.element} mother={e.kind==='mother'}/>}

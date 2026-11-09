@@ -340,3 +340,5 @@
 .version-history .credits-copy h2{margin:0 0 8px;font-family:Kurale,Georgia,serif;font-size:23px;font-weight:400;letter-spacing:0;text-transform:none;color:#fff5d9}
 .version-history-list ul{list-style:disc;margin:0;padding-left:21px;color:#eee7d1;font-size:14px;line-height:1.7}
 .version-history-list ul li{padding:2px 0}
+
+.opening-version{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));z-index:6;color:#eee7d1;font-size:11px;line-height:1.3;text-shadow:0 1px 4px #14251e;pointer-events:none}
