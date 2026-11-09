@@ -1,5 +1,5 @@
 import {PLAYER_SPELLS,type SpellId} from './magic.ts';
-import {potionName,POTIONS,POTION_IDS,RARE_POTIONS,type Potion} from './battle.ts';
+import {potionName,POTIONS,POTION_IDS,potionRarity,type Potion} from './battle.ts';
 import {RELICS,type RelicId} from './run.ts';
 import type {Rarity} from './rarity.ts';
 
@@ -36,7 +36,7 @@ export type EncyclopediaEntry={key:EntryKey;chapter:Chapter;id:SpellId|RelicId|P
 export const ENCYCLOPEDIA_ENTRIES:EncyclopediaEntry[]=[
  ...PLAYER_SPELLS.map(s=>({key:`spells:${s.id}` as EntryKey,chapter:'spells' as const,id:s.id,name:s.name,rarity:s.rarity,description:s.description,path:s.path,color:s.color,element:s.element,tips:CASTING_TIPS[s.id]})),
  ...(Object.keys(RELICS) as RelicId[]).map(id=>({key:`relics:${id}` as EntryKey,chapter:'relics' as const,id,...RELICS[id],lore:RELIC_LORE[id]})),
- ...POTION_IDS.map(id=>({key:`potions:${id}` as EntryKey,chapter:'potions' as const,id,name:potionName(id),rarity:(id==='theodoraHeal'?'Keepsake':RARE_POTIONS.includes(id)?'Rare':'Common') as Rarity,description:POTIONS[id].detail,icon:POTIONS[id].icon,lore:POTION_LORE[id]}))
+ ...POTION_IDS.map(id=>({key:`potions:${id}` as EntryKey,chapter:'potions' as const,id,name:potionName(id),rarity:potionRarity(id),description:POTIONS[id].detail,icon:POTIONS[id].icon,lore:POTION_LORE[id]}))
 ];
 export function encyclopediaGroups(chapter:Chapter){
  return RARITY_ORDER.map(rarity=>({rarity,entries:ENCYCLOPEDIA_ENTRIES.filter(e=>e.chapter===chapter&&e.rarity===rarity)})).filter(group=>group.entries.length>0);

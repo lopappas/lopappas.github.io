@@ -19,6 +19,7 @@ export type BottledSpell={drawing?:PlayerDrawing;inkUsed?:number;spellId:SpellId
 export const POTION_IDS:Potion[]=['theodoraHeal','heal','freeze','ink','rejection','spellBottle','fury','stellar','miasma'];
 export const COMMON_POTIONS:Potion[]=['heal','freeze','ink','stellar'];
 export const RARE_POTIONS:Potion[]=['spellBottle','rejection','fury','miasma'];
+export function potionRarity(potion:Potion):'Keepsake'|'Rare'|'Common'{return potion==='theodoraHeal'?'Keepsake':RARE_POTIONS.includes(potion)?'Rare':'Common';}
 export const SHOP_POTIONS:Potion[]=[...COMMON_POTIONS,...RARE_POTIONS];
 export function potionPrice(potion:Potion){return RARE_POTIONS.includes(potion)?36:18;}
 export function rollRewardPotion(random:()=>number=Math.random):Potion{const pool=random()<.7?COMMON_POTIONS:RARE_POTIONS;return pool[Math.min(pool.length-1,Math.floor(random()*pool.length))];}

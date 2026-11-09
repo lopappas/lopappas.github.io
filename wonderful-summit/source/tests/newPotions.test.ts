@@ -8,7 +8,7 @@ function shop(){return {...newRun(),screen:'shop' as const,gold:100,stock:[{id:'
 test('second merchant and a fresh Mossy grove campsite sit between barricade and boss',()=>{
  assert.deepEqual(ROUTE.slice(-7).map(n=>n.name),['Woodland barricade','Sea Merchant','Mossy grove campsite','Slime Mother','Rock and web','Rockweb nest','Webbed ambush']);
  assert.equal(merchantDialogue(ROUTE.findLastIndex(n=>n.kind==='shop')),"I'm saving money to buy a cozy sweater for winter. How are you staying warm?");
- const node=ROUTE.findIndex(n=>n.name==='Mossy grove campsite');const r=enterNode({...newRun(),screen:'map',node,campUsed:true,health:13});assert.equal(r.campUsed,false);assert.equal(camp(r).health,83);assert.equal(leaveNode(camp(r)).node,node+1);
+ const node=ROUTE.findIndex(n=>n.name==='Mossy grove campsite');const r=enterNode({...newRun(),screen:'map',node,campUsed:true,health:13});assert.equal(r.campUsed,false);assert.equal(camp(r).health,73);assert.equal(leaveNode(camp(r)).node,node+1);
 });
 test('both shops keep two potions, two relics and one random spell offer',()=>{
  for(const node of ROUTE.flatMap((n,i)=>n.kind==='shop'?[i]:[]))for(const missing of [0,1,2,4])for(const roll of [0,.4,.99]){

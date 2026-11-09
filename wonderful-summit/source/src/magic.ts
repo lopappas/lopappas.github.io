@@ -86,6 +86,7 @@ export function spellPower(id:SpellId,quality:number){
 export function knockback(quality:number){return accuracyStrength(quality).knockback;}
 export const HOLD_MS=500;
 export function castHoldMs(mindRune=false){return HOLD_MS*(mindRune?.75:1);}
+export function spellInkColor(progress:number,elementColor?:string){return progress>=.5&&elementColor?chargeColor(progress,elementColor):'#000000';}
 export function chargeColor(progress:number,elementColor?:string){return progress>=.5&&elementColor?elementColor:'#d9b9ff';}
 export const REFILL_MS=1000;
 export function refillDurationMs(ink:number){return Math.max(0,100-Math.max(0,Math.min(100,ink)))*10;}
