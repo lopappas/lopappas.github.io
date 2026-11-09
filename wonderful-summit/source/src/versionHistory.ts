@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.51',changes:['Republished the spell ink color and casting effects update.']},
  {version:'0.1.50',changes:['Spell ink uses quality-based elemental colors.','Ancient magic has a new pink theme.','Drawn spells gently rumble while charging and dissolve when cast.']},
  {version:'0.1.43',changes:['Removed protruding potions from Belladora.','Drawn spell ink is 15% thicker.','Added the version number to the opening screen.']},
  {version:'0.1.42',changes:['Spell ink gradually blends from black to its element color between 40% and 90% of casting.']},
