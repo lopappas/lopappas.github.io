@@ -23,6 +23,7 @@ const authoredSteps:readonly Tutorial2Step[]=[
  {id:'nature-refill',kind:'action',action:'refill',target:'refill',text:'Refill your ink'},
  {id:'nature-refilled',kind:'dialogue',text:'Ok, back to taking down this nature slime.'},
  ...castingSteps(1),{id:'nature-victory',kind:'dialogue',text:'That was easy. Fire beats nature.'},
+ {id:'nature-elements',kind:'dialogue',presentation:'screen',text:'Water beats Fire. Fire beats Nature. Nature beats Water. Use the elements to your advantage to deal extra damage!'},
  {id:'water-enter',kind:'settling',durationMs:800,text:''},
  {id:'water-pre-attack',kind:'settling',durationMs:1500,text:''},
  {id:'water-ambush',kind:'settling',durationMs:0,text:''},

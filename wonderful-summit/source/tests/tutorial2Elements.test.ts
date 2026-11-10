@@ -82,7 +82,7 @@ test('sub-Steady casts show Try again for one active second, then return to the 
 });
 
 test('victory quips advance after the shared dialogue reading hold without an extra hidden delay',()=>{
- for(const lesson of LESSONS){let s=at(`${lesson.id}-victory`);s=transitionElement(s,{type:'continue',token:s.token});if(lesson.id==='water')assert.equal(s.phase,'complete');else assert.equal(elementStep(s).id,lesson.id==='fire'?'nature-intro':'water-enter');}
+ for(const lesson of LESSONS){let s=at(`${lesson.id}-victory`);s=transitionElement(s,{type:'continue',token:s.token});if(lesson.id==='water')assert.equal(s.phase,'complete');else assert.equal(elementStep(s).id,lesson.id==='fire'?'nature-intro':'nature-elements');}
 });
 
 test('the spill is cleared and ink refilled before Hearthspark is required',()=>{
@@ -94,4 +94,16 @@ test('the spill is cleared and ink refilled before Hearthspark is required',()=>
  let s=at('nature-refill');assert.equal(elementActionAllowed(s,'draw'),false);
  s=transitionElement(s,{type:'action',action:'refill',token:s.token});assert.equal(elementStep(s).id,'nature-refilled');assert.equal(elementStep(s).text,'Ok, back to taking down this nature slime.');
  s=transitionElement(s,{type:'continue',token:s.token});assert.equal(elementStep(s).id,'nature-book');
+});
+
+test('element advantages require an explicit Continue after Nature victory, before the Water ambush',()=>{
+ let s=at('nature-victory');s=transitionElement(s,{type:'continue',token:s.token});
+ const info=elementStep(s);assert.equal(info.id,'nature-elements');assert.equal(info.kind,'dialogue');
+ assert.ok(info.kind==='dialogue'&&info.presentation==='screen');
+ assert.equal(info.text,'Water beats Fire. Fire beats Nature. Nature beats Water. Use the elements to your advantage to deal extra damage!');
+ assert.equal(elementLesson(s),1);
+ assert.equal(transitionElement(s,{type:'tick',deltaMs:10000,token:s.token}),s);
+ assert.equal(transitionElement(s,{type:'continue',token:s.token-1}),s);
+ const continued=transitionElement(s,{type:'continue',token:s.token});assert.equal(elementStep(continued).id,'water-enter');
+ assert.equal(transitionElement(continued,{type:'continue',token:s.token}),continued);
 });

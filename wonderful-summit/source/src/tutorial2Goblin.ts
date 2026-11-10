@@ -13,12 +13,12 @@ export const QUALITY_EXPLANATION='There are 5 types of spell casts:\n'+QUALITY_L
 export const RELIC_EXPLANATION='Relics are powerful talismans that give you different advantages. Tap on them to inspect their magical effects.';
 export const GOBLIN_STEPS:readonly Tutorial2Step[]=[
  {id:'goblin-enter',kind:'settling',durationMs:800,text:''},
- {id:'goblin-intro',kind:'dialogue',text:'Ah, a non-elemental enemy. Any spell will do, it just won\'t be super effective. I will use a good old Hearthspark.'},
- {id:'goblin-nephew',kind:'dialogue',text:'Oh! I remember, I have a spell from my nephew, let me use it to take care of this.'},
+ {id:'goblin-intro',kind:'dialogue',text:'Ah, a non-elemental enemy. It has no elemental vulnerabilities or resistances. I will cast Hearthspark.'},
+ {id:'goblin-nephew',kind:'dialogue',text:"Oh! I remember, my nephew drew me a spell. I'll use it to defeat this goblin."},
  {id:'goblin-bad-cast',kind:'action',action:'cast',target:'cast',text:''},
  {id:'goblin-bad-impact',kind:'settling',durationMs:0,text:''},
  {id:'goblin-silence',kind:'dialogue',text:'...'},
- {id:'goblin-passion',kind:'dialogue',text:'I need to teach my nephew to draw spells with PASSION and PRECISION!'},
+ {id:'goblin-passion',kind:'dialogue',text:'He still has much to learn. Here goblin! Witness a true Hearthspark!'},
  {id:'goblin-perfect-draw',kind:'demonstration',completion:'perfect',text:''},
  {id:'goblin-perfect-cast',kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
  {id:'goblin-perfect-impact',kind:'settling',durationMs:0,text:''},
