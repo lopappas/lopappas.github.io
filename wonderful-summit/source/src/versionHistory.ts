@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.75',changes:['Matched the Learn button shape and border thickness to Ready.','Updated spell reward choices with spell-canvas parchment and spellbook text colors.']},
  {version:'0.1.74',changes:['Restored capped Alchemize; Learn draws only the cork’s sides and top.','Placed Learn beside a compact Ready button in the practice spellbook.']},
  {version:'0.1.73',changes:['Removed Alchemize’s cork and updated Learn drawing paths.','Sped up Learn examples by 20% and thickened the Learn button border.']},
  {version:'0.1.72',changes:['Refined Learn parchment panels and added arrow-based drawing tips.','Moved general drawing advice from spellbooks into Help.']},
