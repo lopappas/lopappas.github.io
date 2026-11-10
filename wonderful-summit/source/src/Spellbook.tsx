@@ -1,3 +1,5 @@
+import {RainbowLetters} from './SpellGrade';
+import {practiceLesson} from './practiceLessons';
 import {spellRarityClass} from './rarity';
 import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
@@ -15,8 +17,8 @@ function MarkedSpellName({name,marked}:{name:string;marked:boolean}){
  return <>{name.slice(0,split)}<span className="spell-name-ending">{name.slice(split)}<sup className="wonderful-diamond" aria-label="True Wonderful achieved">◆</sup></span></>;
 }
 type UpgradePage={selected:boolean;used:boolean;confirmed:boolean;celebrating:boolean;damageBonus:number;onConfirm:()=>void};
-type Props={tutorial2?:import('./tutorial2').Tutorial2Controls;wonderful?:SpellId[];known:SpellId[];upgrades:Partial<Record<SpellId,number>>;reference:Spell;pageFlash:number;closing:boolean;inCombat?:boolean;openingDurationMs?:number;traceCooldown?:GuideCooldown;upgrade?:UpgradePage;onSelect:(spell:Spell)=>void;onClose:()=>void};
-export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closing,inCombat=false,openingDurationMs=BOOK_TRANSITION_MS,traceCooldown,upgrade,onSelect,onClose,tutorial2}:Props){
+type Props={onLearn?:(spell:Spell)=>void;tutorial2?:import('./tutorial2').Tutorial2Controls;wonderful?:SpellId[];known:SpellId[];upgrades:Partial<Record<SpellId,number>>;reference:Spell;pageFlash:number;closing:boolean;inCombat?:boolean;openingDurationMs?:number;traceCooldown?:GuideCooldown;upgrade?:UpgradePage;onSelect:(spell:Spell)=>void;onClose:()=>void};
+export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closing,inCombat=false,openingDurationMs=BOOK_TRANSITION_MS,traceCooldown,upgrade,onSelect,onClose,tutorial2,onLearn}:Props){
  const dialog=useRef<HTMLElement>(null),closeRef=useRef(onClose);closeRef.current=onClose;
  const level=upgrades[reference.id]??0,preview=upgrade?spellUpgradePreview(reference.id,upgrade.confirmed?Math.max(0,level-1):level,upgrade.damageBonus):null;
  const [traceReady,setTraceReady]=useState(()=>!!traceCooldown?.isReady(performance.now()));
@@ -47,6 +49,7 @@ export function Spellbook({wonderful=[],known,upgrades,reference,pageFlash,closi
    {upgrade?<div className="upgrade-preview" aria-live="polite">{!upgrade.selected?<p>Choose a spell to upgrade.</p>:preview?<><strong style={{color:reference.color}}>{!upgrade.confirmed&&'Upgrade to '}<MarkedSpellName name={preview.nextName} marked={wonderful.includes(reference.id)}/></strong><p>{preview.knockback?`Knockback bonus: +${preview.currentBonus}% → +${preview.nextBonus}%`:preview.thistle?`Thorn damage every 0.5 seconds: ${preview.currentDamage} → ${preview.nextDamage}`:preview.bog?'Upgraded Drudge Bog also increases spell duration.':preview.firestorm?`Rain damage: ${preview.currentTick} → ${preview.nextTick} every 0.5 seconds`:preview.duration?`Duration bonus: +${preview.currentBonus}% → +${preview.nextBonus}%`:<>Direct damage bonus: +{preview.currentBonus}% → +{preview.nextBonus}%</>}</p>{preview.thistle&&<small>Damage threshold: {preview.currentThreshold} → {preview.nextThreshold} (+15%)</small>}{!preview.duration&&!preview.firestorm&&!preview.bog&&!preview.thistle&&!preview.knockback&&<small>Steady (60%) damage: {preview.currentDamage} → {preview.nextDamage}<br/>Before elemental advantage.</small>}</>:<p>Fully upgraded.</p>}</div>:<div className="book-tip">Keep the overall shape and proportions. Any size or position works. Stroke order does not matter.</div>}
    {upgrade&&<button className="primary-small" disabled={closing||!upgrade.selected||upgrade.used||!preview} onClick={upgrade.onConfirm}>{upgrade.confirmed?'Upgraded!':'Confirm upgrade'}</button>}
    <button data-tutorial2-target="book-close" disabled={!!tutorial2&&!tutorial2.canAction('close')||closing} className={`${upgrade?'secondary-button upgrade-close':'primary-small'}${(inCombat&&traceReady&&!closing||upgrade?.confirmed)?' trace-ready':''}`} onClick={onClose}>{inCombat?'Ready':'Close'}</button>
+   {onLearn&&practiceLesson(reference.id)&&<button className="practice-learn-button" disabled={closing} aria-label={`Learn to draw ${reference.name}`} onClick={()=>onLearn(reference)}><span className="grade-wonderful"><RainbowLetters text="Learn"/></span></button>}
   </section>
  </div>,document.body);
 }

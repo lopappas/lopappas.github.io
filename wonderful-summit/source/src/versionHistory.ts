@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.70',changes:['Added Learn demonstrations for 15 practice spells, with persistent tracing outlines.']},
  {version:'0.1.63',changes:['Added the home-page help button and a More Help tutorial tip.']},
  {version:'0.1.62',changes:['Added Know the Elements and Last Things tutorial popups.','Centered the menu tutorial popups and refined tutorial dialogue and buttons.']},
  {version:'0.1.61',changes:['Added a final Tutorial complete popup after the Encyclopedia tip.']},
