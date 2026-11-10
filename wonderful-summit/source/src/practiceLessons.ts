@@ -11,7 +11,7 @@ export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
  bolt:'Draw it from the top to bottom.',leaf:'Draw it from the left-most corner, and go clockwise.',chronos:'From the top of the circle, draw counter-clockwise. When the circle is completed, draw down.',
  tidalcrest:'Start the draw from the bottom left then draw it clockwise.',firestorm:'Draw the horizontal line from left to right. Then draw the left triangle from top left clockwise. Repeat for the right triangle.',
  bog:'From the top, draw a circle counterclockwise. Draw a bramble leaf in the center from the left corner clockwise.',
- alchemize:'Draw the bottle from the top left counterclockwise. Close the bottle mouth to finish.',
+ alchemize:'Draw the bottle from the top left counterclockwise. For the cork, start at the bottom left, draw up the left side, across the top, then down the right side. Do not draw the bottom.',
  puddleGuard:'Draw it from left to right.',flameBlade:'Draw the horizontal line, then the vertical. Finally, draw the blade from the bottom left corner, going clockwise, stopping at the bottom right. Do not redraw the horizontal blade base.',
  thistleBush:'Draw it from left to right.',sneakyVine:'Start at the bottom right of the shape and finish drawing it.',
 };
@@ -23,7 +23,7 @@ export function practiceLesson(id:SpellId){
  if(id==='leaf')paths=[startAt(paths[0],15,50)];
  if(id==='chronos')paths=[paths[0].reverse(),paths[1].reverse()];
  if(id==='bog')paths=[paths[0].reverse(),startAt(paths[1],32.5,50)];
- if(id==='alchemize')paths=[paths[0].reverse()];
+ if(id==='alchemize')paths=[paths[0].reverse(),[{x:41,y:14},{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14}]];
  if(id==='flameBlade')paths=[paths[1],paths[2],startAt(paths[0],43,62).slice(0,-1)];
  const length=paths.reduce((sum,p)=>sum+p.slice(1).reduce((n,b,i)=>n+Math.hypot(b.x-p[i].x,b.y-p[i].y),0),0);
  return {spell,paths,instruction:LESSON_INSTRUCTIONS[id]!,duration:(id==='water'?4500:['fire','nature'].includes(id)?4000:Math.max(4000,Math.min(8000,length*25)))/1.2};

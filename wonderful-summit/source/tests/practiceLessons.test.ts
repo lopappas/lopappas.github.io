@@ -23,7 +23,7 @@ test('Aquaspout, Chronos, Bog and Alchemize follow the approved counterclockwise
  const aqua=practiceLesson('wave')!.paths;assert.deepEqual(aqua[0][0],{x:50,y:32});assert.ok(area(aqua[0])<0);assert.deepEqual(aqua[1],[{x:36,y:18},{x:50,y:6},{x:64,y:18}]);
  const chronos=practiceLesson('chronos')!.paths;assert.ok(area(chronos[0])<0);assert.deepEqual(chronos[1],[{x:50,y:10},{x:50,y:50}]);
  const bog=practiceLesson('bog')!.paths;assert.deepEqual(bog[0][0],{x:50,y:12});assert.ok(area(bog[0])<0);assert.deepEqual(bog[1][0],{x:32.5,y:50});assert.ok(area(bog[1])>0);
- const bottle=practiceLesson('alchemize')!.paths;assert.deepEqual(bottle[0][0],{x:41,y:14});assert.ok(area(bottle[0])<0);assert.equal(bottle.length,1);
+ const bottle=practiceLesson('alchemize')!.paths;assert.deepEqual(bottle[0][0],{x:41,y:14});assert.ok(area(bottle[0])<0);assert.equal(bottle.length,2);assert.deepEqual(bottle[1],[{x:41,y:14},{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14}]);
 });
 test('leaf, triangles, blade and line spells follow approved starting points, order and clockwise direction',()=>{
  const leaf=practiceLesson('leaf')!.paths[0];assert.deepEqual(leaf[0],{x:15,y:50});assert.ok(area(leaf)>0);
@@ -54,7 +54,7 @@ test('tip paging preserves every approved instruction and whole words at small a
 test('Flame Blade stops at the right edge without redrawing the already-present hilt',()=>{
  const paths=practiceLesson('flameBlade')!.paths;
  assert.deepEqual(paths[2],[{x:43,y:62},{x:50,y:10},{x:57,y:62}]);
- assert.equal(practiceLesson('alchemize')!.paths.length,1);
+ assert.equal(practiceLesson('alchemize')!.paths.length,2);
 });
 test('every Learn example runs at 1.2 times its previous drawing speed',()=>{
  for(const id of Object.keys(LESSON_INSTRUCTIONS) as (typeof SPELLS)[number]['id'][]){

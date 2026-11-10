@@ -13,7 +13,7 @@ Updated: 2026-11-11
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.73): Alchemize uses a single corkless bottle outline across spellbook, recognition and Learn; removed corked drawings are rejected by a scale-independent neck-crossbar check. Flame Blade's Learn blade stroke stops at bottom right, without redrawing its horizontal base already covered by the hilt. Learn examples play at 1.2× previous speed (durations divided by 1.2), and the white/rainbow Learn button border is 3.9px (30% thicker). Existing quarter-height parchment panel, arrow-paged instructions, full canvas size and Help advice remain.
+Latest update (version 0.1.74): Alchemize's capped bottle is restored across spellbook and recognition. Its Learn demonstration draws the bottle counterclockwise, then only the cork's left, top and right edges, without retracing its bottom. Practice spellbook places Learn to the right of a compact Ready button. Flame Blade's open blade stroke, 1.2× Learn speed and 3.9px rainbow border remain. Existing quarter-height parchment panel, arrow-paged instructions, full canvas size and Help advice remain.
 
 Existing tutorial guide remains Last Things → Practice → Encyclopedia → More Help → Tutorial Complete. Home help and spell rewards at victories 1, 4, 7 and 10 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 516 tests pass; TypeScript and production build pass. Tests cover corkless recognition and old cork rejection across scale, direction, stroke grouping and accuracy bonuses; exact open Flame Blade path; all lesson speed ratios. Browser visuals remain unverified because the preview relay was unavailable. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: all 516 tests pass; TypeScript and production build pass. Tests cover restored capped recognition across scale, direction and stroke order, exact open cork Learn path, and recognition of all Learn examples. Browser visuals remain unverified because the preview relay is unavailable. Source and matching build are included together; deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 

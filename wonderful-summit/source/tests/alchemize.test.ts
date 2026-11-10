@@ -6,8 +6,8 @@ import {newRun,battleForRun,rollSpellOffers,buy,enterNode,finishBattle} from '..
 const spell=SPELLS.find(s=>s.id==='alchemize')!;
 function field(){const b=newBattle('active');b.approachAt=1000;b.potions={heal:0,freeze:0,ink:0};return b;}
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
-test('Alchemize is a Legendary Ancient spell using the approved single-stroke corkless bottle and no damage upgrade',()=>{
- assert.equal(spell.rarity,'Legendary');assert.equal(spell.element,'Ancient');assert.equal(isUpgradableSpell('alchemize'),false);assert.equal(spell.strokes.length,1);
+test('Alchemize is a Legendary Ancient spell using the approved two-stroke capped bottle and no damage upgrade',()=>{
+ assert.equal(spell.rarity,'Legendary');assert.equal(spell.element,'Ancient');assert.equal(isUpgradableSpell('alchemize'),false);assert.equal(spell.strokes.length,2);
  for(const scale of [.2,1,4]){const strokes=spell.strokes.slice().reverse().map(s=>s.slice().reverse().map(p=>({x:70+p.x*scale,y:-13+p.y*scale})));const match=recognize(strokes);assert.equal(match.spell?.id,'alchemize');assert.equal(match.quality,100);}
 });
 test('every tier rolls the exact common/higher-tier odds, with healing only from Beautiful upwards',()=>{
@@ -40,13 +40,12 @@ test('Alchemize can appear in rewards and Random spell purchases, and an owned s
  assert.deepEqual(finishBattle({...run,screen:'battle',combats:3},{...battleForRun(run),phase:'victory'},()=>0).reward?.offers,['alchemize']);assert.deepEqual(rollSpellOffers({...run,spells:[...run.spells,'alchemize']},()=>0),[]);
 });
 
-test('removed corked Alchemize is rejected across size, stroke order, direction and accuracy bonuses',()=>{
- const cork=[{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14},{x:41,y:14},{x:39.2,y:5}];
- assert.ok(!spell.path.includes('M39.2'));
- for(const scale of [.2,1,4])for(const reverse of [false,true])for(const connected of [false,true]){
-  let paths=connected?[[...spell.strokes[0],...cork]]:[spell.strokes[0],cork];
+test('restored capped Alchemize is accepted across sizes, stroke order and direction',()=>{
+ assert.ok(spell.path.includes('M39.2'));
+ for(const scale of [.2,1,4])for(const reverse of [false,true]){
+  let paths=spell.strokes;
   if(reverse)paths=paths.slice().reverse().map(s=>s.slice().reverse());
   paths=paths.map(s=>s.map(p=>({x:120+p.x*scale,y:70+p.y*scale})));
-  for(const bonus of [0,3,10,17])assert.equal(recognize(paths,['alchemize'],bonus).spell,null);
+  assert.equal(recognize(paths).spell?.id,'alchemize');
  }
 });
