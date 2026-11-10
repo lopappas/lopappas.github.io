@@ -352,3 +352,5 @@
 .menu-tutorial-popup h2{margin:0 0 10px;font-size:21px;font-weight:500}.menu-tutorial-popup p{margin:0 0 16px;line-height:1.5;font-size:15px}.menu-tutorial-popup .primary-small{min-height:44px}
 
 .menu-tutorial-complete{background:#081811a6}.menu-tutorial-popup-complete{transform:translate(-50%,-50%);text-align:center}
+
+@media(max-width:374px){.main-menu .header-actions{gap:5px}.main-menu .topbar .brand{font-size:12px}}

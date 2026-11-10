@@ -1,0 +1,25 @@
+import React,{useEffect,useRef,useState,type ReactNode} from 'react';
+import {createPortal} from 'react-dom';
+import {LessonText} from './LessonText';
+import {castHoldMs} from './magic';
+
+export function HelpButton(){
+ const [open,setOpen]=useState(false);
+ return <><button data-menu-tour="help" className="icon-button" aria-label="How to play" aria-haspopup="dialog" onClick={()=>setOpen(true)}>?</button>{open&&<HelpDialog onClose={()=>setOpen(false)}/>}</>;
+}
+
+export function HelpDialog({practice=false,mindRune=false,onClose,children}:{practice?:boolean;mindRune?:boolean;onClose:()=>void;children?:ReactNode}){
+ const ref=useRef<HTMLElement>(null),close=useRef(onClose);close.current=onClose;
+ useEffect(()=>{
+  const previous=document.activeElement as HTMLElement|null;ref.current?.querySelector<HTMLButtonElement>('button')?.focus({preventScroll:true});
+  const key=(e:KeyboardEvent)=>{
+   if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close.current();}
+   if(e.key==='Tab'){
+    const items=Array.from(ref.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')??[]),first=items[0],last=items.at(-1);
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
+   }
+  };
+  window.addEventListener('keydown',key,true);return()=>{window.removeEventListener('keydown',key,true);previous?.focus({preventScroll:true});};
+ },[]);
+ return createPortal(<div className="modal-backdrop" onClick={onClose}><section ref={ref} className="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title" onClick={e=>e.stopPropagation()}><button className="close-modal" onClick={onClose} aria-label="Close instructions">×</button><span className="eyebrow">WELCOME, LITTLE WITCH</span><h2 id="help-title">A brush. A page. A spell.</h2><>{practice&&<p className="practice-help">The golden slime never attacks. Toggle movement to test slows and stops. Upgrade all switches eligible spells to their normal maximum upgrade; Ender has no upgrade. Reset clears damage totals, spell effects, and ink usage. Practice does not change your journey.</p>}</><ol><li>Open the spellbook and memorize a sigil.</li><li>Draw it on the paper. Multiple strokes are welcome.</li><li>Hold Cast for {castHoldMs(mindRune)/1000} seconds. Releasing early cancels the charge.</li><li>Refill your ink when needed. Longer strokes use more ink.</li></ol><p><LessonText text={practice?'Use the same spell shapes and half-second Cast hold as in your journey. All spells are available here. Infinite ink is on by default; turn it off to practice normal ink costs and refilling. The non-elemental golden slime has no elemental advantages or resistances. Toggle Upgrade all to compare the normal and upgraded versions of your spells.':"Water beats fire, fire beats nature, and nature beats water for 50% extra damage. Enemies resist their own element (50% less damage, 30% less knockback, no spell effects) and the element they beat (25% less direct damage, 15% less knockback; full spell effects). Non-elemental enemies have no elemental resistances. Single-target spells hit the nearest enemy, except Sneaky Vine targets the furthest. Sneaky Vine has a 12-second cooldown. Tidalcrest sweeps the runway. Use your potions above the quality bar: healing (30 HP), freeze (6 seconds), and endless ink (15 seconds plus a full refill). Only learned spells can be cast. From the fourth consecutive cast of the same spell, damage and knockback are reduced by 25% until you successfully cast a different spell. Fizzles do not clear this streak. Bottled spells do not affect staleness or spell cooldowns. Chronos Denalis freezes enemies at every successful quality and has a 30-second cooldown. Firestorm and Puddle Guard have 10-second cooldowns, Drudge Bog and Thistle Bush have 15-second cooldowns, and Tidalcrest and Flame Blade have 8-second cooldowns. Accurate drawings grow exponentially stronger, with extra damage and knockback at each higher grade. Each spell can be upgraded once. Direct damage spells gain 25% damage, except Thistle Bush, which gains 0.4 damage per tick and a 15% larger damage threshold; Chronos Denalis gains 12% effect duration; Firestorm rain increases from 2 to 3 base damage per tick. Wooden shields halve damage and knockback until destroyed. Any Fire spell ignites a wooden shield; its bearer stops for 2 seconds while it burns away. Rocky enemies take 50% less damage from Faint spells and ignore their knockback and special effects, except Chronos Denalis always freezes them. Steady spells deal 25% less damage and knockback against rocky enemies. Beautiful and Wonderful spells bypass this rocky defense. Enemies keep moving while the spellbook is open. The elite warns before rushing."}/></p>{children}<button className="primary-small" onClick={onClose}>Let's make some magic ✧</button></section></div>,document.body);
+}
