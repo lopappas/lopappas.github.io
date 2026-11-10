@@ -350,3 +350,5 @@
 .menu-tutorial-spotlight{position:fixed;border:3px solid #ffdf65;border-radius:9px;box-shadow:0 0 0 100vmax #081811a6,0 0 20px #ffe990;pointer-events:none}
 .menu-tutorial-popup{position:fixed;left:50%;transform:translateX(-50%);width:min(360px,calc(100vw - 32px));max-height:calc(100svh - 24px);overflow:auto;padding:18px;background:#eee1bf;color:#494330;border:2px solid #ffdf65;border-radius:10px;box-shadow:0 8px 28px #08181166}
 .menu-tutorial-popup h2{margin:0 0 10px;font-size:21px;font-weight:500}.menu-tutorial-popup p{margin:0 0 16px;line-height:1.5;font-size:15px}.menu-tutorial-popup .primary-small{min-height:44px}
+
+.menu-tutorial-complete{background:#081811a6}.menu-tutorial-popup-complete{transform:translate(-50%,-50%);text-align:center}
