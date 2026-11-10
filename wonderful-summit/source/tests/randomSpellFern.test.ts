@@ -20,7 +20,7 @@ test('shop offers only unknown spells, handles one or zero remaining, and rolls 
  let legendary=0;for(let i=0;i<1000;i++){let n=0;const offers=rollSpellOffers(newRun(),()=>n++?0:(i+.5)/1000);if(PLAYER_SPELLS.find(s=>s.id===offers[0])!.rarity==='Legendary')legendary++;assert.equal(new Set(offers).size,2);}assert.equal(legendary,100);
 });
 test('victory spells can be skipped once without learning, and rewards then allow continuing',()=>{
- const run={...newRun(),screen:'battle' as const,combats:2},r=claimGold(finishBattle(run,{...battleForRun(run),phase:'victory'},()=>0));assert.equal(rewardsComplete(r.reward!),false);
+ const run={...newRun(),screen:'battle' as const,combats:3},r=claimGold(finishBattle(run,{...battleForRun(run),phase:'victory'},()=>0));assert.equal(rewardsComplete(r.reward!),false);
  const skipped=skipRewardSpell(r);assert.equal(rewardsComplete(skipped.reward!),true);assert.deepEqual(skipped.spells,r.spells);assert.equal(learnReward(skipped,r.reward!.offers[0]),skipped);assert.equal(skipRewardSpell(skipped),skipped);assert.equal(leaveNode(skipped).screen,'map');
  const learned=learnReward(r,r.reward!.offers[0]);assert.equal(skipRewardSpell(learned),learned);
 });

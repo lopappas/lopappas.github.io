@@ -77,7 +77,7 @@ test('new spells are learnable, sold, upgraded and grouped by element in book or
  const known=SPELLS.filter(s=>!ids.includes(s.id as typeof ids[number])).map(s=>s.id);
  for(const id of ids){const run={...newRun(),screen:'map' as const,node:2,spells:SPELLS.filter(s=>s.id!==id).map(s=>s.id)};
   assert.ok(enterNode(run,()=>0).stock.some(s=>s.kind==='randomSpell')&&rollSpellOffers(run,()=>0).includes(id));assert.equal(spellPrice(id),100);
-  const reward=finishBattle({...run,screen:'battle',combats:2},{...battleForRun(run),phase:'victory'},()=>0);assert.deepEqual(reward.reward!.offers,[id]);
+  const reward=finishBattle({...run,screen:'battle',combats:3},{...battleForRun(run),phase:'victory'},()=>0);assert.deepEqual(reward.reward!.offers,[id]);
   assert.equal(camp({...run,screen:'camp',spells:[...run.spells,id]},id).upgrades[id],1);const preview=spellUpgradePreview(id)!;assert.ok(id==='puddleGuard'?preview.nextKnockback>preview.currentKnockback:preview.nextDamage>preview.currentDamage);
  }
  assert.equal(spellbookColumns([...known,...ids]).flatMap(c=>c.spells).filter(s=>ids.includes(s.id as typeof ids[number])).length,3);

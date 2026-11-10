@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.60',changes:['Added a Practice and Encyclopedia guide after completing the tutorial.','Spell rewards now appear after the first victory and every three victories afterward.']},
  {version:'0.1.53',changes:['Restored gentle spell rumble and dissolving ink while keeping version 0.1.52 colors and gameplay.']},
  {version:'0.1.52',changes:['Restored version 0.1.43 gameplay and visuals.']},
  {version:'0.1.51',changes:['Republished the spell ink color and casting effects update.']},

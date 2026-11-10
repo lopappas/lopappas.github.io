@@ -17,7 +17,7 @@ test('every normal and elite encounter has six equally selectable, inclusive int
  assert.equal(ROUTE.reduce((sum,_,i)=>sum+encounterGold(i,()=>.999999),0),342);
 });
 test('gold rolls anew per encounter, is stored once in its reward, and cannot be rerolled or collected twice',()=>{
- const run={...newRun(),screen:'battle' as const};
+ const run={...newRun(),screen:'battle' as const,combats:1};
  let reward=finishBattle(run,{...battleForRun(run),phase:'victory'},()=>0);
  assert.equal(reward.reward?.gold,24);assert.equal(reward.gold,0);
  assert.equal(finishBattle(reward,{...battleForRun(run),phase:'victory'},()=>{throw Error('a reward cannot be rerolled');}),reward);
@@ -62,7 +62,7 @@ test('both merchants use 90/10 uncommon/legendary spell odds and 50/33/17 relic 
  }
 });
 test('spell rewards and both elite drops use the same tier odds as merchant offerings',()=>{
- const run:Run={...newRun(),screen:'battle',combats:2};
+ const run:Run={...newRun(),screen:'battle',combats:3};
  const battle={...battleForRun(run,()=>.5),phase:'victory' as const};
  const spells={Uncommon:0,Legendary:0};
  for(let i=0;i<1000;i++){
@@ -75,7 +75,7 @@ test('spell rewards and both elite drops use the same tier odds as merchant offe
  for(const node of [3,6]){
   const relics={Common:0,Uncommon:0,Rare:0};
   for(let i=0;i<1000;i++){
-   const reward=finishBattle({...run,node,combats:0},battle,rollAt(2,(i+.5)/1000)).reward!;
+   const reward=finishBattle({...run,node,combats:1},battle,rollAt(2,(i+.5)/1000)).reward!;
    relics[RELICS[reward.relic!].rarity as keyof typeof relics]++;
   }
   assert.deepEqual(relics,{Common:500,Uncommon:330,Rare:170});
@@ -91,7 +91,7 @@ test('exhausted tiers redistribute their odds without blocking remaining spells 
   const stock=shop.stock.filter(s=>s.kind==='relic');
   assert.equal(stock.length,2);assert.notEqual(stock[0].item,stock[1].item);
   assert.ok(stock.every(s=>RELICS[s.item as RelicId].rarity==='Rare'));
-  const reward=finishBattle({...run,node:3,screen:'battle',combats:2},{...battleForRun(run),phase:'victory'},()=>roll).reward!;
+  const reward=finishBattle({...run,node:3,screen:'battle',combats:3},{...battleForRun(run),phase:'victory'},()=>roll).reward!;
   assert.deepEqual([...reward.offers].sort(),['alchemize','chronos']);assert.equal(RELICS[reward.relic!].rarity,'Rare');
  }
 });

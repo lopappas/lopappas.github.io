@@ -29,7 +29,7 @@ test('new highlights preserve element grouping and canonical positions',()=>{
 });
 
 test('learned spells stay new until Ready marks the current arsenal reviewed',()=>{
- const run={...newRun(),screen:'battle' as const,combats:2};
+ const run={...newRun(),screen:'battle' as const,combats:3};
  const reward=finishBattle(run,{...battleForRun(run),phase:'victory'},()=>0);
  const learned=learnReward(reward,reward.reward!.offers[0]);
  const entering={...learned,screen:'battle' as const};

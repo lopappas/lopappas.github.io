@@ -16,7 +16,7 @@ function EntryArt({entry}:{entry:EncyclopediaEntry}){
 }
 export function EncyclopediaButton({discoveries}:{discoveries:Discoveries}){
  const [open,setOpen]=useState(false),trigger=useRef<HTMLButtonElement>(null);
- return <><button ref={trigger} className="secondary-button encyclopedia-button" aria-haspopup="dialog" onClick={()=>setOpen(true)}>Encyclopedia</button>{open&&<Encyclopedia discoveries={discoveries} onClose={()=>{setOpen(false);trigger.current?.focus({preventScroll:true});}}/>}</>;
+ return <><button data-menu-tour="encyclopedia" ref={trigger} className="secondary-button encyclopedia-button" aria-haspopup="dialog" onClick={()=>setOpen(true)}>Encyclopedia</button>{open&&<Encyclopedia discoveries={discoveries} onClose={()=>{setOpen(false);trigger.current?.focus({preventScroll:true});}}/>}</>;
 }
 export function Encyclopedia({discoveries,onClose,preview=ENCYCLOPEDIA_PREVIEW}:{discoveries:Discoveries;onClose:()=>void;preview?:boolean}){
  const [chapter,setChapter]=useState<Chapter>('spells'),[entry,setEntry]=useState<EncyclopediaEntry|null>(null);
