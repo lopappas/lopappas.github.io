@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,recognize,type Point} from '../src/magic.ts';
 import {elementTrace} from '../src/tutorial2Elements.ts';
-import {practiceLesson,lessonFrame,LESSON_INSTRUCTIONS} from '../src/practiceLessons.ts';
+import {practiceLesson,lessonFrame,lessonTipPages,LESSON_INSTRUCTIONS} from '../src/practiceLessons.ts';
 const area=(p:Point[])=>p.slice(1).reduce((a,b,i)=>a+p[i].x*b.y-b.x*p[i].y,0);
 
 test('all fifteen learnable lessons retain their original sigils and recognize as the intended spell',()=>{
@@ -41,4 +41,12 @@ test('progress traces strokes without connecting them or changing source geometr
   frame.strokes.forEach((p,j)=>assert.deepEqual(p[0],lesson.paths[j][0]));assert.ok(Number.isFinite(frame.tip.x)&&Number.isFinite(frame.tip.y));
  }
  assert.deepEqual(lesson.paths,before);
+});
+
+test('tip paging preserves every approved instruction and whole words at small and large panel sizes',()=>{
+ for(const text of Object.values(LESSON_INSTRUCTIONS))for(const capacity of [12,24,48,200]){
+  const pages=lessonTipPages(text,capacity);assert.equal(pages.join(' '),text);assert.ok(pages.every(page=>page.trim()===page&&page.length>0));
+  if(capacity>=text.length)assert.deepEqual(pages,[text]);
+ }
+ assert.deepEqual(lessonTipPages('',30),[]);
 });

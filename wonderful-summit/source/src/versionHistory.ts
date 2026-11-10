@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.72',changes:['Refined Learn parchment panels and added arrow-based drawing tips.','Moved general drawing advice from spellbooks into Help.']},
  {version:'0.1.71',changes:['Disabled spell cooldowns in practice.','Moved Learn controls and instructions above the battlefield to preserve canvas size.']},
  {version:'0.1.70',changes:['Added Learn demonstrations for 15 practice spells, with persistent tracing outlines.']},
  {version:'0.1.63',changes:['Added the home-page help button and a More Help tutorial tip.']},

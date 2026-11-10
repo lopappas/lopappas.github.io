@@ -44,3 +44,9 @@ export function lessonFrame(paths:Strokes,progress:number){
  }
  return {strokes,tip};
 }
+
+export function lessonTipPages(text:string,capacity:number){
+ const pages:string[]=[];let part='';
+ for(const word of text.trim().split(/\s+/).filter(Boolean)){if(part&&part.length+word.length+1>capacity){pages.push(part);part='';}part+=(part?' ':'')+word;}
+ if(part)pages.push(part);return pages;
+}

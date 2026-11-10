@@ -13,7 +13,7 @@ Updated: 2026-11-10
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.71): practice battles disable spell cooldown checks and do not start cooldown timers; journey and tutorial cooldowns remain normal. During Learn, normal practice controls are hidden and the upper third of the battle panel becomes a dark-green instruction overlay. Its heading has the element-colored spell name and small sigil on the left, Replay/Done on the right, with approved drawing instructions below. Learn UI no longer occupies the studio layout, so the canvas retains its normal size. Version 0.1.70 demonstrations and persistent faint outlines remain.
+Latest update (version 0.1.72): Learn uses a parchment-and-border overlay in the top quarter of the battle panel, preserving canvas size. The right arrow cycles through pages of the approved drawing instructions rather than scrolling; responsive paging preserves all words. General drawing advice and its divider have been removed from normal spellbook pages, and the exact advice appears at the bottom of the shared home/combat/practice Help dialog. Practice cooldowns remain disabled and normal practice controls remain hidden during Learn.
 
 Existing tutorial guide remains Last Things → Practice → Encyclopedia → More Help → Tutorial Complete. Home help and spell rewards at victories 1, 4, 7 and 10 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 512 tests pass; TypeScript and production build pass. New tests verify immediate repeat casts and no timers for every cooldown spell in practice, plus normal cooldowns outside practice. Browser visuals remain unverified because the preview relay was unavailable. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: 16 release, practice and lesson tests pass; TypeScript and production build pass. New tests cover lossless whole-word paging for every authored instruction at multiple panel sizes. Browser visuals remain unverified because the preview relay was unavailable. Source and matching build are included together; deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
