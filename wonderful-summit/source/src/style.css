@@ -364,6 +364,6 @@
 
 .reward-spells button>strong{font-size:16px;line-height:1.3}.reward-spells button>small{font-size:12px;line-height:1.5}
 .spell-acquire-button{position:relative;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;isolation:isolate}
-.spell-acquire-ring{position:absolute;inset:-3px;border-radius:inherit;padding:6px;pointer-events:none;background:conic-gradient(from -90deg,var(--acquire-color) var(--acquire-angle),transparent var(--acquire-angle));mask:linear-gradient(#fff 0 0) content-box exclude,linear-gradient(#fff 0 0);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:2}
+.spell-acquire-ring{position:absolute;inset:-2px;border-radius:inherit;padding:4px;pointer-events:none;background:conic-gradient(from -90deg,var(--acquire-color) var(--acquire-angle),transparent var(--acquire-angle));mask:linear-gradient(#fff 0 0) content-box exclude,linear-gradient(#fff 0 0);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:2}
 
 .spell-acquire-button.spell-acquired:disabled{opacity:1}

@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.82',changes:['Reduced the spell learning border to 4px.']},
  {version:'0.1.81',changes:['Spell rewards now arrive after victory 1, then every four victories.','Shortened learning holds to 0.6 seconds and thickened their progress borders.','Learned spell cards keep their full-color border and no longer fade.']},
  {version:'0.1.80',changes:['Hold spell choices for one second to learn them, with an elemental progress border.','Enlarged spell choice text and removed the clearing reward emblem.','Casting ink gently expands while its color changes and it rumbles.']},
  {version:'0.1.75',changes:['Matched the Learn button shape and border thickness to Ready.','Updated spell reward choices with spell-canvas parchment and spellbook text colors.']},
