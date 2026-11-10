@@ -37,7 +37,7 @@ test('bottled Alchemize consumes the same battle use, reserves it in flight, and
 test('Alchemize can appear in rewards and Random spell purchases, and an owned spell is excluded',()=>{
  const run={...newRun(),screen:'map' as const,node:2,gold:100,spells:PLAYER_SPELLS.filter(s=>s.id!=='alchemize').map(s=>s.id)};
  assert.deepEqual(rollSpellOffers(run,()=>0),['alchemize']);assert.deepEqual(buy(enterNode(run,()=>0),'random-spell',()=>0).pendingSpellOffers,['alchemize']);
- assert.deepEqual(finishBattle({...run,screen:'battle',combats:3},{...battleForRun(run),phase:'victory'},()=>0).reward?.offers,['alchemize']);assert.deepEqual(rollSpellOffers({...run,spells:[...run.spells,'alchemize']},()=>0),[]);
+ assert.deepEqual(finishBattle({...run,screen:'battle',combats:4},{...battleForRun(run),phase:'victory'},()=>0).reward?.offers,['alchemize']);assert.deepEqual(rollSpellOffers({...run,spells:[...run.spells,'alchemize']},()=>0),[]);
 });
 
 test('restored capped Alchemize is accepted across sizes, stroke order and direction',()=>{

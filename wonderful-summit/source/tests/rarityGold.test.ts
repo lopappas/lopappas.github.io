@@ -62,7 +62,7 @@ test('both merchants use 90/10 uncommon/legendary spell odds and 50/33/17 relic 
  }
 });
 test('spell rewards and both elite drops use the same tier odds as merchant offerings',()=>{
- const run:Run={...newRun(),screen:'battle',combats:3};
+ const run:Run={...newRun(),screen:'battle',combats:4};
  const battle={...battleForRun(run,()=>.5),phase:'victory' as const};
  const spells={Uncommon:0,Legendary:0};
  for(let i=0;i<1000;i++){
@@ -91,7 +91,7 @@ test('exhausted tiers redistribute their odds without blocking remaining spells 
   const stock=shop.stock.filter(s=>s.kind==='relic');
   assert.equal(stock.length,2);assert.notEqual(stock[0].item,stock[1].item);
   assert.ok(stock.every(s=>RELICS[s.item as RelicId].rarity==='Rare'));
-  const reward=finishBattle({...run,node:3,screen:'battle',combats:3},{...battleForRun(run),phase:'victory'},()=>roll).reward!;
+  const reward=finishBattle({...run,node:3,screen:'battle',combats:4},{...battleForRun(run),phase:'victory'},()=>roll).reward!;
   assert.deepEqual([...reward.offers].sort(),['alchemize','chronos']);assert.equal(RELICS[reward.relic!].rarity,'Rare');
  }
 });

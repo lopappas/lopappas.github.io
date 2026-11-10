@@ -2,9 +2,9 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {Spell} from './magic';
 import {SpellAcquisition} from './spellAcquisition';
 
-type Props=Omit<React.ButtonHTMLAttributes<HTMLButtonElement>,'onClick'> & {spell?:Spell;onAcquire:()=>void};
+type Props=Omit<React.ButtonHTMLAttributes<HTMLButtonElement>,'onClick'> & {spell?:Spell;acquired?:boolean;onAcquire:()=>void};
 /** Spell purchases and reward choices share the same interruptible hold. */
-export function SpellAcquireButton({spell,onAcquire,disabled,className='',style,children,...props}:Props){
+export function SpellAcquireButton({spell,acquired=false,onAcquire,disabled,className='',style,children,...props}:Props){
  const hold=useRef(new SpellAcquisition()),frame=useRef(0),input=useRef<number|string|null>(null),action=useRef(onAcquire);action.current=onAcquire;
  const [progress,setProgress]=useState(0);
  function cancel(){cancelAnimationFrame(frame.current);hold.current.cancel();input.current=null;setProgress(hold.current.progress);}
@@ -16,7 +16,7 @@ export function SpellAcquireButton({spell,onAcquire,disabled,className='',style,
  }
  useEffect(()=>{const hide=()=>{if(document.hidden)cancel();};window.addEventListener('blur',cancel);document.addEventListener('visibilitychange',hide);return()=>{cancelAnimationFrame(frame.current);hold.current.cancel();window.removeEventListener('blur',cancel);document.removeEventListener('visibilitychange',hide);};},[]);
  useEffect(()=>{if(disabled)cancel();},[disabled]);
- return <button {...props} disabled={disabled} className={`${className}${spell?' spell-acquire-button':''}`} style={{...style,'--acquire-color':spell?.color,'--acquire-angle':`${progress*360}deg`} as React.CSSProperties}
+ return <button {...props} disabled={disabled} className={`${className}${spell?` spell-acquire-button${acquired||progress===1?' spell-acquired':''}`:''}`} style={{...style,'--acquire-color':spell?.color,'--acquire-angle':`${(acquired?1:progress)*360}deg`} as React.CSSProperties}
   onClick={spell?e=>e.preventDefault():onAcquire}
   onContextMenu={spell?e=>e.preventDefault():undefined}
   onPointerDown={spell?e=>{if(!e.isPrimary||e.button!==0)return;e.preventDefault();e.currentTarget.focus();e.currentTarget.setPointerCapture(e.pointerId);start(e.pointerId);}:undefined}

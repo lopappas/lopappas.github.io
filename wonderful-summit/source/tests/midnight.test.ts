@@ -40,7 +40,7 @@ test('Fury is spent by completed fizzles and non-damaging spells; cancellations 
 });
 test('first victory and every third victory afterward offer two distinct unknown spells, or all remaining spells when fewer exist',()=>{
  for(const combats of [0,1,2,3,5,7])for(const remaining of [0,1,2,3,4]){
-  const r={...newRun(),screen:'battle' as const,combats,spells:PLAYER_SPELLS.slice(0,PLAYER_SPELLS.length-remaining).map(s=>s.id)},b={...battleForRun(r),phase:'victory' as const};const reward=finishBattle(r,b,()=>.4).reward!;assert.equal(reward.offers.length,combats%3===0?Math.min(2,remaining):0);assert.equal(new Set(reward.offers).size,reward.offers.length);assert.ok(reward.offers.every(s=>!r.spells.includes(s)));
+  const r={...newRun(),screen:'battle' as const,combats,spells:PLAYER_SPELLS.slice(0,PLAYER_SPELLS.length-remaining).map(s=>s.id)},b={...battleForRun(r),phase:'victory' as const};const reward=finishBattle(r,b,()=>.4).reward!;assert.equal(reward.offers.length,combats%4===0?Math.min(2,remaining):0);assert.equal(new Set(reward.offers).size,reward.offers.length);assert.ok(reward.offers.every(s=>!r.spells.includes(s)));
  }
 });
 test('both camps restore 60 HP capped at 100 and the cozy rest jingle is bounded',()=>{

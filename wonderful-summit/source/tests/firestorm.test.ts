@@ -106,7 +106,7 @@ test('storm is frame-rate independent, does not mutate previous states, and rese
 test('Firestorm is naturally learnable, sold, developer-grantable and upgrades once with an accurate rain preview',()=>{
  assert.ok(PLAYER_SPELLS.some(s=>s.id==='firestorm'));assert.deepEqual(parseDeveloperCommand({type:'spell',id:'firestorm'}),{type:'spell',id:'firestorm'});
  const spells=PLAYER_SPELLS.filter(s=>s.id!=='firestorm').map(s=>s.id);const shop=enterNode({...newRun(),screen:'map',node:2,spells},()=>0);assert.ok(shop.stock.some(s=>s.kind==='randomSpell')&&rollSpellOffers({...newRun(),spells},()=>0).includes('firestorm'));
- const r={...newRun(),screen:'battle' as const,spells,combats:3};assert.deepEqual(finishBattle(r,{...battleForRun(r),phase:'victory'},()=>0).reward?.offers,['firestorm']);
+ const r={...newRun(),screen:'battle' as const,spells,combats:4};assert.deepEqual(finishBattle(r,{...battleForRun(r),phase:'victory'},()=>0).reward?.offers,['firestorm']);
  const c={...newRun(),screen:'camp' as const,spells:['firestorm' as SpellId]},upgraded=camp(c,'firestorm');assert.equal(upgraded.upgrades.firestorm,1);assert.equal(camp({...upgraded,campUsed:false},'firestorm').campUsed,false);assert.equal(spellName('firestorm',1),'Firestorm+');
  const preview=spellUpgradePreview('firestorm')!;assert.equal(preview.firestorm,true);assert.equal(preview.currentTick,2.8);assert.equal(preview.nextTick,3.8);assert.equal(spellUpgradePreview('firestorm',1),null);assert.equal(firestormBaseDamage(10),3.8);assert.equal(spellbookColumns(['firestorm','fire']).find(c=>c.element==='Fire')?.spells[0].id,'fire');
 });

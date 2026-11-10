@@ -13,9 +13,9 @@ Updated: 2026-11-11
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.80): Run spell acquisition requires an interruptible one-second hold for reward choices, random-spell choices and direct spell purchases. The offered spell's color fills a conic border, with no purple pre-transition; release, pointer exit, blur, hidden page and unmount cancel incomplete holds. Keyboard Space/Enter also work. Offer heading is Hold to learn a spell; names are 16px and descriptions 12px. Clearing rewards no longer show the scene emblem. During cast color transition (40–90%), ink smoothly scales to 108% and thickens by 20%, with recognition points unchanged; reduced motion omits scaling. Expanded ink persists through dissolve. Learn's rectangular white/rainbow button, parchment spell choices and capped Alchemize remain.
+Latest update (version 0.1.81): Spell rewards occur after victory 1 and every four victories thereafter (1, 5, 9). Learning holds take 600ms with a 6px elemental progress border. Learned cards retain the full border, including on remount, and remain at full opacity while other choices are disabled. Earlier cast ink expansion and collect-screen improvements remain.
 
-Existing tutorial guide remains Last Things → Practice → Encyclopedia → More Help → Tutorial Complete. Home help and spell rewards at victories 1, 4, 7 and 10 remain.
+Existing tutorial guide remains Last Things → Practice → Encyclopedia → More Help → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
 Version 0.1.53 original colors, gentle cast rumble and ink dissolve remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 520 tests pass; TypeScript and production build pass. New checks cover full one-second acquisition, cancellation/restart, repeat activation prevention and ink expansion without recognition changes. Browser visuals remain unverified because the preview relay is unavailable. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: all 520 tests pass; TypeScript and production build pass. Reward schedule tests cover regular, elite and boss victories, learning and skipping. Hold tests enforce the 600ms boundary, cancellation and one-shot completion. Browser visuals remain unverified because the preview relay is unavailable. Source and matching build are included together; deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 

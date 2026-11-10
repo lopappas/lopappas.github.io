@@ -1,4 +1,4 @@
-export const SPELL_ACQUIRE_MS=1000;
+export const SPELL_ACQUIRE_MS=600;
 /** A completed hold can commit once; canceled or interrupted holds never carry over. */
 export class SpellAcquisition{
  private started:number|null=null;
