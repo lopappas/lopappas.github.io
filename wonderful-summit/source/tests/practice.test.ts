@@ -53,3 +53,22 @@ test('slow effects reduce mobile patrol travel; damage metrics include damage ov
  const restored=restoreScarecrow(next,false);assert.equal(practiceDamage(restored),0);assert.ok(restored.enemies[0].burn);
 });
 
+
+test('practice casts start no cooldowns and every cooldown spell can be recast immediately',async()=>{
+ const {SPELL_COOLDOWNS,spellCooldownRemaining,releaseSpell}=await import('../src/battle.ts');
+ for(const id of Object.keys(SPELL_COOLDOWNS) as (typeof SPELLS)[number]['id'][]){
+  const base=newPracticeBattle(practiceJourney()),color=SPELLS.find(s=>s.id===id)!.color;
+  assert.equal(base.cooldownsDisabled,true);
+  const first=launchSpell(base,100,color,id);assert.notEqual(first,base,id);
+  assert.equal(spellCooldownRemaining(first,id),0,id);assert.deepEqual(first.cooldowns,{});
+  const ready={...restoreScarecrow(first,false),projectile:null};
+  const again=launchSpell(ready,100,color,id);assert.notEqual(again,ready,id);assert.equal(spellCooldownRemaining(again,id),0,id);
+  assert.equal(spellCooldownRemaining({...base,cooldowns:{[id]:999}},id),0);
+  assert.deepEqual(releaseSpell(base,id).cooldowns,{});
+ }
+});
+test('practice-only cooldown exemption does not disable journey or tutorial cooldowns',async()=>{
+ const {newBattle,releaseSpell,spellCooldownRemaining}=await import('../src/battle.ts');
+ const normal=newBattle('active');assert.equal(normal.cooldownsDisabled,undefined);
+ const released=releaseSpell(normal,'chronos');assert.equal(spellCooldownRemaining(released,'chronos'),30);
+});
