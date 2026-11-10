@@ -13,7 +13,7 @@ export function useSpellInk(canvas:RefObject<HTMLCanvasElement|null>,strokes:Ref
   if(release.current){if(!v.paused&&!document.hidden)release.current.elapsed+=now-release.current.last;release.current.last=now;}
   const dissolve=release.current?Math.min(1,release.current.elapsed/INK_DISSOLVE_MS):null;
   ctx.clearRect(0,0,el.width,el.height);ctx.save();ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
-  paintSpellInk(ctx,strokes.current,spellInkColor(v.released?1:v.progress,v.targetColor),v.released?0:v.progress,now,dissolve,window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  paintSpellInk(ctx,strokes.current,spellInkColor(v.released?1:v.progress,v.targetColor),v.released?1:v.progress,now,dissolve,window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   ctx.restore();
  },[canvas,strokes]);
  useLayoutEffect(()=>{

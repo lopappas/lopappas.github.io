@@ -5,9 +5,15 @@ export function inkRumble(progress:number,timeMs:number,reducedMotion=false){
  const amount=reducedMotion?0:Math.max(0,Math.min(1,(progress-.4)/.6));
  return {x:Math.sin(timeMs*.047)*amount,y:Math.sin(timeMs*.061+1.2)*amount*.75};
 }
+export function inkExpansion(progress:number){return Math.max(0,Math.min(1,(progress-.4)/.5));}
 /** All geometry stays in CSS pixels; visual effects never mutate recognition points. */
 export function paintSpellInk(ctx:CanvasRenderingContext2D,strokes:Strokes,color:string,progress:number,timeMs:number,dissolve:number|null,reducedMotion=false){
- ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=3.45;ctx.lineCap='round';ctx.lineJoin='round';
+ const expansion=inkExpansion(progress);
+ ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=3.45*(1+.2*expansion);
+ if(!reducedMotion&&expansion>0&&strokes.flat().length){
+  const points=strokes.flat(),cx=(Math.min(...points.map(p=>p.x))+Math.max(...points.map(p=>p.x)))/2,cy=(Math.min(...points.map(p=>p.y))+Math.max(...points.map(p=>p.y)))/2;
+  ctx.translate(cx,cy);ctx.scale(1+.08*expansion,1+.08*expansion);ctx.translate(-cx,-cy);
+ }ctx.lineCap='round';ctx.lineJoin='round';
  if(dissolve===null){
   const offset=inkRumble(progress,timeMs,reducedMotion);ctx.translate(offset.x,offset.y);
   for(const stroke of strokes){ctx.beginPath();stroke.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();}
