@@ -23,7 +23,7 @@ export const SPELLS:Spell[]=[
  {id:'puddleGuard',rarity:'Uncommon',name:'Puddle Guard',element:'Water',color:'#69c2d6',description:'Place a puddle 30 units ahead of you. The first enemy to step onto it bursts it, taking no damage and 54.74–273.7 base knockback depending on spell quality. Upgrading adds 20% knockback. Recasting replaces the puddle. Cooldown: 10 seconds.',path:'M6 55 C12 53 14 44 25 44 C37 44 37 56 50 56 C63 56 63 44 75 44 C86 44 88 53 94 55',strokes:[shape([6,55],[[12,53,14,44,25,44],[37,44,37,56,50,56],[63,56,63,44,75,44],[86,44,88,53,94,55]])]},
  {id:'thistleBush',rarity:'Uncommon',name:'Thistle Bush',element:'Nature',color:'#9bbe72',description:'Grow thorns 80–150 units ahead of you. Enemies touching them take low damage every 0.5 seconds. The bush lasts until it deals 30.08–188 total actual damage. Quality sets its range and damage budget; recasting replaces it. Upgrade: +0.4 damage per tick and +15% damage threshold. Cooldown: 15 seconds.',path:'M10 60 L23.333333 40 L36.666667 60 L50 40 L63.333333 60 L76.666667 40 L90 60',strokes:[[{x:10,y:60},{x:23.333333,y:40},{x:36.666667,y:60},{x:50,y:40},{x:63.333333,y:60},{x:76.666667,y:40},{x:90,y:60}]]},
  {id:'sneakyVine',rarity:'Uncommon',name:'Sneaky Vine',element:'Nature',color:'#9bbe72',description:'A vine reaches from the right, grabs the furthest enemy from behind and drags them backwards with strong knockback. Ignores shield damage and knockback reductions. Deals 27 base damage at 60% accuracy. Cooldown: 12 seconds.',path:'M70 90 L70 30 C70 18.954 61.046 10 50 10 C38.954 10 30 18.954 30 30 L30 42',strokes:[[{x:70,y:90},{x:70,y:30},...shape([70,30],[[70,18.954,61.046,10,50,10],[38.954,10,30,18.954,30,30]]).slice(1),{x:30,y:42}]]},
- {id:'alchemize',rarity:'Legendary',name:'Alchemize',element:'Ancient',color:'#8b9099',upgradable:false,description:'Create a random potion once per battle. Faint: non-healing common. Steady: 90% non-healing common, 10% rare. Beautiful: 75% common (including healing), 25% rare. Wonderful: guaranteed rare. Requires room in your purse. Cannot create Spell in a bottle.',path:'M41 14 L59 14 L59 35.6 C77 41 86 52.7 84.2 66.2 C82.4 82.4 70.7 89.6 50 89.6 C29.3 89.6 17.6 82.4 15.8 66.2 C14 52.7 23 41 41 35.6 L41 14 Z M39.2 5 L60.8 5 L59 14 L41 14 L39.2 5 Z',strokes:[[{x:41,y:14},{x:59,y:14},...shape([59,35.6],[[77,41,86,52.7,84.2,66.2],[82.4,82.4,70.7,89.6,50,89.6],[29.3,89.6,17.6,82.4,15.8,66.2],[14,52.7,23,41,41,35.6]]),{x:41,y:14}],[{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14},{x:41,y:14},{x:39.2,y:5}]]},
+ {id:'alchemize',rarity:'Legendary',name:'Alchemize',element:'Ancient',color:'#8b9099',upgradable:false,description:'Create a random potion once per battle. Faint: non-healing common. Steady: 90% non-healing common, 10% rare. Beautiful: 75% common (including healing), 25% rare. Wonderful: guaranteed rare. Requires room in your purse. Cannot create Spell in a bottle.',path:'M41 14 L59 14 L59 35.6 C77 41 86 52.7 84.2 66.2 C82.4 82.4 70.7 89.6 50 89.6 C29.3 89.6 17.6 82.4 15.8 66.2 C14 52.7 23 41 41 35.6 L41 14 Z',strokes:[[{x:41,y:14},{x:59,y:14},...shape([59,35.6],[[77,41,86,52.7,84.2,66.2],[82.4,82.4,70.7,89.6,50,89.6],[29.3,89.6,17.6,82.4,15.8,66.2],[14,52.7,23,41,41,35.6]]),{x:41,y:14}]]},
 ];
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
@@ -48,6 +48,14 @@ function sample(strokes:Strokes,count=140):Point[]{
  return result;
 }
 const meanNearest=(a:Point[],b:Point[])=>a.reduce((sum,p)=>sum+Math.min(...b.map(q=>distance(p,q))),0)/a.length;
+// A removed cork adds a second crossbar above the bottle mouth. Check only
+// the narrow neck region, independent of scale, stroke order and direction.
+function hasBottleCork(strokes:Strokes){
+ const points=strokes.flat(),top=Math.min(...points.map(p=>p.y));
+ const neck=points.filter(p=>p.y<=top+.2&&Math.abs(p.x)<=.2);
+ const bars=neck.filter(p=>{const row=neck.filter(q=>Math.abs(q.y-p.y)<.015);return row.some(q=>q.x<-.06)&&row.some(q=>q.x>.06);});
+ return bars.some(a=>bars.some(b=>Math.abs(a.y-b.y)>.06));
+}
 export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),accuracyBonus=0){
  const normalized=normalize(strokes),points=sample(normalized);if(points.length<5)return{spell:null,quality:0,candidates:[],reason:'Draw a complete sigil first.'};
  const len=strokeLength(normalized);
@@ -63,7 +71,7 @@ export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),ac
  if(!candidates.length)return{spell:null,quality:0,candidates,reason:'No spells learned yet.'};
  const top=candidates[0],margin=top.quality-(candidates[1]?.quality??0);
  const quality=Math.min(100,top.quality+Math.max(0,accuracyBonus));
- const accepted=quality>=48&&margin>=7;
+ const accepted=quality>=48&&margin>=7&&!(top.spell.id==='alchemize'&&hasBottleCork(normalized));
  return{spell:accepted?top.spell:null,quality,candidates,reason:accepted?'':margin<7?'The shape is between two sigils. Make its defining details clearer.':'The sigil is incomplete or its shape needs more care.'};
 }
 export function grade(quality:number){return quality>=80?'Wonderful':quality>=70?'Beautiful':quality>=60?'Steady':'Faint';}

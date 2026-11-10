@@ -9,7 +9,7 @@ test('all fifteen learnable lessons retain their original sigils and recognize a
  const original=structuredClone(SPELLS);
  assert.equal(Object.keys(LESSON_INSTRUCTIONS).length,15);assert.equal(practiceLesson('ender'),null);
  for(const spell of SPELLS.filter(s=>s.id!=='ender')){
-  const lesson=practiceLesson(spell.id)!;assert.ok(lesson);assert.ok(lesson.duration>=4000&&lesson.duration<=8000);
+  const lesson=practiceLesson(spell.id)!;assert.ok(lesson);assert.ok(lesson.duration>=4000/1.2&&lesson.duration<=8000/1.2);
   const match=recognize(lesson.paths,[spell.id]);assert.equal(match.spell?.id,spell.id,spell.name);assert.ok(match.quality>=80,`${spell.name}: ${match.quality}`);
   const end=lessonFrame(lesson.paths,1);assert.deepEqual(end.strokes,lesson.paths);assert.deepEqual(end.tip,lesson.paths.at(-1)!.at(-1));
   assert.deepEqual(lessonFrame(lesson.paths,0).tip,lesson.paths[0][0]);
@@ -23,12 +23,12 @@ test('Aquaspout, Chronos, Bog and Alchemize follow the approved counterclockwise
  const aqua=practiceLesson('wave')!.paths;assert.deepEqual(aqua[0][0],{x:50,y:32});assert.ok(area(aqua[0])<0);assert.deepEqual(aqua[1],[{x:36,y:18},{x:50,y:6},{x:64,y:18}]);
  const chronos=practiceLesson('chronos')!.paths;assert.ok(area(chronos[0])<0);assert.deepEqual(chronos[1],[{x:50,y:10},{x:50,y:50}]);
  const bog=practiceLesson('bog')!.paths;assert.deepEqual(bog[0][0],{x:50,y:12});assert.ok(area(bog[0])<0);assert.deepEqual(bog[1][0],{x:32.5,y:50});assert.ok(area(bog[1])>0);
- const bottle=practiceLesson('alchemize')!.paths;assert.deepEqual(bottle[0][0],{x:41,y:14});assert.ok(area(bottle[0])<0);assert.deepEqual(bottle[1][0],{x:39.2,y:5});assert.ok(area(bottle[1])>0);
+ const bottle=practiceLesson('alchemize')!.paths;assert.deepEqual(bottle[0][0],{x:41,y:14});assert.ok(area(bottle[0])<0);assert.equal(bottle.length,1);
 });
 test('leaf, triangles, blade and line spells follow approved starting points, order and clockwise direction',()=>{
  const leaf=practiceLesson('leaf')!.paths[0];assert.deepEqual(leaf[0],{x:15,y:50});assert.ok(area(leaf)>0);
  const rain=practiceLesson('firestorm')!.paths;assert.deepEqual(rain[0],[{x:10,y:18},{x:90,y:18}]);assert.deepEqual(rain[1][0],{x:12,y:38});assert.deepEqual(rain[2][0],{x:56,y:38});assert.ok(area(rain[1])>0&&area(rain[2])>0);
- const blade=practiceLesson('flameBlade')!.paths;assert.deepEqual(blade[0],[{x:28,y:62},{x:72,y:62}]);assert.deepEqual(blade[1],[{x:50,y:62},{x:50,y:88}]);assert.deepEqual(blade[2][0],{x:43,y:62});assert.ok(area(blade[2])>0);
+ const blade=practiceLesson('flameBlade')!.paths;assert.deepEqual(blade[0],[{x:28,y:62},{x:72,y:62}]);assert.deepEqual(blade[1],[{x:50,y:62},{x:50,y:88}]);assert.deepEqual(blade[2][0],{x:43,y:62});assert.ok(area([...blade[2],blade[2][0]])>0);
  for(const id of ['puddleGuard','thistleBush'] as const){const p=practiceLesson(id)!.paths[0];assert.ok(p[0].x<p.at(-1)!.x);}
  const bolt=practiceLesson('bolt')!.paths[0];assert.ok(bolt[0].y<bolt.at(-1)!.y);
  const vine=practiceLesson('sneakyVine')!.paths[0];assert.deepEqual(vine[0],{x:70,y:90});
@@ -49,4 +49,17 @@ test('tip paging preserves every approved instruction and whole words at small a
   if(capacity>=text.length)assert.deepEqual(pages,[text]);
  }
  assert.deepEqual(lessonTipPages('',30),[]);
+});
+
+test('Flame Blade stops at the right edge without redrawing the already-present hilt',()=>{
+ const paths=practiceLesson('flameBlade')!.paths;
+ assert.deepEqual(paths[2],[{x:43,y:62},{x:50,y:10},{x:57,y:62}]);
+ assert.equal(practiceLesson('alchemize')!.paths.length,1);
+});
+test('every Learn example runs at 1.2 times its previous drawing speed',()=>{
+ for(const id of Object.keys(LESSON_INSTRUCTIONS) as (typeof SPELLS)[number]['id'][]){
+  const lesson=practiceLesson(id)!,length=lesson.paths.reduce((sum,p)=>sum+p.slice(1).reduce((n,b,i)=>n+Math.hypot(b.x-p[i].x,b.y-p[i].y),0),0);
+  const previous=id==='water'?4500:['fire','nature'].includes(id)?4000:Math.max(4000,Math.min(8000,length*25));
+  assert.equal(lesson.duration,previous/1.2);
+ }
 });

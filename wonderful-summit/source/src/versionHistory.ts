@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.73',changes:['Removed Alchemize’s cork and updated Learn drawing paths.','Sped up Learn examples by 20% and thickened the Learn button border.']},
  {version:'0.1.72',changes:['Refined Learn parchment panels and added arrow-based drawing tips.','Moved general drawing advice from spellbooks into Help.']},
  {version:'0.1.71',changes:['Disabled spell cooldowns in practice.','Moved Learn controls and instructions above the battlefield to preserve canvas size.']},
  {version:'0.1.70',changes:['Added Learn demonstrations for 15 practice spells, with persistent tracing outlines.']},
