@@ -376,7 +376,7 @@
 
 .battle-result-victory{padding:9px 12px;display:flex;align-items:center;justify-content:center}.battle-result-victory h1{margin:0;text-align:center;line-height:1.2}
 
-.credits-screen{padding-bottom:90px}.summit-continue{position:fixed;left:50%;width:min(360px,calc(100vw - 32px));transform:translateX(-50%);bottom:max(22px,env(safe-area-inset-bottom));z-index:3;padding:12px 16px;border:1px solid #bdaa7e;border-radius:7px;text-align:center;pointer-events:auto;font-size:13px;text-shadow:0 1px 2px #48334b88}
+.credits-screen{padding-bottom:90px}.summit-continue{position:fixed;left:50%;width:max-content;max-width:calc(100vw - 32px);transform:translateX(-50%);bottom:max(22px,env(safe-area-inset-bottom));z-index:3;padding:8px 12px;border:1px solid #333;border-radius:7px;text-align:center;pointer-events:auto;font-size:13px;background:#000;text-shadow:0 1px 2px #48334b88}
 
 .summit-continue .grade-letter{white-space:pre}
 
