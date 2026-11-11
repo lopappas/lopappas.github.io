@@ -17,6 +17,6 @@ test('three starter spells match every approved damage endpoint and upgrade by 2
  }
 });
 test('other damaging spells keep their existing base curve and multipliers',()=>{
- for(const [id,factor] of [['wave',.9],['bolt',1.3],['leaf',.75],['tidalcrest',1.265]] as const)
+ for(const [id,factor] of [['wave',.9],['bolt',1.3],['leaf',.75],['tidalcrest',(1.265*.95)]] as const)
   for(let q=48;q<=100;q++)assert.equal(spellDamage({element:'Neutral'},q,id),Math.round(power(q)*factor));
 });

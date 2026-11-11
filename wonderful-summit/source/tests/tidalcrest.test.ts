@@ -31,12 +31,12 @@ test('the narrower and wider fins score perfectly as Tidalcrest without changing
   assert.equal(recognize(moved,['tidalcrest']).spell,spell);assert.equal(recognize(moved,['water','wave']).spell,null);
  }
 });
-test('Tidalcrest uses quality-scaled ×1.265 damage and ×1.5 knockback at every grade; Aquaspout keeps its old balance',()=>{
+test('Tidalcrest uses quality-scaled 5% reduced damage and knockback at every grade; Aquaspout keeps its old balance',()=>{
  let last=0;
  for(let q=48;q<=100;q++){
-  assert.equal(spellDamage({element:'Neutral'},q,'tidalcrest'),Math.round(power(q)*1.265));
+  assert.equal(spellDamage({element:'Neutral'},q,'tidalcrest'),Math.round(power(q)*(1.265*.95)));
   assert.equal(spellDamage({element:'Neutral'},q,'wave'),Math.round(power(q)*.9));
-  assert.equal(spellKnockback(q,'tidalcrest'),knockback(q)*1.5);assert.ok(spellKnockback(q,'tidalcrest')>=last);last=spellKnockback(q,'tidalcrest');
+  assert.equal(spellKnockback(q,'tidalcrest'),knockback(q)*(1.5*.95));assert.ok(spellKnockback(q,'tidalcrest')>=last);last=spellKnockback(q,'tidalcrest');
   if(q>=60)assert.equal(spellKnockback(q,'wave'),knockback(q)*1.7);
  }
  assert.equal(spellKnockback(48,'wave'),40);assert.equal(spellKnockback(59,'wave'),54);
