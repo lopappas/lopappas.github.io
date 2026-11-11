@@ -58,7 +58,7 @@ test('ground spells snapshot upgrades/relic multipliers and stale casts, and pau
 test('all new spells retain elemental, rocky and shield defenses and upgrade damage scaling',()=>{
  for(const id of ids)for(const q of [48,60,70,100]){
   const base=nearDamage(id,q),precision=id==='thistleBush'?1e6:1;
-  assert.equal(spellDamage({element:'Neutral'},q,id,1,1),Math.round((id==='thistleBush'?base+.4:base*1.25)*precision)/precision);
+  assert.equal(spellDamage({element:'Neutral'},q,id,1,1),Math.round((id==='thistleBush'?base+.4:base*1.15)*precision)/precision);
   const rock=q<60?.5:q<70?.75:1;
   assert.equal(spellDamage({element:'Neutral',rocky:true},q,id),Math.round(base*rock*precision)/precision);
   assert.equal(spellKnockback(q,id,1,'Neutral',true),nearKnockback(id,q)*(q<60?0:rock));

@@ -12,7 +12,7 @@ test('all spells respect the complete elemental damage and knockback matrix, inc
   // Use a value with the game's full damage modifiers before its single rounding.
   const spellFactor=spell.id==='tidalcrest'?(1.265*.95):spell.id==='wave'?.9:spell.id==='bolt'?1.3:spell.id==='leaf'?.75:1;
   const precision=['water','fire','nature'].includes(spell.id)?1e6:1;
-  const expected=Math.round(precision*(spell.id==='sneakyVine'?95:['water','fire','nature'].includes(spell.id)?51.5:64)*spellFactor*1.15*1.25*factor)/precision;
+  const expected=Math.round(precision*(spell.id==='sneakyVine'?95:['water','fire','nature'].includes(spell.id)?51.5:64)*spellFactor*1.15*(spell.id==='bolt'?1.2:spell.id==='tidalcrest'?1.15:1.25)*factor)/precision;
   assert.equal(spellDamage({element},100,spell.id,1.15,2),expected);
   const battle=newBattle('active');battle.damageBonus=1.15;battle.pushBonus=1.25;battle.upgrades[spell.id]=2;
   battle.enemies[0]={...battle.enemies[0],element,x:330,hp:1000,maxHP:1000};

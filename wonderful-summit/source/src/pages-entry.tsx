@@ -1,3 +1,4 @@
+import {PotionFullNotice} from './PotionFullNotice';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {RunGame} from './RunScreens';
@@ -9,7 +10,7 @@ async function start(){
  try{
   await Promise.all(Array.from(document.fonts,face=>face.load()));
   await document.fonts.ready;
-  createRoot(document.getElementById('root')!).render(<DeveloperProvider><RunGame Combat={Combat}/></DeveloperProvider>);
+  createRoot(document.getElementById('root')!).render(<DeveloperProvider><PotionFullNotice/><RunGame Combat={Combat}/></DeveloperProvider>);
  }catch{
   document.getElementById('root')!.textContent='Fonts could not load. Please refresh to try again.';
  }

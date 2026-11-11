@@ -379,3 +379,6 @@
 .credits-screen{padding-bottom:90px}.summit-continue{position:fixed;left:16px;right:16px;bottom:max(22px,env(safe-area-inset-bottom));z-index:3;padding:12px 8px;text-align:center;pointer-events:none;font-size:13px;text-shadow:0 2px 5px #10241f;background:none}
 
 .summit-continue .grade-letter{white-space:pre}
+
+.potions-full-notice{position:fixed;top:max(58px,env(safe-area-inset-top));right:14px;z-index:10050;background:#253b30f2;color:#fff5d9;border:1px solid #83916c;border-radius:7px;padding:8px 12px;font-size:13px;pointer-events:none}
+.version-history time{display:block;font-size:12px;color:#d9c49b;margin:4px 0 8px}

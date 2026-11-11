@@ -59,7 +59,7 @@ test('Steady rocky defense reduces damage and knockback by exactly 25 percent be
   const expected=spellKnockback(q,spell.id,1,'Neutral')*mult;
   assert.ok(Math.abs(hit.enemies[0].push!.to-Math.min(ENEMY_BACK_X,e.x+expected))<1e-8);
   const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?(1.265*.95):spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
-  const precision=['water','fire','nature'].includes(spell.id)?1e6:1;assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(precision*spellPower(spell.id,q)*factor*1.15*1.25*mult)/precision);
+  const precision=['water','fire','nature'].includes(spell.id)?1e6:1;assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(precision*spellPower(spell.id,q)*factor*1.15*(spell.id==='bolt'?1.2:spell.id==='tidalcrest'?1.15:1.25)*mult)/precision);
  }
 });
 test('rocky Faint immunity never applies or refreshes statuses, and does not cleanse earlier good casts',()=>{

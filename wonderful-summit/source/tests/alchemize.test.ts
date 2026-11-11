@@ -6,8 +6,8 @@ import {newRun,battleForRun,rollSpellOffers,buy,enterNode,finishBattle} from '..
 const spell=SPELLS.find(s=>s.id==='alchemize')!;
 function field(){const b=newBattle('active');b.approachAt=1000;b.potions={heal:0,freeze:0,ink:0};return b;}
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
-test('Alchemize is a Legendary Ancient spell using the approved two-stroke capped bottle and no damage upgrade',()=>{
- assert.equal(spell.rarity,'Legendary');assert.equal(spell.element,'Ancient');assert.equal(isUpgradableSpell('alchemize'),false);assert.equal(spell.strokes.length,2);
+test('Alchemize is a Legendary Ancient spell using the approved two-stroke capped bottle and a two-potion upgrade',()=>{
+ assert.equal(spell.rarity,'Legendary');assert.equal(spell.element,'Ancient');assert.equal(isUpgradableSpell('alchemize'),true);assert.equal(spell.strokes.length,2);
  for(const scale of [.2,1,4]){const strokes=spell.strokes.slice().reverse().map(s=>s.slice().reverse().map(p=>({x:70+p.x*scale,y:-13+p.y*scale})));const match=recognize(strokes);assert.equal(match.spell?.id,'alchemize');assert.equal(match.quality,100);}
 });
 test('every tier rolls the exact common/higher-tier odds, with healing only from Beautiful upwards',()=>{
