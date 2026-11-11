@@ -373,3 +373,5 @@
 .menu-tutorial-first{overflow:visible}.menu-tutorial-first .menu-tutorial-tap{position:absolute;top:calc(100% + 8px);left:0;width:100%;margin:0;text-align:center;color:#fff}.menu-tutorial-popup .menu-ready-letters,.menu-ready-letters .grade-letter{margin-left:0}
 
 .topbar .icon-button{border-width:1px}.practice-learn-button span{margin-left:0}
+
+.battle-result-victory{padding:9px 12px;display:flex;align-items:center;justify-content:center}.battle-result-victory h1{margin:0;text-align:center;line-height:1.2}

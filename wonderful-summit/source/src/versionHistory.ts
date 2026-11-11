@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.89',changes:['Reduced victory popup padding and centered its title.']},
  {version:'0.1.88',changes:['Updated Learn and tutorial control borders.','Help now pauses combat like Settings; practice Settings closes without a countdown.','Renamed Unopened Box and standardized Filadora’s Robes and Birkin-Stock names.']},
  {version:'0.1.87',changes:['Simplified home and Encyclopedia controls and restored the earlier header height.','Allowed repeated Alchemize casts in practice.','Matched Learn to Ready with Wonderful text and border styling.']},
  {version:'0.1.86',changes:['Refined Know The Elements formatting and the One Last Thing continuation hint.','Added Wonderful lettering and the checkmark sound to the tutorial Ready button.']},
