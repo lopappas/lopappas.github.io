@@ -8,7 +8,7 @@ import {spellUpgradePreview} from '../src/spellbook.ts';
 function setup(){const b=newBattle('active','pack',()=>0);b.approachAt=1000;for(const e of b.enemies){e.element='Neutral';e.hp=e.maxHP=1000;}return b;}
 function advance(b:ReturnType<typeof setup>,seconds:number,dt=.01){for(let i=0;i<Math.round(seconds/dt);i++)b=stepBattle(b,dt);return b;}
 test('circle and centered Bramble Leaf replace every old Bog variant',()=>{
- const bog=SPELLS.find(s=>s.id==='bog')!;assert.equal(SPELL_VARIATIONS.bog,undefined);assert.equal(bog.strokes.length,2);
+ const bog=SPELLS.find(s=>s.id==='bog')!;assert.equal(SPELL_VARIATIONS.bog?.length,1);assert.equal(bog.strokes.length,2);
  assert.deepEqual(bog.strokes[1],SPELLS.find(s=>s.id==='leaf')!.strokes[0].map(p=>({x:50+(p.x-50)*.5,y:50+(p.y-50)*.5})));
  const oldBase=[[{x:9,y:24},{x:24,y:39},{x:39,y:24}],[{x:24,y:39},{x:24,y:58}],[{x:61,y:24},{x:76,y:39},{x:91,y:24}],[{x:76,y:39},{x:76,y:58}],[{x:10,y:70},{x:90,y:70}]];
  for(const steep of [false,true])for(const gap of [0,4]){const old=oldBase.map((st,i)=>st.map((p,j)=>i===4?{...p,y:p.y+gap}:steep&&i%2===0&&j!==1?{x:(i===0?24:76)+(p.x-(i===0?24:76))*5/6,y:21.5}:{...p}));assert.equal(recognize(old,['bog']).spell,null);}

@@ -12,6 +12,6 @@ export function SummitWindow({title,titleId,className='',children,onExit}:{title
  return <section ref={dialog} className={`credits-screen ${className}`} role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={onExit}>
   <div className="credits-summit"><TitleMountain/></div>
   <button className="credits-dismiss" aria-label={`Close ${title.toLowerCase()}`}/>
-  <div className="credits-copy"><h1 id={titleId}>{title}</h1>{children}<small className="grade-wonderful" aria-label="Tap anywhere to return"><span aria-hidden="true"><RainbowLetters text="Tap anywhere to return"/></span></small></div>
+  <div className="credits-copy"><h1 id={titleId}>{title}</h1>{children}</div><small className="summit-continue grade-wonderful" aria-label="Tap anywhere to continue"><span aria-hidden="true"><RainbowLetters text="Tap anywhere to continue"/></span></small>
  </section>;
 }

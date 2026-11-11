@@ -375,3 +375,5 @@
 .topbar .icon-button{border-width:1px}.practice-learn-button span{margin-left:0}
 
 .battle-result-victory{padding:9px 12px;display:flex;align-items:center;justify-content:center}.battle-result-victory h1{margin:0;text-align:center;line-height:1.2}
+
+.credits-screen{padding-bottom:90px}.summit-continue{position:fixed;left:16px;right:16px;bottom:max(22px,env(safe-area-inset-bottom));z-index:3;padding:12px 8px;text-align:center;pointer-events:none;font-size:13px;text-shadow:0 2px 5px #10241f;background:#152d27e6;border-radius:8px}
