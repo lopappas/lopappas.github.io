@@ -13,7 +13,7 @@ Updated: 2026-11-11
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.97): Spell selection's Hold reminder starts automatically when choices mount: waits 1.5s, crossfades over 1.5s, then stays Wonderful until leaving the screen. Removed tap/hold/done reset callbacks. Taps use 0.8px / 0.15deg movement over 300ms; hold movement grows from 0.15px to 0.6px with 0.1deg rotation on a slower 220ms cycle. Reduced-motion suppression remains. Previous UI/colors/upgrades remain.
+Latest update (version 0.1.98): Added Goblin King as a per-run 50/50 alternative to Slime Mother at trail node 12. Selection is stored on startRun and reused on entry/rebuild; legacy runs without a choice retain Mother. King is a 35% larger neutral goblin with gold crown, 1000 HP, constant rock-slime speed, normal goblin timing and exact 34-damage attacks. Faint spell direct/tick/burn damage and knockback are zero, but Faint status effects remain allowed. All spell knockback is halved at competent quality; slowing loses 20 percentage points, clamped at zero. Freeze/root durations stay normal. Boss gold remains 54 and the trail name reflects the selected boss. Previous UI/colors/upgrades remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 7 targeted acquisition/release tests pass; TypeScript and production build pass. Browser interaction/animation visuals remain unverified. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: all 531 tests pass; TypeScript and production build pass. Six new tests cover exact boss-selection split and persistence, neutral stats/speed, Faint direct/tick immunity and statuses, half knockback, flat slowing resistance, freeze potions, 34-damage attacks and boss rewards. Actual SVG scene rendered and inspected for King size, crown and labels; browser interactions remain unverified. Source and matching build are included together; deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 

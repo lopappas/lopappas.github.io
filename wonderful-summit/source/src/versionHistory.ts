@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.98',publishedAt:'2026-11-11T21:00:09Z',changes:['Added the Goblin King as a 50/50 alternative to Slime Mother at encounter 12.','The crowned boss resists Faint damage, spell knockback and slowing, with 1000 health and 34-damage attacks.']},
  {version:'0.1.97',publishedAt:'2026-11-11T15:38:47Z',changes:['Hold automatically transitions to Wonderful after 1.5 seconds and stays styled for the screen.','Made spell-card tap and hold jostles subtler.']},
  {version:'0.1.96',publishedAt:'2026-11-11T15:21:50Z',changes:['Added gentle spell-card tap and hold jostles and a delayed Wonderful Hold reminder.','Shortened Alchemize’s upgrade description.']},
  {version:'0.1.95',publishedAt:'2026-11-11T15:13:04Z',changes:['Matched Encyclopedia spell names to their respective spell colors.','Made continuation buttons compact with black backgrounds and Wonderful lettering.']},
