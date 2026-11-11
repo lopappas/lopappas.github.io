@@ -1,3 +1,5 @@
+import {RainbowLetters} from './SpellGrade';
+import {unlockSpellAudio,playSpellSound} from './sound';
 import React,{useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 
@@ -29,9 +31,9 @@ export function MenuTutorial({step,onNext}:{step:0|1|2|3|4;onNext:()=>void}){
  },[step]);
  return createPortal(<div className={`menu-tutorial-overlay${!entry.target?' menu-tutorial-complete':''}`} onClick={step===0?onNext:undefined}>
   {entry.target&&layout&&<div className="menu-tutorial-spotlight" aria-hidden="true" style={{left:layout.left,top:layout.top,width:layout.width,height:layout.height}}/>}
-  <section ref={panel} role="dialog" aria-modal="true" aria-labelledby="menu-tutorial-title" aria-describedby={entry.text?'menu-tutorial-copy':undefined} className="menu-tutorial-popup menu-tutorial-popup-complete" style={{top:'50%',visibility:!entry.target||layout?'visible':'hidden'}} onKeyDown={e=>{if(e.key==='Tab'){e.preventDefault();next.current?.focus();}}}>
+  <section ref={panel} role="dialog" aria-modal="true" aria-labelledby="menu-tutorial-title" aria-describedby={entry.text?'menu-tutorial-copy':undefined} className={`menu-tutorial-popup menu-tutorial-popup-complete${step===0?' menu-tutorial-first':''}`} style={{top:'50%',visibility:!entry.target||layout?'visible':'hidden'}} onKeyDown={e=>{if(e.key==='Tab'){e.preventDefault();next.current?.focus();}}}>
    <h2 id="menu-tutorial-title">{entry.title}</h2>{entry.text&&<p id="menu-tutorial-copy">{entry.text}</p>}
-   <button ref={next} className={step===0?'menu-tutorial-tap':'primary-small'} onClick={e=>{e.stopPropagation();onNext();}}>{step===0?'Tap anywhere to continue':step===4?'Ready!':'Next'}</button>
+   <button ref={next} className={step===0?'menu-tutorial-tap':'primary-small'} onClick={e=>{e.stopPropagation();if(step===4){unlockSpellAudio();playSpellSound('start',100);}onNext();}}>{step===0?'Tap anywhere to continue':step===4?<span className="grade-wonderful menu-ready-letters"><RainbowLetters text="Ready!"/></span>:'Next'}</button>
   </section>
  </div>,document.body);
 }

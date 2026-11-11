@@ -34,7 +34,7 @@ const authoredSteps:readonly Tutorial2Step[]=[
  {id:'water-potion-wait',kind:'settling',durationMs:1800,text:''},
  {id:'water-recovered',kind:'dialogue',text:'Much better. You’ll pay for this water slime!'},
  ...castingSteps(2),{id:'water-victory',kind:'dialogue',text:"Don't mess with witches! Nature absorbs water."},
- {id:'water-elements',kind:'dialogue',presentation:'screen',text:'Water beats Fire.\n\nFire beats Nature.\n\nNature beats Water.\n\nUse the elements to your advantage to deal extra damage!'},
+ {id:'water-elements',kind:'dialogue',presentation:'screen',text:'Water beats Fire\nFire beats Nature\nNature beats Water\n\nUse the elements to your advantage to deal extra damage!'},
 ];
 export const ELEMENT_STEPS:readonly Tutorial2Step[]=authoredSteps.map(step=>step.kind==='dialogue'?step:{...step,text:step.text.replace(/\.$/,'')});
 export const newElementTutorial=():Tutorial2FireState=>({...newTutorial2(ELEMENT_STEPS),resetSerial:0,retry:false});

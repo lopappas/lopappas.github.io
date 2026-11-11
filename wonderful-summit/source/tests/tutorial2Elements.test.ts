@@ -100,7 +100,7 @@ test('element advantages require an explicit Continue after Water victory, befor
  let s=at('water-victory');s=transitionElement(s,{type:'continue',token:s.token});
  const info=elementStep(s);assert.equal(info.id,'water-elements');assert.equal(info.kind,'dialogue');
  assert.ok(info.kind==='dialogue'&&info.presentation==='screen');
- assert.equal(info.text,'Water beats Fire.\n\nFire beats Nature.\n\nNature beats Water.\n\nUse the elements to your advantage to deal extra damage!');
+ assert.equal(info.text,'Water beats Fire\nFire beats Nature\nNature beats Water\n\nUse the elements to your advantage to deal extra damage!');
  assert.equal(elementLesson(s),2);
  assert.equal(transitionElement(s,{type:'tick',deltaMs:10000,token:s.token}),s);
  assert.equal(transitionElement(s,{type:'continue',token:s.token-1}),s);
