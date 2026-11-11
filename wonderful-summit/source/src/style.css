@@ -367,3 +367,5 @@
 .spell-acquire-ring{position:absolute;inset:-2px;border-radius:inherit;padding:4px;pointer-events:none;background:conic-gradient(from -90deg,var(--acquire-color) var(--acquire-angle),transparent var(--acquire-angle));mask:linear-gradient(#fff 0 0) content-box exclude,linear-gradient(#fff 0 0);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:2}
 
 .spell-acquire-button.spell-acquired:disabled{opacity:1}
+
+.menu-tutorial-tap{background:none;border:0;color:inherit;font-size:13px;padding:10px}.topbar button{margin:1px;padding:6px 9px;border-width:2px}.topbar .settings-button,.topbar .icon-button{width:38px;height:36px;padding:6px}.topbar{min-height:50px}.topbar .header-actions{gap:9px}

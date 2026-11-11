@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.85',changes:['Moved Know the Elements after the Water slime and refined tutorial popups.','Added pencil audio to tutorial spell demonstrations.','Added spacing and thicker borders to top menu buttons.']},
  {version:'0.1.84',changes:['Increased Thistle Bush damage budgets at all cast qualities; upgrades retain their 15% budget bonus.']},
  {version:'0.1.83',changes:['Reduced Tidalcrest damage and knockback by 5%.']},
  {version:'0.1.82',changes:['Reduced the spell learning border to 4px.']},

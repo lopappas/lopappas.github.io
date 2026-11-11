@@ -21,7 +21,7 @@ test('the real 48 and 100 percent casts exactly exhaust goblin health with no el
  b=hit(b,48);assert.equal(b.enemies[0].hp,51.5);assert.equal(b.phase,'active');b=hit(b,100);assert.equal(b.enemies[0].hp,0);assert.equal(b.phase,'victory');
 });
 test('elemental milestone hands off into the goblin rather than ending the preview',()=>{
- let s=at('water-victory');s=transitionM4(s,{type:'continue',token:s.token});assert.equal(s.phase,'running');assert.equal(s.index,ELEMENT_STEPS.length);assert.equal(m4Lesson(s),3);
+ let s=at('water-elements');s=transitionM4(s,{type:'continue',token:s.token});assert.equal(s.phase,'running');assert.equal(s.index,ELEMENT_STEPS.length);assert.equal(m4Lesson(s),3);
 });
 test('goblin cast steps permit only casting and wait for matching real combat outcomes',()=>{
  let s=at('goblin-bad-cast');for(const a of ['draw','clear','book','heal','inspect'] as const)assert.equal(m4ActionAllowed(s,a),false);
