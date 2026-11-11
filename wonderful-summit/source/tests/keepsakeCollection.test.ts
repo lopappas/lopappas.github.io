@@ -9,7 +9,7 @@ test('coinpurse grants exactly 60 gold once, both at the start and through colle
  const richer=acquireRelic({...newRun(),gold:37},'coinpurse');assert.equal(richer.gold,97);assert.equal(applyDeveloperCommand(richer,{type:'relic',id:'coinpurse'}),richer);
  assert.equal(start.gold,0);
 });
-test('Untouched Box grants two unowned normal relics once and retains its own keepsake entry',()=>{
+test('Unopened Box grants two unowned normal relics once and retains its own keepsake entry',()=>{
  const tiers=new Set<string>();
  for(let i=0;i<300;i++){
   const r=startRun({...newRun(),keepsakeOffers:['untouchedBox','amber','moss'],screen:'sister'},'untouchedBox',()=>i/300);

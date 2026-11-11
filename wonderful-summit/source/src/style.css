@@ -355,7 +355,7 @@
 
 @media(max-width:374px){.main-menu .header-actions{gap:5px}.main-menu .topbar .brand{font-size:12px}}
 
-.practice-learn-button{display:block;margin:0;width:auto;min-width:100px;padding:12px 22px;border:1px solid transparent;border-radius:7px;background:linear-gradient(#4a6150,#4a6150) padding-box,conic-gradient(#ffabab,#ffe6a1,#b9efb0,#abe8ff,#cdb4ff,#ffabab) border-box;font-size:14px;box-shadow:none}.practice-learn-button:disabled{opacity:.5}
+.practice-learn-button{display:block;margin:0;width:auto;min-width:100px;padding:12px 22px;border:2px solid transparent;border-radius:7px;background:linear-gradient(#4a6150,#4a6150) padding-box,conic-gradient(#ffabab,#ffe6a1,#b9efb0,#abe8ff,#cdb4ff,#ffabab) border-box;font-size:14px;box-shadow:none}.practice-learn-button:disabled{opacity:.5}
 .practice-learning-trace{z-index:0}
 
 .practice-book-actions{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:auto;padding-top:12px;flex-shrink:0}.practice-book-actions>.primary-small{width:auto;flex:none;min-width:100px;padding:12px 22px}.practice-book-actions>.practice-learn-button{margin:0;flex:none}

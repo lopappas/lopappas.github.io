@@ -18,7 +18,7 @@ test('duplicate bottles each occupy a slot and each use consumes just one bottle
  const b=drinkPotion(battleForRun(run),'heal');assert.deepEqual(potionSlots(b.potions,3),['heal','freeze',null]);assert.equal(b.potionFlights.length,1);
  assert.deepEqual(potionSlots({heal:1,freeze:0,ink:0},3),['heal',null,null]);
 });
-test('Birkin-stock immediately adds two slots and allows duplicate purchases up to five',()=>{
+test('Birkin-Stock immediately adds two slots and allows duplicate purchases up to five',()=>{
  const run:Run={...newRun(),screen:'shop',gold:100,potions:{heal:3,freeze:0,ink:0},stock:[{id:'bag',kind:'relic',item:'birkinStock',price:45,sold:false},{id:'heal-a',kind:'potion',item:'heal',price:16,sold:false},{id:'heal-b',kind:'potion',item:'heal',price:16,sold:false},{id:'heal-c',kind:'potion',item:'heal',price:16,sold:false}]};
  assert.equal(potionCapacity(run),3);assert.equal(buy(run,'heal-a'),run);
  const expanded=buy(run,'bag');assert.equal(potionCapacity(expanded),5);assert.deepEqual(potionSlots(expanded.potions,5),['heal','heal','heal',null,null]);
