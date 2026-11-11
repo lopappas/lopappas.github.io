@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.93',publishedAt:'2026-11-11T12:27:42Z',changes:['Capitalized Version labels and added parchment continuation buttons to Credits and Version History.','Matched the combat top-bar branding to the trail.']},
  {version:'0.1.92',publishedAt:'2026-11-11T12:09:15Z',changes:['Adjusted Flare Bolt, Bramble Leaf, Tidalcrest and Flame Blade upgrades.','Alchemize can be upgraded to roll two potions, adding only those that fit; full-purse messages appear at the top right.','Added date and time stamps to Version History.']},
  {version:'0.1.91',publishedAt:'2026-11-11T11:29:15Z',changes:['Removed the continuation hint background and restored visible spaces between words.']},
  {version:'0.1.90',publishedAt:'2026-11-11T09:46:20Z',changes:['Added the approved Drudge Bog and Flare Bolt casting variants alongside their originals.','Kept the Credits and Version History continuation hint visible near the bottom of the screen.']},
