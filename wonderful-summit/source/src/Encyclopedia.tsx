@@ -8,7 +8,7 @@ import type {Potion} from './battle';
 import './encyclopedia.css';
 
 const TITLES:Record<Chapter,string>={spells:'Spells',relics:'Relics',potions:'Potions'};
-function inkColor(entry:EncyclopediaEntry){return ({Water:'#257285',Fire:'#b34f23',Nature:'#537230',Ancient:'#62666e'} as Record<string,string>)[entry.element??'']??entry.color;}
+function inkColor(entry:EncyclopediaEntry){return entry.color;}
 function EntryArt({entry}:{entry:EncyclopediaEntry}){
  if(entry.path)return <svg viewBox="0 0 100 100" role="img" aria-label={`${entry.name} drawing shape`}><path d={entry.path} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
  if(entry.chapter==='potions')return <PotionIcon potion={entry.id as Potion}/>;

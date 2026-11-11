@@ -13,7 +13,7 @@ Updated: 2026-11-11
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.93): Version History release labels use capitalized Version. Credits/Version History continuation prompt is a fixed parchment button sharing the spell canvas texture, with keyboard focus and an explicit one-shot exit handler. Normal combat branding now uses the same moon glyph/title size as the trail (responsive 14–18px), with shared 46px/42px header height and top-button dimensions. Practice/tutorial branding remains specific to those modes. Version 0.1.92 upgrades and capacity feedback remain.
+Latest update (version 0.1.94): Credits/Version History continuation buttons use Beautiful purple lettering and animation, preserving spaces and parchment backgrounds. Every top-bar button, including tutorial controls, is visually scaled to 90%. Encyclopedia spell silhouettes use canonical spell colors in both index and detail views, matching the spellbook. Coding environment restored; draft PR #3 source changes are included with a matching production build. Prior upgrades and menu behavior remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 4 release/version tests pass; TypeScript and production build pass. Styling and presentation changes only. Browser visuals remain unverified. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: all 6 targeted release/Encyclopedia tests pass; TypeScript and production build pass. Browser visuals remain unverified. Source and matching build are included together; deployment has not yet been verified. Draft PR #3 is superseded by this release.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
