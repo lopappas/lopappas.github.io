@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,isUpgradableSpell} from '../src/magic.ts';
-import {launchSpell} from '../src/battle.ts';
+import {launchSpell,alchemizeBlockReason,newBattle} from '../src/battle.ts';
 import {newPracticeBattle,practiceJourney,restoreScarecrow,stepPracticeBattle,practiceDamage,practiceEffects,SCARECROW_HEALTH} from '../src/practice.ts';
 
 test('practice grants every spell and toggles only valid upgrades without altering the journey',()=>{
@@ -71,4 +71,18 @@ test('practice-only cooldown exemption does not disable journey or tutorial cool
  const {newBattle,releaseSpell,spellCooldownRemaining}=await import('../src/battle.ts');
  const normal=newBattle('active');assert.equal(normal.cooldownsDisabled,undefined);
  const released=releaseSpell(normal,'chronos');assert.equal(spellCooldownRemaining(released,'chronos'),30);
+});
+
+test('practice allows repeated Alchemize casts while preserving capacity and run limits',()=>{
+ let battle=newPracticeBattle(practiceJourney());
+ for(let i=1;i<=3;i++){
+  assert.equal(alchemizeBlockReason(battle),null);
+  battle=launchSpell(battle,80,'#fff','alchemize',0,()=>0);
+  assert.equal(battle.casts,i);assert.equal(battle.potions.rejection,i);
+ }
+ assert.equal(alchemizeBlockReason(battle),'Your purse is full');
+ assert.equal(launchSpell(battle,80,'#fff','alchemize'),battle);
+ battle.potions.rejection=0;assert.equal(alchemizeBlockReason(battle),null);
+ assert.equal(launchSpell(battle,80,'#fff','alchemize',0,()=>0).casts,4);
+ assert.equal(alchemizeBlockReason({...newBattle('active'),alchemizeUsed:true}),'Alchemize has already been used this battle');
 });

@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.87',changes:['Simplified home and Encyclopedia controls and restored the earlier header height.','Allowed repeated Alchemize casts in practice.','Matched Learn to Ready with Wonderful text and border styling.']},
  {version:'0.1.86',changes:['Refined Know The Elements formatting and the One Last Thing continuation hint.','Added Wonderful lettering and the checkmark sound to the tutorial Ready button.']},
  {version:'0.1.85',changes:['Moved Know the Elements after the Water slime and refined tutorial popups.','Added pencil audio to tutorial spell demonstrations.','Added spacing and thicker borders to top menu buttons.']},
  {version:'0.1.84',changes:['Increased Thistle Bush damage budgets at all cast qualities; upgrades retain their 15% budget bonus.']},

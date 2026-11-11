@@ -13,7 +13,7 @@ Updated: 2026-11-11
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.86): Know The Elements uses title capitalization, no periods, single line breaks between elemental matchups and a blank line before the damage advice. One Last Thing!'s tap-anywhere hint is centered in white below its box. Tutorial Complete's Ready! uses Wonderful rainbow lettering and plays the opening checkmark sound on activation. Earlier tutorial ordering, drawing audio, top-bar spacing and balance changes remain.
+Latest update (version 0.1.87): Removed the home spellbook button. Top bar returns to 0.1.84 height (46px / 42px on narrow screens), with no added vertical button margins; ? border is 1px. Encyclopedia index pages omit chapter descriptions and bottom-right chapter labels. Practice enables repeat Alchemize casts while respecting purse capacity; normal runs keep the once-per-battle limit. Practice Learn matches Ready's green fill, shape and sizing, with Wonderful rainbow border/text and no inherited letter margins. Earlier tutorial and balance changes remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 25 targeted element/Goblin tutorial and release tests pass; TypeScript and production build pass. Browser visuals and playback remain unverified because the preview relay is unavailable. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: all 521 tests pass; TypeScript and production build pass. Added practice Alchemize repeat/capacity checks and preserved normal-run limits. Browser visuals remain unverified because the preview relay is unavailable. Source and matching build are included together; deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 

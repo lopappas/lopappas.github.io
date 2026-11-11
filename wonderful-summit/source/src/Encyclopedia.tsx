@@ -57,11 +57,10 @@ export function Encyclopedia({discoveries,onClose,preview=ENCYCLOPEDIA_PREVIEW}:
      {known?<><section className="journal-notes"><h3>{chapter==='spells'?'Spell notes':'Effect'}</h3><p>{entry.description}</p></section>{entry.tips&&<section className="journal-notes"><h3>Tips for casting</h3><p>{entry.tips}</p><p>Keep the overall shape and proportions. Any size or position works, and stroke order does not matter. Hold Cast for half a second to release your spell.</p></section>}{entry.lore&&<blockquote className="journal-lore">{entry.lore}</blockquote>}</>:<p className="journal-undiscovered">Collect this {chapter==='spells'?'spell':chapter==='relics'?'relic':'potion'} on your journey to reveal its journal entry.</p>}
     </article>:<>
      <div className="journal-chapter-heading"><h2>{TITLES[chapter]}</h2><span>{revealed} / {entries.length} revealed</span></div>
-     <p className="journal-intro">{chapter==='spells'?'Shapes to remember. Magic to make.':chapter==='relics'?'Small treasures with stories of their own.':'A little wonder, carefully bottled.'} Select an entry to read its notes.</p>
      {groups.map(group=><section className="journal-rarity-group" key={group.rarity} aria-label={`${group.rarity} ${TITLES[chapter].toLowerCase()}`}><h3>{group.rarity}<span>{group.entries.length}</span></h3><div className="journal-entry-grid">{group.entries.map(item=>{const visible=isEntryRevealed(item,discoveries,preview);return <button key={item.key} data-entry={item.key} className={`journal-item ${visible?(item.chapter==='spells'?spellRarityClass(item.rarity as import('./rarity').SpellRarity):rarityClass(item.rarity)):'journal-locked'}`} aria-label={visible?`${item.name}, ${item.rarity}: read entry`:'Undiscovered entry: read notes'} onClick={()=>{indexScroll.current=scroll.current?.scrollTop??0;setEntry(item);}}><span className="journal-item-art" style={{color:visible?inkColor(item):undefined}}>{visible?<EntryArt entry={item}/>:<span className="journal-question" aria-hidden="true">?</span>}</span><strong>{visible?item.name:'???'}</strong></button>;})}</div></section>)}
     </>}
    </div>
-   <footer className="journal-footer"><span>{preview?'All entries revealed for now':'Your journey, remembered'}</span><span>{entry?'Field notes':`Chapter ${CHAPTERS.indexOf(chapter)+1} / 3`}</span></footer>
+   <footer className="journal-footer"><span>{preview?'All entries revealed for now':'Your journey, remembered'}</span>{entry&&<span>Field notes</span>}</footer>
   </section>
  </div>,document.body);
 }
