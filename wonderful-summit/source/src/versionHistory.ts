@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.97',publishedAt:'2026-11-11T15:38:47Z',changes:['Hold automatically transitions to Wonderful after 1.5 seconds and stays styled for the screen.','Made spell-card tap and hold jostles subtler.']},
  {version:'0.1.96',publishedAt:'2026-11-11T15:21:50Z',changes:['Added gentle spell-card tap and hold jostles and a delayed Wonderful Hold reminder.','Shortened Alchemize’s upgrade description.']},
  {version:'0.1.95',publishedAt:'2026-11-11T15:13:04Z',changes:['Matched Encyclopedia spell names to their respective spell colors.','Made continuation buttons compact with black backgrounds and Wonderful lettering.']},
  {version:'0.1.94',publishedAt:'2026-11-11T15:03:50Z',changes:['Used Beautiful lettering on Credits and Version History continuation buttons.','Reduced top-bar buttons by 10% and matched Encyclopedia spell shape colors to the spellbook.']},

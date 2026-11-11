@@ -391,6 +391,6 @@
 .spell-hold-label{display:inline-grid}.spell-hold-label>span{grid-area:1/1}.spell-hold-wonderful{opacity:0}.spell-hold-wonderful .grade-letter{margin:0}
 .spell-hold-reminder>span:first-child{animation:holdPlainFade 1.5s 1.5s ease-in-out forwards}.spell-hold-reminder>.spell-hold-wonderful{animation:holdWonderfulFade 1.5s 1.5s ease-in-out forwards}
 @keyframes holdPlainFade{to{opacity:0}}@keyframes holdWonderfulFade{to{opacity:1}}
-.spell-acquire-holding{animation:spellCardJostle .14s ease-in-out infinite}
-@keyframes spellCardJostle{0%,100%{transform:translateX(calc(var(--jostle)*-1)) rotate(-.3deg)}50%{transform:translateX(var(--jostle)) rotate(.3deg)}}
+.spell-acquire-holding{animation:spellCardJostle .22s ease-in-out infinite}
+@keyframes spellCardJostle{0%,100%{transform:translateX(calc(var(--jostle)*-1)) rotate(-.1deg)}50%{transform:translateX(var(--jostle)) rotate(.1deg)}}
 @media(prefers-reduced-motion:reduce){.spell-acquire-holding{animation:none}.spell-hold-reminder .grade-letter{animation:none}}

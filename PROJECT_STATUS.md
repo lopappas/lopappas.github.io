@@ -13,7 +13,7 @@ Updated: 2026-11-11
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.96): Alchemize upgrade preview now only says Roll 2 potions instead of 1. Short spell-card taps produce a gentle 240ms jostle; while held, a small jostle intensifies with acquisition progress until learned. After an incomplete tap, the heading's Hold waits 1.5s then crossfades into Wonderful lettering over 1.5s. New holds and completed/skipped rewards reset the reminder. Pointer/keyboard cancellation and reduced-motion behavior are retained. Previous UI/colors/upgrades remain.
+Latest update (version 0.1.97): Spell selection's Hold reminder starts automatically when choices mount: waits 1.5s, crossfades over 1.5s, then stays Wonderful until leaving the screen. Removed tap/hold/done reset callbacks. Taps use 0.8px / 0.15deg movement over 300ms; hold movement grows from 0.15px to 0.6px with 0.1deg rotation on a slower 220ms cycle. Reduced-motion suppression remains. Previous UI/colors/upgrades remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 

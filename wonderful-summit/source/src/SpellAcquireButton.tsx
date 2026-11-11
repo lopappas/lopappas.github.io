@@ -2,24 +2,24 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {Spell} from './magic';
 import {SpellAcquisition} from './spellAcquisition';
 
-type Props=Omit<React.ButtonHTMLAttributes<HTMLButtonElement>,'onClick'> & {spell?:Spell;acquired?:boolean;onAcquire:()=>void;onShortTap?:()=>void;onHoldStart?:()=>void};
+type Props=Omit<React.ButtonHTMLAttributes<HTMLButtonElement>,'onClick'> & {spell?:Spell;acquired?:boolean;onAcquire:()=>void};
 /** Spell purchases and reward choices share the same interruptible hold. */
-export function SpellAcquireButton({spell,acquired=false,onAcquire,onShortTap,onHoldStart,disabled,className='',style,children,...props}:Props){
+export function SpellAcquireButton({spell,acquired=false,onAcquire,disabled,className='',style,children,...props}:Props){
  const hold=useRef(new SpellAcquisition()),frame=useRef(0),input=useRef<number|string|null>(null),action=useRef(onAcquire);action.current=onAcquire;
  const [progress,setProgress]=useState(0),[holding,setHolding]=useState(false),[tap,setTap]=useState(0);
  const button=useRef<HTMLButtonElement>(null),tapAnimation=useRef<Animation|null>(null);
- useEffect(()=>{if(!tap||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;tapAnimation.current=button.current?.animate([{transform:'translateX(0) rotate(0deg)'},{transform:'translateX(-2px) rotate(-.5deg)'},{transform:'translateX(2px) rotate(.5deg)'},{transform:'translateX(0) rotate(0deg)'}],{duration:240,easing:'ease-out'})??null;return()=>tapAnimation.current?.cancel();},[tap]);
- function release(){cancel();setTap(n=>n+1);onShortTap?.();}
+ useEffect(()=>{if(!tap||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;tapAnimation.current=button.current?.animate([{transform:'translateX(0) rotate(0deg)'},{transform:'translateX(-.8px) rotate(-.15deg)'},{transform:'translateX(.8px) rotate(.15deg)'},{transform:'translateX(0) rotate(0deg)'}],{duration:300,easing:'ease-out'})??null;return()=>tapAnimation.current?.cancel();},[tap]);
+ function release(){cancel();setTap(n=>n+1);}
  function cancel(){setHolding(false);cancelAnimationFrame(frame.current);hold.current.cancel();input.current=null;setProgress(hold.current.progress);}
  function start(source:number|string){
   if(disabled||!spell||!hold.current.start(performance.now()))return;
-  tapAnimation.current?.cancel();setHolding(true);onHoldStart?.();input.current=source;
+  tapAnimation.current?.cancel();setHolding(true);input.current=source;
   const tick=(now:number)=>{const complete=hold.current.advance(now);setProgress(hold.current.progress);if(complete){input.current=null;setHolding(false);action.current();}else frame.current=requestAnimationFrame(tick);};
   frame.current=requestAnimationFrame(tick);
  }
  useEffect(()=>{const hide=()=>{if(document.hidden)cancel();};window.addEventListener('blur',cancel);document.addEventListener('visibilitychange',hide);return()=>{cancelAnimationFrame(frame.current);hold.current.cancel();window.removeEventListener('blur',cancel);document.removeEventListener('visibilitychange',hide);};},[]);
  useEffect(()=>{if(disabled)cancel();},[disabled]);
- return <button {...props} ref={button} disabled={disabled} className={`${className}${spell?` spell-acquire-button${holding?' spell-acquire-holding':''}${acquired||progress===1?' spell-acquired':''}`:''}`} style={{...style,'--jostle':`${.3+progress*1.2}px`,'--acquire-color':spell?.color,'--acquire-angle':`${(acquired?1:progress)*360}deg`} as React.CSSProperties}
+ return <button {...props} ref={button} disabled={disabled} className={`${className}${spell?` spell-acquire-button${holding?' spell-acquire-holding':''}${acquired||progress===1?' spell-acquired':''}`:''}`} style={{...style,'--jostle':`${.15+progress*.45}px`,'--acquire-color':spell?.color,'--acquire-angle':`${(acquired?1:progress)*360}deg`} as React.CSSProperties}
   onClick={spell?e=>e.preventDefault():onAcquire}
   onContextMenu={spell?e=>e.preventDefault():undefined}
   onPointerDown={spell?e=>{if(!e.isPrimary||e.button!==0)return;e.preventDefault();e.currentTarget.focus();e.currentTarget.setPointerCapture(e.pointerId);start(e.pointerId);}:undefined}
