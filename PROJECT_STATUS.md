@@ -13,7 +13,7 @@ Updated: 2026-11-11
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.90): Approved recognition-only variants added alongside originals: Drudge Bog's inner leaf is scaled to 80% around its center; Flare Bolt's upper tip is (53,10), opening the upper bend to about 55 degrees. Canonical art and Learn traces remain original. Credits and Version History share a fixed bottom continuation hint outside their scrolling copy, with bottom spacing for content and safe-area support. Victory popup and previous changes remain.
+Latest update (version 0.1.91): Credits and Version History bottom hint reads Tap anywhere to continue, has no background/banner, and preserves whitespace in its animated letters. Approved Bog/Flare Bolt variants and previous UI/balance changes remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 522 tests pass; TypeScript and production build pass. Variant checks cover exact approved geometry, original preservation, scale, translation, stroke order/direction, recognition quality and learned-spell restrictions. Browser visuals remain unverified. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: all 4 release/version tests pass; TypeScript and production build pass. Styling-only hint change; upgrade table was checked against live source logic. Browser visuals remain unverified. Source and matching build are included together; deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
