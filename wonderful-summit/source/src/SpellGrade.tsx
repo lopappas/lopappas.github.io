@@ -7,7 +7,7 @@ export function SpellGrade({label}:{label:string}){
  </span>;
 }
 
-export function RainbowLetters({text,offset=0}:{text:string;offset?:number}){
- return <>{Array.from(text).map((letter,index)=><span key={index} className="grade-letter" style={{'--letter':index+offset,color:`hsl(${(index+offset)*40} 90% 76%)`} as React.CSSProperties}>{letter}</span>)}</>;
+export function RainbowLetters({text,offset=0,tone='wonderful'}:{text:string;offset?:number;tone?:'beautiful'|'wonderful'}){
+ return <>{Array.from(text).map((letter,index)=><span key={index} className="grade-letter" style={{'--letter':index+offset,color:tone==='beautiful'?undefined:`hsl(${(index+offset)*40} 90% 76%)`} as React.CSSProperties}>{letter}</span>)}</>;
 }
 

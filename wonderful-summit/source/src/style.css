@@ -384,3 +384,6 @@
 .version-history time{display:block;font-size:12px;color:#d9c49b;margin:4px 0 8px}
 
 .journey-combat .topbar .brand{font-size:clamp(14px,4vw,18px)}
+
+/* Shrink every top-bar control, including the tutorial controls, uniformly. */
+.topbar button,.t2-controls button{scale:.9}

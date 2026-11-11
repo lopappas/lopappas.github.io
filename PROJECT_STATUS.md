@@ -61,6 +61,7 @@ Paths below are relative to wonderful-summit/source/:
 - Recording/license: src/audio/frostnox_quick-pencil-writing.ogg and src/audio/ATTRIBUTION.txt.
 
 ## Remaining work
+- Prepared source changes: Beautiful continuation lettering on Credits/Version History, 10% smaller top-bar buttons, Encyclopedia spell shapes using canonical spellbook colors. Coding environment is unavailable: tests, release bump/history entry, production build and browser checks must be completed before merging/publishing. Current published source/build remain version 0.1.93.
 - No remaining planned Tutorial 2.0 milestones. Await the next requested change.
 - Historical Pages timeouts/queued retries are not evidence of a current outage. Check current status only when relevant, following AGENTS.md.
 - Historical generated bundles remain in the published assets folder; cleanup has not been requested.
