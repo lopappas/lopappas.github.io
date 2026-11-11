@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.1.84',changes:['Increased Thistle Bush damage budgets at all cast qualities; upgrades retain their 15% budget bonus.']},
  {version:'0.1.83',changes:['Reduced Tidalcrest damage and knockback by 5%.']},
  {version:'0.1.82',changes:['Reduced the spell learning border to 4px.']},
  {version:'0.1.81',changes:['Spell rewards now arrive after victory 1, then every four victories.','Shortened learning holds to 0.6 seconds and thickened their progress borders.','Learned spell cards keep their full-color border and no longer fade.']},

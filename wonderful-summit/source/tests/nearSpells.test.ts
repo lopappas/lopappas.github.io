@@ -17,7 +17,7 @@ test('approved shapes recognize uniquely across size, position and reversed stro
  const thistle=SPELLS.find(s=>s.id==='thistleBush')!.strokes[0];for(let i=0;i<thistle.length;i++){assert.ok(Math.abs(thistle[i].x+thistle[thistle.length-1-i].x-100)<1e-5);assert.equal(thistle[i].y,thistle[thistle.length-1-i].y);}
 });
 test('quality endpoints set the promised puddle knockback and thistle reach/budget',()=>{
- const endpoints=[[48,54.74,80,30.08],[59,87.584,90,45.12],[60,98.532,95,56.4],[69,142.324,110,82.72],[70,153.272,115,94],[79,197.064,130,127.84],[80,208.012,135,142.88],[100,273.7,150,188]];
+ const endpoints=[[48,54.74,80,40],[59,87.584,90,55],[60,98.532,95,70],[69,142.324,110,90],[70,153.272,115,110],[79,197.064,130,140],[80,208.012,135,165],[100,273.7,150,205]];
  for(const [q,push,range,budget] of endpoints){assert.equal(nearKnockback('puddleGuard',q),push);assert.deepEqual(thistleStats(q),{range,budget});}
  for(const q of [0,47,NaN,Infinity])for(const id of ids)assert.equal(launchSpell(field(),q,'#fff',id).casts,0);
 });
@@ -37,12 +37,12 @@ test('Puddle Guard persists, triggers only the first walking enemy, launches it,
 test('Thistle Bush ticks every half second, counts actual damage across enemies, and has no knockback',()=>{
  let b=launchSpell(field([350,360,500]),48,'#fff','thistleBush');assert.equal(advance(b,.49).thistle!.spent,0);
  b=advance(b,.5);assert.equal(b.thistle!.spent,2.5);assert.equal(b.enemies[0].hp,9998.75);assert.equal(b.enemies[1].hp,9998.75);assert.equal(b.enemies[2].hp,10000);assert.equal(b.enemies[0].push,null);
- b=advance(b,9.5);assert.equal(b.thistle,null);assert.equal(b.enemies[0].hp,9983.75);assert.equal(b.enemies[1].hp,9985);
- assert.equal(advance(b,5).enemies[0].hp,9983.75);assert.equal(b.casts,1);
+ b=advance(b,9.5);assert.equal(b.thistle,null);assert.equal(b.enemies[0].hp,9980);assert.equal(b.enemies[1].hp,9980);
+ assert.equal(advance(b,5).enemies[0].hp,9980);assert.equal(b.casts,1);
 });
 test('Thistle has no timeout, replaces a better bush with a worse one, and cannot spend overkill as actual damage',()=>{
- let b=launchSpell(field([500]),100,'#fff','thistleBush');b=advance(b,100);assert.equal(b.thistle!.spent,0);assert.equal(b.thistle!.budget,188);
- b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.budget,30.08);assert.equal(b.thistle!.range,80);assert.equal(b.thistle!.spent,0);
+ let b=launchSpell(field([500]),100,'#fff','thistleBush');b=advance(b,100);assert.equal(b.thistle!.spent,0);assert.equal(b.thistle!.budget,205);
+ b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.budget,40);assert.equal(b.thistle!.range,80);assert.equal(b.thistle!.spent,0);
  b=launchSpell(field([350,360,600]),100,'#fff','thistleBush');b.enemies[0].hp=2;b.enemies[1].shield=woodenShield();b=advance(b,.5);
  assert.equal(b.thistle!.spent,4.625); // 2 actual HP + a 5.25-damage tick halved by wood.
  assert.equal(b.enemies[1].hp,9997.375);
@@ -152,7 +152,7 @@ test('Thistle upgrade adds 0.4 per tick and 15 percent actual-damage budget at e
  }
  const preview=spellUpgradePreview('thistleBush')!;
  assert.equal(preview.currentDamage,2.25);assert.equal(preview.nextDamage,2.65);
- assert.equal(preview.currentThreshold,56.4);assert.equal(preview.nextThreshold,64.86);
+ assert.equal(preview.currentThreshold,70);assert.equal(preview.nextThreshold,80.5);
 });
 
 test('Thistle appearance time and upgraded budget snapshot on drawn and bottled casts and restart on replacement',()=>{
@@ -160,9 +160,9 @@ test('Thistle appearance time and upgraded budget snapshot on drawn and bottled 
   let b=advance(field([500]),2);b.upgrades.thistleBush=1;
   if(bottled){b.potions.spellBottle=1;b.bottledSpells=[{spellId:'thistleBush',quality:100}];b=advance(drinkPotion(b,'spellBottle'),.66);}
   else b=launchSpell(b,100,'#fff','thistleBush');
-  assert.ok(b.time-b.thistle!.started<.011);assert.equal(b.thistle!.budget,216.2);
-  const started=b.thistle!.started;b.upgrades={};b=advance(b,15);assert.equal(b.thistle!.started,started);assert.equal(b.thistle!.budget,216.2);
-  b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.started,b.time);assert.equal(b.thistle!.budget,30.08);assert.equal(b.thistle!.spent,0);
+  assert.ok(b.time-b.thistle!.started<.011);assert.equal(b.thistle!.budget,235.75);
+  const started=b.thistle!.started;b.upgrades={};b=advance(b,15);assert.equal(b.thistle!.started,started);assert.equal(b.thistle!.budget,235.75);
+  b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.started,b.time);assert.equal(b.thistle!.budget,40);assert.equal(b.thistle!.spent,0);
  }
 });
 
