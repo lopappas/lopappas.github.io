@@ -1,3 +1,4 @@
+import {MapButton,TrailSymbol} from './TrailMap';
 import {notifyPotionsFull} from './PotionFullNotice';
 import {SpellAcquireButton} from './SpellAcquireButton';
 import {HelpButton} from './HelpDialog';
@@ -31,11 +32,6 @@ import {Tutorial2Session} from './Tutorial2Session';
 import {useDeveloperTarget} from './Developer';
 import {applyDeveloperCommand} from './developerCommands';
 import type {CombatProps} from './combatTypes';
-function TrailSymbol({symbol}:{symbol:string}){
- if(symbol==='sword')return <svg className="trail-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M27 3 24 13 13 24l-5-5L19 8z" fill="currentColor"/><path d="m6 18 8 8M9 23l-5 5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>;
- if(symbol==='campfire')return <svg className="trail-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M15 3c2 7-5 9-5 14 0 4 3 6 6 6 5 0 8-3 7-7-1-3-3-4-3-7-2 3-3 4-3 5 1-5 1-8-2-11z" fill="currentColor"/><path d="m6 25 21 5M26 25 5 30" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>;
- return <>{symbol}</>;
-}
 function Icon({spell}:{spell:Spell}){return <svg className="run-sigil" viewBox="0 0 100 100" style={{color:spell.color}} aria-hidden="true"><path d={spell.path} fill="none" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round"/></svg>}
 
 function GoldIcon(){return <svg className="reward-coin-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#e9bd50" stroke="#9f732e" strokeWidth="3"/><circle cx="24" cy="24" r="15" fill="none" stroke="#fff0ad" strokeWidth="2"/><path d="m24 13 7 11-7 11-7-11z" fill="#9f732e"/></svg>}
@@ -73,7 +69,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  },[run.screen,run.node]);
  const finishTutorial=()=>{setTutorial2Preview(false);setRun(returnToMenu());setMenuTour(0);};
  const stats=<div className="run-stats"><span className="run-stat" aria-label={`Health: ${run.health} out of 100`}>♡ {run.health}/100</span><RunPotions onDrinkHealing={id=>update(r=>drinkTrailHealing(r,id),'bottle')} visibleSlots key={`${run.screen}-${run.node}`} run={run} onDrop={(id,bottleIndex)=>update(r=>discardPotion(r,id,bottleIndex))}/><span className="run-stat" aria-label={`Gold: ${run.gold}`}>◈ {run.gold}</span></div>;
- if(run.pendingBottle)return <BottleCapture stats={stats} inkMultiplier={run.relics.includes('feather')?.8:1} known={run.spells} upgrades={run.upgrades} onSeal={spell=>{setBottleReturning(true);update(r=>sealBottle(r,spell));}}/>;
+ if(run.pendingBottle)return <BottleCapture journey={run} stats={stats} inkMultiplier={run.relics.includes('feather')?.8:1} known={run.spells} upgrades={run.upgrades} onSeal={spell=>{setBottleReturning(true);update(r=>sealBottle(r,spell));}}/>;
  if(tutorial2Preview)return <Tutorial2Session Combat={Combat} onComplete={finishTutorial} onExit={()=>{setTutorial2Preview(false);setRun(returnToMenu());}}/>;
  if(run.screen==='opening')return <main className="app opening-shell"><Opening onStart={()=>update(finishOpening)}/></main>;
  if(practicing)return <Practice Combat={Combat} onExit={()=>setPracticing(false)}/>;
@@ -87,7 +83,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
   :run.screen==='camp'?{label:'Continue',disabled:!run.campUsed,action:()=>update(leaveNode)}
   :run.screen==='rewards'&&reward?{label:'Continue',disabled:!rewardsComplete(reward),action:()=>update(leaveNode)}:null;
 
- return <main className={`app run-app${bottleReturning?' bottle-returned':''}${confirmation?' has-confirmation':''}`}><header className="topbar"><span className="brand">☾ Wonderful Summit</span><div className="header-actions"><SettingsButton/><HelpButton/><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/></div></header>{stats}{run.screen==='map'&&<CombatRelics robesBonus={runRobesBonus(run)} relics={run.relics} variant="trail" broken={run.shaleContacts>=3?['impossibleShale']:[]}/>}<div key={`${run.screen}-${run.node}`} ref={contentRef} className={`run-content${run.screen==='event'?' event-content':''}`}>
+ return <main className={`app run-app${bottleReturning?' bottle-returned':''}${confirmation?' has-confirmation':''}`}><header className="topbar">{run.screen!=='map'?<MapButton run={run}/>:<span aria-hidden="true"/>}<div className="header-actions"><SettingsButton/><HelpButton/><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/></div></header>{stats}{run.screen==='map'&&<CombatRelics robesBonus={runRobesBonus(run)} relics={run.relics} variant="trail" broken={run.shaleContacts>=3?['impossibleShale']:[]}/>}<div key={`${run.screen}-${run.node}`} ref={contentRef} className={`run-content${run.screen==='event'?' event-content':''}`}>
  {run.screen==='sister'&&<section className="run-panel"><figure className="sister-portrait"><figcaption className="sister-name">Theodora</figcaption><Sister/></figure><SisterDialogue potionIcon={<PotionIcon potion="theodoraHeal"/>}/><section className="starter-robe"><h2>Filadora's starter relic</h2><CombatRelics variant="trail" relics={['filadoraRobes']} robesBonus={runRobesBonus(run)}/></section><h2>Choose a keepsake:</h2><div className="choice-list">{run.keepsakeOffers.map(id=><button key={id} className={`${rarityClass(RELICS[id].rarity)}${selectedRelic===id?' selected':''}`} aria-label={`${RELICS[id].name}, ${RELICS[id].rarity}`} onClick={()=>setRelic(id)}><b><RelicIcon relic={id}/> {RELICS[id].name}</b><em className="rarity-label">{RELICS[id].rarity}</em><small>{RELICS[id].description}</small></button>)}</div></section>}
  {run.screen==='map'&&<section className="trail-panel"><h1>The Summit skirt</h1><div className="trail">{ROUTE.map((node,i)=><button key={i} disabled={i!==run.node&&!run.developerTrailUnlocked} className={`trail-node${i===run.node?' current':''}${i<run.node?' complete':''}`} onClick={()=>update(r=>selectTrailNode(r,i))}><span className="trail-symbol">{i<run.node?'✓':<TrailSymbol symbol={node.icon}/>}</span><span><strong>{node.kind==='battle'&&node.encounter==='mother'&&run.bossEncounter==='goblinKing'?'Goblin King':node.name}</strong><small>{i<run.node?'Visited':i===run.node?'Continue':node.kind==='battle'?(isEliteNode(i)?'Elite encounter':'Encounter'):node.kind==='shop'?'Merchant':node.kind==='event'?'Event':'Rest or upgrade'}</small></span></button>)}</div></section>}
  {run.screen==='rewards'&&reward&&<section className="run-panel">

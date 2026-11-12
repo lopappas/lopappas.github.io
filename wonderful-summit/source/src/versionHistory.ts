@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.1',publishedAt:'2026-11-12T10:04:01Z',changes:['Added a read-only Map view throughout Play mode, pausing combat while it is open.','Removed Play-mode title text and the trail’s dashed line, and tightened combat header button spacing.']},
  {version:'0.2.0',publishedAt:'2026-11-12T09:53:44Z',changes:['The Goblin King now cries out for 2.5 seconds when his crown falls.','His uncrowned movement speed bonus is now 80%.','Welcome to version 0.2.00!']},
  {version:'0.1.99',publishedAt:'2026-11-12T09:00:07Z',changes:['Enlarged the Goblin King by 15%.','At half health his crown falls away, he moves 50% faster and loses his Faint, knockback and slowing resistances.']},
  {version:'0.1.98',publishedAt:'2026-11-11T21:00:09Z',changes:['Added the Goblin King as a 50/50 alternative to Slime Mother at encounter 12.','The crowned boss resists Faint damage, spell knockback and slowing, with 1000 health and 34-damage attacks.']},

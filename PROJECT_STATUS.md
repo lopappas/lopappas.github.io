@@ -13,7 +13,7 @@ Updated: 2026-11-12
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.2.00; package 0.2.0): Approved middle-version milestone. Goblin King's crown-loss speech reads My crown! You’ll pay for this! in a green box above him, with gold text/dark outline for contrast, disappearing after 2.5 combat seconds. His uncrowned movement bonus is now 80% (1.8x initial speed); other phase behavior stays unchanged. Header/version history display 0.2.00. Earlier boss, UI and balance changes remain.
+Latest update (version 0.2.01; package 0.2.1): Play-mode top bars omit the Wonderful Summit title and show a left Map button whenever off the trail, including bottle drawing. Map opens a read-only, scrollable trail overlay with current/visited nodes and the correct run-specific boss name. Opening it in combat uses the existing pause/cleanup and 3-second resume flow; combat state/canvas remain mounted. Dialog supports Escape, focus trapping/restoration and local current-node centering. Removed trail dashed connector; combat/practice header action gap is 3px with no horizontal button margins. Home/tutorial/practice titles remain. Previous boss/UI/balance changes remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: full 537-test suite passed for the gameplay/dialogue changes before the version bump; all 10 targeted release/King-phase tests pass after setting 0.2.0. TypeScript and production build pass. Actual SVG dialogue rendered and checked for placement and contrast. Browser gameplay remains unverified. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: all 24 targeted run/release tests pass; TypeScript and production build pass. Browser interaction/visual checks remain unverified. Source and matching build are included together; deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
