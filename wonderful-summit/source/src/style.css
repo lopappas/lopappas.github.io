@@ -368,7 +368,7 @@
 
 .spell-acquire-button.spell-acquired:disabled{opacity:1}
 
-.menu-tutorial-tap{background:none;border:0;color:inherit;font-size:13px;padding:10px}.topbar button{margin:0 1px;padding:6px 9px;border-width:2px}.topbar .settings-button,.topbar .icon-button{width:38px;height:36px;padding:6px}.topbar .header-actions{gap:9px}
+.menu-tutorial-tap{background:none;border:0;color:inherit;font-size:13px;padding:10px}.topbar button{margin:0;padding:6px 9px;border-width:2px}.topbar .settings-button,.topbar .icon-button{width:38px;height:36px;padding:6px}.topbar .header-actions{gap:3px}
 
 .menu-tutorial-first{overflow:visible}.menu-tutorial-first .menu-tutorial-tap{position:absolute;top:calc(100% + 8px);left:0;width:100%;margin:0;text-align:center;color:#fff}.menu-tutorial-popup .menu-ready-letters,.menu-ready-letters .grade-letter{margin-left:0}
 
@@ -395,6 +395,6 @@
 @keyframes spellCardJostle{0%,100%{transform:translateX(calc(var(--jostle)*-1)) rotate(-.1deg)}50%{transform:translateX(var(--jostle)) rotate(.1deg)}}
 @media(prefers-reduced-motion:reduce){.spell-acquire-holding{animation:none}.spell-hold-reminder .grade-letter{animation:none}}
 
-.journey-combat .topbar .header-actions,.practice-app .topbar .header-actions{gap:3px}.journey-combat .topbar button,.practice-app .topbar button{margin-inline:0}
+
 .map-button{height:36px;min-width:60px;border:1px solid #83916c;border-radius:7px;background:#344337;color:#dedfc8;padding:6px 9px;font-size:13px}
 .trail-map-backdrop{z-index:65}.trail-map-dialog{width:min(440px,100%);max-height:calc(100svh - 32px);overflow:auto;overscroll-behavior:contain;border:1px solid #83916c;border-radius:12px;background:#233b30;color:#eae7d8;padding:0 16px 18px;box-shadow:0 20px 70px #08181188}.trail-map-dialog>header{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;background:#233b30;padding:10px 0}.trail-map-dialog h2{margin:0;font-size:23px;font-weight:500}.trail-map-dialog>header button{width:auto;margin:0;min-height:36px;padding:6px 16px}.trail-map-dialog .trail-node{cursor:default}
