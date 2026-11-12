@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-11
+Updated: 2026-11-12
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,7 @@ Updated: 2026-11-11
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.1.98): Added Goblin King as a per-run 50/50 alternative to Slime Mother at trail node 12. Selection is stored on startRun and reused on entry/rebuild; legacy runs without a choice retain Mother. King is a 35% larger neutral goblin with gold crown, 1000 HP, constant rock-slime speed, normal goblin timing and exact 34-damage attacks. Faint spell direct/tick/burn damage and knockback are zero, but Faint status effects remain allowed. All spell knockback is halved at competent quality; slowing loses 20 percentage points, clamped at zero. Freeze/root durations stay normal. Boss gold remains 54 and the trail name reflects the selected boss. Previous UI/colors/upgrades remain.
+Latest update (version 0.1.99): Goblin King art is 15% larger than 0.1.98 (1.5525x elite scale). At <=500 HP he permanently enters an uncrowned phase: crown tumbles/fades away over 0.8 combat seconds, movement becomes 1.5x his initial rock-slime speed, and Faint damage immunity, half spell-knockback and flat 20-point slowing resistance end. Direct/tick/burn damage trigger the phase; existing Faint burns become damaging after resistance is lost. Attack damage/timing remain 34 and normal goblin timing. Labels/caret moved above the larger crown. Boss choice remains fixed 50/50 per run at node 12. Previous UI/colors/upgrades remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 531 tests pass; TypeScript and production build pass. Six new tests cover exact boss-selection split and persistence, neutral stats/speed, Faint direct/tick immunity and statuses, half knockback, flat slowing resistance, freeze potions, 34-damage attacks and boss rewards. Actual SVG scene rendered and inspected for King size, crown and labels; browser interactions remain unverified. Source and matching build are included together; deployment has not yet been verified.
+Validation for this update: all 536 tests pass; TypeScript and production build pass. New tests cover exact 500 HP threshold, permanent phase state, post-phase Faint/direct/tick/burn damage, full knockback/slow effects, 50% speed increase and one-time crown fall. Actual SVG scenes rendered and inspected before/during/after the fall; browser interactions remain unverified. Source and matching build are included together; deployment has not yet been verified.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
