@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.30',publishedAt:'2026-11-12T23:46:26Z',changes:['Split the trail into two acts, showing only the current act in the trail and Map.','The Summit Skirt ends at the first boss; The Summit Saddle begins at the following encounter with a dark blue trail theme.']},
  {version:'0.2.20',publishedAt:'2026-11-12T23:34:46Z',changes:['Added Fire Friend, an uncommon relic that increases burn damage by 50%.','Restored the combat Spellbook button beside the ink controls while keeping the new order elsewhere in Play mode.']},
  {version:'0.2.10',publishedAt:'2026-11-12T23:19:49Z',changes:['Added Snaily, an uncommon relic that strengthens spell slows by 5 percentage points.','Play-mode top bars now place Spellbook before Settings and Help.','Made the Goblin King’s dialogue text a richer gold.']},
  {version:'0.2.3',publishedAt:'2026-11-12T16:45:08Z',changes:['Removed the large symbols from the win and lose screens and the purple resume-countdown overlay.','The Goblin King stands still during his three-second crown-loss dialogue.']},

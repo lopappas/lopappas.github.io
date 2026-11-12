@@ -398,3 +398,16 @@
 
 .map-button{height:36px;min-width:60px;border:1px solid #83916c;border-radius:7px;background:#344337;color:#dedfc8;padding:6px 9px;font-size:13px}
 .trail-map-backdrop{z-index:65}.trail-map-dialog{width:min(440px,100%);max-height:calc(100svh - 32px);overflow:auto;overscroll-behavior:contain;border:1px solid #83916c;border-radius:12px;background:#233b30;color:#eae7d8;padding:0 16px 18px;box-shadow:0 20px 70px #08181188}.trail-map-dialog>header{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;background:#233b30;padding:10px 0}.trail-map-dialog h2{margin:0;font-size:23px;font-weight:500}.trail-map-dialog>header button{width:auto;margin:0;min-height:36px;padding:6px 16px}.trail-map-dialog .trail-node{cursor:default}
+
+/* Act 2 retains the same trail geometry with a cooler saddle palette. */
+.run-app.trail-act-2{background:radial-gradient(ellipse at top,#38516b,#1b2d40 80%)}
+.run-app.trail-act-2 .topbar{background:#182938}
+.run-app.trail-act-2 .run-stats,.run-app.trail-act-2>.trail-relics{background:#253c50;border-color:#5c748e;color:#d5e2ee}
+.run-app.trail-act-2 .run-content{scrollbar-color:#718da8 transparent}
+.trail-act-2 .trail-panel h1,.trail-panel.trail-act-2 h1{color:#e0e7ef}
+.trail-act-2 .trail-node{background:#293f56;border-color:#5d7894;color:#d6e1ed;box-shadow:0 4px 12px #12223522}
+.trail-act-2 .trail-node.current{background:#3a536e;border-color:#b6ccdf;box-shadow:0 0 17px #8db7da26}
+.trail-act-2 .trail-symbol{color:#b7d1e8}
+.trail-act-2 .trail-node small{color:#b4c8dc}
+.trail-map-dialog.trail-act-2{background:#20354a;border-color:#66829c;color:#dce6ef}
+.trail-map-dialog.trail-act-2>header{background:#20354a}

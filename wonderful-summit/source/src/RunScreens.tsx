@@ -1,4 +1,5 @@
-import {MapButton,TrailSymbol} from './TrailMap';
+import {trailAct} from './trailActs';
+import {MapButton,ActTrail} from './TrailMap';
 import {notifyPotionsFull} from './PotionFullNotice';
 import {SpellAcquireButton} from './SpellAcquireButton';
 import {HelpButton} from './HelpDialog';
@@ -18,7 +19,7 @@ import {BestDrawing} from './BestDrawing';
 import React,{useEffect,useLayoutEffect,useRef,useState,type ComponentType} from 'react';
 import {SPELLS,isCheckmark,type Spell,type Point} from './magic';
 import {potionName,POTIONS,type Battle,type Potion} from './battle';
-import {runDamageBonus,chooseShopSpell,skipShopSpell,skipRewardSpell,markSpellsReviewed,runRobesBonus,selectTrailNode,unlockDeveloperTrail,castTrailEvent,isEliteNode,sealBottle,merchantDialogue,newRun,finishOpening,selectMode,returnToMenu,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,discardPotion,drinkTrailHealing,camp,potionCount,potionCapacity,RELICS,ROUTE,type Run,type RelicId,type Stock} from './run';
+import {runDamageBonus,chooseShopSpell,skipShopSpell,skipRewardSpell,markSpellsReviewed,runRobesBonus,selectTrailNode,unlockDeveloperTrail,castTrailEvent,sealBottle,merchantDialogue,newRun,finishOpening,selectMode,returnToMenu,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,discardPotion,drinkTrailHealing,camp,potionCount,potionCapacity,RELICS,ROUTE,type Run,type RelicId,type Stock} from './run';
 import {unlockSpellAudio,installSpellAudio,playSpellSound,playUISound,type UISound} from './sound';
 import {TravelSpellbook} from './Spellbook';
 import {LessonText} from './LessonText';
@@ -83,9 +84,9 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
   :run.screen==='camp'?{label:'Continue',disabled:!run.campUsed,action:()=>update(leaveNode)}
   :run.screen==='rewards'&&reward?{label:'Continue',disabled:!rewardsComplete(reward),action:()=>update(leaveNode)}:null;
 
- return <main className={`app run-app${bottleReturning?' bottle-returned':''}${confirmation?' has-confirmation':''}`}><header className="topbar">{run.screen!=='map'?<MapButton run={run}/>:<span aria-hidden="true"/>}<div className="header-actions"><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/><SettingsButton/><HelpButton/></div></header>{stats}{run.screen==='map'&&<CombatRelics robesBonus={runRobesBonus(run)} relics={run.relics} variant="trail" broken={run.shaleContacts>=3?['impossibleShale']:[]}/>}<div key={`${run.screen}-${run.node}`} ref={contentRef} className={`run-content${run.screen==='event'?' event-content':''}`}>
+ return <main className={`app run-app${run.screen==='map'?` trail-act-${trailAct(run.node).number}`:''}${bottleReturning?' bottle-returned':''}${confirmation?' has-confirmation':''}`}><header className="topbar">{run.screen!=='map'?<MapButton run={run}/>:<span aria-hidden="true"/>}<div className="header-actions"><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/><SettingsButton/><HelpButton/></div></header>{stats}{run.screen==='map'&&<CombatRelics robesBonus={runRobesBonus(run)} relics={run.relics} variant="trail" broken={run.shaleContacts>=3?['impossibleShale']:[]}/>}<div key={`${run.screen}-${run.node}`} ref={contentRef} className={`run-content${run.screen==='event'?' event-content':''}`}>
  {run.screen==='sister'&&<section className="run-panel"><figure className="sister-portrait"><figcaption className="sister-name">Theodora</figcaption><Sister/></figure><SisterDialogue potionIcon={<PotionIcon potion="theodoraHeal"/>}/><section className="starter-robe"><h2>Filadora's starter relic</h2><CombatRelics variant="trail" relics={['filadoraRobes']} robesBonus={runRobesBonus(run)}/></section><h2>Choose a keepsake:</h2><div className="choice-list">{run.keepsakeOffers.map(id=><button key={id} className={`${rarityClass(RELICS[id].rarity)}${selectedRelic===id?' selected':''}`} aria-label={`${RELICS[id].name}, ${RELICS[id].rarity}`} onClick={()=>setRelic(id)}><b><RelicIcon relic={id}/> {RELICS[id].name}</b><em className="rarity-label">{RELICS[id].rarity}</em><small>{RELICS[id].description}</small></button>)}</div></section>}
- {run.screen==='map'&&<section className="trail-panel"><h1>The Summit skirt</h1><div className="trail">{ROUTE.map((node,i)=><button key={i} disabled={i!==run.node&&!run.developerTrailUnlocked} className={`trail-node${i===run.node?' current':''}${i<run.node?' complete':''}`} onClick={()=>update(r=>selectTrailNode(r,i))}><span className="trail-symbol">{i<run.node?'✓':<TrailSymbol symbol={node.icon}/>}</span><span><strong>{node.kind==='battle'&&node.encounter==='mother'&&run.bossEncounter==='goblinKing'?'Goblin King':node.name}</strong><small>{i<run.node?'Visited':i===run.node?'Continue':node.kind==='battle'?(isEliteNode(i)?'Elite encounter':'Encounter'):node.kind==='shop'?'Merchant':node.kind==='event'?'Event':'Rest or upgrade'}</small></span></button>)}</div></section>}
+ {run.screen==='map'&&<ActTrail run={run} onSelect={i=>update(r=>selectTrailNode(r,i))}/>}
  {run.screen==='rewards'&&reward&&<section className="run-panel">
   <h1>Clearing complete</h1>
   <div className="reward-pickups">
