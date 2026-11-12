@@ -1,5 +1,5 @@
 import {SPELLS,isUpgradableSpell} from './magic.ts';
-import {newBattle,stepBattle,bogSlow,type Battle} from './battle.ts';
+import {newBattle,stepBattle,spellSlow,type Battle} from './battle.ts';
 import {newRun,type Run} from './run.ts';
 
 export const SCARECROW_HEALTH=1_000_000;
@@ -26,7 +26,7 @@ export function practiceEffects(battle:Battle){
  const e=battle.enemies[0],now=battle.time,out:string[]=[];
  if(e.potionCurseTick!=null)out.push('Cursed · 3 damage / second');
  if(e.burn)out.push(`Burning · ${e.burn.ticks} ticks`);
- const slow=Math.max(bogSlow(battle,e,now),now<e.chronosSlowUntil?.55:0,...e.leafSlows.filter(s=>s.until>now).map(s=>s.amount));
+ const slow=spellSlow(battle,e,now);
  if(slow>0)out.push(`Slowed ${Math.round(slow*100)}%`);
  if(e.stunUntil>now)out.push(`Time stopped ${(e.stunUntil-now).toFixed(1)}s`);
  if(e.rootUntil>now)out.push(`Rooted ${(e.rootUntil-now).toFixed(1)}s`);

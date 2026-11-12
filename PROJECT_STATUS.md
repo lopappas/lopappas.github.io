@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-12
+Updated: 2026-11-13
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,7 @@ Updated: 2026-11-12
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.2.03; package 0.2.3): Removed the large ending-screen star/moon emblems and the translucent purple resume-countdown tint. Crown-loss dialogue lasts 3 combat seconds; the Goblin King holds position and action clocks while it is visible, including deferring knockback motion until the line ends. Incoming spell damage still works. Prior compact top bars, darker/lower dialogue and uncrowned health/caret positions remain.
+Latest update (version 0.2.10; package 0.2.10): Added Snaily, an Uncommon relic with description “Increases the slowing effects of spells”. It adds 5 percentage points to active spell slows, capped at 100% before boss resistance; overlapping slows get the bonus once, immunities remain respected, and freeze/root durations are unchanged. Included in standard merchant/elite/box pools, developer grants and Encyclopedia with snail icon. Play-mode top-right controls are Spellbook → Settings → Help, including combat (Spellbook moved from ink toolbar) and bottle capture. Tutorial/practice spellbook placement remains. Goblin King dialogue text now uses richer gold (#ffd700). Prior crown-loss standstill and three-second dialogue remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 54 targeted combat, Goblin King and release tests pass; TypeScript and production build pass. Added checks for movement/attack pause and deferred knockback during dialogue. Browser visual checks remain unverified. Source and matching build are included together; deployment status is checked once after the commit.
+Validation for this update: all 544 tests pass; TypeScript and production build pass. Snaily coverage includes collection paths, Bramble Leaf and Bog, upgrades, overlap/cap, expiry, immunities, boss resistance, movement and unchanged freeze/root durations. Relic-tier sample tests allow one midpoint rounding sample after the added uncommon item; drop weights are unchanged. Browser visual checks remain unverified. Source and matching build are included together; deployment status is checked once after the commit.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 

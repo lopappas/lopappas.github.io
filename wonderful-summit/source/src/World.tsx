@@ -115,7 +115,7 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 {kingDialogueVisible(e,battle.time)&&<g role="status" aria-label="Goblin King says: My crown! You’ll pay for this!" transform={`translate(${Math.max(134,Math.min(586,e.x))-e.x} -282)`} pointerEvents="none">
  <path d="M-8 73 0 87 8 73" fill="#354d29" stroke="#25381d" strokeWidth="2"/>
  <rect x="-128" y="0" width="256" height="76" rx="10" fill="#354d29" stroke="#e7c663" strokeWidth="2"/>
- <text textAnchor="middle" fontFamily="Fredoka" fontSize="21" fontWeight="500" fill="#ffdf79" stroke="#283519" strokeWidth="1.4" paintOrder="stroke" aria-hidden="true"><tspan x="0" y="30">My crown!</tspan><tspan x="0" y="58">You’ll pay for this!</tspan></text>
+ <text textAnchor="middle" fontFamily="Fredoka" fontSize="21" fontWeight="500" fill="#ffd700" stroke="#283519" strokeWidth="1.4" paintOrder="stroke" aria-hidden="true"><tspan x="0" y="30">My crown!</tspan><tspan x="0" y="58">You’ll pay for this!</tspan></text>
 </g>}
 </g></PaletteGroup>;})}
 {battle.motherSplit&&battle.time-battle.motherSplit.at<2.6&&(()=>{

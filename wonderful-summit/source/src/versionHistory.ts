@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.10',publishedAt:'2026-11-12T23:19:49Z',changes:['Added Snaily, an uncommon relic that strengthens spell slows by 5 percentage points.','Play-mode top bars now place Spellbook before Settings and Help.','Made the Goblin King’s dialogue text a richer gold.']},
  {version:'0.2.3',publishedAt:'2026-11-12T16:45:08Z',changes:['Removed the large symbols from the win and lose screens and the purple resume-countdown overlay.','The Goblin King stands still during his three-second crown-loss dialogue.']},
  {version:'0.2.2',publishedAt:'2026-11-12T15:54:12Z',changes:['Matched top-bar button spacing across every screen.','Darkened and lowered the Goblin King’s dialogue, and lowered his health display and target marker after crown loss.']},
  {version:'0.2.1',publishedAt:'2026-11-12T10:04:01Z',changes:['Added a read-only Map view throughout Play mode, pausing combat while it is open.','Removed Play-mode title text and the trail’s dashed line, and tightened combat header button spacing.']},
