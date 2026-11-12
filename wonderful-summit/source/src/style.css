@@ -343,8 +343,8 @@
 
 .opening-version{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));z-index:6;color:#eee7d1;font-size:11px;line-height:1.3;text-shadow:0 1px 4px #14251e;pointer-events:none}
 
-/* Cast ink dissolves in place while the parchment remains steady. */
-.launch .paper{animation:none}
+/* Dissolve first, then reuse the original page-flip motion at a brisk pace. */
+.launch .paper{animation:paperFly var(--cast-page-flip-ms,140ms) ease-in var(--cast-dissolve-ms,210ms) forwards}
 
 .menu-tutorial-overlay{position:fixed;inset:0;z-index:10040;isolation:isolate}
 .menu-tutorial-spotlight{position:fixed;border:3px solid #ffdf65;border-radius:9px;box-shadow:0 0 0 100vmax #081811a6,0 0 20px #ffe990;pointer-events:none}
@@ -411,3 +411,7 @@
 .trail-act-2 .trail-node small{color:#b4c8dc}
 .trail-map-dialog.trail-act-2{background:#20354a;border-color:#66829c;color:#dce6ef}
 .trail-map-dialog.trail-act-2>header{background:#20354a}
+
+.trail-panel .trail-node.act-destination{opacity:1;border:2px solid #ffd663;box-shadow:0 0 8px #ffd663aa,0 0 24px #e6af404d;animation:actDestinationGlow .65s ease-in-out infinite alternate}
+@keyframes actDestinationGlow{to{border-color:#ffe8a0;box-shadow:0 0 13px #ffd663cc,0 0 32px #e6af4066}}
+@media(prefers-reduced-motion:reduce){.launch .paper{opacity:1;animation:none!important}.trail-panel .trail-node.act-destination{animation:none}}

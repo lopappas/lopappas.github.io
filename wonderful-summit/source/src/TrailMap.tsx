@@ -9,11 +9,11 @@ export function TrailSymbol({symbol}:{symbol:string}){
 }
 
 // Shared layout keeps the trail and read-only Map view in the same act.
-export function ActTrail({run,onSelect}:{run:Run;onSelect?:(index:number)=>void}){
+export function ActTrail({run,onSelect,highlightFinal=false}:{run:Run;onSelect?:(index:number)=>void;highlightFinal?:boolean}){
  const act=trailAct(run.node);
  return <section className={`trail-panel trail-act-${act.number}`} aria-label={`Act ${act.number}: ${act.title}`}><h1>{act.title}</h1><div className="trail" role={onSelect?undefined:'list'}>{actEncounters(run.node).map(({encounter:node,index:i})=>{
   const name=node.kind==='battle'&&node.encounter==='mother'&&run.bossEncounter==='goblinKing'?'Goblin King':node.name;
-  const className=`trail-node${i===run.node?' current':''}${i<run.node?' complete':''}`;
+  const className=`trail-node${highlightFinal&&i===act.end?' act-destination':''}${i===run.node?' current':''}${i<run.node?' complete':''}`;
   const content=<><span className="trail-symbol" aria-hidden="true">{i<run.node?'✓':<TrailSymbol symbol={node.icon}/>}</span><span><strong>{name}</strong><small>{i<run.node?'Visited':i===run.node?(onSelect?'Continue':'You are here'):node.kind==='battle'?(isEliteNode(i)?'Elite encounter':'Encounter'):node.kind==='shop'?'Merchant':node.kind==='event'?'Event':'Rest or upgrade'}</small></span></>;
   return onSelect?<button key={i} aria-current={i===run.node?'step':undefined} disabled={i!==run.node&&!run.developerTrailUnlocked} className={className} onClick={()=>onSelect(i)}>{content}</button>:<div key={i} role="listitem" aria-current={i===run.node?'step':undefined} className={className}>{content}</div>;
  })}</div></section>;

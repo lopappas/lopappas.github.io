@@ -1,3 +1,4 @@
+import {actIntroFrame} from './actIntro';
 import {trailAct} from './trailActs';
 import {MapButton,ActTrail} from './TrailMap';
 import {notifyPotionsFull} from './PotionFullNotice';
@@ -53,21 +54,42 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  const [discoveries,setDiscoveries]=useState<Discoveries>({});
  const [run,setRun]=useState<Run>(()=>newRun()),[relic,setRelic]=useState<RelicId>('amber'),[replacingPotion,setReplacingPotion]=useState(false),[bottleReturning,setBottleReturning]=useState(false);
  useDeveloperTarget(command=>{const next=applyDeveloperCommand(run,command);setRun(next);if(next===run&&command.type==='potion')return 'Purse is full.';if(next===run&&command.type==='travel')return 'Return to the trail and finish any bottle first.';},0,{canTravel:run.screen==='map'&&!run.pendingBottle,onOpen:()=>setRun(unlockDeveloperTrail)});
- const contentRef=useRef<HTMLDivElement>(null);
+ const contentRef=useRef<HTMLDivElement>(null),introducedActs=useRef(new Set<number>());
+ const [introAct,setIntroAct]=useState<number|null>(null);
  const update=(fn:(r:Run)=>Run,sound?:UISound)=>{const next=fn(run);if(next===run)return;setRun(next);if(run.screen!=='battle'&&run.relics.includes('perfectedSphere')&&!next.relics.includes('perfectedSphere'))playUISound('shatter');else if(sound)playUISound(sound);};
  useEffect(()=>{if(!bottleReturning)return;const timer=setTimeout(()=>setBottleReturning(false),350);return()=>clearTimeout(timer);},[bottleReturning]);
  useEffect(()=>installSpellAudio(),[]);
  useEffect(()=>setDiscoveries(previous=>recordDiscoveries(previous,run)),[run.spells,run.relics,run.potions]);
  useEffect(()=>setReplacingPotion(false),[run.screen,run.node]);
  useLayoutEffect(()=>{
-  const content=contentRef.current;if(!content)return;
-  // Only this screen owns scrolling. Never let centering move the document on iOS.
+  if(['opening','menu','sister'].includes(run.screen))introducedActs.current.clear();
+  setIntroAct(null);
+  const content=contentRef.current;if(!content||run.screen!=='map'||run.pendingBottle)return;
+  const act=trailAct(run.node);
+  if(run.node===act.start&&!introducedActs.current.has(act.number)){
+   introducedActs.current.add(act.number);content.scrollTop=0;setIntroAct(act.number);
+   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   let frame=0,started=performance.now(),cancelled=false;
+   const stop=()=>{cancelled=true;cancelAnimationFrame(frame);setIntroAct(null);};
+   const tick=(now:number)=>{
+    if(cancelled)return;
+    const state=actIntroFrame(now-started,content.scrollHeight-content.clientHeight,reduced);
+    content.scrollTop=state.scrollTop;
+    if(state.done){setIntroAct(null);return;}
+    frame=requestAnimationFrame(tick);
+   };
+   // Allow players to interrupt the introduction with normal trail navigation.
+   content.addEventListener('wheel',stop,{passive:true});content.addEventListener('pointerdown',stop);
+   content.addEventListener('keydown',stop);frame=requestAnimationFrame(tick);
+   return()=>{cancelled=true;cancelAnimationFrame(frame);content.removeEventListener('wheel',stop);content.removeEventListener('pointerdown',stop);content.removeEventListener('keydown',stop);};
+  }
+  // Return visits keep the existing current-node centering; only the trail scrolls.
   content.scrollTop=0;
   const center=()=>{const node=content.querySelector<HTMLElement>('.trail-node.current');if(!node)return;const area=content.getBoundingClientRect(),target=node.getBoundingClientRect();content.scrollTop=Math.max(0,Math.min(content.scrollHeight-content.clientHeight,content.scrollTop+target.top-area.top+(target.height-content.clientHeight)/2));};
-  if(run.screen!=='map')return;
   center();const frame=requestAnimationFrame(center);
   return()=>cancelAnimationFrame(frame);
- },[run.screen,run.node]);
+ },[run.screen,run.node,run.pendingBottle]);
+
  const finishTutorial=()=>{setTutorial2Preview(false);setRun(returnToMenu());setMenuTour(0);};
  const stats=<div className="run-stats"><span className="run-stat" aria-label={`Health: ${run.health} out of 100`}>♡ {run.health}/100</span><RunPotions onDrinkHealing={id=>update(r=>drinkTrailHealing(r,id),'bottle')} visibleSlots key={`${run.screen}-${run.node}`} run={run} onDrop={(id,bottleIndex)=>update(r=>discardPotion(r,id,bottleIndex))}/><span className="run-stat" aria-label={`Gold: ${run.gold}`}>◈ {run.gold}</span></div>;
  if(run.pendingBottle)return <BottleCapture journey={run} stats={stats} inkMultiplier={run.relics.includes('feather')?.8:1} known={run.spells} upgrades={run.upgrades} onSeal={spell=>{setBottleReturning(true);update(r=>sealBottle(r,spell));}}/>;
@@ -86,7 +108,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
 
  return <main className={`app run-app${run.screen==='map'?` trail-act-${trailAct(run.node).number}`:''}${bottleReturning?' bottle-returned':''}${confirmation?' has-confirmation':''}`}><header className="topbar">{run.screen!=='map'?<MapButton run={run}/>:<span aria-hidden="true"/>}<div className="header-actions"><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/><SettingsButton/><HelpButton/></div></header>{stats}{run.screen==='map'&&<CombatRelics robesBonus={runRobesBonus(run)} relics={run.relics} variant="trail" broken={run.shaleContacts>=3?['impossibleShale']:[]}/>}<div key={`${run.screen}-${run.node}`} ref={contentRef} className={`run-content${run.screen==='event'?' event-content':''}`}>
  {run.screen==='sister'&&<section className="run-panel"><figure className="sister-portrait"><figcaption className="sister-name">Theodora</figcaption><Sister/></figure><SisterDialogue potionIcon={<PotionIcon potion="theodoraHeal"/>}/><section className="starter-robe"><h2>Filadora's starter relic</h2><CombatRelics variant="trail" relics={['filadoraRobes']} robesBonus={runRobesBonus(run)}/></section><h2>Choose a keepsake:</h2><div className="choice-list">{run.keepsakeOffers.map(id=><button key={id} className={`${rarityClass(RELICS[id].rarity)}${selectedRelic===id?' selected':''}`} aria-label={`${RELICS[id].name}, ${RELICS[id].rarity}`} onClick={()=>setRelic(id)}><b><RelicIcon relic={id}/> {RELICS[id].name}</b><em className="rarity-label">{RELICS[id].rarity}</em><small>{RELICS[id].description}</small></button>)}</div></section>}
- {run.screen==='map'&&<ActTrail run={run} onSelect={i=>update(r=>selectTrailNode(r,i))}/>}
+ {run.screen==='map'&&<ActTrail run={run} highlightFinal={introAct===trailAct(run.node).number} onSelect={i=>update(r=>selectTrailNode(r,i))}/>}
  {run.screen==='rewards'&&reward&&<section className="run-panel">
   <h1>Clearing complete</h1>
   <div className="reward-pickups">

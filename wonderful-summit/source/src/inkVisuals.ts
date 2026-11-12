@@ -1,6 +1,8 @@
 import type {Strokes} from './magic.ts';
 
-export const INK_DISSOLVE_MS=350;
+export const INK_DISSOLVE_MS=210;
+export const CAST_PAGE_FLIP_MS=140;
+export const CAST_TRANSITION_MS=INK_DISSOLVE_MS+CAST_PAGE_FLIP_MS;
 export function inkRumble(progress:number,timeMs:number,reducedMotion=false){
  const amount=reducedMotion?0:Math.max(0,Math.min(1,(progress-.4)/.6));
  return {x:Math.sin(timeMs*.047)*amount,y:Math.sin(timeMs*.061+1.2)*amount*.75};
