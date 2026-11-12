@@ -1,4 +1,4 @@
-import {kingHasCrown,type KingState} from './goblinKing.ts';
+import {GOBLIN_KING_DIALOGUE_MS,kingHasCrown,type KingState} from './goblinKing.ts';
 import {damageUpgradeBonus} from './magic.ts';
 import {isNearSpell,nearDamage,nearKnockback,thistleStats,type NearSpell} from './nearSpells.ts';
 import {bogEffect,extendBog,type Bog} from './bog.ts';
@@ -340,12 +340,17 @@ export function stepBattle(state:Battle,delta:number):Battle{
   if(old.hp<=0){if(old.kind==='mother'&&old.push){const p=old.push,t=Math.max(0,Math.min(1,(time-p.started)/(p.ends-p.started)));return {...old,x:p.from+(p.to-p.from)*(1-(1-t)**3),push:t>=1?null:p};}return old;}
   if(old.spawnAt>time+1e-9)return old;
   if(old.kind==='mother'){const index=ELEMENTS.indexOf(old.initialElement as Element);old={...old,element:ELEMENTS[(index+Math.floor((time+1e-9)/15))%3]};}
-  // Only advance the portion of this frame after the opening pause / arrival.
-  const actionDelta=Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.readyAt,old.rootUntil,old.stunUntil,old.shield?.burnUntil??0));
+  // Only advance actions after arrival, status holds and crown-loss dialogue.
+  const actionDelta=Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.readyAt,old.goblinKing&&old.kingEnragedAt!==undefined?old.kingEnragedAt+GOBLIN_KING_DIALOGUE_MS/1000:0,old.rootUntil,old.stunUntil,old.shield?.burnUntil??0));
   const e={...old,leafSlows:old.leafSlows.filter(f=>f.until>time),shield:updateShield(old.shield,time),clock:old.clock+(frozen?0:actionDelta)};
   if(e.potionCurseTick!=null){while(e.potionCurseTick<=Math.min(time,e.potionCurseUntil)+1e-9&&e.hp>0){e.hp=Math.max(0,e.hp-3);e.hurtUntil=time+.15;e.potionCurseTick+=1;}if(time+1e-9>=e.potionCurseUntil)e.potionCurseTick=null;if(e.hp<=0){e.push=null;e.attackAt=null;return e;}}
   if(e.curseTick!==null){while(e.curseTick<=time+1e-9&&e.hp>0){e.hp=Math.max(0,e.hp-5);e.hurtUntil=time+.15;e.curseTick+=1;}if(e.hp<=0){e.push=null;e.attackAt=null;return e;}}
   if(e.burn){let burn={...e.burn};while(burn.ticks>0&&time+1e-9>=burn.nextTick){e.hp=Math.max(0,e.hp-kingDamageMultiplier(e,burn.quality??100)*Math.round((Math.round(burn.damage*burn.ticks)-Math.round(burn.damage*(burn.ticks-1)))*shieldProtection(old.shield,burn.nextTick)));e.hurtUntil=time+.15;burn.ticks--;burn.nextTick+=1;}e.burn=burn.ticks>0&&e.hp>0?burn:null;if(e.hp===0){e.push=null;e.attackAt=null;return e;}}
+  // Hold knockback in place too; its remaining motion resumes after the line.
+  const dialogueEnd=e.goblinKing&&e.kingEnragedAt!==undefined?e.kingEnragedAt+GOBLIN_KING_DIALOGUE_MS/1000:0;
+  const dialogueHold=Math.max(0,Math.min(time,dialogueEnd)-state.time);
+  if(e.push&&dialogueHold>0)e.push={...e.push,started:e.push.started+dialogueHold,ends:e.push.ends+dialogueHold};
+  if(time<dialogueEnd)return e;
   if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=p.from+(p.to-p.from)*(1-(1-t)**3);e.attackAt=null;if(t>=1)e.push=null;return e;}
   if(frozen||actionDelta<=1e-9)return e;
   const rush=eliteRush(e);const speed=e.goblinKing?SLIME_SPEED*.9*(kingHasCrown(e)?1:1.8):e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.kind==='spider'?2:e.rocky?.9:1);

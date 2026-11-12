@@ -13,7 +13,7 @@ Updated: 2026-11-12
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.2.02; package 0.2.2): Settings, help and spellbook controls now use the same 3px gap and zero button margins on every top bar. Goblin King crown-loss dialogue uses a darker green background and sits 24 SVG units lower. His name/health display, status label and target caret move down 48 SVG units when he loses his crown. Existing Map overlay, combat pause/resume, trail styling and boss balance remain unchanged.
+Latest update (version 0.2.03; package 0.2.3): Removed the large ending-screen star/moon emblems and the translucent purple resume-countdown tint. Crown-loss dialogue lasts 3 combat seconds; the Goblin King holds position and action clocks while it is visible, including deferring knockback motion until the line ends. Incoming spell damage still works. Prior compact top bars, darker/lower dialogue and uncrowned health/caret positions remain.
 
 Existing tutorial guide remains One Last Thing! → Practice → Encyclopedia → Tips & Tricks → Tutorial Complete. Home help and spell rewards at victories 1, 5 and 9 remain.
 
@@ -32,7 +32,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 16 targeted Goblin King and release tests pass; TypeScript and production build pass. Browser visual checks remain unverified. Source and matching build are included together; deployment status is checked once after the commit.
+Validation for this update: all 54 targeted combat, Goblin King and release tests pass; TypeScript and production build pass. Added checks for movement/attack pause and deferred knockback during dialogue. Browser visual checks remain unverified. Source and matching build are included together; deployment status is checked once after the commit.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
