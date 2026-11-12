@@ -28,7 +28,7 @@ test('gold rolls anew per encounter, is stored once in its reward, and cannot be
 });
 test('relic rarities exactly match the approved labeling and keepsakes stay exclusive to Theodora',()=>{
  assert.deepEqual(Object.fromEntries(Object.entries(RELICS).map(([id,r])=>[id,r.rarity])),{
-  snaily:'Uncommon',blackFlash:'Common',mindRune:'Common',ordinaryFern:'Common',bookWorm:'Common',hazardousVials:'Common',coinpurse:'Keepsake',untouchedBox:'Keepsake',perfectedSphere:'Rare',filadoraRobes:'Starter',forgivingCalculus:'Rare',blackStardust:'Rare',sevenLeafClover:'Uncommon',artisanRobes:'Rare',lotus:'Uncommon',colorfulRock:'Uncommon',impossibleShale:'Uncommon',midnightStone:'Common',amber:'Keepsake',moss:'Keepsake',feather:'Keepsake',bell:'Common',moon:'Common',sunAmulet:'Common',moonAmulet:'Common',twilightAmulet:'Common',twillyScarf:'Uncommon',birkinStock:'Uncommon'
+  fireFriend:'Uncommon',snaily:'Uncommon',blackFlash:'Common',mindRune:'Common',ordinaryFern:'Common',bookWorm:'Common',hazardousVials:'Common',coinpurse:'Keepsake',untouchedBox:'Keepsake',perfectedSphere:'Rare',filadoraRobes:'Starter',forgivingCalculus:'Rare',blackStardust:'Rare',sevenLeafClover:'Uncommon',artisanRobes:'Rare',lotus:'Uncommon',colorfulRock:'Uncommon',impossibleShale:'Uncommon',midnightStone:'Common',amber:'Keepsake',moss:'Keepsake',feather:'Keepsake',bell:'Common',moon:'Common',sunAmulet:'Common',moonAmulet:'Common',twilightAmulet:'Common',twillyScarf:'Uncommon',birkinStock:'Uncommon'
  });
  assert.deepEqual(Object.entries(RELICS).filter(([,r])=>r.rarity==='Keepsake').map(([id])=>id).sort(),[...STARTER_RELICS].sort());
 });
@@ -59,7 +59,7 @@ test('both merchants use 90/10 uncommon/legendary spell odds and 50/33/17 relic 
   }
   assert.deepEqual(spells,{Uncommon:900,Legendary:100});
   // Interleaved item intervals can shift one midpoint sample at a tier boundary.
-  assert.equal(relics.Common,500);assert.ok(Math.abs(relics.Uncommon-330)<=1);assert.ok(Math.abs(relics.Rare-170)<=1);
+  assert.ok(Math.abs(relics.Common-500)<=1);assert.ok(Math.abs(relics.Uncommon-330)<=1);assert.ok(Math.abs(relics.Rare-170)<=1);
  }
 });
 test('spell rewards and both elite drops use the same tier odds as merchant offerings',()=>{
@@ -80,7 +80,7 @@ test('spell rewards and both elite drops use the same tier odds as merchant offe
    relics[RELICS[reward.relic!].rarity as keyof typeof relics]++;
   }
   // Interleaved item intervals can shift one midpoint sample at a tier boundary.
-  assert.equal(relics.Common,500);assert.ok(Math.abs(relics.Uncommon-330)<=1);assert.ok(Math.abs(relics.Rare-170)<=1);
+  assert.ok(Math.abs(relics.Common-500)<=1);assert.ok(Math.abs(relics.Uncommon-330)<=1);assert.ok(Math.abs(relics.Rare-170)<=1);
  }
 });
 test('exhausted tiers redistribute their odds without blocking remaining spells or relics',()=>{
