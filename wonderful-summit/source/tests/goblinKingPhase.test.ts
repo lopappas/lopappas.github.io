@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GOBLIN_KING_SCALE,kingHasCrown,kingCrownFrame} from '../src/goblinKing.ts';
+import {GOBLIN_KING_SCALE,kingHasCrown,kingCrownFrame,kingDialogueVisible} from '../src/goblinKing.ts';
 import {newBattle,hitWithSpell,stepBattle,launchSpell,spellDamage,firestormTickDamage,bogTickDamage,resistedSlow,type Battle} from '../src/battle.ts';
 function field(hp=1000){const b=newBattle('active','goblinKing',()=>0);b.approachAt=1000;b.enemies[0].x=350;b.enemies[0].hp=hp;return b;}
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
@@ -23,10 +23,10 @@ test('uncrowned King takes Faint damage and full knockback and loses flat slow r
  const normalHit=hitWithSpell(normal,59,'water');assert.equal(kingHit.enemies[0].push!.to,normalHit.enemies[0].push!.to);
  const burn=advance(hitWithSpell(b,59,'bolt'),2);assert.ok(burn.enemies[0].hp<b.enemies[0].hp-spellDamage(e,59,'bolt'));
 });
-test('uncrowned movement is fifty percent faster while damage and attack timing remain unchanged',()=>{
+test('uncrowned movement is eighty percent faster while damage and attack timing remain unchanged',()=>{
  const before=field(501),after=field(500);before.approachAt=after.approachAt=0;before.enemies[0].x=after.enemies[0].x=600;
  const a=advance(before,.5),b=advance(after,.5);
- assert.ok(Math.abs((600-b.enemies[0].x)/(600-a.enemies[0].x)-1.5)<1e-8);
+ assert.ok(Math.abs((600-b.enemies[0].x)/(600-a.enemies[0].x)-1.8)<1e-8);
 });
 test('tick damage triggers the phase and crown falls once in combat time',()=>{
  for(const spell of ['firestorm','bog','thistleBush','bolt'] as const){
@@ -42,4 +42,12 @@ test('tick damage triggers the phase and crown falls once in combat time',()=>{
 test('an existing Faint burn starts damaging the King after he loses his resistance',()=>{
  let b=hitWithSpell(field(501),59,'bolt');b=advance(b,.5);assert.equal(b.enemies[0].hp,501);
  b=hitWithSpell(b,60,'water');const hp=b.enemies[0].hp;assert.ok(hp<500);b=advance(b,.6);assert.ok(b.enemies[0].hp<hp);
+});
+
+test('crown-loss dialogue appears once for 2.5 combat seconds and never reappears',()=>{
+ const before=field().enemies[0];assert.equal(kingDialogueVisible(before,100),false);
+ const e={...before,hp:500,kingEnragedAt:10};
+ assert.equal(kingDialogueVisible(e,9.99),false);assert.equal(kingDialogueVisible(e,10),true);
+ assert.equal(kingDialogueVisible(e,12.499),true);assert.equal(kingDialogueVisible(e,12.5),false);
+ assert.equal(kingDialogueVisible(e,20),false);assert.equal(kingDialogueVisible({...e,hp:1000},20),false);
 });

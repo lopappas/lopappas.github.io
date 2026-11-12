@@ -348,7 +348,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
   if(e.burn){let burn={...e.burn};while(burn.ticks>0&&time+1e-9>=burn.nextTick){e.hp=Math.max(0,e.hp-kingDamageMultiplier(e,burn.quality??100)*Math.round((Math.round(burn.damage*burn.ticks)-Math.round(burn.damage*(burn.ticks-1)))*shieldProtection(old.shield,burn.nextTick)));e.hurtUntil=time+.15;burn.ticks--;burn.nextTick+=1;}e.burn=burn.ticks>0&&e.hp>0?burn:null;if(e.hp===0){e.push=null;e.attackAt=null;return e;}}
   if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=p.from+(p.to-p.from)*(1-(1-t)**3);e.attackAt=null;if(t>=1)e.push=null;return e;}
   if(frozen||actionDelta<=1e-9)return e;
-  const rush=eliteRush(e);const speed=e.goblinKing?SLIME_SPEED*.9*(kingHasCrown(e)?1:1.5):e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.kind==='spider'?2:e.rocky?.9:1);
+  const rush=eliteRush(e);const speed=e.goblinKing?SLIME_SPEED*.9*(kingHasCrown(e)?1:1.8):e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.kind==='spider'?2:e.rocky?.9:1);
   e.x=Math.max(CONTACT_X,e.x-speed*groupSpeed*state.difficulty*(1-resistedSlow(e,Math.max(bogSlow(next,e,state.time),state.time<e.chronosSlowUntil?.55:0,...old.leafSlows.filter(f=>f.until>state.time).map(f=>f.amount),state.time<e.slowUntil&&old.leafSlows.length===0?.55:0)))*actionDelta);
   if(e.x>CONTACT_X)e.attackAt=null;
   else if(e.attackAt===null){if(e.clock>=e.nextAttackAt)e.attackAt=e.clock+(e.kind==='goblin'?.65:ATTACK_WINDUP);}

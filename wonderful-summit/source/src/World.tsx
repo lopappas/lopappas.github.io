@@ -1,4 +1,4 @@
-import {GOBLIN_KING_SCALE,kingCrownFrame} from './goblinKing';
+import {GOBLIN_KING_SCALE,kingCrownFrame,kingDialogueVisible} from './goblinKing';
 import {SpiderArt} from './SpiderArt';
 import {NearSpellArt} from './NearSpellArt';
 import {playUISound} from './sound';
@@ -112,6 +112,11 @@ return <div className={`world${timeVisual.environment||presentEnemies(battle).so
 </>}
 {e.attackAt!==null&&<text x="45" y="-27" fill="#f4aa80" fontSize="30">!</text>}
 {status&&<text x="0" y={e.goblinKing?-195:e.kind==='mother'?-145:-97} textAnchor="middle" fill="#ece2b7" fontSize="18">{status}</text>}
+{kingDialogueVisible(e,battle.time)&&<g role="status" aria-label="Goblin King says: My crown! You’ll pay for this!" transform={`translate(${Math.max(134,Math.min(586,e.x))-e.x} -306)`} pointerEvents="none">
+ <path d="M-8 73 0 87 8 73" fill="#91ac65" stroke="#34482a" strokeWidth="2"/>
+ <rect x="-128" y="0" width="256" height="76" rx="10" fill="#91ac65" stroke="#e7c663" strokeWidth="2"/>
+ <text textAnchor="middle" fontFamily="Fredoka" fontSize="21" fontWeight="500" fill="#ffdf79" stroke="#283519" strokeWidth="1.4" paintOrder="stroke" aria-hidden="true"><tspan x="0" y="30">My crown!</tspan><tspan x="0" y="58">You’ll pay for this!</tspan></text>
+</g>}
 </g></PaletteGroup>;})}
 {battle.motherSplit&&battle.time-battle.motherSplit.at<2.6&&(()=>{
  const split=battle.motherSplit,age=battle.time-split.at,c=split.element==='Fire'?'#ef9c70':split.element==='Water'?'#7ccbd6':'#99bf76';

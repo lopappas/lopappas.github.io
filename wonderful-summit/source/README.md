@@ -17,7 +17,7 @@ The static build is written to `dist-pages/`. Copy its contents into the parent 
 
 ## Game versions and history
 
-The home page displays `version 0.1.40` below its header. `package.json` is the version source; display labels pad the last segment to two digits (0.1.03). Package files retain numeric segments so npm remains compatible.
+The home page displays `version 0.2.00` below its header. `package.json` is the version source; display labels pad the last segment to two digits (0.1.03). Package files retain numeric segments so npm remains compatible.
 
 Small changes increase the last segment by one: 0.1.40 → 0.1.41. Bigger changes (a new encounter, spell or feature) advance to the next ten: 0.1.40 or 0.1.44 → 0.1.50. Only change the middle segment when the user explicitly requests it. Do not automatically roll over after 99; ask the user for the next middle number.
 

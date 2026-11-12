@@ -9,11 +9,13 @@ import {VERSION_HISTORY} from '../src/versionHistory.ts';
 
 test('release labels always show two release digits, including earlier versions',()=>{
  assert.equal(formatGameVersion('0.1.0'),'0.1.00');
+ assert.equal(formatGameVersion('0.2.0'),'0.2.00');
  assert.equal(formatGameVersion('0.1.3'),'0.1.03');
  assert.equal(formatGameVersion('0.1.40'),'0.1.40');
 });
 test('small releases increment by one; features move to the next ten without changing the middle number',()=>{
  assert.equal(nextGameVersion('0.1.40','small'),'0.1.41');
+ assert.equal(nextGameVersion('0.2.0','small'),'0.2.1');
  assert.equal(nextGameVersion('0.1.40','feature'),'0.1.50');
  assert.equal(nextGameVersion('0.1.44','feature'),'0.1.50');
  assert.equal(nextGameVersion('0.1.49','small'),'0.1.50');
