@@ -93,4 +93,4 @@ Uncommon Water spell with the approved two-stroke blowhole glyph: two mirrored a
 Cooldown: 10 seconds. Recasting replaces the current Torrent. Its damage upgrade adds the normal 25%; cast bonuses are snapshotted, and each landing may trigger one Black Flash shared by its victims. No targeting projectile or status slow/burn is applied. Spell bottles, practice, encyclopedia, rewards, shops and developer grants use the same definition.
 
 ## Performance review
-Performance milestone 1 adds an optional Developer-panel monitor and stops idle combat/practice/dialogue animation loops. See [the performance guide](docs/performance.md) for capture steps, metric limits, local baseline and remaining milestones.
+Performance milestones 1–2 add an optional Developer-panel monitor, stop idle combat/practice/dialogue animation loops, separate live battlefield subscriptions from displayed controls, and memoize the original scenery. Reports distinguish control and battlefield commits. See [the performance guide](docs/performance.md) for capture steps, metric limits, local baseline and remaining milestones.

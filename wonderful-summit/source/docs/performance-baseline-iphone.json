@@ -1,0 +1,21 @@
+{
+  "version": "0.2.60",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7.5 Mobile/15E148 Safari/604.1",
+  "pixelRatio": 3,
+  "viewport": {
+    "width": 430,
+    "height": 739
+  },
+  "metrics": {
+    "enabled": true,
+    "frames": 3398,
+    "activeSeconds": 56.78,
+    "windowFrames": 600,
+    "updatesPerSecond": 59.87426404550444,
+    "p95IntervalMs": 17,
+    "maxIntervalMs": 36,
+    "meanStepMs": 0.04833333333330908,
+    "commits": 3468,
+    "commitsPerActiveSecond": 61.07784431137725
+  }
+}

@@ -17,7 +17,7 @@ The small overlay refreshes once per second and offers Reset, Copy report and St
 - Total active seconds and update/commit counters describe the full capture. Paused and hidden time is excluded from update intervals.
 - No thermal, battery-drain, or heap measurement is claimed.
 
-A physical iPhone baseline is still outstanding. Browser/phone verification could not be performed because the managed preview relay is unavailable. The metrics and report controls have been built, but their actual Safari presentation and clipboard access need device verification.
+The user supplied an ordinary-combat iPhone baseline from 0.2.60; see performance-baseline-iphone.json. It captured 56.78 active seconds, 59.874 updates/s, 17 ms p95 interval, 36 ms max interval, 0.04833 ms simulation/update and 61.078 Combat commits/s. The device reports DPR 3 and viewport 430 × 739. Device temperature and power consumption were not measured. Browser/phone verification could not be performed because the managed preview relay is unavailable. The metrics and report controls have been built, but their actual Safari presentation and clipboard access need device verification.
 
 ### Local baseline before the scheduler change
 
@@ -31,4 +31,14 @@ Fake-clock tests verify one pending callback at most, no callback while inactive
 
 ### Next comparison
 
-Before milestone 2, collect an ordinary-combat iPhone report from this version. Compare update gaps and simulation/commit counts after milestone 2, together with the user's heat observations. A changed synthetic Node number alone is not proof of lower power consumption.
+After milestone 2, repeat the ordinary-combat iPhone capture and compare it with performance-baseline-iphone.json. Compare update gaps and simulation/commit counts after milestone 2, together with the user's heat observations. A changed synthetic Node number alone is not proof of lower power consumption.
+
+## Milestone 2 — version 0.2.70
+
+Combat retains a live authoritative battle ref for input and simulation, plus a BattlePresentation store. AnimatedWorld subscribes directly to every live snapshot. Combat/control state is published only when its displayed values change, including health, potion/bottle availability, relic states, message expiry, practice status labels and the next displayed cooldown/effect tenth. Selection never throttles simulation, drawing or enemy motion. Controls do not retain stale action state: actions still read battleRef.current.
+
+StaticScenery is a memoized component containing the original SVG definitions and scenery unchanged. It recomputes only when its Chronos grayscale amount changes. This caches React construction/reconciliation work; it does not claim to rasterize the scenery or stop its existing CSS fireflies.
+
+The original commits/commitsPerActiveSecond report fields still count the Combat component, now representing control-level commits. New worldCommits/worldCommitsPerActiveSecond fields count AnimatedWorld independently. Compare control commits with the 61.078/s baseline while confirming that battlefield commits and updates/s remain near the device’s normal cadence. They are commit counts, not React CPU timings or GPU frame counters.
+
+Automated presentation tests confirm 600 live movement publications with zero control invalidations in the first ten seconds of a seeded ordinary encounter, plus immediate health/terminal updates, tenth-second cooldown boundaries, potion and relic reactivity, transient expiry and practice statuses. The baseline is not a promised heat reduction; physical iPhone measurements on 0.2.70 remain required. Browser QA is blocked by the unavailable preview relay.
