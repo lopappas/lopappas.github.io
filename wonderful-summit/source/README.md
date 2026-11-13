@@ -86,3 +86,8 @@ Existing review links remain supported and start fresh sessions:
 - Final test: append `&milestone=5`
 
 Milestone 6's full-sequence coverage and user-confirmed browser/device verification are recorded in `docs/tutorial2-verification.md`. Milestone 7 removes the retired implementation while preserving the verified Tutorial 2.0 sequence.
+
+## Torrent
+Uncommon Water spell with the original three-stroke blowhole glyph: one tall vertical jet and two lower mirrored arcs sharing its bottom. Drops one large orb per second at random x positions from CONTACT_X to ENEMY_BACK_X and at one of the encounter’s walkable enemy lanes, including future arrivals. Each landing splashes an elliptical area (65 × 35 world-unit radii), applying Steady (60%) Dewdrop base damage and knockback to each present foe caught within it. Element, shields, rocky defense and the Goblin King’s crown still apply; actual drawing quality controls defenses and a 5/8/11/14-second Faint/Steady/Beautiful/Wonderful duration. Each orb falls for 650 ms; the last splash fades for 400 ms after the final impact.
+
+Cooldown: 10 seconds. Recasting replaces the current Torrent. Its damage upgrade adds the normal 25%; cast bonuses are snapshotted, and each landing may trigger one Black Flash shared by its victims. No targeting projectile or status slow/burn is applied. Spell bottles, practice, encyclopedia, rewards, shops and developer grants use the same definition.

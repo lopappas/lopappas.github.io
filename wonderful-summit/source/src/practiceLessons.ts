@@ -6,6 +6,7 @@ function startAt(path:Point[],x:number,y:number){
  const rotated=[...points.slice(index),...points.slice(0,index)];return [...rotated,{...rotated[0]}];
 }
 export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
+ torrent:'Draw the tall central jet upward from the bottom. Return to the bottom and draw the left arc outward, then repeat on the right.',
  water:'Start at the tip and draw the droplet counterclockwise.',fire:'Start at the top and draw the triangle counterclockwise.',nature:'Draw the sprouts from left to right, then draw the stem down.',
  wave:'Start at the tip of the water droplet and draw counterclockwise. Once the droplet is finished, start from the left of the caret and draw it from left to right.',
  bolt:'Draw it from the top to bottom.',leaf:'Draw it from the left-most corner, and go clockwise.',chronos:'From the top of the circle, draw counter-clockwise. When the circle is completed, draw down.',

@@ -8,7 +8,7 @@ export const UI_SOUND_VOLUME:Record<UISound,number>={blackFlash:.62,robes:.3,sha
 type SoundKind=CastSound|UISound;
 export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):CastSound{
  if(!spell)return 'fizzle';
- return ({thistleBush:'rustle',firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
+ return ({torrent:'aquaspout',thistleBush:'rustle',firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
 }
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}

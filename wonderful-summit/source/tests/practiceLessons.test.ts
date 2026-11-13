@@ -5,9 +5,9 @@ import {elementTrace} from '../src/tutorial2Elements.ts';
 import {practiceLesson,lessonFrame,lessonTipPages,LESSON_INSTRUCTIONS} from '../src/practiceLessons.ts';
 const area=(p:Point[])=>p.slice(1).reduce((a,b,i)=>a+p[i].x*b.y-b.x*p[i].y,0);
 
-test('all fifteen learnable lessons retain their original sigils and recognize as the intended spell',()=>{
+test('all learnable lessons retain their original sigils and recognize as the intended spell',()=>{
  const original=structuredClone(SPELLS);
- assert.equal(Object.keys(LESSON_INSTRUCTIONS).length,15);assert.equal(practiceLesson('ender'),null);
+ assert.equal(Object.keys(LESSON_INSTRUCTIONS).length,16);assert.equal(practiceLesson('ender'),null);
  for(const spell of SPELLS.filter(s=>s.id!=='ender')){
   const lesson=practiceLesson(spell.id)!;assert.ok(lesson);assert.ok(lesson.duration>=4000/1.2&&lesson.duration<=8000/1.2);
   const match=recognize(lesson.paths,[spell.id]);assert.equal(match.spell?.id,spell.id,spell.name);assert.ok(match.quality>=80,`${spell.name}: ${match.quality}`);
