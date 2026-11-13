@@ -14,10 +14,10 @@ test('weak Chronos keeps its small pulse and freezes the environment for its dur
  }
  const rock=hitWithSpell(newBattle('active','rock'),59,'chronos');assert.equal(chronosAffected(rock.enemies[0],0),true);
 });
-test('strong Chronos flashes large and grayscales the environment while any present enemy is stunned',()=>{
+test('strong Chronos keeps a brief pulse and leaves environment colors unchanged',()=>{
  for(const q of [70,79,80,100]){
   const b=hitWithSpell(newBattle('active','pack'),q,'chronos');const v=chronosVisuals(b);
-  assert.equal(v.environment,true);assert.equal(v.pulse?.strong,true);assert.equal(enemyStatusLabel(b.enemies[0],b),null);
+  assert.equal(v.environment,true);assert.equal(v.environmentAmount,0);assert.equal(v.pulse?.strong,true);assert.equal(enemyStatusLabel(b.enemies[0],b),null);
   const before=structuredClone(b);chronosVisuals(b);assert.deepEqual(b,before);
   b.time=.46;assert.equal(chronosVisuals(b).pulse,null);assert.equal(chronosVisuals(b).environment,true);
   b.time=chronosEffect(q).duration;assert.equal(chronosVisuals(b).environment,false);assert.equal(chronosAffected(b.enemies[0],b.time),false);
