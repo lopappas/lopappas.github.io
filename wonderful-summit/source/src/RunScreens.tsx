@@ -1,4 +1,4 @@
-import {actIntroFrame} from './actIntro';
+import {playActIntro} from './actIntro';
 import {trailAct} from './trailActs';
 import {MapButton,ActTrail} from './TrailMap';
 import {notifyPotionsFull} from './PotionFullNotice';
@@ -69,19 +69,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
   if(run.node===act.start&&!introducedActs.current.has(act.number)){
    introducedActs.current.add(act.number);content.scrollTop=0;setIntroAct(act.number);
    const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-   let frame=0,started=performance.now(),cancelled=false;
-   const stop=()=>{cancelled=true;cancelAnimationFrame(frame);setIntroAct(null);};
-   const tick=(now:number)=>{
-    if(cancelled)return;
-    const state=actIntroFrame(now-started,content.scrollHeight-content.clientHeight,reduced);
-    content.scrollTop=state.scrollTop;
-    if(state.done){setIntroAct(null);return;}
-    frame=requestAnimationFrame(tick);
-   };
-   // Allow players to interrupt the introduction with normal trail navigation.
-   content.addEventListener('wheel',stop,{passive:true});content.addEventListener('pointerdown',stop);
-   content.addEventListener('keydown',stop);frame=requestAnimationFrame(tick);
-   return()=>{cancelled=true;cancelAnimationFrame(frame);content.removeEventListener('wheel',stop);content.removeEventListener('pointerdown',stop);content.removeEventListener('keydown',stop);};
+   return playActIntro(content,window,()=>setIntroAct(null),reduced);
   }
   // Return visits keep the existing current-node centering; only the trail scrolls.
   content.scrollTop=0;
