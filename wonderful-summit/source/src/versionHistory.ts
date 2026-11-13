@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.52',publishedAt:'2026-11-13T08:03:27Z',changes:['Simplified Torrent’s spell shape to two curved water jets with no central vertical line.','Updated Torrent’s practice demonstration and casting tips to match.']},
  {version:'0.2.51',publishedAt:'2026-11-13T07:52:59Z',changes:['Removed the casting page flip; the canvas is ready after its 210 ms ink dissolve.','Tap anywhere during an act introduction to skip the destination pause and sweep to the bottom. Trail sweeping is now 15% slower.']},
  {version:'0.2.50',publishedAt:'2026-11-13T00:20:33Z',changes:['Added Torrent, an uncommon Water spell that rains large orbs onto random enemy-accessible ground.','Torrent splashes nearby foes for Steady Dewdrop damage and knockback, lasting eight seconds at Steady quality.']},
  {version:'0.2.41',publishedAt:'2026-11-13T00:03:43Z',changes:['Extended the final-encounter gold reveal to 1.2 seconds before the trail sweep.','Set the cast canvas page flip to 340 ms.']},

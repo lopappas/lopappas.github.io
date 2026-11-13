@@ -14,11 +14,13 @@ function setup(encounter:Battle['encounter']='slime'){
 }
 function advance(b:Battle,seconds:number,frame=.05){const end=b.time+seconds;while(b.time<end-1e-9)b=stepBattle(b,Math.min(frame,end-b.time));return b;}
 function cast(b=setup(),q=60,r=()=>.5){return launchSpell(b,q,'#69c2d6','torrent',0,r);}
-test('Torrent glyph recognizes with all spells known and practice uses the original low arcs',()=>{
- const s=SPELLS.find(s=>s.id==='torrent')!;assert.equal(s.rarity,'Uncommon');assert.equal(s.element,'Water');assert.equal(s.strokes.length,3);
+test('approved two-arc Torrent glyph recognizes with all spells known and practice uses the same arcs',()=>{
+ const s=SPELLS.find(s=>s.id==='torrent')!;assert.equal(s.rarity,'Uncommon');assert.equal(s.element,'Water');assert.equal(s.strokes.length,2);
  const found=recognize(s.strokes);assert.equal(found.spell?.id,'torrent');assert.equal(found.quality,100);
  const lesson=practiceLesson('torrent')!;assert.equal(recognize(lesson.paths).spell?.id,'torrent');
- assert.ok(Math.min(...s.strokes[1].map(p=>p.y))>35);
+ assert.ok(Math.min(...s.strokes[0].map(p=>p.y))>35);
+ for(const strokes of [s.strokes.toReversed(),s.strokes.map(stroke=>stroke.toReversed()),[s.strokes[0].toReversed(),s.strokes[1]]]){assert.equal(recognize(strokes).spell?.id,'torrent');}
+ assert.ok(s.strokes.every(stroke=>stroke[0].x===50&&stroke[0].y===90));
 });
 test('Steady lasts eight seconds, has eight orbs, and does not launch a targeting projectile',()=>{
  const b=cast();assert.equal(b.torrent?.until,8);assert.equal(b.torrent?.orbs.length,8);assert.equal(b.projectile,null);assert.equal(b.casts,1);assert.equal(b.enemies[0].hp,10000);
