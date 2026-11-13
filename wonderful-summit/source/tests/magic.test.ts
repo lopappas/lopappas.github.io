@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {SPELLS,recognize,inkCost,strokeLength,chargeComplete,power,knockback,grade} from '../src/magic.ts';
+import {SPELLS,recognize,applyRecognitionBonus,type RecognitionResult,inkCost,strokeLength,chargeComplete,power,knockback,grade} from '../src/magic.ts';
 test('each reference sigil recognizes with excellent quality',()=>{for(const s of SPELLS){const r=recognize(s.strokes);assert.equal(r.spell?.id,s.id);assert.ok(r.quality>=98);}});
 test('position and uniform scale do not change quality',()=>{for(const s of SPELLS){const base=recognize(s.strokes);for(const scale of [.15,2,9]){const moved=s.strokes.map(st=>st.map(p=>({x:p.x*scale+321,y:p.y*scale-78})));const r=recognize(moved);assert.equal(r.spell?.id,s.id);assert.equal(r.quality,base.quality);}}});
 test('stroke direction and order do not affect nature classification',()=>{const s=SPELLS[2];const r=recognize([...s.strokes].reverse().map(st=>[...st].reverse()));assert.equal(r.spell?.id,'nature');assert.ok(r.quality>=95);});
@@ -26,4 +26,21 @@ test('every faint score is weaker and every higher grade is stronger than the pr
 test('a careful wonderful cast outperforms several faint casts',()=>{
  assert.ok(power(80)>power(59)*3);assert.ok(knockback(80)>knockback(59)*3);
  assert.ok(power(100)>power(59)*5);assert.ok(knockback(100)>knockback(59)*5);
+});
+
+test('accuracy bonuses reuse shape scores, can rescue a near miss, and preserve raw quality',()=>{
+ const raw:RecognitionResult={spell:null,quality:45,candidates:[{spell:SPELLS[0],quality:45,error:.1},{spell:SPELLS[1],quality:30,error:.2}],reason:'The sigil is incomplete or its shape needs more care.'};
+ const snapshot=structuredClone(raw),boosted=applyRecognitionBonus(raw,3);
+ assert.equal(boosted.spell?.id,'water');assert.equal(boosted.quality,48);assert.equal(boosted.reason,'');assert.equal(boosted.candidates,raw.candidates);assert.deepEqual(raw,snapshot);
+ assert.equal(applyRecognitionBonus(raw,100).quality,100);assert.equal(applyRecognitionBonus(raw,-5).quality,45);
+});
+test('accuracy bonuses cannot resolve ambiguous shapes or turn empty drawings into spells',()=>{
+ const ambiguous:RecognitionResult={spell:null,quality:70,candidates:[{spell:SPELLS[0],quality:70,error:.1},{spell:SPELLS[1],quality:64,error:.11}],reason:'The shape is between two sigils. Make its defining details clearer.'};
+ const boosted=applyRecognitionBonus(ambiguous,20);assert.equal(boosted.spell,null);assert.equal(boosted.quality,90);assert.equal(boosted.reason,ambiguous.reason);
+ const empty=recognize([]);assert.deepEqual(applyRecognitionBonus(empty,100),empty);const unknown=recognize(SPELLS[0].strokes,[]);assert.deepEqual(applyRecognitionBonus(unknown,100),unknown);
+});
+test('reusing results applies each bonus from original scores without accumulating it',()=>{
+ const raw=recognize(SPELLS[0].strokes.map(stroke=>stroke.map(p=>({...p,x:p.x*.8}))),['water']);
+ const snapshot=structuredClone(raw),first=applyRecognitionBonus(raw,3),second=applyRecognitionBonus(first,10);
+ assert.equal(first.quality,Math.min(100,raw.quality+3));assert.equal(second.quality,Math.min(100,raw.quality+10));assert.equal(first.candidates,raw.candidates);assert.deepEqual(raw,snapshot);
 });

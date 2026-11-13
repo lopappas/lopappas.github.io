@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {inkRumble,inkExpansion,paintSpellInk} from '../src/inkVisuals.ts';
+import {inkRumble,inkExpansion,paintSpellInk,ReleasedInkFade,INK_FADE_MS} from '../src/inkVisuals.ts';
 import {type Strokes} from '../src/magic.ts';
 
 test('rumble begins with the color transition, increases gently and never exceeds one pixel',()=>{
@@ -14,7 +14,7 @@ function context(){
  const ctx={globalAlpha:1,save(){},restore(){},beginPath(){},scale(...args:number[]){calls.push({kind:"scale",args,alpha:this.globalAlpha});},translate(...args:number[]){calls.push({kind:'translate',args,alpha:this.globalAlpha});},moveTo(...args:number[]){calls.push({kind:'move',args,alpha:this.globalAlpha});},lineTo(...args:number[]){calls.push({kind:'line',args,alpha:this.globalAlpha});},stroke(){calls.push({kind:'stroke',args:[],alpha:this.globalAlpha});}};
  return {ctx:ctx as unknown as CanvasRenderingContext2D,calls};
 }
-test('rumble and dissolve preserve recognition geometry and completely remove released ink',()=>{
+test('rumble and fade preserve recognition geometry and completely remove released ink',()=>{
  const drawing:Strokes=[[{x:10,y:10},{x:50,y:15},{x:20,y:50}]],before=structuredClone(drawing);
  for(const reduced of [false,true]){
   const c=context();paintSpellInk(c.ctx,drawing,'#ffadef',.8,123,null,reduced);assert.ok(c.calls.some(c=>c.kind==='stroke'));
@@ -23,11 +23,14 @@ test('rumble and dissolve preserve recognition geometry and completely remove re
  }
  assert.deepEqual(drawing,before);
 });
-test('reduced-motion dissolve fades the intact drawing without drift or fragments',()=>{
- const c=context();paintSpellInk(c.ctx,[[{x:1,y:2},{x:5,y:9}]],'#ffa1ed',1,123,.5,true);
+test('fade keeps the intact drawing without drift or fragments in either motion setting',()=>{
+ for(const reduced of [false,true]){
+ const c=context();paintSpellInk(c.ctx,[[{x:1,y:2},{x:5,y:9}]],'#ffa1ed',1,123,.5,reduced);
  assert.deepEqual(c.calls.filter(c=>c.kind==='move'||c.kind==='line').map(c=>c.args),[[1,2],[5,9]]);
  assert.equal(c.calls.find(c=>c.kind==='stroke')?.alpha,.5);
- assert.ok(!c.calls.some(c=>c.kind==='translate'));
+ assert.equal(c.calls.filter(c=>c.kind==='stroke').length,1);
+ if(reduced)assert.ok(!c.calls.some(c=>c.kind==='translate'));
+ }
 });
 
 test('ink expands only during the color transition and keeps recognition points intact',()=>{
@@ -37,4 +40,18 @@ test('ink expands only during the color transition and keeps recognition points 
  assert.ok(c.calls.some(c=>c.kind==='scale'&&Math.abs(c.args[0]-1.08)<.0001));assert.ok(c.ctx.lineWidth>3.45);
  const reduced=context();paintSpellInk(reduced.ctx,drawing,'#ff6508',.9,123,null,true);
  assert.ok(!reduced.calls.some(c=>c.kind==='scale'));assert.deepEqual(drawing,before);
+});
+
+test('release fades the cached ink without repainting unless drawing or canvas size changes',()=>{
+ const strokes:Strokes=[[{x:1,y:2},{x:100,y:90}]],fade=new ReleasedInkFade(1000);
+ assert.equal(INK_FADE_MS,210);assert.equal(fade.needsPaint(200,300,strokes),true);
+ for(const elapsed of [0,35,70,105,140,175,210]){
+  assert.ok(Math.abs(fade.opacity(1000+elapsed)-(1-elapsed/210))<1e-9);
+  assert.equal(fade.needsPaint(200,300,strokes),false);
+ }
+ assert.equal(fade.opacity(1300),0);assert.equal(fade.needsPaint(400,300,strokes),true);assert.equal(fade.needsPaint(400,300,strokes),false);assert.equal(fade.needsPaint(400,300,[]),true);
+});
+test('fade clock excludes pause time and can resume after resetting its clock',()=>{
+ const fade=new ReleasedInkFade(0);assert.equal(fade.opacity(105),.5);
+ assert.equal(fade.opacity(1000,true),.5);fade.resetClock(2000);assert.equal(fade.opacity(2105),0);
 });

@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.53',publishedAt:'2026-11-13T11:27:56Z',changes:['Replaced the spell ink dissolve with a simple 210 ms fade.','Reduced spell recognition to one comparison at charge start and one at cast completion while preserving accuracy bonuses.']},
  {version:'0.2.52',publishedAt:'2026-11-13T08:03:27Z',changes:['Simplified Torrent’s spell shape to two curved water jets with no central vertical line.','Updated Torrent’s practice demonstration and casting tips to match.']},
  {version:'0.2.51',publishedAt:'2026-11-13T07:52:59Z',changes:['Removed the casting page flip; the canvas is ready after its 210 ms ink dissolve.','Tap anywhere during an act introduction to skip the destination pause and sweep to the bottom. Trail sweeping is now 15% slower.']},
  {version:'0.2.50',publishedAt:'2026-11-13T00:20:33Z',changes:['Added Torrent, an uncommon Water spell that rains large orbs onto random enemy-accessible ground.','Torrent splashes nearby foes for Steady Dewdrop damage and knockback, lasting eight seconds at Steady quality.']},

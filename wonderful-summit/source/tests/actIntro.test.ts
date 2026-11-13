@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {ACT_INTRO_HOLD_MS,ACT_INTRO_PAN_MS,actIntroFrame,playActIntro} from '../src/actIntro.ts';
-import {INK_DISSOLVE_MS,CAST_TRANSITION_MS} from '../src/inkVisuals.ts';
+import {INK_FADE_MS,CAST_TRANSITION_MS} from '../src/inkVisuals.ts';
 test('act introduction holds at the destination for 1200 ms, then reaches the bottom',()=>{
  assert.equal(ACT_INTRO_HOLD_MS,1200);
  for(const time of [0,200,1199,1200])assert.deepEqual(actIntroFrame(time,900),{scrollTop:0,done:false});
@@ -19,9 +19,9 @@ test('reduced-motion and short trails preserve the destination pause without unn
  assert.deepEqual(actIntroFrame(1200,900,true),{scrollTop:900,done:true});
  assert.deepEqual(actIntroFrame(1200,-20),{scrollTop:0,done:true});
 });
-test('casting unlocks after the dissolve alone with no page flip delay',()=>{
- assert.equal(INK_DISSOLVE_MS,350*.6);
- assert.equal(CAST_TRANSITION_MS,INK_DISSOLVE_MS);assert.equal(CAST_TRANSITION_MS,210);
+test('casting unlocks after the fade alone with no page flip delay',()=>{
+ assert.equal(INK_FADE_MS,350*.6);
+ assert.equal(CAST_TRANSITION_MS,INK_FADE_MS);assert.equal(CAST_TRANSITION_MS,210);
 });
 test('sweep speed is 15 percent slower and an early tap skips only the remaining hold',()=>{
  assert.equal(650/ACT_INTRO_PAN_MS,.85);
