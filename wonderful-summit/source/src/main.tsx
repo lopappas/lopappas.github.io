@@ -1,3 +1,5 @@
+import {useActiveFrame} from './useActiveFrame';
+import {performanceMetrics} from './performanceMetrics';
 import {CAST_TRANSITION_MS} from './inkVisuals';
 import {MapButton} from './TrailMap';
 import {notifyPotionsFull} from './PotionFullNotice';
@@ -17,7 +19,7 @@ import {SettingsButton} from './Settings';
 import {worstDrawing,bestDrawing,snapshotDrawing} from './drawings';
 import {createPortal} from 'react-dom';
 import {BottleCapture} from './BottleCapture';
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import '@fontsource/fredoka/latin-400.css';
 import '@fontsource/fredoka/latin-500.css';
 import '@fontsource/fredoka/latin-600.css';
@@ -114,13 +116,14 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
  useEffect(()=>{if(!tutorial2?.scriptedDrawing)return;const r=canvas.current!.getBoundingClientRect(),size=Math.min(230,r.width*.78,r.height*.78);strokes.current=tutorial2.scriptedDrawing.strokes.map(path=>path.map(p=>({x:r.width/2+(p.x-50)*size/100,y:r.height/2+(p.y-50)*size/100})));inkSpent.current=0;setHasDrawing(strokes.current.some(path=>path.length>1));paint();},[tutorial2?.scriptedDrawing]);
  function drink(potion:Potion,bottleIndex=0){if(pausedRef.current||!canAct(potion))return;const before=battleRef.current;if(potion==='spellBottle'&&before.bottledSpells[bottleIndex]?.spellId==='alchemize'){const reason=alchemizeBlockReason(before,true);if(reason){if(reason==='Your purse is full')notifyPotionsFull();setCastBlockMessage(reason);setCooldownNotice(n=>n+1);return;}}const next=drinkPotion(before,potion,bottleIndex);if(next!==before){updateBattle(next);const t2=tutorial2Ref.current;if(t2&&potion==='heal')t2.onAction('heal',t2.token);}}
 
- useEffect(()=>{let frame=0,last=performance.now();const tick=(now:number)=>{
-  const dt=(now-last)/1000;last=now;
-  if(!document.hidden&&battleRef.current.phase==='active'){
-   if(pausedRef.current){frame=requestAnimationFrame(tick);return;}
+ useLayoutEffect(()=>{if(!paused&&battle.phase==='active'&&!document.hidden)performanceMetrics.recordCommit();});
+ useActiveFrame((dt,now)=>{
+  if(pausedRef.current||battleRef.current.phase!=='active')return false;
    const previous=battleRef.current;
+   const measured=performanceMetrics.enabled,stepStart=measured?performance.now():0;
    const practiceStep=practiceRef.current?stepPracticeBattle(previous,dt,practiceRef.current.mobile,patrolDirection.current,closePracticeRef.current):null;if(practiceStep)patrolDirection.current=practiceStep.direction;
    const next=practiceStep?.battle??stepBattle(previous,dt);
+   if(measured)performanceMetrics.recordFrame(dt*1000,performance.now()-stepStart);
    if(next!==previous){
     const t2=tutorial2Ref.current;
     if(t2?.ambush&&next.playerHits>previous.playerHits){next.approachAt=Infinity;t2.onAmbush?.(t2.token);}
@@ -128,9 +131,8 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
     for(const _id of potionImpactIds(previous,next)){playUISound('bottle');const f=next.potionFlights.find(f=>f.id===_id);if(f?.potion==='spellBottle'){const spell=SPELLS.find(s=>s.id===f.spell?.spellId);if(shouldPlaySpellArrival(spell?.id,previous))playSpellSound(spellCastSound(spell),f.spell?.quality??0);}}
    }
    const session=refillSession.current;if(session&&!pausedRef.current){inkRef.current=refillInk(session.ink,now-session.started);setInk(inkRef.current);}
-  }
-  frame=requestAnimationFrame(tick);
- };frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);},[]);
+  return !pausedRef.current&&battleRef.current.phase==='active';
+ },!paused&&battle.phase==='active');
  useEffect(()=>{if(battle.phase==='victory'||battle.phase==='defeat'){stopTransient();const t2=tutorial2Ref.current;if(t2?.freeCombat)t2.onBattleEnd?.(battle.phase,t2.token);}},[battle.phase]);
  useEffect(()=>{if(battle.playerHits>0)playSpellSound('hurt',0);},[battle.playerHits]);
  useEffect(()=>{if(practice?.infiniteInk||battle.unlimitedUntil>battle.time){inkRef.current=100;setInk(100);if(reloadTimer.current)clearTimeout(reloadTimer.current);reloadTimer.current=null;refillSession.current=null;setReload(false);}},[battle.unlimitedUntil,practice?.infiniteInk]);

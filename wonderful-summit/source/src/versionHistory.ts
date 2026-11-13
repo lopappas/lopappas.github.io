@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.60',publishedAt:'2026-11-13T13:22:53Z',changes:['Stopped unnecessary combat, practice and dialogue animation updates while inactive or hidden.','Added an optional combat performance monitor in the Developer panel for performance comparisons.']},
  {version:'0.2.54',publishedAt:'2026-11-13T12:18:36Z',changes:['Ink now lasts 40% longer while the inkwell stays at 100.','Reduced burn and Firestorm visual particles by about 30%.','Torrent’s learning trace now runs from left to right in one continuous stroke.']},
  {version:'0.2.53',publishedAt:'2026-11-13T11:27:56Z',changes:['Replaced the spell ink dissolve with a simple 210 ms fade.','Reduced spell recognition to one comparison at charge start and one at cast completion while preserving accuracy bonuses.']},
  {version:'0.2.52',publishedAt:'2026-11-13T08:03:27Z',changes:['Simplified Torrent’s spell shape to two curved water jets with no central vertical line.','Updated Torrent’s practice demonstration and casting tips to match.']},

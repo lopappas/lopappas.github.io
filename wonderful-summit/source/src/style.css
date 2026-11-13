@@ -413,3 +413,5 @@
 .trail-panel .trail-node.act-destination{opacity:1;border:2px solid #ffd663;box-shadow:0 0 8px #ffd663aa,0 0 24px #e6af404d;animation:actDestinationGlow .65s ease-in-out infinite alternate}
 @keyframes actDestinationGlow{to{border-color:#ffe8a0;box-shadow:0 0 13px #ffd663cc,0 0 32px #e6af4066}}
 @media(prefers-reduced-motion:reduce){.launch .paper{opacity:1;animation:none!important}.trail-panel .trail-node.act-destination{animation:none}}
+
+.performance-monitor{position:fixed;top:50px;left:8px;z-index:10060;max-width:calc(100vw - 16px);padding:8px 10px;border:1px solid #839987;border-radius:6px;background:#14251ef2;color:#f0ecd8;font:11px/1.5 monospace}.performance-monitor small{display:block}.performance-monitor button{border:1px solid #839987;border-radius:4px;background:#314d46;color:#fff;font:inherit;padding:3px 6px}

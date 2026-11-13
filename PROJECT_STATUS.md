@@ -13,7 +13,9 @@ Updated: 2026-11-13
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.2.54; package 0.2.54): Ink costs are divided by 1.4, giving 40% more drawing distance from the unchanged 100-ink capacity. Burn visuals use 5 particles instead of 7, spread over the original width; Firestorm uses 41 rain streaks instead of 58. Damage and effect timing are unchanged. Torrent’s practice demonstration is one continuous stroke from the left tip through the bottom junction to the right tip, using the existing shape. Casting tips match.
+Latest update (version 0.2.60; package 0.2.60): Performance milestone 1 implemented. Combat now owns one animation callback only while active/visible and unpaused; ending combat cancels scheduling immediately, and pause/visibility resumes with a fresh clock. Practice-learning animation and dialogue typing/position tracking also stop while inactive/hidden. An opt-in Developer-panel performance monitor reports bounded (600 sample) active combat callback intervals, simulation-only time and Combat commit counts. It is off on page load, refreshes its independent overlay once per second only when enabled, and can copy a local aggregate report. No frame cap or combat rendering refactor yet. See source/docs/performance.md for metric definitions, capture protocol and local pre-change baseline. Physical iPhone heat/rendering comparison remains outstanding.
+
+Version 0.2.54: Ink costs are divided by 1.4, giving 40% more drawing distance from the unchanged 100-ink capacity. Burn visuals use 5 particles instead of 7, spread over the original width; Firestorm uses 41 rain streaks instead of 58. Damage and effect timing are unchanged. Torrent’s practice demonstration is one continuous stroke from the left tip through the bottom junction to the right tip, using the existing shape. Casting tips match.
 
 Version 0.2.53: Released spell ink now fades intact over 210 ms. The shared ink hook paints the released drawing once, then updates canvas opacity without redrawing paths each frame (repainting only if the canvas size or drawing changes). Fragment movement is removed; charge rumble/expansion and the 210 ms canvas lockout remain. Combat recognition compares geometry once at charge start and once at completion for both pointer and keyboard casting. applyRecognitionBonus derives boosted acceptance from existing candidate scores, retaining raw accuracy, original ambiguity margins, rescue of below-threshold scores, and the 100% cap.
 
@@ -42,7 +44,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 581 tests pass; TypeScript and production build pass. Ink coverage verifies the exact 1.4 distance multiplier; Torrent coverage verifies a single left-to-right practice stroke and correct recognition. Browser visuals remain unverified because the managed preview relay was unavailable and no recovery is indicated. Source and matching build are published together; deployment status is checked once.
+Validation for this update: all 588 tests pass; TypeScript and production build pass. Seven new tests cover one-callback ownership, inactivity/visibility/unmount cleanup, no catch-up after pause, equivalent resumed battle simulation, terminal scheduling and bounded/disabled measurement behavior. Managed preview remains unavailable, so browser controls and physical iPhone capture are unverified. Source and matching build are published together; deployment status is checked once.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
@@ -71,7 +73,7 @@ Paths below are relative to wonderful-summit/source/:
 - Recording/license: src/audio/frostnox_quick-pencil-writing.ogg and src/audio/ATTRIBUTION.txt.
 
 ## Remaining work
-- No remaining planned Tutorial 2.0 milestones. Await the next requested change.
+- Tutorial 2.0 is complete. Performance milestone 1 is implemented; collect an ordinary-combat iPhone baseline before milestone 2 (separate animated battlefield from controls and cache scenery). Milestone 3 depends on measurements.
 - Historical Pages timeouts/queued retries are not evidence of a current outage. Check current status only when relevant, following AGENTS.md.
 - Historical generated bundles remain in the published assets folder; cleanup has not been requested.
 
