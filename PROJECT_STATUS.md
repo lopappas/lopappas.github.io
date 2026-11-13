@@ -13,7 +13,9 @@ Updated: 2026-11-13
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.2.82; package 0.2.82): Removed Battery Saver, its rendering throttle and report flag. Battlefield snapshots publish at the normal simulation cadence. Settings now has a non-opening Game Settings placeholder above Audio. SettingsButton accepts a combat presentation flag: combat/practice/tutorial combat use a pause glyph and accessible pause/settings label, while other screens retain the cog.
+Latest update (version 0.2.90; package 0.2.90): Performance milestone 4 implemented. CharacterBodies memoizes unchanged Fila, slime/rocky/mother, goblin, helmet, crown and spider body geometry independently of movement, health/status UI, attack effects and crown transforms. Spider legs retain their walking clock; stationary spiders ignore clock-only changes. Belladora is memoized by expression/size. Opt-in reports add artCommits and artCommitsPerActiveSecond, summing cached character component commits. The new 0.2.82 iPhone baseline is saved in source/docs/performance-baseline-0.2.82-iphone.json (59.749 updates/s, 60.024 battlefield and 27.960 control commits/s, 18 ms p95, 39 ms max over 60.909 active seconds). Frame rate, visuals, balance and canvas pixel ratio remain unchanged. Heat benefit requires a new physical-device comparison.
+
+Version 0.2.82: Removed Battery Saver, its rendering throttle and report flag. Battlefield snapshots publish at the normal simulation cadence. Settings now has a non-opening Game Settings placeholder above Audio. SettingsButton accepts a combat presentation flag: combat/practice/tutorial combat use a pause glyph and accessible pause/settings label, while other screens retain the cog.
 
 Version 0.2.81: Chronos now projects one shared circle-and-hand sigil near the top center of the battlefield. The upright radial hand rotates clockwise once over the remaining active field duration; recasts and bottles restart it toward the longest remaining expiry. It follows battle time, pauses with combat and disappears at expiry or combat end. Removed the per-enemy pale-blue tint, small clock markers and short cast ring. No extra animation loop or gameplay change.
 
@@ -52,7 +54,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 603 retained tests pass; TypeScript and production build pass. Replaced obsolete saver-mode tests with normal-cadence publication coverage. Browser visual QA remains unverified due to the previously unavailable preview relay. Source and matching build are published together; deployment status is checked once.
+Validation for this update: all 606 tests and TypeScript/production build pass. Character SVG matches 58 pre-extraction fixture cases covering normal/elemental/rocky/practice/attack colors and static Fila/goblin/crown/helmet/spider bodies. Additional tests cover stationary/walking spider cache invalidation and opt-in art counters. Browser QA remains blocked by the unavailable preview relay; physical iPhone comparison is outstanding. Source and matching build are published together; deployment status is checked once.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
@@ -81,7 +83,7 @@ Paths below are relative to wonderful-summit/source/:
 - Recording/license: src/audio/frostnox_quick-pencil-writing.ogg and src/audio/ATTRIBUTION.txt.
 
 ## Remaining work
-- Tutorial 2.0 is complete. Performance milestones 1–3 are implemented. Compare 0.2.80 on the iPhone with Saver off/on and during Chronos-heavy play. Both earlier iPhone baselines are documented.
+- Tutorial 2.0 is complete. Performance milestones 1–4 are implemented. Battery Saver was removed in 0.2.82. Compare 0.2.90 with the new 0.2.82 iPhone baseline. Pending milestones: 5 drawing controls/geometry/layout caching, 6 recognition templates, 7 canvas pixel ratio 2.
 - Historical Pages timeouts/queued retries are not evidence of a current outage. Check current status only when relevant, following AGENTS.md.
 - Historical generated bundles remain in the published assets folder; cleanup has not been requested.
 

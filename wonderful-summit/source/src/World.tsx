@@ -1,3 +1,4 @@
+import {FilaBody,SlimeBody,GoblinBody,CrownBody,GoblinHelmet} from './CharacterBodies';
 import {chronosClockFrame} from './chronosClock';
 import {ChronosClock} from './ChronosClockArt';
 import {StaticScenery} from './StaticScenery';
@@ -65,31 +66,14 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
 })}</g>}
 <g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" data-tutorial2-speaker="fila" shapeRendering="crispEdges" transform="translate(190 320) scale(5)" aria-label="Fila, a little pixel witch holding a paintbrush">
 {battle.rejectionUntil>battle.time&&<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#fff" stroke="#fff" strokeWidth="3" opacity=".65" className="rejection-aura"/>}
-{/* A tiny stepped silhouette and a limited palette keep Fila readable at phone size. */}
-<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#352e46"/>
-<path d="M9 2h4v3h2v4H6V5h3zM4 9h14v2H4z" fill="#9c83bc"/>
-<path d="M6 7h10v2H6z" fill="#e5bb7e"/>
-<path d="M5 12h12v3H5zM4 15h3v6H4zM15 14h2v7h-2z" fill="#6c4951"/>
-<path d="M7 14h8v6H7zM9 20h4v2H9z" fill="#f2cea6"/>
-<path d="M9 16h1v2H9zM13 16h1v2h-1z" fill="#352e46"/>
-<path d="M6 22h9v3h2v3H4v-3h2z" fill="#9c83bc"/>
-<path d="M6 24h9v1H6z" fill="#e5bb7e"/>
-<path d="M5 29h4v2H5zM12 29h4v2h-4z" fill="#352e46"/>
-{/* Broad bristles, a gold ferrule, and a wooden handle make this a paintbrush. */}
-<path d="M20 9h5v7h-1v12h-3V16h-1z" fill="#352e46"/>
-<path d="M21 10h3v4h-3z" fill="#efd7ad"/>
-<path d="M21 10h3v2h-3z" fill="#c0a1df"/>
-<path d="M21 14h3v2h-3z" fill="#e5bb7e"/>
-<path d="M22 16h1v11h-1z" fill="#b58255"/>
-<path d="M15 22h4v2h-4z" fill="#9c83bc"/>
-<path d="M19 22h4v2h-4z" fill="#f2cea6"/>
+<FilaBody/>
 </g></g>
 {companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
 {presentEnemies(battle).map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=enemyStatusLabel(e,battle),color=practice?'#e6b844':e.rocky?'#a5aaa4':e.element==='Fire'?'#ef9c70':e.element==='Water'?'#7ccbd6':e.element==='Nature'?'#99bf76':'#bcc3a2';return <g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
 <ellipse cy="22" rx={e.kind==='mother'?72:e.goblinKing?59.8:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<g transform={e.goblinKing?`translate(0 ${-24+kingUIOffset})`:undefined}><TargetCaret element={e.element} mother={e.kind==='mother'||!!e.goblinKing}/></g>}
 <g transform={e.kind==='mother'?'scale(2.1)':e.goblinKing?`scale(${GOBLIN_KING_SCALE})`:undefined}><g className={`${e.kind==='spider'?'spider':e.kind==='goblin'?'goblin':'slime'}${e.stunUntil>battle.time?' stunned':''}${(e.shield?.burnUntil??0)>battle.time?' shield-burning':''}${e.hurtUntil>battle.time?' slime-hit':''}${e.attackAt!==null?' slime-attacking':''}`} style={{filter:frozen?'hue-rotate(100deg) brightness(1.2)':undefined}}>
-{e.kind==='spider'?<SpiderArt color={color} clock={e.clock} moving={!frozen&&e.attackAt===null&&!e.push&&e.rootUntil<=battle.time&&e.stunUntil<=battle.time}/>:e.kind!=='goblin'?<><path d="M-36 12v-24h6v-16h10v-8h36v6h12v12h8v30h-6v8h-60v-8z" fill={practice?'#8c6224':'#2d493d'}/><path d="M-30 12v-22h6v-14h12v-6h24v6h12v12h6v24h-6v4h-48v-4z" fill={e.attackAt!==null?'#ebd588':color}/><path d="M-21-13v-7h9v-4h17v5h-16v6z" fill={practice?'#fff0a5':'#e3dfb0'}/><path d="M-13-9h5v8h-5zM10-9h5v8h-5zM-3 6h9v3h-9z" fill="#2d493d"/>{e.rocky&&<g shapeRendering="crispEdges"><path d="M-25-22h11v8h-11zM9-26h12v9H9zM-31 1h8v12h-8zM21 4h8v9h-8z" fill="#717d78"/><path d="M-10-28h6v5h5v7M19-13v7h6" fill="none" stroke="#53615b" strokeWidth="2"/></g>}</>:<g shapeRendering="crispEdges"><path d="M-29-50h58v33H-29zM-40-43h11v12h-11zM29-43h11v12H29z" fill="#91ac65"/><path d="M-21-49h43v9h-43zM-14-39h7v7h-7zM10-39h7v7h-7z" fill="#354132"/><path d="M-12-22h25v5h-25z" fill="#e7d7ae"/><path d="M-23-15h46v34h-46zM-28 17h18v8h-18zM11 17h18v8H11z" fill="#74584b"/><path d="M-18-10h36v7h-36z" fill="#bc9764"/><path d="M-45-15h14v47h-14zM-50-25h24v12h-24z" fill="#6b6760"/>{e.goblinKing?crown.visible&&<g aria-label="Gold crown" transform={`translate(${crown.x} ${crown.y}) rotate(${crown.rotation})`} opacity={crown.opacity}><path d="M-25-50-29-75-14-65 0-81 14-65 29-75 25-50Z" fill="#f4cc4f" stroke="#9e7025" strokeWidth="2"/><path d="M-24-58H24" stroke="#ffe89a" strokeWidth="3"/><path d="m0-71 4 5-4 5-4-5z" fill="#d75545"/></g>:<path d="M-18-58h9v8h-9zM-4-63h9v13h-9zM10-58h9v8h-9z" fill="#dbba70"/>}</g>}
+{e.kind==='spider'?<SpiderArt color={color} clock={e.clock} moving={!frozen&&e.attackAt===null&&!e.push&&e.rootUntil<=battle.time&&e.stunUntil<=battle.time}/>:e.kind!=='goblin'?<SlimeBody color={color} attacking={e.attackAt!==null} practice={practice} rocky={e.rocky}/>:<g shapeRendering="crispEdges"><GoblinBody/>{e.goblinKing?crown.visible&&<g aria-label="Gold crown" transform={`translate(${crown.x} ${crown.y}) rotate(${crown.rotation})`} opacity={crown.opacity}><CrownBody/></g>:<GoblinHelmet/>}</g>}
 </g></g>
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>

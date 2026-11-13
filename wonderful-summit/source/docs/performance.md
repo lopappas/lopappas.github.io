@@ -57,3 +57,11 @@ The per-enemy blue treatment and clock markers and the brief cast ring are repla
 
 ## Settings update — version 0.2.82
 Battery Saver, the visual sampling throttle, and the report mode flag have been removed at the user’s request. Battlefield publication follows normal simulation cadence. The prior mode descriptions above are historical. Game Settings is a non-opening placeholder above Audio. Combat uses a pause icon for Settings; other screens retain the cog.
+
+## Milestone 4 — version 0.2.90
+
+Fila, slime/rocky/mother bodies, goblin bodies, normal helmets, King crown artwork, spider bodies and Belladora are memoized independently of world movement and health/status UI. Attack colors, practice colors, rocky details, crown movement/loss, recoil, freeze/hit CSS and entrance wrappers retain their original behavior. Spider legs keep their exact walking clock; stationary spider art ignores clock-only changes. Source SVG paths/paints are preserved and tested against pre-extraction markup fixtures.
+
+Opt-in reports add artCommits and artCommitsPerActiveSecond. These sum commits of cached body/crown/purse components, including mounts and actual appearance changes; they are not GPU timings. A moving enemy can have many battlefield commits and zero new body commits. Reports must be reset inside combat for a comparable capture.
+
+The supplied 0.2.82 ordinary-combat baseline is saved in performance-baseline-0.2.82-iphone.json: 60.909 active seconds, 59.749 updates/s, 18 ms p95, 39 ms max, 0.055 ms simulation/update, 60.024 battlefield commits/s and 27.960 control commits/s. Repeat ordinary combat on 0.2.90; no heat reduction is claimed before device comparison. Browser visual verification remains blocked by the unavailable preview relay. Milestones 5 (drawing controls/geometry), 6 (recognition templates), and 7 (canvas pixel ratio 2) remain pending.
