@@ -1,3 +1,4 @@
+import type {InkGeometry} from './strokeGeometry.ts';
 import type {Strokes} from './magic.ts';
 
 export const INK_FADE_MS=210;
@@ -8,19 +9,19 @@ export function inkRumble(progress:number,timeMs:number,reducedMotion=false){
 }
 export function inkExpansion(progress:number){return Math.max(0,Math.min(1,(progress-.4)/.5));}
 /** All geometry stays in CSS pixels; visual effects never mutate recognition points. */
-export function paintSpellInk(ctx:CanvasRenderingContext2D,strokes:Strokes,color:string,progress:number,timeMs:number,fade:number|null,reducedMotion=false){
+export function paintSpellInk(ctx:CanvasRenderingContext2D,strokes:Strokes,color:string,progress:number,timeMs:number,fade:number|null,reducedMotion=false,geometry?:InkGeometry){
  const expansion=inkExpansion(progress);
  ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=3.45*(1+.2*expansion);
- if(!reducedMotion&&expansion>0&&strokes.flat().length){
-  const points=strokes.flat(),cx=(Math.min(...points.map(p=>p.x))+Math.max(...points.map(p=>p.x)))/2,cy=(Math.min(...points.map(p=>p.y))+Math.max(...points.map(p=>p.y)))/2;
-  ctx.translate(cx,cy);ctx.scale(1+.08*expansion,1+.08*expansion);ctx.translate(-cx,-cy);
+ const center=geometry?geometry.center:(()=>{const points=strokes.flat();return points.length?{x:(Math.min(...points.map(p=>p.x))+Math.max(...points.map(p=>p.x)))/2,y:(Math.min(...points.map(p=>p.y))+Math.max(...points.map(p=>p.y)))/2}:null;})();
+ if(!reducedMotion&&expansion>0&&center){
+  ctx.translate(center.x,center.y);ctx.scale(1+.08*expansion,1+.08*expansion);ctx.translate(-center.x,-center.y);
  }ctx.lineCap='round';ctx.lineJoin='round';
  if(fade===null){
   const offset=inkRumble(progress,timeMs,reducedMotion);ctx.translate(offset.x,offset.y);
-  for(const stroke of strokes){ctx.beginPath();stroke.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();}
+  if(geometry?.paths){for(const path of geometry.paths)ctx.stroke(path);}else for(const stroke of strokes){ctx.beginPath();stroke.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();}
  }else if(fade<1){
   ctx.globalAlpha=1-Math.max(0,fade);
-  for(const stroke of strokes){ctx.beginPath();stroke.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();}
+  if(geometry?.paths){for(const path of geometry.paths)ctx.stroke(path);}else for(const stroke of strokes){ctx.beginPath();stroke.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();}
  }
 
  ctx.restore();

@@ -65,3 +65,13 @@ Fila, slime/rocky/mother bodies, goblin bodies, normal helmets, King crown artwo
 Opt-in reports add artCommits and artCommitsPerActiveSecond. These sum commits of cached body/crown/purse components, including mounts and actual appearance changes; they are not GPU timings. A moving enemy can have many battlefield commits and zero new body commits. Reports must be reset inside combat for a comparable capture.
 
 The supplied 0.2.82 ordinary-combat baseline is saved in performance-baseline-0.2.82-iphone.json: 60.909 active seconds, 59.749 updates/s, 18 ms p95, 39 ms max, 0.055 ms simulation/update, 60.024 battlefield commits/s and 27.960 control commits/s. Repeat ordinary combat on 0.2.90; no heat reduction is claimed before device comparison. Browser visual verification remains blocked by the unavailable preview relay. Milestones 5 (drawing controls/geometry), 6 (recognition templates), and 7 (canvas pixel ratio 2) remain pending.
+
+## Milestone 5 — version 0.2.91
+
+Combat ink and charge use independent DrawingPresentation subscriptions. The ink meter updates at its existing precision, while Combat updates only when refill eligibility/empty status changes. Charge progress updates the drawing frame/track independently; Combat retains only held/not-held state for input controls. Paint reads the live progress and retains the original rumble, expansion, color thresholds and 210 ms release fade. Recognizer input and synchronous ink accounting are unchanged.
+
+The shared ink renderer caches native paths and bounds until append/replace/clear/resize/scripted drawing changes invalidate them. The cache follows the existing append-or-replace stroke model and never simplifies points. Unsupported native-path environments retain the previous point renderer. Canvas layout is measured once per pointer-down or after resize, viewport or scroll invalidation, instead of twice per pointer movement. Pixel ratio is unchanged.
+
+Dialogue positioning uses coalesced resize/scroll/viewport/text events. It follows anchor animations only while they are active, then stops requesting frames. Hidden/inactive dialogue and cleanup cancel pending work, including late observer callbacks.
+
+The supplied 0.2.90 report is preserved in performance-baseline-0.2.90-iphone.json: 60.068 active seconds, 59.982 updates/s, 18 ms p95, 30 ms max, 0.03667 ms simulation/update, 60.298 battlefield commits/s, 31.048 control commits/s, and only 6 cached-art commits. This supports body reuse; it does not measure temperature. Repeat ordinary combat and a separate drawing-heavy session on 0.2.91. Browser and physical-device visual verification remain outstanding because the preview relay is unavailable. Milestones 6 (recognition templates) and 7 (pixel ratio 2) remain pending.

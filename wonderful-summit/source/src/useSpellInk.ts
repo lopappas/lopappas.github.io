@@ -1,19 +1,23 @@
+import {StrokeGeometryCache} from './strokeGeometry';
+const makePath=()=>new Path2D();
 import {useCallback,useLayoutEffect,useRef,type RefObject} from 'react';
 import {spellInkColor,type Strokes} from './magic';
 import {INK_FADE_MS,ReleasedInkFade,paintSpellInk} from './inkVisuals';
 
-export function useSpellInk(canvas:RefObject<HTMLCanvasElement|null>,strokes:RefObject<Strokes>,progress:number,targetColor:string|undefined,released=false,paused=false,externalChargeClock=false){
- const visual=useRef({progress,targetColor,released,paused});visual.current={progress,targetColor,released,paused};
+export function useSpellInk(canvas:RefObject<HTMLCanvasElement|null>,strokes:RefObject<Strokes>,progress:number,targetColor:string|undefined,released=false,paused=false,externalChargeClock=false,getProgress?:()=>number){
+ const geometry=useRef(new StrokeGeometryCache());
+ const visual=useRef({progress,targetColor,released,paused,getProgress});visual.current={progress,targetColor,released,paused,getProgress};
  const release=useRef<ReleasedInkFade|null>(null);
- const paint=useCallback(()=>{
+ const paint=useCallback((force=false)=>{
   const el=canvas.current,ctx=el?.getContext('2d');if(!el||!ctx)return;
   const v=visual.current,now=performance.now();
   if(v.released&&!release.current)release.current=new ReleasedInkFade(now);
   if(!v.released)release.current=null;
   el.style.opacity=String(release.current?release.current.opacity(now,v.paused||document.hidden):1);
-  if(release.current&&!release.current.needsPaint(el.width,el.height,strokes.current))return;
+  if(release.current&&!release.current.needsPaint(el.width,el.height,strokes.current)&&!force)return;
   ctx.clearRect(0,0,el.width,el.height);ctx.save();ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
-  paintSpellInk(ctx,strokes.current,spellInkColor(v.released?1:v.progress,v.targetColor),v.released?1:v.progress,now,v.released?0:null,window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const progress=v.getProgress?.()??v.progress;
+  paintSpellInk(ctx,strokes.current,spellInkColor(v.released?1:progress,v.targetColor),v.released?1:progress,now,v.released?0:null,window.matchMedia('(prefers-reduced-motion: reduce)').matches,geometry.current.get(strokes.current,typeof Path2D==='undefined'?undefined:makePath));
   ctx.restore();
  },[canvas,strokes]);
  useLayoutEffect(()=>{

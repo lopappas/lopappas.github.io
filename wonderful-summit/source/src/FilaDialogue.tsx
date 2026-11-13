@@ -1,6 +1,6 @@
 import {FrameLoop} from './frameLoop';
-import {useActiveFrame} from './useActiveFrame';
-import React,{useEffect,useRef,useState} from 'react';
+import {observeAnchoredLayout} from './observeAnchoredLayout';
+import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {createWritingAudio,filaIsWriting,getWritingMedia} from './dialogueAudio';
 import {audioPreferences,audioChannelVolume} from './audioPreferences';
@@ -40,16 +40,18 @@ export function FilaDialogue({text,active,onComplete,onTextProgress,fontFamily='
   typingSync.current=()=>loop.setRunning(latest.current.active&&!document.hidden&&!finished);typingSync.current();
   return()=>{loop.setRunning(false);typingSync.current=()=>{};document.removeEventListener('visibilitychange',visibility);document.removeEventListener('pointerdown',gesture);document.removeEventListener('keydown',gesture);unsubscribe();writing.dispose();writingRef.current=null;};
  },[text]);
- const lastPosition=useRef('');
- useActiveFrame(()=>{
-   const fila=document.querySelector('[data-tutorial2-speaker="fila"]'),world=fila?.closest('.world');
-   if(fila&&world){
-    const f=fila.getBoundingClientRect(),w=world.getBoundingClientRect(),width=Math.min(290,w.width-24);
-    const left=Math.max(w.left+12,Math.min(w.right-width-12,f.left+f.width*.6));
-    const top=Math.max(w.top+52,f.top-(bubble.current?.offsetHeight??100)-64),key=[left,top,width].join(',');
-    if(key!==lastPosition.current){lastPosition.current=key;setPosition({left,top,width});}
-   }
- },active);
+ useLayoutEffect(()=>{
+  if(!active)return;
+  const fila=document.querySelector('[data-tutorial2-speaker="fila"]'),world=fila?.closest('.world'),el=bubble.current;if(!fila||!world||!el)return;
+  let last='';
+  const measure=()=>{
+   const f=fila.getBoundingClientRect(),w=world.getBoundingClientRect(),width=Math.min(290,w.width-24);
+   const left=Math.max(w.left+12,Math.min(w.right-width-12,f.left+f.width*.6));
+   const top=Math.max(w.top+52,f.top-el.offsetHeight-64),key=[left,top,width].join(',');
+   if(key!==last){last=key;setPosition({left,top,width});}
+  };
+  return observeAnchoredLayout([fila,world,el],world,target=>target instanceof Element&&target.contains(fila),measure);
+ },[active,text]);
 
  return createPortal(<><aside ref={bubble} className="t2-fila-bubble" role="status" aria-label={`Filadora says: ${text}`} aria-hidden={!active} style={{...position,fontFamily,visibility:active&&position?'visible':'hidden'}}>
   <strong aria-hidden="true">Filadora</strong><p aria-hidden="true"><span className="t2-fila-measure"><TutorialText text={text}/></span><span className="t2-fila-typed"><FadingDialogueText text={text} elapsed={elapsed}/></span></p>

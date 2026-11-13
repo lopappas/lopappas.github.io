@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.91',publishedAt:'2026-11-13T21:15:25Z',changes:['Isolated ink and charge indicators from surrounding combat controls.','Cached drawing paths, bounds and canvas measurements.','Dialogue positioning now reacts to layout changes and character motion instead of continuous polling.']},
  {version:'0.2.90',publishedAt:'2026-11-13T21:01:13Z',changes:['Cached Fila, enemy and companion artwork independently of movement and status displays.','Preserved walking spider legs, attack colors and the Goblin King’s falling crown.','Performance reports now include character-art commit counts.']},
  {version:'0.2.82',publishedAt:'2026-11-13T20:34:36Z',changes:['Removed Battery Saver and added a Game Settings placeholder above Audio.','The combat Settings button now uses a pause symbol.']},
  {version:'0.2.81',publishedAt:'2026-11-13T20:12:58Z',changes:['Chronos now projects one sigil near the top center of the battlefield.','Its hand turns clockwise over the remaining freeze duration and restarts on recast.']},
