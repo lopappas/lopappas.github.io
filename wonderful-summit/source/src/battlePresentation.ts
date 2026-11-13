@@ -1,4 +1,3 @@
-import {publishVisualFrame} from './renderPreferences.ts';
 import {POTION_IDS,SPELL_COOLDOWNS,spellCooldownRemaining,cloverReady,robesBonus,type Battle} from './battle.ts';
 import {practiceEffects} from './practice.ts';
 import type {SpellId} from './magic.ts';
@@ -22,10 +21,10 @@ export class BattlePresentation{
  constructor(battle:Battle,known:SpellId[],practice=false){this.battle=battle;this.controls=combatControlValues(battle,known,practice);}
  getSnapshot=()=>this.battle;
  subscribe=(listener:()=>void)=>{this.listeners.add(listener);return()=>{this.listeners.delete(listener);};};
- publish(battle:Battle,known:SpellId[],practice=false,saving=false,immediate=true){
+ publish(battle:Battle,known:SpellId[],practice=false){
   const controls=combatControlValues(battle,known,practice),changed=!equalControlValues(this.controls,controls);
   this.controls=controls;
-  if(this.battle!==battle&&publishVisualFrame(this.battle.time,battle.time,saving,immediate||this.battle.phase!==battle.phase)){this.battle=battle;this.listeners.forEach(listener=>listener());}
+  if(this.battle!==battle){this.battle=battle;this.listeners.forEach(listener=>listener());}
   return changed;
  }
 }

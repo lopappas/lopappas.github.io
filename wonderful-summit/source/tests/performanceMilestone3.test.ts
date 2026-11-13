@@ -1,18 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {publishVisualFrame,batterySaver,setBatterySaver} from '../src/renderPreferences.ts';
 import {FrameBatch} from '../src/frameBatch.ts';
 import {BattlePresentation} from '../src/battlePresentation.ts';
 import {newBattle,stepBattle} from '../src/battle.ts';
-test('Battery Saver samples 30 visual frames without dropping simulation steps',()=>{
- let b=newBattle('active'),snapshot=b;const store=new BattlePresentation(b,['water']);let publications=0;store.subscribe(()=>publications++);
- for(let i=0;i<60;i++){b=stepBattle(b,1/60);store.publish(b,['water'],false,true,false);snapshot=stepBattle(snapshot,1/60);}
- assert.equal(publications,30);assert.deepEqual(b,snapshot);assert.equal(store.getSnapshot(),b);
- assert.equal(publishVisualFrame(1,1.001,true,true),true);assert.equal(publishVisualFrame(1,0,true),true);assert.equal(publishVisualFrame(1,1.001,false),true);
-});
-test('normal mode publishes all motion and Battery Saver is off by default',()=>{
- assert.equal(batterySaver(),false);setBatterySaver(true);assert.equal(batterySaver(),true);setBatterySaver(false);
- let b=newBattle('active');const store=new BattlePresentation(b,['water']);let count=0;store.subscribe(()=>count++);for(let i=0;i<60;i++){b=stepBattle(b,1/60);store.publish(b,['water'],false,false,false);}assert.equal(count,60);
+test('battlefield publishes every simulation step without a reduced-rate mode',()=>{
+ let b=newBattle('active'),expected=b;const store=new BattlePresentation(b,['water']);let count=0;store.subscribe(()=>count++);
+ for(let i=0;i<60;i++){b=stepBattle(b,1/60);store.publish(b,['water']);expected=stepBattle(expected,1/60);}assert.equal(count,60);assert.deepEqual(b,expected);assert.equal(store.getSnapshot(),b);
 });
 test('drawing batches one paint per frame without dropping geometry, and cleanup cancels stale paint',()=>{
  let serial=0;const jobs=new Map<number,()=>void>(),points:number[]=[];let paints=0;const batch=new FrameBatch(fn=>{jobs.set(++serial,fn);return serial;},id=>{jobs.delete(id);});

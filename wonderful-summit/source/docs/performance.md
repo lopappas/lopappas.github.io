@@ -54,3 +54,6 @@ The supplied 0.2.70 capture measured 59.809 updates/s, 60.216 battlefield commit
 ## Chronos sigil projection — version 0.2.81
 
 The per-enemy blue treatment and clock markers and the brief cast ring are replaced by a single projected Chronos circle-and-hand sigil near the battlefield’s top center. Its hand starts upright and makes one clockwise rotation over the remaining active Chronos field duration. Each successful recast (including bottles) restarts the shared hand from the latest cast time toward the longest remaining field expiry, preserving stronger prior freezes. The projection uses battle time and the existing world publication cadence, so pausing/hidden time and Battery Saver behave consistently with the simulation. It disappears at expiry or when combat ends. No new animation timer, color-conversion pass or gameplay effect is introduced.
+
+## Settings update — version 0.2.82
+Battery Saver, the visual sampling throttle, and the report mode flag have been removed at the user’s request. Battlefield publication follows normal simulation cadence. The prior mode descriptions above are historical. Game Settings is a non-opening placeholder above Audio. Combat uses a pause icon for Settings; other screens retain the cog.
