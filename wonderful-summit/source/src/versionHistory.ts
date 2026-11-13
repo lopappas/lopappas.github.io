@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.41',publishedAt:'2026-11-13T00:03:43Z',changes:['Extended the final-encounter gold reveal to 1.2 seconds before the trail sweep.','Set the cast canvas page flip to 340 ms.']},
  {version:'0.2.40',publishedAt:'2026-11-12T23:56:18Z',changes:['New acts reveal the final encounter with a glowing gold border, then sweep down to the start after a brief pause.','Made cast ink dissolve 40% quicker and restored the quick canvas page flip for faster follow-up spells.']},
  {version:'0.2.30',publishedAt:'2026-11-12T23:46:26Z',changes:['Split the trail into two acts, showing only the current act in the trail and Map.','The Summit Skirt ends at the first boss; The Summit Saddle begins at the following encounter with a dark blue trail theme.']},
  {version:'0.2.20',publishedAt:'2026-11-12T23:34:46Z',changes:['Added Fire Friend, an uncommon relic that increases burn damage by 50%.','Restored the combat Spellbook button beside the ink controls while keeping the new order elsewhere in Play mode.']},

@@ -344,7 +344,7 @@
 .opening-version{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));z-index:6;color:#eee7d1;font-size:11px;line-height:1.3;text-shadow:0 1px 4px #14251e;pointer-events:none}
 
 /* Dissolve first, then reuse the original page-flip motion at a brisk pace. */
-.launch .paper{animation:paperFly var(--cast-page-flip-ms,140ms) ease-in var(--cast-dissolve-ms,210ms) forwards}
+.launch .paper{animation:paperFly var(--cast-page-flip-ms,340ms) ease-in var(--cast-dissolve-ms,210ms) forwards}
 
 .menu-tutorial-overlay{position:fixed;inset:0;z-index:10040;isolation:isolate}
 .menu-tutorial-spotlight{position:fixed;border:3px solid #ffdf65;border-radius:9px;box-shadow:0 0 0 100vmax #081811a6,0 0 20px #ffe990;pointer-events:none}

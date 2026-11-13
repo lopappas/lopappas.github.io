@@ -1,4 +1,4 @@
-export const ACT_INTRO_HOLD_MS=750;
+export const ACT_INTRO_HOLD_MS=1200;
 export const ACT_INTRO_PAN_MS=650;
 /** A destination reveal followed by a quick, eased descent to the first stop. */
 export function actIntroFrame(elapsed:number,maxScroll:number,reducedMotion=false){
