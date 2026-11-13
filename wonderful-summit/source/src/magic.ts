@@ -40,10 +40,12 @@ export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  tidalcrest:[.8,1.2].map(width=>SPELLS.find(s=>s.id==='tidalcrest')!.strokes.map(stroke=>stroke.map(p=>({x:50+(p.x-50)*width,y:p.y}))))
 };
 export const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
-export function strokeLength(strokes:Strokes){return strokes.reduce((sum,s)=>sum+s.slice(1).reduce((n,p,i)=>n+distance(s[i],p),0),0);}
+export function strokeLength(strokes:Strokes){let sum=0;for(const stroke of strokes){let length=0;for(let i=1;i<stroke.length;i++)length+=distance(stroke[i-1],stroke[i]);sum+=length;}return sum;}
 export function inkCost(a:Point,b:Point,shortSide:number){return distance(a,b)/Math.max(1,shortSide)*(22/1.25/1.4);}
 function normalize(strokes:Strokes):Strokes{
- const all=strokes.flat();if(!all.length)return[];const xs=all.map(p=>p.x),ys=all.map(p=>p.y);const minX=Math.min(...xs),minY=Math.min(...ys),w=Math.max(...xs)-minX,h=Math.max(...ys)-minY,s=Math.max(w,h,0.001);
+ let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity,count=0;
+ for(const stroke of strokes)for(const p of stroke){count++;minX=Math.min(minX,p.x);minY=Math.min(minY,p.y);maxX=Math.max(maxX,p.x);maxY=Math.max(maxY,p.y);}
+ if(!count)return[];const w=maxX-minX,h=maxY-minY,s=Math.max(w,h,0.001);
  return strokes.map(st=>st.map(p=>({x:(p.x-minX-w/2)/s,y:(p.y-minY-h/2)/s})));
 }
 function sample(strokes:Strokes,count=140):Point[]{
@@ -51,20 +53,35 @@ function sample(strokes:Strokes,count=140):Point[]{
  for(const stroke of strokes)for(let i=1;i<stroke.length;i++){const a=stroke[i-1],b=stroke[i],len=distance(a,b);if(len===0)continue;while(next<=travel+len&&result.length<count){const t=(next-travel)/len;result.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});next+=step;}travel+=len;}
  return result;
 }
-const meanNearest=(a:Point[],b:Point[])=>a.reduce((sum,p)=>sum+Math.min(...b.map(q=>distance(p,q))),0)/a.length;
+function meanNearest(a:Point[],b:Point[]){
+ let sum=0;
+ // Keep Math.hypot and summation order so raw scores remain bit-for-bit compatible.
+ for(const p of a){let nearest=Infinity;for(const q of b)nearest=Math.min(nearest,distance(p,q));sum+=nearest;}
+ return sum/a.length;
+}
+// Catalog geometry is constant. Prepare each reference and variant once per module load.
+const RECOGNITION_TEMPLATES=SPELLS.map(spell=>({spell,variants:[spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])].map(strokes=>{
+ const normalized=normalize(strokes);return{points:sample(normalized),length:strokeLength(normalized)};
+})}));
 export type RecognitionResult={spell:Spell|null;quality:number;candidates:{spell:Spell;quality:number;error:number}[];reason:string};
 export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),accuracyBonus=0):RecognitionResult{
  const normalized=normalize(strokes),points=sample(normalized);if(points.length<5)return{spell:null,quality:0,candidates:[],reason:'Draw a complete sigil first.'};
- const len=strokeLength(normalized);
- // Collapse every shape variation into one candidate per spell BEFORE ambiguity checks.
- const candidates=SPELLS.filter(s=>known.includes(s.id)).map(spell=>{
-  const handPenalty=spell.id==='chronos'?Math.exp(-Math.max(0,Math.min(...points.map(p=>Math.hypot(p.x,p.y)))-.1)*9):1;
-  return [spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])].map(template=>{
-   const ref=normalize(template),target=sample(ref),error=(meanNearest(points,target)+meanNearest(target,points))/2;
-   const ratio=len/strokeLength(ref),lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);
-   return{spell,quality:Math.round(100*Math.exp(-error*13)*lengthPenalty*handPenalty),error};
-  }).reduce((best,current)=>current.quality>best.quality?current:best);
- }).sort((a,b)=>b.quality-a.quality);
+ const len=strokeLength(normalized),candidates:RecognitionResult['candidates']=[];
+ for(const prepared of RECOGNITION_TEMPLATES){
+  const {spell}=prepared;if(!known.includes(spell.id))continue;
+  let handPenalty=1;
+  if(spell.id==='chronos'){let radius=Infinity;for(const p of points)radius=Math.min(radius,Math.hypot(p.x,p.y));handPenalty=Math.exp(-Math.max(0,radius-.1)*9);}
+  let best:RecognitionResult['candidates'][number]|undefined;
+  // Collapse variations before ambiguity checks, retaining the original tie order.
+  for(const template of prepared.variants){
+   const error=(meanNearest(points,template.points)+meanNearest(template.points,points))/2;
+   const ratio=len/template.length,lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);
+   const quality=Math.round(100*Math.exp(-error*13)*lengthPenalty*handPenalty);
+   if(!best||quality>best.quality)best={spell,quality,error};
+  }
+  if(best)candidates.push(best);
+ }
+ candidates.sort((a,b)=>b.quality-a.quality);
  if(!candidates.length)return{spell:null,quality:0,candidates,reason:'No spells learned yet.'};
  return applyRecognitionBonus({spell:null,quality:0,candidates,reason:''},accuracyBonus);
 }
