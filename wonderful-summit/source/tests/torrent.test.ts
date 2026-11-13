@@ -17,7 +17,7 @@ function cast(b=setup(),q=60,r=()=>.5){return launchSpell(b,q,'#69c2d6','torrent
 test('approved two-arc Torrent glyph recognizes with all spells known and practice uses the same arcs',()=>{
  const s=SPELLS.find(s=>s.id==='torrent')!;assert.equal(s.rarity,'Uncommon');assert.equal(s.element,'Water');assert.equal(s.strokes.length,2);
  const found=recognize(s.strokes);assert.equal(found.spell?.id,'torrent');assert.equal(found.quality,100);
- const lesson=practiceLesson('torrent')!;assert.equal(recognize(lesson.paths).spell?.id,'torrent');
+ const lesson=practiceLesson('torrent')!;assert.equal(lesson.paths.length,1);assert.deepEqual(lesson.paths[0][0],{x:10,y:48});assert.deepEqual(lesson.paths[0].at(-1),{x:90,y:48});assert.equal(recognize(lesson.paths).spell?.id,'torrent');
  assert.ok(Math.min(...s.strokes[0].map(p=>p.y))>35);
  for(const strokes of [s.strokes.toReversed(),s.strokes.map(stroke=>stroke.toReversed()),[s.strokes[0].toReversed(),s.strokes[1]]]){assert.equal(recognize(strokes).spell?.id,'torrent');}
  assert.ok(s.strokes.every(stroke=>stroke[0].x===50&&stroke[0].y===90));

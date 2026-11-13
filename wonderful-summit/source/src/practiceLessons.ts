@@ -6,7 +6,7 @@ function startAt(path:Point[],x:number,y:number){
  const rotated=[...points.slice(index),...points.slice(0,index)];return [...rotated,{...rotated[0]}];
 }
 export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
- torrent:'Start at the shared bottom point and curve upward and outward to the left. Return to the bottom and draw the matching right arc.',
+ torrent:'Start at the left tip, follow the arc down to the shared bottom point, then sweep up the right arc in one continuous stroke.',
  water:'Start at the tip and draw the droplet counterclockwise.',fire:'Start at the top and draw the triangle counterclockwise.',nature:'Draw the sprouts from left to right, then draw the stem down.',
  wave:'Start at the tip of the water droplet and draw counterclockwise. Once the droplet is finished, start from the left of the caret and draw it from left to right.',
  bolt:'Draw it from the top to bottom.',leaf:'Draw it from the left-most corner, and go clockwise.',chronos:'From the top of the circle, draw counter-clockwise. When the circle is completed, draw down.',
@@ -20,6 +20,7 @@ export function practiceLesson(id:SpellId){
  const spell=SPELLS.find(s=>s.id===id);if(!spell||!LESSON_INSTRUCTIONS[id])return null;
  let paths=clone(spell.strokes);
  if(['water','fire','nature'].includes(id))paths=clone(elementTrace(id,1).strokes);
+ if(id==='torrent')paths=[[...paths[0].reverse(),...paths[1].slice(1)]];
  if(id==='wave')paths=[paths[1].reverse(),paths[0]];
  if(id==='leaf')paths=[startAt(paths[0],15,50)];
  if(id==='chronos')paths=[paths[0].reverse(),paths[1].reverse()];

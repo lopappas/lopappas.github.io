@@ -6,7 +6,7 @@ test('position and uniform scale do not change quality',()=>{for(const s of SPEL
 test('stroke direction and order do not affect nature classification',()=>{const s=SPELLS[2];const r=recognize([...s.strokes].reverse().map(st=>[...st].reverse()));assert.equal(r.spell?.id,'nature');assert.ok(r.quality>=95);});
 test('scribbles, a line, a dot, and a partial drop do not cast',()=>{const shapes=[[Array.from({length:70},(_,i)=>({x:i%2*100,y:i*2}))],[[{x:0,y:0},{x:100,y:0}]],[[{x:1,y:1}]], [SPELLS[0].strokes[0].slice(0,25)]];for(const s of shapes)assert.equal(recognize(s).spell,null);});
 test('poorly proportioned shapes score below faithful shapes',()=>{const s=SPELLS[0];const distorted=s.strokes.map(st=>st.map(p=>({x:p.x*.55,y:p.y})));assert.ok(recognize(distorted).quality<recognize(s.strokes).quality-15);});
-test('ink follows length and supports 25% more drawing per inkwell',()=>{const cost=inkCost({x:0,y:0},{x:100,y:0},100);assert.ok(Math.abs(cost-17.6)<1e-9);assert.ok(Math.abs(22/cost-1.25)<1e-9);assert.equal(inkCost({x:0,y:0},{x:200,y:0},100),cost*2);assert.ok(strokeLength(SPELLS[0].strokes)>0);});
+test('ink follows length and lasts 40% longer with the same 100-ink capacity',()=>{const cost=inkCost({x:0,y:0},{x:100,y:0},100);assert.ok(Math.abs(cost-(17.6/1.4))<1e-9);assert.ok(Math.abs((17.6/cost)-1.4)<1e-9);assert.equal(inkCost({x:0,y:0},{x:200,y:0},100),cost*2);assert.ok(strokeLength(SPELLS[0].strokes)>0);});
 test('cast requires the full half second',()=>{assert.equal(chargeComplete(1000,1499),false);assert.equal(chargeComplete(1000,1500),true);});
 
 test('every faint score is weaker and every higher grade is stronger than the previous balance',()=>{

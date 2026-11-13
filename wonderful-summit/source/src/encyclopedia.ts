@@ -11,7 +11,7 @@ export const RARITY_ORDER:Rarity[]=['Starter','Common','Uncommon','Rare','Legend
 // Temporary until journey discoveries can be saved between visits.
 export const ENCYCLOPEDIA_PREVIEW=true;
 export const CASTING_TIPS:Record<SpellId,string>={
- torrent:'Draw two symmetrical outward-curving water arcs from the same bottom point. Keep the rounded arcs balanced and leave the middle open.',
+ torrent:'Start at the left tip and draw one continuous stroke down to the shared bottom point, then up the matching right arc. Keep the middle open.',
  sneakyVine:'Draw a simple candy cane in one stroke: a long straight stem on the right, a rounded hook over the top toward the left, and a short downward tip. Leave both ends open.',
  alchemize:'Draw a round bottle with a narrow rectangular neck, then close a small cork across its top.',
  water:'Close the teardrop outline. Keep the tip pointed and the base rounded.',
