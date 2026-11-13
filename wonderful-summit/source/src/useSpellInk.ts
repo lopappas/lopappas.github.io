@@ -1,3 +1,4 @@
+import {inkPixelRatio} from './inkCanvas';
 import {StrokeGeometryCache} from './strokeGeometry';
 const makePath=()=>new Path2D();
 import {useCallback,useLayoutEffect,useRef,type RefObject} from 'react';
@@ -15,7 +16,7 @@ export function useSpellInk(canvas:RefObject<HTMLCanvasElement|null>,strokes:Ref
   if(!v.released)release.current=null;
   el.style.opacity=String(release.current?release.current.opacity(now,v.paused||document.hidden):1);
   if(release.current&&!release.current.needsPaint(el.width,el.height,strokes.current)&&!force)return;
-  ctx.clearRect(0,0,el.width,el.height);ctx.save();ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
+  ctx.clearRect(0,0,el.width,el.height);ctx.save();const ratio=inkPixelRatio(window.devicePixelRatio);ctx.scale(ratio,ratio);
   const progress=v.getProgress?.()??v.progress;
   paintSpellInk(ctx,strokes.current,spellInkColor(v.released?1:progress,v.targetColor),v.released?1:progress,now,v.released?0:null,window.matchMedia('(prefers-reduced-motion: reduce)').matches,geometry.current.get(strokes.current,typeof Path2D==='undefined'?undefined:makePath));
   ctx.restore();

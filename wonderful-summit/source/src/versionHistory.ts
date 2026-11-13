@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.93',publishedAt:'2026-11-13T21:36:44Z',changes:['Reduced ink canvas resolution on high-density displays to lower drawing and compositing work.','Preserved ink width, drawing coordinates and spell recognition.']},
  {version:'0.2.92',publishedAt:'2026-11-13T21:29:09Z',changes:['Prepared spell recognition templates once and reduced temporary allocations during casting.','Preserved recognition scores, spell decisions and accuracy bonuses.']},
  {version:'0.2.91',publishedAt:'2026-11-13T21:15:25Z',changes:['Isolated ink and charge indicators from surrounding combat controls.','Cached drawing paths, bounds and canvas measurements.','Dialogue positioning now reacts to layout changes and character motion instead of continuous polling.']},
  {version:'0.2.90',publishedAt:'2026-11-13T21:01:13Z',changes:['Cached Fila, enemy and companion artwork independently of movement and status displays.','Preserved walking spider legs, attack colors and the Goblin King’s falling crown.','Performance reports now include character-art commit counts.']},
