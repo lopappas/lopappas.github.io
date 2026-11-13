@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.81',publishedAt:'2026-11-13T20:12:58Z',changes:['Chronos now projects one sigil near the top center of the battlefield.','Its hand turns clockwise over the remaining freeze duration and restarts on recast.']},
  {version:'0.2.80',publishedAt:'2026-11-13T19:42:50Z',changes:['Added optional Battery Saver in Settings, limiting battlefield animation to approximately 30 updates per second.','Simplified Chronos visuals to pale blue enemies, a static clock marker and a brief cast ring.','Batched drawing updates, consolidated charging animation, and reduced ambient audio scheduling.']},
  {version:'0.2.70',publishedAt:'2026-11-13T13:43:53Z',changes:['Separated live battlefield animation from combat controls to avoid unnecessary updates.','Cached the original scenery while retaining Chronos color transitions.','Performance reports now distinguish battlefield and control commits.']},
  {version:'0.2.60',publishedAt:'2026-11-13T13:22:53Z',changes:['Stopped unnecessary combat, practice and dialogue animation updates while inactive or hidden.','Added an optional combat performance monitor in the Developer panel for performance comparisons.']},
