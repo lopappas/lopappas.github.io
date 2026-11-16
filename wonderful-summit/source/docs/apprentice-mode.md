@@ -37,3 +37,8 @@ The canvas picker now has independent Water, Fire and Nature columns, preserving
 ## 0.3.3 canvas overlay refinements
 
 The picker surface is transparent over the existing drawing canvas. Its visible Spells title and Apprentice guide hint are removed; cooldown guidance remains. The close button uses a geometrically centered SVG cross. Menu-only glyph strokes increase 20% to 4.8; labels increase 15% to 11.5 px (10.35 px in four columns) at weight 500. Ordinary guide selection no longer changes the frame fill, keeping the permanent paper outer edge and single inset rule consistent. Existing guide geometry/timing and rune borders are preserved. Apprentice/Expert buttons and labels grow 15% from the previous release.
+
+
+## 0.3.4 canvas trace controls
+
+Opening the combat picker hides the Clear Ink action and dismisses any selected guide, using its existing exit fade. Closing the picker restores Clear Ink but cannot restore the dismissed guide. The small top-left canvas Hide trace button appears only with an active trace and a closed picker. The picker itself no longer has Hide trace. Explicit hiding and opening Spells clear only the selected guide; Expert’s original 12-second selection-to-ready deadline remains unchanged, preventing menu reopen from bypassing cooldown. Apprentice can choose another owned spell immediately.

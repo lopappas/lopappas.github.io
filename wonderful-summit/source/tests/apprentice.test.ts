@@ -32,10 +32,10 @@ test('Book Worm adds three percent per distinct non-starter spell and applies to
  const owned={...run,relics:['bookWorm'] as import('../src/run.ts').RelicId[]};assert.equal(bookWormBonus(owned),0);const more={...owned,spells:[...owned.spells,'leaf','bolt'] as import('../src/magic.ts').SpellId[]};assert.equal(bookWormBonus(more),6);assert.equal(runDamageBonus(more),1.06);assert.equal(battleForRun(more).damageBonus,1.06);assert.equal(bookWormBonus({...more,spells:[...more.spells,'leaf']}),6);assert.equal(bookWormBonus({...more,relics:[]}),0);}
 });
 
-test('quick spell table shows only acquired shapes and names, gates Expert traces and offers guide hiding',async()=>{
+test('quick spell table shows only acquired shapes and names, gates Expert traces without picker hide controls',async()=>{
  const React=(await import('react')).default;const {renderToStaticMarkup}=await import('react-dom/server');const {loadArt}=await import('./helpers/loadArt.ts');const {fileURLToPath}=await import('node:url');const {SPELLS}=await import('../src/magic.ts');
  const {CombatSpells}=loadArt(fileURLToPath(new URL('../src/CombatSpells.tsx',import.meta.url)));
  const props={known:['fire'],apprentice:false,ready:false,hasGuide:true,onSelect(){},onHide(){},onClose(){}};
- const html=renderToStaticMarkup(React.createElement(CombatSpells,props));assert.match(html,/Trace Hearthspark/);assert.doesNotMatch(html,/Trace Dewdrop/);assert.match(html,/disabled/);assert.match(html,/Hide trace/);assert.ok(html.includes(SPELLS.find(s=>s.id==='fire')!.path));
+ const html=renderToStaticMarkup(React.createElement(CombatSpells,props));assert.match(html,/Trace Hearthspark/);assert.doesNotMatch(html,/Trace Dewdrop/);assert.match(html,/disabled/);assert.doesNotMatch(html,/Hide trace/);assert.ok(html.includes(SPELLS.find(s=>s.id==='fire')!.path));
  const free=renderToStaticMarkup(React.createElement(CombatSpells,{...props,apprentice:true,ready:true,hasGuide:false}));assert.doesNotMatch(free,/disabled/);assert.doesNotMatch(free,/Hide trace/);
 });

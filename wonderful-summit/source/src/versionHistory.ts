@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.4',publishedAt:'2026-11-16T18:18:36Z',changes:['Added a small canvas Hide trace button while a guide is active.','Opening Spells dismisses the current trace and hides Clear Ink; the picker no longer contains Hide trace.']},
  {version:'0.3.3',publishedAt:'2026-11-16T18:05:27Z',changes:['Refined the canvas spell overlay with thicker shapes, larger labels and fewer decorations.','Removed the extra trace-selection frame treatment and enlarged mode buttons by 15%.']},
  {version:'0.3.2',publishedAt:'2026-11-16T17:49:34Z',changes:['Organized canvas spell choices into borderless elemental columns.','Enlarged Puddle Guard traces and reduced mode button sizes by 30%.','Mode choices now reveal with a controlled fade after Play.']},
  {version:'0.3.1',publishedAt:'2026-11-16T17:38:02Z',changes:['Combat Spells now fills the spell canvas with evenly spaced, element-ordered choices and starters first.','Spell traces fade in and out, use thicker lines and larger guides for selected spells.']},
