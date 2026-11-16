@@ -428,3 +428,10 @@
 @keyframes homeModesIn{from{opacity:0}to{opacity:1}}
 @media(max-height:640px){.mode-selection .menu-scene .menu-title{translate:0 -72px}}
 @media(prefers-reduced-motion:reduce){.main-menu .menu-actions{transition:none}.home-mode-choices{animation:none}}
+
+.combat-spells-shade{position:fixed;inset:0;z-index:35;background:#10251b55;display:flex;align-items:center;justify-content:center;padding:16px}
+.combat-spells{width:min(360px,100%);max-height:70svh;overflow:auto;background:#243c2f;border:1px solid #788d77;border-radius:10px;padding:14px;color:#f1e5c8;box-shadow:0 8px 24px #10251b66}
+.combat-spells header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.combat-spells header button{width:36px;height:36px;background:none;border:1px solid #788d77;border-radius:6px;color:inherit;font-size:24px}
+.combat-spells-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.combat-spells-grid button{display:flex;align-items:center;gap:6px;min-height:62px;padding:8px;background:#1b3024;border:1px solid #788d77;border-radius:7px;font-size:12px;text-align:left}.combat-spells-grid svg{width:44px;height:44px;flex-shrink:0}.combat-spells p{font-size:12px;line-height:1.5;margin:12px 0 0}.combat-spells .secondary-button{color:inherit;width:100%}
+.journey-combat .perfect-guide{animation:none!important;filter:none}
+.journey-combat .perfect-guide svg{filter:none}

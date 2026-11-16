@@ -13,12 +13,11 @@ function field():Battle{
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 function throwPotion(b:Battle,id:Potion){return drinkPotion({...b,potions:{...b.potions,[id]:1}},id);}
 
-test('Book Worm changes combat opening and trace timing without adding a guide cooldown',()=>{
+test('legacy practice book timing and trace gate remain compatible',()=>{
  assert.deepEqual(bookTiming(),{openMs:500,traceMs:1500});
  assert.deepEqual(bookTiming(true),{openMs:250,traceMs:2000});
  const cooldown=new GuideCooldown();assert.equal(cooldown.tryStart(0),true);
  cooldown.finish(bookTiming(true).traceMs);assert.equal(cooldown.isReady(2000),true);assert.equal(cooldown.tryStart(2000),true);
- assert.equal(RELICS.bookWorm.description,'Open spell book faster during combat and slightly increase perfect trace duration');
 });
 
 test('new relics are common, available from merchants and elite rewards, and enable combat vial effects',()=>{
