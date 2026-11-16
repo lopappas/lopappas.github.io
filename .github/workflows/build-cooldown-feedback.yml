@@ -1,0 +1,51 @@
+name: Build cooldown feedback
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+permissions:
+  contents: write
+jobs:
+  package:
+    if: github.head_ref == 'codex/cooldown-border-feedback-20261117' && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wonderful-summit/source/package-lock.json
+      - name: Prepare release
+        working-directory: wonderful-summit/source
+        run: |
+          npm ci
+          npm run version:small
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const version=JSON.parse(fs.readFileSync('package.json','utf8')).version;
+          const p='src/versionHistory.ts';
+          const entry={version,publishedAt:new Date().toISOString(),changes:['Removed the cooldown heading and added border feedback when casting a spell before its cooldown ends.']};
+          fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace('export const VERSION_HISTORY=[','export const VERSION_HISTORY=[\n '+JSON.stringify(entry)+','));
+          const status='../../PROJECT_STATUS.md';
+          let s=fs.readFileSync(status,'utf8');
+          s=s.replace(/Updated: [^\n]+/,'Updated: '+new Date().toISOString().slice(0,10));
+          s=s.split('\n').filter(line=>!line.startsWith('- Draft source change: cooldowns')).join('\n');
+          s=s.replace('Latest update (version 0.3.5):','Latest update (version '+version+'): Removed the visible cooldown heading. Blocked casts highlight only that spell’s cooldown badge border for 650 ms, restarting on repeated attempts. Queue order and cooldown timing are unchanged. Tests and build pass in GitHub Actions; phone review remains outstanding.\n\nVersion 0.3.5:');
+          fs.writeFileSync(status,s);
+          JS
+      - name: Test and build
+        working-directory: wonderful-summit/source
+        run: |
+          npm test
+          npm run build
+      - name: Commit source and matching production build
+        run: |
+          cp -R wonderful-summit/source/dist-pages/. wonderful-summit/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add PROJECT_STATUS.md wonderful-summit/source/package.json wonderful-summit/source/package-lock.json wonderful-summit/source/src/versionHistory.ts wonderful-summit/index.html wonderful-summit/assets
+          git diff --cached --check
+          git commit -m "Build validated cooldown feedback release"
+          git push origin HEAD:codex/cooldown-border-feedback-20261117
