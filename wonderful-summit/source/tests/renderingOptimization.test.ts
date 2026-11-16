@@ -32,7 +32,9 @@ test('prepared storm, bog and burn geometry matches pre-change snapshots at samp
 });
 test('decorative views reuse props on alternating 60 Hz updates, even when simulation objects change',()=>{
  const count=(frame:(time:number)=>any)=>{let changes=0,previous:any;for(let i=0;i<120;i++){const next=frame(3+i/60);assert.equal(next.type.$$typeof,Symbol.for('react.memo'));if(!previous||!equalProps(previous,next.props))changes++;previous=next.props;}return changes;};
- assert.equal(count(time=>fire.FirestormArt({storm:{started:0,rainAt:2,nextTick:time,portions:[{until:20,quality:60}]},time,gray:0})),60);
+ const storm={started:0,rainAt:2,portions:[{until:20}]};
+ assert.equal(count(time=>fire.FirestormArt({storm,time,gray:0})),120);
+ assert.equal(count(time=>fire.FirestormFrame.type(fire.FirestormArt({storm,time,gray:0}).props).props.children[0]),60);
  assert.equal(count(time=>bog.BogArt({bog:{started:0,portions:[{until:20,hitIds:[]}]},time,gray:0})),60);
  assert.equal(count(time=>burn.EnemyEffects({enemy:{rootUntil:0,curseTick:null,burn:{ticks:3}},time})),60);
  assert.equal(count(time=>burn.EnemyEffects({enemy:{rootUntil:0,curseTick:5,burn:null},time})),1);
@@ -44,7 +46,7 @@ test('battle-clock sampling pauses without drift and cannot advance effect time 
 test('activation, rain onset, extensions and status removal invalidate decoration within the same bucket',()=>{
  const storm={started:1.011,rainAt:3.011,portions:[{until:10}]};
  assert.equal(fire.FirestormArt({storm:null,time:3.012}),null);
- const before=fire.FirestormArt({storm,time:3.010}),after=fire.FirestormArt({storm,time:3.012});assert.equal(before.props.time,after.props.time);assert.equal(before.props.raining,false);assert.equal(after.props.raining,true);
+ const before=fire.FirestormArt({storm,time:3.010}),after=fire.FirestormArt({storm,time:3.012});assert.notEqual(before.props.time,after.props.time);assert.equal(fire.FirestormFrame.type(before.props).props.children[0].props.time,fire.FirestormFrame.type(after.props).props.children[0].props.time);assert.equal(before.props.raining,false);assert.equal(after.props.raining,true);
  assert.notEqual(fire.FirestormArt({storm:{...storm,portions:[{until:14}]},time:3.012}).props.end,after.props.end);
  assert.ok(fire.FirestormArt({storm,time:1.012}).props.time>=storm.started);
  assert.equal(bog.BogArt({bog:null,time:3.012}),null);
