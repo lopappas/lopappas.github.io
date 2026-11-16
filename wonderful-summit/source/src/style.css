@@ -419,12 +419,13 @@
 /* Mode choices reuse the home Play button and existing grade lettering. */
 .main-menu .menu-actions{transition:opacity 180ms ease}
 .main-menu.mode-selection .menu-actions{opacity:0;pointer-events:none}
-.home-mode-choices{position:fixed;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100% - 32px));text-align:center;animation:homeModesIn 220ms ease 180ms both}
-.home-mode-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.home-mode-row .primary-small{width:100%;min-width:0;background:#243c2f;border-color:#788d77;min-height:52px;padding:12px 8px;font-size:20px;white-space:nowrap;box-shadow:0 3px 10px #14251e33}
-.home-mode-row .primary-small>span{margin:0}
+.home-mode-choices{position:fixed;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(220px,calc(100% - 32px));text-align:center;animation:homeModesIn 220ms ease 180ms both}
+.home-mode-row{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.home-mode-row .primary-small{width:100%;min-width:0;background:#243c2f;border-color:#788d77;height:52px;min-height:52px;padding:12px 8px;font-size:20px;white-space:nowrap;box-shadow:0 3px 10px #14251e33}
+.home-mode-row .primary-small.grade-beautiful{font-size:18px}
+.home-mode-row .primary-small span{margin:0}
 .home-mode-back{display:block;width:92px;min-height:36px;margin:18px auto 0;padding:7px 12px;background:#626968;border:1px solid #969e99;border-radius:7px;color:#f0f0ec;font-size:13px}
 .home-mode-notice{position:absolute;top:100%;left:0;width:100%;margin:12px 0 0;color:#f1e8cf;font-size:14px;text-shadow:0 1px 3px #12221c}
 @keyframes homeModesIn{from{opacity:0}to{opacity:1}}
-@media(max-height:640px){.mode-selection .menu-scene .menu-title{translate:0 -40px}}
+@media(max-height:640px){.mode-selection .menu-scene .menu-title{translate:0 -72px}}
 @media(prefers-reduced-motion:reduce){.main-menu .menu-actions{transition:none}.home-mode-choices{animation:none}}
