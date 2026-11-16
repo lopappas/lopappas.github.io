@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-13
+Updated: 2026-11-16
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,9 @@ Updated: 2026-11-13
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.2.96; package 0.2.96): Play opens a mode selection on the home background. Bottom home buttons fade out and become inert; centered side-by-side Apprentice/Expert buttons fade in. Both reuse the Play button style with existing Beautiful/Wonderful grade lettering respectively. Apprentice shows Coming soon and does not start a run. Expert follows the existing selectMode(new) keepsake/adventure flow. A smaller gray Back button (or Escape) restores home actions and Play focus. Reduced motion removes fades. No Apprentice gameplay has been added.
+Latest update (version 0.2.97; package 0.2.97): Apprentice and Expert buttons now use background #243c2f and border #788d77. Both occupy equal minmax(0,1fr) columns at 100% cell width, preserving the existing centered row width. Mode actions, grade lettering and Back are unchanged.
+
+Version 0.2.96: Play opens a mode selection on the home background. Bottom home buttons fade out and become inert; centered side-by-side Apprentice/Expert buttons fade in. Both reuse the Play button style with existing Beautiful/Wonderful grade lettering respectively. Apprentice shows Coming soon and does not start a run. Expert follows the existing selectMode(new) keepsake/adventure flow. A smaller gray Back button (or Escape) restores home actions and Play focus. Reduced motion removes fades. No Apprentice gameplay has been added.
 
 Version 0.2.95: Restored the previous casting glow (24 px charge-track glow and 5 px paper drop shadow). The simpler idle frame shadow remains. Firestorm clouds now use unsampled battle time for full-rate entrance, bobbing and fade; a separate memoized rain layer retains 30 Hz particle motion. No gameplay, damage, timer or input changes.
 
@@ -66,7 +68,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 26 targeted home-mode, run and release tests and TypeScript/production build pass. Mode-view checks cover distinct Apprentice/Expert/Back actions, existing Expert keepsake routing, grade lettering, transition locking, accessible labels and Coming soon status. Browser preview remains unavailable; physical-device layout/fade review is outstanding. Source and matching build are published together; deployment status is checked once.
+Validation for this update: all 4 release-version tests and TypeScript/production build pass. No extra styling tests added for this small visual change. The previous 26 navigation/run/version tests passed for 0.2.96. Browser/phone appearance remains unverified; the preview relay was unavailable in the previous update. Source and matching build are published together; deployment status is checked once.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 

@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.97',publishedAt:'2026-11-16T12:56:27Z',changes:['Updated Apprentice and Expert button colors and ensured equal widths.']},
  {version:'0.2.96',publishedAt:'2026-11-16T12:04:40Z',changes:['Play now opens Apprentice and Expert mode choices.','Expert starts the existing adventure; Apprentice shows Coming soon.','Added a Back button to return to the home choices.']},
  {version:'0.2.95',publishedAt:'2026-11-16T11:52:58Z',changes:['Restored the previous casting glow.','Firestorm clouds animate at full battle frame rate while rain remains at 30 visual updates per second.']},
  {version:'0.2.94',publishedAt:'2026-11-16T11:42:32Z',changes:['Simplified paper shadows and moved the casting glow to the charge border.','Cached enemy labels, health bars and status indicators.','Reused spell-effect artwork and sampled decorative particles at 30 updates per second while preserving combat and drawing timing.']},
