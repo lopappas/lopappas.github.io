@@ -7,7 +7,7 @@ const require=createRequire(import.meta.url);
 export function loadArtSource(source:string,filename:string){
  const output=ts.transpileModule(source,{compilerOptions:{jsx:ts.JsxEmit.React,module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
  const module={exports:{} as Record<string,any>};
- const localRequire=(id:string)=>{if(!id.startsWith('.'))return require(id);const path=resolve(dirname(filename),id);return require(existsSync(path)?path:path+'.ts');};
+ const localRequire=(id:string)=>{if(!id.startsWith('.'))return require(id);const path=resolve(dirname(filename),id);if(existsSync(path+'.tsx'))return loadArt(path+'.tsx');return require(existsSync(path)?path:path+'.ts');};
  new Function('require','module','exports',output)(localRequire,module,module.exports);return module.exports;
 }
 export function loadArt(filename:string){return loadArtSource(readFileSync(filename,'utf8'),filename);}
