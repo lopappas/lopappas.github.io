@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-16
+Updated: 2026-11-17
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -84,7 +84,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: 20 targeted canvas-control, menu/trace, home, Apprentice and version tests pass; TypeScript/production build passes. New checks cover contextual Hide trace visibility, disabled state, dismissal callbacks and preservation of Expert cooldown. Existing owned-spell tests confirm the picker has no Hide trace control. Browser preview remains unavailable; physical-device review is outstanding. Source and matching build are published together; deployment status is checked once.
+Validation for this update: all 644 tests and TypeScript/production build passed in GitHub Actions run 43975452542. Matching production files were committed with version 0.3.5 and release notes. The one-time build workflow was removed after success. Phone visual checks remain outstanding; deployment is checked once after merge.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
