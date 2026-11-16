@@ -32,3 +32,8 @@ Guides fade in and out over 180 ms using opacity transitions; exiting artwork re
 ## 0.3.2 picker and home refinements
 
 The canvas picker now has independent Water, Fire and Nature columns, preserving starter-first order inside each. A fourth Ancient column appears only when such spells are owned. Cells use transparent backgrounds and no border, retaining keyboard focus outlines and elemental colors. Puddle Guard joins Torrent at 1.4× original guide size. Mode buttons and their labels shrink 30%; the original colors, equal sizes and lower vertical stack remain. Mode-choice opacity is now controlled by mounted state instead of an entry keyframe, with the initial transparent frame, home fade, mode fade and focus timing explicitly sequenced and cancelled on unmount.
+
+
+## 0.3.3 canvas overlay refinements
+
+The picker surface is transparent over the existing drawing canvas. Its visible Spells title and Apprentice guide hint are removed; cooldown guidance remains. The close button uses a geometrically centered SVG cross. Menu-only glyph strokes increase 20% to 4.8; labels increase 15% to 11.5 px (10.35 px in four columns) at weight 500. Ordinary guide selection no longer changes the frame fill, keeping the permanent paper outer edge and single inset rule consistent. Existing guide geometry/timing and rune borders are preserved. Apprentice/Expert buttons and labels grow 15% from the previous release.

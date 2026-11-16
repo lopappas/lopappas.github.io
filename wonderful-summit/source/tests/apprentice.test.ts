@@ -37,5 +37,5 @@ test('quick spell table shows only acquired shapes and names, gates Expert trace
  const {CombatSpells}=loadArt(fileURLToPath(new URL('../src/CombatSpells.tsx',import.meta.url)));
  const props={known:['fire'],apprentice:false,ready:false,hasGuide:true,onSelect(){},onHide(){},onClose(){}};
  const html=renderToStaticMarkup(React.createElement(CombatSpells,props));assert.match(html,/Trace Hearthspark/);assert.doesNotMatch(html,/Trace Dewdrop/);assert.match(html,/disabled/);assert.match(html,/Hide trace/);assert.ok(html.includes(SPELLS.find(s=>s.id==='fire')!.path));
- const free=renderToStaticMarkup(React.createElement(CombatSpells,{...props,apprentice:true,ready:true,hasGuide:false}));assert.doesNotMatch(free,/disabled/);assert.doesNotMatch(free,/Hide trace/);assert.match(free,/lasting guide/);
+ const free=renderToStaticMarkup(React.createElement(CombatSpells,{...props,apprentice:true,ready:true,hasGuide:false}));assert.doesNotMatch(free,/disabled/);assert.doesNotMatch(free,/Hide trace/);
 });
