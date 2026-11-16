@@ -13,7 +13,9 @@ Updated: 2026-11-17
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.5): Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
+Latest update (version 0.3.6): Removed the visible cooldown heading. Blocked casts highlight only that spell’s cooldown badge border for 650 ms, restarting on repeated attempts. Queue order and cooldown timing are unchanged. Tests and build pass in GitHub Actions; phone review remains outstanding.
+
+Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 
 Version 0.3.4: In ordinary run combat, opening Spells now dismisses the selected trace via the existing fade without resetting its Expert cooldown. Clear Ink is unmounted while the picker is open. A small Hide trace action appears at the canvas top left only while a guide is active and the picker is closed; it is disabled during pause/end states. Hide trace has been removed from the picker and its props. Ink and mode rules are unchanged.
 
@@ -84,7 +86,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 644 tests and TypeScript/production build passed in GitHub Actions run 43975452542. Matching production files were committed with version 0.3.5 and release notes. The one-time build workflow was removed after success. Phone visual checks remain outstanding; deployment is checked once after merge.
+Validation for this update: all 646 tests and TypeScript/production build passed in GitHub Actions run 43977581732. New badge checks cover targeted feedback, unchanged queue/countdowns, repeated cue restart and completion tokens. Matching production assets and version 0.3.6 release notes are included. The temporary workflow was removed after success. Phone border-highlight appearance remains unverified; deployment is checked once after merge.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
