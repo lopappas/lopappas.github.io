@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-17
+Updated: 2026-11-16
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,9 @@ Updated: 2026-11-17
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.4; displayed 0.3.04): In ordinary run combat, opening Spells now dismisses the selected trace via the existing fade without resetting its Expert cooldown. Clear Ink is unmounted while the picker is open. A small Hide trace action appears at the canvas top left only while a guide is active and the picker is closed; it is disabled during pause/end states. Hide trace has been removed from the picker and its props. Ink and mode rules are unchanged.
+Latest update (version 0.3.5): Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
+
+Version 0.3.4: In ordinary run combat, opening Spells now dismisses the selected trace via the existing fade without resetting its Expert cooldown. Clear Ink is unmounted while the picker is open. A small Hide trace action appears at the canvas top left only while a guide is active and the picker is closed; it is disabled during pause/end states. Hide trace has been removed from the picker and its props. Ink and mode rules are unchanged.
 
 Version 0.3.3 (displayed 0.3.03): The combat picker remains positioned over the canvas, now with a transparent surface exposing the existing paper/ink. Removed its visible Spells heading and Apprentice guide hint. Close uses a centered SVG cross. Menu shapes use stroke width 4.8 (+20%); menu labels are 15% larger in both three/four-column layouts at weight 500. Guide selection no longer toggles the ordinary combat frame's guide-visible fill; the paper's existing outer edge and single inner rule remain. Mode buttons and labels grow 15% from 0.3.02, preserving equal size, vertical centering/lower position, approved colors and fades. Trace stroke width, scales and cooldowns are unchanged.
 
@@ -111,7 +113,6 @@ Paths below are relative to wonderful-summit/source/:
 - Recording/license: src/audio/frostnox_quick-pencil-writing.ogg and src/audio/ATTRIBUTION.txt.
 
 ## Remaining work
-- Draft source change: cooldowns move to the spell canvas bottom-left with unchanged badge styles. New starts enter on the left and earlier starts move right; overflowing badges wrap. Ordering regression tests are authored but unrun. Execution environment unavailable: run targeted tests and production build, then bump version/add release notes and include matching published assets before merging or publishing.
 - Tutorial 2.0 is complete. Performance milestones 1–7 are implemented. Battery Saver remains removed. Rendering follow-ups 1–3 are also implemented. Compare 0.2.94 ordinary combat and persistent-spell-heavy rendering/heat against the saved 0.2.93 baseline. Restored casting glow, full-rate clouds and decorative 30 Hz rain need phone review. Scenery layer separation and selective first-use sound preparation remain optional profiling-led suggestions, not scheduled changes.
 - Historical Pages timeouts/queued retries are not evidence of a current outage. Check current status only when relevant, following AGENTS.md.
 - Historical generated bundles remain in the published assets folder; cleanup has not been requested.
