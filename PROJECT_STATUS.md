@@ -13,7 +13,9 @@ Updated: 2026-11-16
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.2.98; package 0.2.98): Apprentice and Expert are centered in one vertical column, each 220 CSS px wide (viewport-constrained) and 52 px high. Apprentice uses 18 px lettering and Expert 20 px. All nested letter span margins are reset so the generic home-button span spacing cannot push the animated text outside the buttons. Colors remain #243c2f / #788d77; the smaller gray Back stays underneath. The title shifts upward on short screens to clear the taller selection. Gameplay and mode actions are unchanged.
+Latest update (version 0.2.99; package 0.2.99): Both mode labels use 22.8 CSS px text (14% above the former 20 px Expert size). Buttons also grow 14% to 250.8 × 59.28 CSS px, constrained on narrow viewports; both retain matching dimensions, reset letter margins and the approved colors. The complete Apprentice/Expert/Back group moves from viewport center at 50% to 70% height, maintaining its vertical stack. Mode behavior is unchanged.
+
+Version 0.2.98: Apprentice and Expert are centered in one vertical column, each 220 CSS px wide (viewport-constrained) and 52 px high. Apprentice uses 18 px lettering and Expert 20 px. All nested letter span margins are reset so the generic home-button span spacing cannot push the animated text outside the buttons. Colors remain #243c2f / #788d77; the smaller gray Back stays underneath. The title shifts upward on short screens to clear the taller selection. Gameplay and mode actions are unchanged.
 
 Version 0.2.97: Apprentice and Expert buttons now use background #243c2f and border #788d77. Both occupy equal minmax(0,1fr) columns at 100% cell width, preserving the existing centered row width. Mode actions, grade lettering and Back are unchanged.
 
@@ -70,7 +72,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: all 4 release-version tests and TypeScript/production build pass. Small CSS-only layout change; no extra styling tests added. Prior navigation checks remain applicable. Browser/phone appearance remains unverified; source and matching build are published together and deployment status is checked once.
+Validation for this update: all 4 release-version tests and TypeScript/production build pass. Small CSS-only sizing/position change; no new styling tests added. Browser/phone appearance remains unverified; preview relay remains unavailable from the previous update. Source and matching build are published together, with one deployment status check. Version 0.2.99 is the current scheme limit; ask the user for the next version before exceeding 99.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
