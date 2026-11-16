@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-16
+Updated: 2026-11-17
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,9 @@ Updated: 2026-11-16
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.4; displayed 0.3.04): In ordinary run combat, opening Spells now dismisses the selected trace via the existing fade without resetting its Expert cooldown. Clear Ink is unmounted while the picker is open. A small Hide trace action appears at the canvas top left only while a guide is active and the picker is closed; it is disabled during pause/end states. Hide trace has been removed from the picker and its props. Ink and mode rules are unchanged.
+Latest update (version 0.3.5): Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
+
+Version 0.3.4: In ordinary run combat, opening Spells now dismisses the selected trace via the existing fade without resetting its Expert cooldown. Clear Ink is unmounted while the picker is open. A small Hide trace action appears at the canvas top left only while a guide is active and the picker is closed; it is disabled during pause/end states. Hide trace has been removed from the picker and its props. Ink and mode rules are unchanged.
 
 Version 0.3.3 (displayed 0.3.03): The combat picker remains positioned over the canvas, now with a transparent surface exposing the existing paper/ink. Removed its visible Spells heading and Apprentice guide hint. Close uses a centered SVG cross. Menu shapes use stroke width 4.8 (+20%); menu labels are 15% larger in both three/four-column layouts at weight 500. Guide selection no longer toggles the ordinary combat frame's guide-visible fill; the paper's existing outer edge and single inner rule remain. Mode buttons and labels grow 15% from 0.3.02, preserving equal size, vertical centering/lower position, approved colors and fades. Trace stroke width, scales and cooldowns are unchanged.
 
@@ -82,7 +84,7 @@ Opening starter sigils remain removed; the checkmark fades in after the title-sc
 Home action is “Play”. Theodora's run-opening dialogue retains the 15% slowdown from version 0.1.1; tutorial timing is unchanged. Shared spellbook subtitle, encyclopedia tab numbers and “Before you climb…” remain removed.
 
 Tutorial header reads “Tutorial”; tutorial popup overlines no longer display “Tutorial 2.0”. Home shows the package.json version at the top left below the header. README documents the revised release numbering; 0.1.00 is the displayed starting baseline.
-Validation for this update: 20 targeted canvas-control, menu/trace, home, Apprentice and version tests pass; TypeScript/production build passes. New checks cover contextual Hide trace visibility, disabled state, dismissal callbacks and preservation of Expert cooldown. Existing owned-spell tests confirm the picker has no Hide trace control. Browser preview remains unavailable; physical-device review is outstanding. Source and matching build are published together; deployment status is checked once.
+Validation for this update: all 644 tests and TypeScript/production build passed in GitHub Actions run 43975452542. Matching production files were committed with version 0.3.5 and release notes. The one-time build workflow was removed after success. Phone visual checks remain outstanding; deployment is checked once after merge.
 
 Milestone 7: removed the old tutorial session/state machine, combat hooks, spellbook hints, styling and exclusive tests. Retained shared elemental-resistance tests and mode guards. Existing ?tutorial=2 review links remain compatible. Validation: all 494 retained tests pass; TypeScript and production build pass. Source and matching build are published in one commit; deployment status is checked once. No new browser/device pass was performed for this cleanup.
 
