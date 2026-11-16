@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-17
+Updated: 2026-11-16
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,9 @@ Updated: 2026-11-17
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.5): Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
+Latest update (version 0.3.6): Removed the visible cooldown heading. Blocked casts highlight only that spell’s cooldown badge border for 650 ms, restarting on repeated attempts. Queue order and cooldown timing are unchanged. Tests and build pass in GitHub Actions; phone review remains outstanding.
+
+Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 
 Version 0.3.4: In ordinary run combat, opening Spells now dismisses the selected trace via the existing fade without resetting its Expert cooldown. Clear Ink is unmounted while the picker is open. A small Hide trace action appears at the canvas top left only while a guide is active and the picker is closed; it is disabled during pause/end states. Hide trace has been removed from the picker and its props. Ink and mode rules are unchanged.
 
