@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-16
+Updated: 2026-11-17
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -111,6 +111,7 @@ Paths below are relative to wonderful-summit/source/:
 - Recording/license: src/audio/frostnox_quick-pencil-writing.ogg and src/audio/ATTRIBUTION.txt.
 
 ## Remaining work
+- Draft source change: cooldowns move to the spell canvas bottom-left with unchanged badge styles. New starts enter on the left and earlier starts move right; overflowing badges wrap. Ordering regression tests are authored but unrun. Execution environment unavailable: run targeted tests and production build, then bump version/add release notes and include matching published assets before merging or publishing.
 - Tutorial 2.0 is complete. Performance milestones 1–7 are implemented. Battery Saver remains removed. Rendering follow-ups 1–3 are also implemented. Compare 0.2.94 ordinary combat and persistent-spell-heavy rendering/heat against the saved 0.2.93 baseline. Restored casting glow, full-rate clouds and decorative 30 Hz rain need phone review. Scenery layer separation and selective first-use sound preparation remain optional profiling-led suggestions, not scheduled changes.
 - Historical Pages timeouts/queued retries are not evidence of a current outage. Check current status only when relevant, following AGENTS.md.
 - Historical generated bundles remain in the published assets folder; cleanup has not been requested.

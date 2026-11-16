@@ -442,3 +442,8 @@
 .combat-spells-column{min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:6px}.combat-spells-grid[data-columns="4"]{gap:4px}.combat-spells-grid[data-columns="4"] button{font-size:10.35px}.combat-spells-grid[data-columns="4"] svg{width:32px;height:32px}
 
 .canvas-trace-controls{position:absolute;top:15px;left:17px;z-index:2}.canvas-trace-controls button{display:block;padding:4px 7px;min-height:28px;border:1px solid #b8a47a66;border-radius:4px;background:#ebdfbcdd;color:#6d624b;font-size:11px;line-height:1.2}
+
+/* Keep the existing cooldown badge typography, colors and sizing on the drawing surface. */
+.paper .canvas-spell-cooldowns{top:auto;right:auto;bottom:14px;left:14px;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:3px;width:max-content;max-width:calc(100% - 28px);pointer-events:none}
+.paper .canvas-spell-cooldowns .cooldowns-title{flex:0 0 100%}
+.paper .canvas-spell-cooldowns>span{flex:0 0 auto}
