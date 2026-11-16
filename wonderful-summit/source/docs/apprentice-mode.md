@@ -20,3 +20,10 @@ Validation: run mode/reward/reset isolation, trace expiration/cooldown boundarie
 - Consider a tap-to-start/tap-to-release cast alternative for players who struggle with prolonged holds.
 
 Retry/progress preservation and adjustable input/difficulty assistance are consistent with Microsoft’s Xbox Accessibility Guidelines: https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/108 and https://learn.microsoft.com/en-us/windows/uwp/gaming/accessibility-for-games . These are design references, not evidence that the proposed changes have been playtested in Wonderful Summit.
+
+
+## 0.3.1 visual update
+
+The combat picker now overlays only the drawing canvas, with three centered cells per row and scrolling for larger collections. Starter Water/Fire/Nature spells come first, then the remaining owned spells are grouped Water/Fire/Nature/Ancient. No unearned Ancient spells appear. The header provides close and Hide trace controls; the remaining battle remains visible.
+
+Guides fade in and out over 180 ms using opacity transitions; exiting artwork remains mounted briefly, and replacements fade the prior guide before entering the next. Timers and scheduled entry frames are cancelled on replacement/unmount. This is presentation time, independent of the unchanged active battle-time guide/cooldown rules. Guide-only stroke width increases from 4 to 4.4. Relative guide dimensions increase by 15% for Bog/Chronos/Firestorm/Flame Blade, 50% for Thistle Bush and 40% for Torrent. Menu thumbnails, recognition points and drawn ink are not scaled. Phone checks should include short canvases, long spell collections, rapid guide changes and hiding/expiry during a fade.

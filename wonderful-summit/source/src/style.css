@@ -429,9 +429,12 @@
 @media(max-height:640px){.mode-selection .menu-scene .menu-title{translate:0 -72px}}
 @media(prefers-reduced-motion:reduce){.main-menu .menu-actions{transition:none}.home-mode-choices{animation:none}}
 
-.combat-spells-shade{position:fixed;inset:0;z-index:35;background:#10251b55;display:flex;align-items:center;justify-content:center;padding:16px}
-.combat-spells{width:min(360px,100%);max-height:70svh;overflow:auto;background:#243c2f;border:1px solid #788d77;border-radius:10px;padding:14px;color:#f1e5c8;box-shadow:0 8px 24px #10251b66}
-.combat-spells header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.combat-spells header button{width:36px;height:36px;background:none;border:1px solid #788d77;border-radius:6px;color:inherit;font-size:24px}
-.combat-spells-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.combat-spells-grid button{display:flex;align-items:center;gap:6px;min-height:62px;padding:8px;background:#1b3024;border:1px solid #788d77;border-radius:7px;font-size:12px;text-align:left}.combat-spells-grid svg{width:44px;height:44px;flex-shrink:0}.combat-spells p{font-size:12px;line-height:1.5;margin:12px 0 0}.combat-spells .secondary-button{color:inherit;width:100%}
+.combat-spells-shade{position:absolute;inset:0;z-index:15;background:#ebdfbcfa;padding:6px;display:flex;align-items:stretch;justify-content:center;border-radius:4px}
+.combat-spells{width:100%;min-height:0;display:flex;flex-direction:column;color:#46583e;padding:0 4px}
+.combat-spells header{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-shrink:0;margin-bottom:4px;font-size:12px}
+.combat-spells header button{min-width:30px;height:28px;padding:2px 6px;background:#243c2f;border:1px solid #788d77;border-radius:5px;color:#f1e5c8;font-size:20px}.combat-spells header .hide-combat-trace{font-size:10px;margin-left:auto}
+.combat-spells-grid{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-content:start;justify-items:stretch;padding:2px}
+.combat-spells-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:68px;padding:5px 3px;background:#243c2f;border:1px solid #788d77;border-radius:6px;font-size:10px;line-height:1.15;text-align:center}.combat-spells-grid svg{width:38px;height:38px;flex-shrink:0}.combat-spells-grid span{overflow-wrap:anywhere}
+.combat-spells p{flex-shrink:0;font-size:10px;line-height:1.2;text-align:center;margin:4px 0 0}
 .journey-combat .perfect-guide{animation:none!important;filter:none}
 .journey-combat .perfect-guide svg{filter:none}

@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.1',publishedAt:'2026-11-16T17:38:02Z',changes:['Combat Spells now fills the spell canvas with evenly spaced, element-ordered choices and starters first.','Spell traces fade in and out, use thicker lines and larger guides for selected spells.']},
  {version:'0.3.0',publishedAt:'2026-11-16T16:35:28Z',changes:['Apprentice is now available and recommended for new players, with lasting spell guides and 50% stronger enemy recoil after contact.','Combat Spells opens a quick table of owned spells. Expert traces last 2 seconds followed by a 10-second cooldown.','Book Worm now adds 3% spell damage for each spell learned beyond the three starters.']},
  {version:'0.2.99',publishedAt:'2026-11-16T13:40:56Z',changes:['Enlarged both mode buttons with matching larger lettering and moved the mode choices lower on the screen.']},
  {version:'0.2.98',publishedAt:'2026-11-16T13:35:26Z',changes:['Centered Apprentice and Expert in a vertical stack with matching button sizes and smaller Apprentice lettering.']},
