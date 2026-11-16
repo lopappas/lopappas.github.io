@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.2.94',publishedAt:'2026-11-16T11:42:32Z',changes:['Simplified paper shadows and moved the casting glow to the charge border.','Cached enemy labels, health bars and status indicators.','Reused spell-effect artwork and sampled decorative particles at 30 updates per second while preserving combat and drawing timing.']},
  {version:'0.2.93',publishedAt:'2026-11-13T21:36:44Z',changes:['Reduced ink canvas resolution on high-density displays to lower drawing and compositing work.','Preserved ink width, drawing coordinates and spell recognition.']},
  {version:'0.2.92',publishedAt:'2026-11-13T21:29:09Z',changes:['Prepared spell recognition templates once and reduced temporary allocations during casting.','Preserved recognition scores, spell decisions and accuracy bonuses.']},
  {version:'0.2.91',publishedAt:'2026-11-13T21:15:25Z',changes:['Isolated ink and charge indicators from surrounding combat controls.','Cached drawing paths, bounds and canvas measurements.','Dialogue positioning now reacts to layout changes and character motion instead of continuous polling.']},

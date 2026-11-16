@@ -1,3 +1,4 @@
+import {EnemyNameplate,EnemyIndicators} from './EnemyUI';
 import {FilaBody,SlimeBody,GoblinBody,CrownBody,GoblinHelmet} from './CharacterBodies';
 import {chronosClockFrame} from './chronosClock';
 import {ChronosClock} from './ChronosClockArt';
@@ -77,13 +78,8 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
 </g></g>
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>
-{!practice&&<g transform={kingUIOffset?`translate(0 ${kingUIOffset})`:undefined}><rect x={e.goblinKing?-96:e.kind==='mother'?-90:e.kind==='spider'&&e.element!=='Neutral'?-80:e.rocky?-62:e.kind==='slime'&&e.element!=='Neutral'?-78:-47} y={e.goblinKing?-170:e.kind==='mother'?-130:e.kind==='goblin'?-83:-62} width={e.goblinKing?192:e.kind==='mother'?180:e.kind==='spider'&&e.element!=='Neutral'?160:e.rocky?124:e.kind==='slime'&&e.element!=='Neutral'?156:94} height="22" rx="5" fill="#233b32dd"/>
-<text y={e.goblinKing?-154:e.kind==='mother'?-114:e.kind==='goblin'?-67:-46} textAnchor="middle" fill={color} fontSize="17" fontFamily="Fredoka">{e.goblinKing?'Goblin King':e.kind==='mother'?'Slime Mother':e.rocky?'Rock slime':e.kind==='goblin'?(enemyEntrance?'Goblin':'Elite'):e.kind==='spider'?(e.element==='Neutral'?'Spider':`${e.element} spider`):e.element==='Neutral'?'Slime':`${e.element} slime`} {Math.ceil(e.hp)}</text>
-<rect x="-39" y={e.goblinKing?-144:e.kind==='mother'?-105:e.kind==='goblin'?-59:-38} width="78" height="6" rx="3" fill="#294034"/><rect x="-39" y={e.goblinKing?-144:e.kind==='mother'?-105:e.kind==='goblin'?-59:-38} width={78*e.hp/e.maxHP} height="6" rx="3" fill="#d68c88"/>
-{e.kind==='mother'&&<text y={-84} textAnchor="middle" fill={color} fontSize="16" fontFamily="Fredoka">{e.element}</text>}
-</g>}
-{e.attackAt!==null&&<text x="45" y="-27" fill="#f4aa80" fontSize="30">!</text>}
-{status&&<text x="0" y={e.goblinKing?-195+kingUIOffset:e.kind==='mother'?-145:-97} textAnchor="middle" fill="#ece2b7" fontSize="18">{status}</text>}
+{!practice&&<EnemyNameplate kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={color} kingUIOffset={kingUIOffset} enemyEntrance={enemyEntrance}/>}
+<EnemyIndicators attacking={e.attackAt!==null} status={status} statusY={e.goblinKing?-195+kingUIOffset:e.kind==='mother'?-145:-97}/>
 {kingDialogueVisible(e,battle.time)&&<g role="status" aria-label="Goblin King says: My crown! You’ll pay for this!" transform={`translate(${Math.max(134,Math.min(586,e.x))-e.x} -282)`} pointerEvents="none">
  <path d="M-8 73 0 87 8 73" fill="#354d29" stroke="#25381d" strokeWidth="2"/>
  <rect x="-128" y="0" width="256" height="76" rx="10" fill="#354d29" stroke="#e7c663" strokeWidth="2"/>

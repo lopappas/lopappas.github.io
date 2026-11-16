@@ -1,18 +1,23 @@
-import React from 'react';
+import React,{memo} from 'react';
+import {decorativeTime} from './visualCadence';
 import {PaletteGroup} from './PaletteGroup';
 import type {Enemy} from './battle';
+
+const FLAMES=Array.from({length:5},(_,i)=>({i,phase:i/5,x:-25+i*12,shape:<><path d="M0 5h-4V0h-2v-5h3v-6h3v4h3v4h2v6H0z" fill={i%2?'#f4a452':'#ee7547'}/><path d="M-2 3v-5h3v5z" fill="#ffe2a0"/></>}));
 
 /** Follow combat time so effects stop naturally while the game is paused. */
 export function EnemyEffects({enemy,time}:{enemy:Enemy;time:number}){
  const rooted=enemy.rootUntil>time,growth=Math.min(1,Math.max(0,(1.5-enemy.rootUntil+time)/.25));
+ return <EnemyEffectsFrame cursed={enemy.curseTick!==null} burning={!!enemy.burn} rooted={rooted} growth={rooted?growth:0} time={enemy.burn?decorativeTime(time):0}/>;
+}
+export const EnemyEffectsFrame=memo(function EnemyEffectsFrame({cursed,burning,rooted,growth,time}:{cursed:boolean;burning:boolean;rooted:boolean;growth:number;time:number}){
  return <PaletteGroup pointerEvents="none">
 
-  {enemy.curseTick!==null&&<g aria-label="Cursed enemy" opacity=".8"><ellipse cy="19" rx="34" ry="7" fill="none" stroke="#b393d9" strokeWidth="3" strokeDasharray="9 7"/><path d="m-23-40 4-7 4 7-4 7zM20-55l4-7 4 7-4 7z" fill="#b393d9"/></g>}
-  {enemy.burn&&<g aria-label="Burning enemy">{Array.from({length:5},(_,i)=>{
-   const t=(time*.95+i/5)%1,x=-25+i*12+Math.sin(t*6+i)*5,y=12-t*70;
+  {cursed&&<g aria-label="Cursed enemy" opacity=".8"><ellipse cy="19" rx="34" ry="7" fill="none" stroke="#b393d9" strokeWidth="3" strokeDasharray="9 7"/><path d="m-23-40 4-7 4 7-4 7zM20-55l4-7 4 7-4 7z" fill="#b393d9"/></g>}
+  {burning&&<g aria-label="Burning enemy">{FLAMES.map(({i,phase,x:baseX,shape})=>{
+   const t=(time*.95+phase)%1,x=baseX+Math.sin(t*6+i)*5,y=12-t*70;
    return <g key={i} transform={`translate(${x} ${y}) scale(${1-t*.65})`} opacity={Math.sin(t*Math.PI)*.95}>
-    <path d="M0 5h-4V0h-2v-5h3v-6h3v4h3v4h2v6H0z" fill={i%2?'#f4a452':'#ee7547'}/>
-    <path d="M-2 3v-5h3v5z" fill="#ffe2a0"/>
+    {shape}
    </g>;
   })}</g>}
   {rooted&&<g aria-label="Trapped in roots" transform={`translate(0 20) scale(1 ${growth})`}>
@@ -21,4 +26,4 @@ export function EnemyEffects({enemy,time}:{enemy:Enemy;time:number}){
    <path d="M-25-18q-12-13-14-2 4 7 14 2M25-18q12-13 14-2-4 7-14 2" fill="#83ad67"/>
   </g>}
  </PaletteGroup>;
-}
+});
