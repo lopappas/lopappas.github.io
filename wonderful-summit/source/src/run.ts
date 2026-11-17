@@ -1,3 +1,4 @@
+import {MIN_CAST_QUALITY} from './quality.ts';
 import {pickByRarity,type RelicRarity,type SpellRarity} from './rarity.ts';
 import {rollTrailEvent,forgottenCampsiteOutcome,type TrailEventState} from './events.ts';
 import {worstDrawing,bestDrawing,type PlayerDrawing} from './drawings.ts';
@@ -121,7 +122,7 @@ export function camp(run:Run,spell?:SpellId):Run{if(run.pendingBottle||(run.pend
 
 export function sealBottle(run:Run,spell:BottledSpell):Run{
  if(!run.pendingBottle)return run;
- const valid=spell.spellId&&run.spells.includes(spell.spellId)&&Number.isFinite(spell.quality)&&spell.quality>=48;
+ const valid=spell.spellId&&run.spells.includes(spell.spellId)&&Number.isFinite(spell.quality)&&spell.quality>=MIN_CAST_QUALITY;
  return{...(!valid?shatterTrailSphere(run):run),pendingBottle:false,worstDrawing:valid?worstDrawing(run.worstDrawing,spell.drawing):run.worstDrawing,bestDrawing:bestDrawing(run.bestDrawing,spell.drawing),bottledSpells:[...run.bottledSpells,{spellId:valid?spell.spellId:null,quality:Math.max(0,Math.min(100,Number.isFinite(spell.quality)?spell.quality:0)),...(spell.drawing?{drawing:spell.drawing}:{}),...(spell.inkUsed===undefined?{}:{inkUsed:Number.isFinite(spell.inkUsed)?Math.max(0,spell.inkUsed):0})}]};
 }
 export function merchantDialogue(node:number){return node>7?"I'm saving money to buy a cozy sweater for winter. How are you staying warm?":"The summit is glowing like a deep sea anglerfish today. I'm a sea urchin by the way. Oh! Did you need something?";}
@@ -129,7 +130,7 @@ export function merchantDialogue(node:number){return node>7?"I'm saving money to
 export function castTrailEvent(run:Run,spellId:SpellId|null,quality:number,drawing?:PlayerDrawing):Run{
  if(run.pendingBottle||(run.pendingSpellOffers?.length??0)>0||run.screen!=='event'||!run.event||run.event.outcome!=='pending')return run;
  const known=spellId&&run.spells.includes(spellId)?spellId:null;
- return{...(!known||quality<48?shatterTrailSphere(run):run),worstDrawing:known&&quality>=48?worstDrawing(run.worstDrawing,drawing):run.worstDrawing,event:{...run.event,outcome:forgottenCampsiteOutcome(known,quality),quality:Math.max(0,Math.min(100,Number.isFinite(quality)?quality:0))},bestDrawing:bestDrawing(run.bestDrawing,drawing)};
+ return{...(!known||quality<MIN_CAST_QUALITY?shatterTrailSphere(run):run),worstDrawing:known&&quality>=MIN_CAST_QUALITY?worstDrawing(run.worstDrawing,drawing):run.worstDrawing,event:{...run.event,outcome:forgottenCampsiteOutcome(known,quality),quality:Math.max(0,Math.min(100,Number.isFinite(quality)?quality:0))},bestDrawing:bestDrawing(run.bestDrawing,drawing)};
 }
 
 export function unlockDeveloperTrail(run:Run):Run{return run.screen==='map'&&!run.pendingBottle&&!run.developerTrailUnlocked?{...run,developerTrailUnlocked:true}:run;}

@@ -15,8 +15,8 @@ test('Sneaky Vine targets only the furthest living, present enemy and breaks tie
  const tie={...b,enemies:b.enemies.slice(0,2).map(e=>({...e,x:450}))};assert.equal(spellTarget(tie,'sneakyVine')?.id,1);
 });
 test('Sneaky Vine deals 27 at Steady, scales with accuracy and has the normal 25 percent damage upgrade',()=>{
- assert.equal(spellDamage({element:'Neutral'},60,'sneakyVine'),27);assert.equal(spellPower('sneakyVine',47),0);
- let last=0;for(let q=48;q<=100;q++){const damage=spellPower('sneakyVine',q);assert.ok(damage>=last);last=damage;}
+ assert.equal(spellDamage({element:'Neutral'},60,'sneakyVine'),27);assert.equal(spellPower('sneakyVine',44),0);
+ let last=0;for(let q=45;q<=100;q++){const damage=spellPower('sneakyVine',q);assert.ok(damage>=last);last=damage;}
  assert.equal(spellUpgradePreview('sneakyVine')?.nextDamage,34);
 });
 test('the vine drags backwards over 0.9 seconds, never exceeds the runway, and expires',()=>{
@@ -37,17 +37,17 @@ test('Sneaky Vine can Black Flash at Steady but not Faint, without changing othe
  assert.equal(launchSpell(b,59,'green','sneakyVine',0,()=>0).blackFlashBurst,null);
 });
 test('fizzles and no living target do not spend the vine cooldown or create a grab',()=>{
- const b=field();assert.equal(launchSpell(b,47,'green','sneakyVine').vineGrab,null);assert.equal(spellCooldownRemaining(launchSpell(b,47,'green','sneakyVine'),'sneakyVine'),0);
+ const b=field();assert.equal(launchSpell(b,44,'green','sneakyVine').vineGrab,null);assert.equal(spellCooldownRemaining(launchSpell(b,44,'green','sneakyVine'),'sneakyVine'),0);
  const empty={...b,enemies:b.enemies.map(e=>({...e,hp:0}))};const noTarget=launchSpell(empty,60,'green','sneakyVine');assert.equal(noTarget.vineGrab,null);assert.equal(spellCooldownRemaining(noTarget,'sneakyVine'),0);
 });
 
 test('Sneaky Vine has 2.5 times standard spell knockback at every successful grade',()=>{
- for(const q of [48,59,60,69,70,79,80,100])assert.equal(spellKnockback(q,'sneakyVine'),spellKnockback(q,'water')*2.5);
+ for(const q of [45,59,60,69,70,79,80,100])assert.equal(spellKnockback(q,'sneakyVine'),spellKnockback(q,'water')*2.5);
  const b=field();b.enemies[1].x=400;const hit=launchSpell(b,60,'green','sneakyVine',0,()=>.99);assert.equal(hit.enemies[1].push!.to,Math.min(ENEMY_BACK_X,400+spellKnockback(60,'water')*2.5));
 });
 
 test('Sneaky Vine ignores shield reductions at every grade while preserving elemental and rocky defenses',()=>{
- for(const element of ['Neutral','Fire','Water','Nature'] as const)for(const rocky of [false,true])for(const quality of [48,59,60,69,70,80,100])for(const shield of [{material:'wood' as const,burnUntil:null},{material:'wood' as const,burnUntil:2}]){
+ for(const element of ['Neutral','Fire','Water','Nature'] as const)for(const rocky of [false,true])for(const quality of [45,59,60,69,70,80,100])for(const shield of [{material:'wood' as const,burnUntil:null},{material:'wood' as const,burnUntil:2}]){
   const target={element,rocky,shield};assert.equal(spellDamage(target,quality,'sneakyVine'),spellDamage({...target,shield:null},quality,'sneakyVine'));
   assert.equal(spellKnockback(quality,'sneakyVine',1,element,rocky,shield),spellKnockback(quality,'sneakyVine',1,element,rocky,null));
  }

@@ -12,9 +12,9 @@ test('Forgotten Campsite is the only Act 1 event, immediately after Rocky cleari
  const r=visit();assert.equal(r.screen,'event');assert.deepEqual(r.event,{id:'forgottenCampsite',outcome:'pending'});assert.equal(r.campUsed,false);assert.equal(enterNode(r),r);
 });
 test('fire quality boundaries, non-fire spells and fizzles resolve to the specified outcomes',()=>{
- for(const id of ['fire','bolt'] as const)for(const [q,outcome] of [[48,'spark'],[59,'spark'],[60,'fleeting'],[64,'fleeting'],[65,'lit'],[70,'lit'],[100,'lit']] as const)assert.equal(forgottenCampsiteOutcome(id,q),outcome);
+ for(const id of ['fire','bolt'] as const)for(const [q,outcome] of [[45,'spark'],[59,'spark'],[60,'fleeting'],[64,'fleeting'],[65,'lit'],[70,'lit'],[100,'lit']] as const)assert.equal(forgottenCampsiteOutcome(id,q),outcome);
  for(const id of [null,'water','nature','wave','leaf','chronos'] as const)for(const q of [0,59,64,65,100])assert.equal(forgottenCampsiteOutcome(id,q),'noEffect');
- for(const q of [0,47,NaN,Infinity])assert.equal(forgottenCampsiteOutcome('fire',q),'noEffect');
+ for(const q of [0,44,NaN,Infinity])assert.equal(forgottenCampsiteOutcome('fire',q),'noEffect');
  const r=visit();assert.equal(trailEventDescription(r.event!),'You find yourself in a long abandoned campsite. Hmmm... Maybe we can light it up once more?');
  const descriptions={lit:'A bright fireball crashes onto the logs. You feel a burst of hot air rush past your face. Then calm... The campfire is lit once more.',fleeting:'The logs were alight, but just for a fleeting moment.',spark:'The faint spark was smothered by the quiet logs',noEffect:'There was no effect'};
  for(const [outcome,text] of Object.entries(descriptions))assert.equal(trailEventDescription({id:'forgottenCampsite',outcome:outcome as keyof typeof descriptions}),text);

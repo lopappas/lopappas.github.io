@@ -47,7 +47,7 @@ export function resolveM4Cast(s:Tutorial2FireState,o:Tutorial2CastOutcome){
  if(s.index<ELEMENT_STEPS.length)return resolveElementCast(s,o);
  if(s.phase!=='running'||o.token!==s.token-1)return s;
  const id=M4_STEPS[s.index]?.id;
- const good=o.spellId==='fire'&&(id==='goblin-bad-impact'&&o.quality===48&&Math.abs(o.enemyHP-51.5)<.001||id==='goblin-perfect-impact'&&o.quality===100&&o.enemyHP<=0);
+ const good=o.spellId==='fire'&&(id==='goblin-bad-impact'&&o.quality===45&&Math.abs(o.enemyHP-51.5)<.001||id==='goblin-perfect-impact'&&o.quality===100&&o.enemyHP<=0);
  if(!id?.endsWith('-impact'))return s;
  return good?{...s,index:s.index+1,token:s.token+1,elapsedMs:0}:{...s,index:M4_STEPS.findIndex(x=>x.id==='goblin-bad-cast'),token:s.token+1,elapsedMs:0,resetSerial:s.resetSerial+1};
 }
@@ -55,7 +55,7 @@ export function relicAwarded(s:Tutorial2FireState){return s.phase==='complete'||
 export function goblinDrawing(perfect:boolean,progress=1):Strokes{
  let path:Strokes[number];
  if(perfect)path=SPELLS.find(s=>s.id==='fire')!.strokes[0];
- else{path=[];const v=[[50,12],[85,82],[15,82],[50,12]];for(let e=0;e<3;e++)for(let j=0;j<8;j++){const t=j/8,a=v[e],b=v[e+1];path.push({x:a[0]+(b[0]-a[0])*t+Math.sin(j*2.7+e*1.8+11)*6,y:a[1]+(b[1]-a[1])*t+Math.cos(j*1.9+e+11)*3.6});}path.push(path[0]);}
+ else{path=[];const v=[[50,12],[85,82],[15,82],[50,12]];for(let e=0;e<3;e++)for(let j=0;j<8;j++){const t=j/8,a=v[e],b=v[e+1];path.push({x:a[0]+(b[0]-a[0])*t+Math.sin(j*2.7+e*1.8+11)*6.3,y:a[1]+(b[1]-a[1])*t+Math.cos(j*1.9+e+11)*3.78});}path.push(path[0]);}
  const lengths=path.slice(1).map((b,i)=>Math.hypot(b.x-path[i].x,b.y-path[i].y));let left=lengths.reduce((a,b)=>a+b,0)*Math.max(0,Math.min(1,progress));const partial=[path[0]];
  for(let i=0;i<lengths.length;i++){const a=path[i],b=path[i+1];if(left>=lengths[i]){partial.push(b);left-=lengths[i];}else{const t=left/lengths[i];partial.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});break;}}
  return[partial];

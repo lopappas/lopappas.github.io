@@ -94,3 +94,7 @@ Cooldown: 10 seconds. Recasting replaces the current Torrent. Its damage upgrade
 
 ## Performance review
 Performance milestones 1–2 add an optional Developer-panel monitor, stop idle combat/practice/dialogue animation loops, separate live battlefield subscriptions from displayed controls, and memoize the original scenery. Reports distinguish control and battlefield commits. See [the performance guide](docs/performance.md) for capture steps, metric limits, local baseline and remaining milestones.
+
+### Faint quality range (0.3.7)
+
+Both modes accept unambiguous spells at 45% quality. Faint spans 45–59%, with the previous Faint minimum and maximum damage/knockback preserved at 45% and 59%. Within-tier duration, slowdown and placed-effect ranges follow the same mapping. Scores, stored drawings and accuracy bonuses retain their actual values. Steady begins at 60%; higher tiers are unchanged. Recognition still requires a seven-point lead over the next candidate, so accuracy bonuses cannot resolve ambiguity. The tutorial’s scripted weakest Faint cast is now 45%, preserving its original damage demonstration.

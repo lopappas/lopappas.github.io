@@ -17,11 +17,11 @@ test('wooden shields halve damage and knockback before rounding for other damage
  }
 });
 test('any valid fire spell ignites wood regardless of element, rocky immunity, enemy kind or cast grade',()=>{
- for(const kind of ['slime','elite'] as const)for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const q of [48,59,60,69,70,80,100])for(const id of ['fire','bolt'] as const){const b=newBattle('active',kind);b.time=7;b.enemies[0]={...b.enemies[0],element,rocky:true,shield:woodenShield(),hp:1000,maxHP:1000};const e=hitWithSpell(b,q,id).enemies[0];assert.equal(e.shield?.burnUntil,9);assert.equal(e.push,null);assert.equal(e.attackAt,null);}
- assert.equal(igniteShield(woodenShield(),'Fire',47,0).burnUntil,null);
+ for(const kind of ['slime','elite'] as const)for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const q of [45,59,60,69,70,80,100])for(const id of ['fire','bolt'] as const){const b=newBattle('active',kind);b.time=7;b.enemies[0]={...b.enemies[0],element,rocky:true,shield:woodenShield(),hp:1000,maxHP:1000};const e=hitWithSpell(b,q,id).enemies[0];assert.equal(e.shield?.burnUntil,9);assert.equal(e.push,null);assert.equal(e.attackAt,null);}
+ assert.equal(igniteShield(woodenShield(),'Fire',44,0).burnUntil,null);
 });
 test('burning shield locks movement and attacks for exactly two seconds; repeated hits never extend it',()=>{
- let b=newBattle('active','slime');b.approachAt=0;b.enemies[0]={...b.enemies[0],shield:woodenShield(),x:CONTACT_X,attackAt:.01,hp:1000,maxHP:1000};b=hitWithSpell(b,48,'fire');b=advance(b,1);b=hitWithSpell(b,60,'water');b=hitWithSpell(b,48,'fire');assert.equal(b.enemies[0].shield?.burnUntil,2);b=advance(b,.99);assert.equal(b.enemies[0].x,CONTACT_X);assert.equal(b.playerHP,100);assert.equal(b.enemies[0].clock,0);assert.ok(b.enemies[0].shield);b=advance(b,.02);assert.equal(b.enemies[0].shield,null);assert.equal(b.playerHP,100);assert.ok(b.enemies[0].attackAt!==null);
+ let b=newBattle('active','slime');b.approachAt=0;b.enemies[0]={...b.enemies[0],shield:woodenShield(),x:CONTACT_X,attackAt:.01,hp:1000,maxHP:1000};b=hitWithSpell(b,45,'fire');b=advance(b,1);b=hitWithSpell(b,60,'water');b=hitWithSpell(b,45,'fire');assert.equal(b.enemies[0].shield?.burnUntil,2);b=advance(b,.99);assert.equal(b.enemies[0].x,CONTACT_X);assert.equal(b.playerHP,100);assert.equal(b.enemies[0].clock,0);assert.ok(b.enemies[0].shield);b=advance(b,.02);assert.equal(b.enemies[0].shield,null);assert.equal(b.playerHP,100);assert.ok(b.enemies[0].attackAt!==null);
 });
 test('armor persists during burning, then disappears permanently; burn ticks use armor at the tick time',()=>{
  let b=newBattle('active','slime');b.enemies[0]={...b.enemies[0],element:'Neutral',shield:woodenShield(),hp:1000,maxHP:1000};b=hitWithSpell(b,100,'bolt');const hp=b.enemies[0].hp;b=advance(b,1.01);assert.equal(hp-b.enemies[0].hp,8);const afterFirst=b.enemies[0].hp;b=advance(b,1);assert.equal(b.enemies[0].shield,null);assert.equal(afterFirst-b.enemies[0].hp,16);const hit=hitWithSpell(b,60,'water');assert.equal(b.enemies[0].hp-hit.enemies[0].hp,spellDamage({element:'Neutral'},60,'water'));
@@ -30,7 +30,7 @@ test('armor persists during burning, then disappears permanently; burn ticks use
 test('unburned shields reduce contact ward knockback and accept control effects; freeze does not postpone destruction',()=>{
  let b=newBattle('active','slime');b.approachAt=0;b.enemies[0]={...b.enemies[0],shield:woodenShield(),x:CONTACT_X,attackAt:0};const pushed=stepBattle(b,.01);assert.equal(pushed.enemies[0].push!.to-CONTACT_X,52.5);
  const controlled=hitWithSpell(b,60,'chronos');assert.equal(controlled.enemies[0].stunUntil,2.5);assert.equal(controlled.enemies[0].shield?.burnUntil,null);
- b=drinkPotion(hitWithSpell(b,48,'fire'),'freeze');b=advance(b,2.01);assert.equal(b.enemies[0].shield,null);assert.ok(b.freezeUntil>b.time);
+ b=drinkPotion(hitWithSpell(b,45,'fire'),'freeze');b=advance(b,2.01);assert.equal(b.enemies[0].shield,null);assert.ok(b.freezeUntil>b.time);
 });
 test('reinforcement prevents early victory and cannot be targeted, controlled or damaged before its arrival',()=>{
  let b=newBattle('active','shieldPack');b.enemies[0].hp=0;b.enemies[1].hp=0;b=advance(b,13.49);assert.equal(b.phase,'active');assert.equal(nearestEnemy(b),undefined);assert.equal(hitWithSpell(b,100,'chronos'),b);assert.equal(b.enemies[2].hp,150);b=advance(b,.02);assert.equal(nearestEnemy(b)?.id,3);assert.equal(presentEnemies(b).length,1);

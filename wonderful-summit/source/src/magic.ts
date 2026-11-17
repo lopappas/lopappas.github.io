@@ -1,3 +1,4 @@
+import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
 import type {SpellRarity} from './rarity.ts';
 export type Point = {x:number;y:number};
 export type Strokes = Point[][];
@@ -90,7 +91,7 @@ export function applyRecognitionBonus(raw:RecognitionResult,accuracyBonus=0):Rec
  const {candidates}=raw;if(!candidates.length)return raw;
  const top=candidates[0],margin=top.quality-(candidates[1]?.quality??0);
  const quality=Math.min(100,top.quality+Math.max(0,accuracyBonus));
- const accepted=quality>=48&&margin>=7;
+ const accepted=quality>=MIN_CAST_QUALITY&&margin>=7;
  return{spell:accepted?top.spell:null,quality,candidates,reason:accepted?'':margin<7?'The shape is between two sigils. Make its defining details clearer.':'The sigil is incomplete or its shape needs more care.'};
 }
 
@@ -98,17 +99,17 @@ export function grade(quality:number){return quality>=80?'Wonderful':quality>=70
 // Exponential growth between valid scores, plus explicit rewards at grade thresholds.
 // Faint stays weak; every Steady-or-better score improves on the old curve.
 function accuracyStrength(quality:number){
- if(!Number.isFinite(quality)||quality<48)return{damage:0,knockback:0};
- const q=Math.min(100,quality),tier=q>=80?3:q>=70?2:q>=60?1:0;
+ if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return{damage:0,knockback:0};
+ const q=balanceQuality(quality),tier=q>=80?3:q>=70?2:q>=60?1:0;
  const growth=Math.expm1(Math.log(6)*(q-48)/52)/5;
  return{damage:Math.round(8+40*growth+[0,7,10,16][tier]),knockback:Math.round(18+82*growth+[0,32,44,60][tier])};
 }
 export function power(quality:number){return accuracyStrength(quality).damage;}
 export function spellPower(id:SpellId,quality:number){
- if(id==='sneakyVine'){if(!Number.isFinite(quality)||quality<48)return 0;const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,12,20]:q<70?[60,69,27,36]:q<80?[70,79,43,58]:[80,100,67,95];return min+(max-min)*(q-lo)/(hi-lo);}
+ if(id==='sneakyVine'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;const q=balanceQuality(quality),[lo,hi,min,max]=q<60?[48,59,12,20]:q<70?[60,69,27,36]:q<80?[70,79,43,58]:[80,100,67,95];return min+(max-min)*(q-lo)/(hi-lo);}
  if(!['water','fire','nature'].includes(id))return power(quality);
- if(!Number.isFinite(quality)||quality<48)return 0;
- const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,7,11]:q<70?[60,69,17,22]:q<80?[70,79,26,31]:[80,100,36,52];
+ if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;
+ const q=balanceQuality(quality),[lo,hi,min,max]=q<60?[48,59,7,11]:q<70?[60,69,17,22]:q<80?[70,79,26,31]:[80,100,36,52];
  return Math.round(min+(max-min)*(q-lo)/(hi-lo))-.5;
 }
 export function knockback(quality:number){return accuracyStrength(quality).knockback;}

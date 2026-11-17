@@ -17,9 +17,9 @@ test('approved shapes recognize uniquely across size, position and reversed stro
  const thistle=SPELLS.find(s=>s.id==='thistleBush')!.strokes[0];for(let i=0;i<thistle.length;i++){assert.ok(Math.abs(thistle[i].x+thistle[thistle.length-1-i].x-100)<1e-5);assert.equal(thistle[i].y,thistle[thistle.length-1-i].y);}
 });
 test('quality endpoints set the promised puddle knockback and thistle reach/budget',()=>{
- const endpoints=[[48,54.74,80,40],[59,87.584,90,55],[60,98.532,95,70],[69,142.324,110,90],[70,153.272,115,110],[79,197.064,130,140],[80,208.012,135,165],[100,273.7,150,205]];
+ const endpoints=[[45,54.74,80,40],[59,87.584,90,55],[60,98.532,95,70],[69,142.324,110,90],[70,153.272,115,110],[79,197.064,130,140],[80,208.012,135,165],[100,273.7,150,205]];
  for(const [q,push,range,budget] of endpoints){assert.equal(nearKnockback('puddleGuard',q),push);assert.deepEqual(thistleStats(q),{range,budget});}
- for(const q of [0,47,NaN,Infinity])for(const id of ids)assert.equal(launchSpell(field(),q,'#fff',id).casts,0);
+ for(const q of [0,44,NaN,Infinity])for(const id of ids)assert.equal(launchSpell(field(),q,'#fff',id).casts,0);
 });
 test('Flame Blade hits every present enemy within 110 units exactly once, without a projectile or distant fallback',()=>{
  const b=field([325,435,436,350]);b.enemies[3].spawnAt=5;const before=structuredClone(b),n=launchSpell(b,70,'#fff','flameBlade');
@@ -35,14 +35,14 @@ test('Puddle Guard persists, triggers only the first walking enemy, launches it,
  assert.equal(b.casts,1);assert.equal(advance(b,.5).enemies[1].hp,10000);
 });
 test('Thistle Bush ticks every half second, counts actual damage across enemies, and has no knockback',()=>{
- let b=launchSpell(field([350,360,500]),48,'#fff','thistleBush');assert.equal(advance(b,.49).thistle!.spent,0);
+ let b=launchSpell(field([350,360,500]),45,'#fff','thistleBush');assert.equal(advance(b,.49).thistle!.spent,0);
  b=advance(b,.5);assert.equal(b.thistle!.spent,2.5);assert.equal(b.enemies[0].hp,9998.75);assert.equal(b.enemies[1].hp,9998.75);assert.equal(b.enemies[2].hp,10000);assert.equal(b.enemies[0].push,null);
  b=advance(b,9.5);assert.equal(b.thistle,null);assert.equal(b.enemies[0].hp,9980);assert.equal(b.enemies[1].hp,9980);
  assert.equal(advance(b,5).enemies[0].hp,9980);assert.equal(b.casts,1);
 });
 test('Thistle has no timeout, replaces a better bush with a worse one, and cannot spend overkill as actual damage',()=>{
  let b=launchSpell(field([500]),100,'#fff','thistleBush');b=advance(b,100);assert.equal(b.thistle!.spent,0);assert.equal(b.thistle!.budget,205);
- b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.budget,40);assert.equal(b.thistle!.range,80);assert.equal(b.thistle!.spent,0);
+ b=launchSpell(b,45,'#fff','thistleBush');assert.equal(b.thistle!.budget,40);assert.equal(b.thistle!.range,80);assert.equal(b.thistle!.spent,0);
  b=launchSpell(field([350,360,600]),100,'#fff','thistleBush');b.enemies[0].hp=2;b.enemies[1].shield=woodenShield();b=advance(b,.5);
  assert.equal(b.thistle!.spent,4.625); // 2 actual HP + a 5.25-damage tick halved by wood.
  assert.equal(b.enemies[1].hp,9997.375);
@@ -56,7 +56,7 @@ test('ground spells snapshot upgrades/relic multipliers and stale casts, and pau
  assert.equal(newBattle('active').thistle,null);assert.equal(newBattle('active').puddle,null);
 });
 test('all new spells retain elemental, rocky and shield defenses and upgrade damage scaling',()=>{
- for(const id of ids)for(const q of [48,60,70,100]){
+ for(const id of ids)for(const q of [45,60,70,100]){
   const base=nearDamage(id,q),precision=id==='thistleBush'?1e6:1;
   assert.equal(spellDamage({element:'Neutral'},q,id,1,1),Math.round((id==='thistleBush'?base+.4:base*1.15)*precision)/precision);
   const rock=q<60?.5:q<70?.75:1;
@@ -102,7 +102,7 @@ test('Puddle Guard uses the approved symmetric one-stroke wave while its reduced
  const wave=spell.strokes[0];assert.deepEqual(wave[0],{x:6,y:55});assert.deepEqual(wave.at(-1),{x:94,y:55});
  for(let i=0;i<wave.length;i++){assert.ok(Math.abs(wave[i].x+wave[wave.length-1-i].x-100)<1e-8);assert.ok(Math.abs(wave[i].y-wave[wave.length-1-i].y)<1e-8);}
  assert.equal(Math.min(...wave.map(p=>p.y)),44);assert.equal(Math.max(...wave.map(p=>p.y)),56);
- for(const q of [48,59,60,69,70,79,80,100]){
+ for(const q of [45,59,60,69,70,79,80,100]){
   const b=advance(launchSpell(field([355]),q,'#fff','puddleGuard'),.01),push=b.enemies[0].push!;
   assert.equal(push.to,Math.min(ENEMY_BACK_X,push.from+nearKnockback('puddleGuard',q)));
   assert.ok(push.to<=ENEMY_BACK_X);
@@ -117,8 +117,8 @@ test('extended Thistle range reaches 150 units, while enlarged Puddle art preser
 });
 
 test('damage increases apply at every quality before upgrades and resistance rounding',()=>{
- for(let q=48;q<=100;q++){
-  const tier=q<60?0:q<70?1:q<80?2:3,[lo,hi]=[[48,59],[60,69],[70,79],[80,100]][tier];
+ for(let q=45;q<=100;q++){
+  const tier=q<60?0:q<70?1:q<80?2:3,[lo,hi]=[[45,59],[60,69],[70,79],[80,100]][tier];
   const [a,b]=[[24,34],[45,58],[70,90],[105,140]][tier];
   const [c,d]=[[1,1.5],[2,2.5],[3,3.5],[4,5]][tier];
   assert.ok(Math.abs(nearDamage('flameBlade',q)-(a+(b-a)*(q-lo)/(hi-lo))*1.16*.79*.95)<1e-8);
@@ -127,14 +127,14 @@ test('damage increases apply at every quality before upgrades and resistance rou
 });
 
 test('Puddle Guard deals zero damage even with upgrades and offensive relic bonuses',()=>{
- for(const q of [48,59,60,69,70,79,80,100]){
+ for(const q of [45,59,60,69,70,79,80,100]){
   let b=field([355]);b.damageBonus=99;b.furyReady=true;b.lotus=true;b.lotusReady=true;b.midnightStone=true;b.amulets={sun:true,moon:true,twilight:true};b.upgrades.puddleGuard=1;
   b=launchSpell(b,q,'#fff','puddleGuard',100);assert.equal(b.lotusReady,true);
   b=advance(b,.01);assert.equal(b.enemies[0].hp,10000);assert.equal(b.enemies[0].burn,null);assert.ok(b.enemies[0].push);
  }
 });
 test('Puddle upgrade snapshots a 20 percent knockback bonus and Flame Blade reaches only 110 units',()=>{
- for(const q of [48,60,70,100]){
+ for(const q of [45,60,70,100]){
   let b=field([355]);b.upgrades.puddleGuard=1;b=launchSpell(b,q,'#fff','puddleGuard');b.upgrades={};b=advance(b,.01);
   assert.ok(Math.abs(b.enemies[0].push!.to-Math.min(ENEMY_BACK_X,355+nearKnockback('puddleGuard',q)*1.2))<1e-8);
  }
@@ -143,7 +143,7 @@ test('Puddle upgrade snapshots a 20 percent knockback bonus and Flame Blade reac
 });
 
 test('Thistle upgrade adds 0.4 per tick and 15 percent actual-damage budget at every quality',()=>{
- for(let q=48;q<=100;q++){
+ for(let q=45;q<=100;q++){
   const base=spellDamage({element:'Neutral'},q,'thistleBush');
   assert.ok(Math.abs(spellDamage({element:'Neutral'},q,'thistleBush',1,1)-base-.4)<1e-8);
   const normal=thistleStats(q),upgraded=thistleStats(q,1);
@@ -162,13 +162,13 @@ test('Thistle appearance time and upgraded budget snapshot on drawn and bottled 
   else b=launchSpell(b,100,'#fff','thistleBush');
   assert.ok(b.time-b.thistle!.started<.011);assert.equal(b.thistle!.budget,235.75);
   const started=b.thistle!.started;b.upgrades={};b=advance(b,15);assert.equal(b.thistle!.started,started);assert.equal(b.thistle!.budget,235.75);
-  b=launchSpell(b,48,'#fff','thistleBush');assert.equal(b.thistle!.started,b.time);assert.equal(b.thistle!.budget,40);assert.equal(b.thistle!.spent,0);
+  b=launchSpell(b,45,'#fff','thistleBush');assert.equal(b.thistle!.started,b.time);assert.equal(b.thistle!.budget,40);assert.equal(b.thistle!.spent,0);
  }
 });
 
 
 test('Flame Blade has no knockback at every quality and upgrade, including bottled casts and push relics',()=>{
- for(let q=48;q<=100;q++)for(const upgrade of [0,1]){
+ for(let q=45;q<=100;q++)for(const upgrade of [0,1]){
   let b=field([350,360]);b.upgrades.flameBlade=upgrade;b.pushBonus=20;
   assert.equal(spellKnockback(q,'flameBlade',20,'Water',false,null,0,upgrade),0);
   const hit=launchSpell(b,q,'#fff','flameBlade');assert.ok(hit.enemies.every(e=>e.push===null));assert.ok(hit.enemies.every(e=>e.hp<10000));

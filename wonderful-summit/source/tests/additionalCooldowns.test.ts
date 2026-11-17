@@ -38,6 +38,6 @@ test('bottled spells bypass all six cooldowns without starting or extending them
 });
 
 test('fizzles never start a cooldown on any of the six spells',()=>{
- for(const [id] of spells){const b=launchSpell(field(),47,'#fff',id);assert.equal(b.casts,0);assert.equal(spellCooldownRemaining(b,id),0);}
+ for(const [id] of spells){const b=launchSpell(field(),44,'#fff',id);assert.equal(b.casts,0);assert.equal(spellCooldownRemaining(b,id),0);}
 });
 

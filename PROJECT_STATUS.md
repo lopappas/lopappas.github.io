@@ -13,7 +13,7 @@ Updated: 2026-11-17
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.6): Removed the visible cooldown heading. Blocked casts highlight only that spell’s cooldown badge border for 650 ms, restarting on repeated attempts. Queue order and cooldown timing are unchanged. Tests and build pass in GitHub Actions; phone review remains outstanding.
+Latest update (version 0.3.7, displayed 0.3.07): Faint now accepts 45–59% in both modes. A shared within-tier mapping spreads the old Faint damage, knockback and effect ranges across the wider tier while preserving both endpoints and all 60%+ balance. Actual recognition/stored quality is unchanged; the seven-point candidate separation still rejects ambiguity, including after accuracy bonuses. Updated combat/bottles/trail effects and the scripted tutorial weak cast (45%, same damage and remaining goblin health). All 650 local tests and the TypeScript/production build pass. Device gameplay review remains outstanding.
 
 Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 

@@ -11,12 +11,12 @@ test('Alchemize is a Legendary Ancient spell using the approved two-stroke cappe
  for(const scale of [.2,1,4]){const strokes=spell.strokes.slice().reverse().map(s=>s.slice().reverse().map(p=>({x:70+p.x*scale,y:-13+p.y*scale})));const match=recognize(strokes);assert.equal(match.spell?.id,'alchemize');assert.equal(match.quality,100);}
 });
 test('every tier rolls the exact common/higher-tier odds, with healing only from Beautiful upwards',()=>{
- for(const [q,rare] of [[48,0],[59,0],[60,100],[69,100],[70,250],[79,250],[80,1000],[100,1000]]){
+ for(const [q,rare] of [[45,0],[59,0],[60,100],[69,100],[70,250],[79,250],[80,1000],[100,1000]]){
   let higher=0;for(let i=0;i<1000;i++){let n=0;const result=rollAlchemizePotion(q,()=>n++?.5:(i+.5)/1000)!;assert.notEqual(result,'spellBottle');if(RARE_POTIONS.includes(result))higher++;else{assert.ok(COMMON_POTIONS.includes(result));if(q<70)assert.notEqual(result,'heal');}}assert.equal(higher,rare);
  }
- for(const q of [0,47,NaN,Infinity])assert.equal(rollAlchemizePotion(q),null);
+ for(const q of [0,44,NaN,Infinity])assert.equal(rollAlchemizePotion(q),null);
  let n=0;assert.equal(rollAlchemizePotion(70,()=>n++?0:.99),'heal');
- for(const q of [48,60,70,80])for(let i=0;i<100;i++){let n=0;assert.notEqual(rollAlchemizePotion(q,()=>n++?(i+.5)/100:0),'spellBottle');}
+ for(const q of [45,60,70,80])for(let i=0;i<100;i++){let n=0;assert.notEqual(rollAlchemizePotion(q,()=>n++?(i+.5)/100:0),'spellBottle');}
 });
 test('a successful cast creates one potion instantly, causes no damage or push, and preserves Lotus',()=>{
  let b=field();b.lotus=true;b.lotusReady=true;const old=structuredClone(b);b=launchSpell(b,80,spell.color,'alchemize',0,()=>0);
@@ -28,7 +28,7 @@ test('full purses, rejected casts and fizzles preserve the once-per-battle use a
  const b=field();b.potions.heal=3;b.furyReady=true;b.stellarReady=true;const snapshot=structuredClone(b);
  assert.equal(alchemizeBlockReason(b),'Your purse is full');assert.equal(launchSpell(b,100,spell.color,'alchemize'),b);assert.deepEqual(b,snapshot);
  b.potionCapacity=5;assert.equal(alchemizeBlockReason(b),null);assert.equal(launchSpell(b,60,spell.color,'alchemize',0,()=>.99).alchemizeUsed,true);
- assert.equal(launchSpell(field(),47,spell.color,'alchemize').alchemizeUsed,false);assert.equal(battleForRun({...newRun(),relics:['birkinStock']}).potionCapacity,5);
+ assert.equal(launchSpell(field(),44,spell.color,'alchemize').alchemizeUsed,false);assert.equal(battleForRun({...newRun(),relics:['birkinStock']}).potionCapacity,5);
 });
 test('bottled Alchemize consumes the same battle use, reserves it in flight, and leaves a spent bottle unconsumed',()=>{
  let b=field();b.potions.spellBottle=1;b.bottledSpells=[{spellId:'alchemize',quality:80}];b=drinkPotion(b,'spellBottle');assert.equal(launchSpell(b,100,spell.color,'alchemize'),b);b=advance(b,.66);assert.equal(b.alchemizeUsed,true);assert.equal(b.casts,1);assert.equal(Object.values(b.potions).reduce((a,n)=>a+n,0),1);

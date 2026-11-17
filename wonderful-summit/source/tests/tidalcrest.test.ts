@@ -33,13 +33,13 @@ test('the narrower and wider fins score perfectly as Tidalcrest without changing
 });
 test('Tidalcrest uses quality-scaled 5% reduced damage and knockback at every grade; Aquaspout keeps its old balance',()=>{
  let last=0;
- for(let q=48;q<=100;q++){
+ for(let q=45;q<=100;q++){
   assert.equal(spellDamage({element:'Neutral'},q,'tidalcrest'),Math.round(power(q)*(1.265*.95)));
   assert.equal(spellDamage({element:'Neutral'},q,'wave'),Math.round(power(q)*.9));
   assert.equal(spellKnockback(q,'tidalcrest'),knockback(q)*(1.5*.95));assert.ok(spellKnockback(q,'tidalcrest')>=last);last=spellKnockback(q,'tidalcrest');
   if(q>=60)assert.equal(spellKnockback(q,'wave'),knockback(q)*1.7);
  }
- assert.equal(spellKnockback(48,'wave'),40);assert.equal(spellKnockback(59,'wave'),54);
+ assert.equal(spellKnockback(45,'wave'),40);assert.equal(spellKnockback(59,'wave'),54);
 });
 test('the moving wave hits front then rear enemies exactly once, including after knockback carries them ahead of it',()=>{
  let b=launchSpell(setup(),70,'#69c2d6','tidalcrest');const damage=spellDamage({element:'Neutral'},70,'tidalcrest');
@@ -64,7 +64,7 @@ test('arrivals are eligible only if actually on the runway before the front reac
  b=setup();b.enemies[0]={...b.enemies[0],x:410,spawnAt:.35};b.enemies[1].spawnAt=2;b.enemies[2].spawnAt=2;b=advance(launchSpell(b,60,'#fff','tidalcrest'),.9,.1);assert.equal(b.enemies[0].hp,1000);
 });
 test('elemental, rocky, wooden-shield and Mother defenses apply independently to every wave impact',()=>{
- for(const q of [48,60,70,100])for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const rocky of [false,true])for(const shielded of [false,true]){
+ for(const q of [45,60,70,100])for(const element of ['Fire','Water','Nature','Neutral'] as const)for(const rocky of [false,true])for(const shielded of [false,true]){
   let b=setup();b.enemies=b.enemies.slice(0,1);b.enemies[0]={...b.enemies[0],x:360,element,rocky,shield:shielded?woodenShield():null};const e=b.enemies[0];
   b=advance(launchSpell(b,q,'#fff','tidalcrest'),.17);
   assert.equal(b.enemies[0].hp,1000-spellDamage(e,q,'tidalcrest'));
@@ -90,22 +90,22 @@ test('a bottled Tidalcrest starts from the player on impact and preserves Fury f
  b=launchSpell(b,60,'#fff','water');assert.equal(b.furyReady,false);assert.equal(b.projectile?.damageMultiplier,2);
 });
 test('waves can overlap and run alongside an orb without cancelling either or duplicating a cast',()=>{
- let b=setup();b=launchSpell(b,48,'#fff','tidalcrest');b=advance(b,.1);b.potions.spellBottle=1;b.bottledSpells=[{spellId:'tidalcrest',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.tidalWaves.length,2);assert.notEqual(b.tidalWaves[0].id,b.tidalWaves[1].id);
- b=launchSpell(b,48,'#fff','water');assert.ok(b.projectile);b=advance(b,1);
+ let b=setup();b=launchSpell(b,45,'#fff','tidalcrest');b=advance(b,.1);b.potions.spellBottle=1;b.bottledSpells=[{spellId:'tidalcrest',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.tidalWaves.length,2);assert.notEqual(b.tidalWaves[0].id,b.tidalWaves[1].id);
+ b=launchSpell(b,45,'#fff','water');assert.ok(b.projectile);b=advance(b,1);
  assert.equal(b.tidalWaves.length,0);assert.equal(b.projectile,null);assert.equal(b.casts,3);
- const waveDamage=spellDamage({element:'Neutral'},48,'tidalcrest')+spellDamage({element:'Neutral'},60,'tidalcrest');assert.equal(b.enemies[2].hp,1000-waveDamage);
+ const waveDamage=spellDamage({element:'Neutral'},45,'tidalcrest')+spellDamage({element:'Neutral'},60,'tidalcrest');assert.equal(b.enemies[2].hp,1000-waveDamage);
 });
 test('wave kills resolve ordinary victory and the Mother split normally; defeat cancels travelling waves',()=>{
  let b=setup();b.enemies=b.enemies.slice(0,1);b.enemies[0].hp=1;b=advance(launchSpell(b,70,'#fff','tidalcrest'),.2);assert.equal(b.phase,'victory');assert.equal(b.tidalWaves.length,0);
  b=newBattle('active','mother',()=>0);b.approachAt=1000;b.enemies[0]={...b.enemies[0],x:360,hp:1};b=advance(launchSpell(b,70,'#fff','tidalcrest'),.2);assert.equal(b.phase,'active');assert.ok(b.motherSplit);
  b=advance(b,2);assert.equal(b.enemies.length,4);assert.ok(b.enemies.slice(1).every(e=>e.hp===100));
- b=setup();b.approachAt=0;b.playerHP=1;b.enemies[0]={...b.enemies[0],x:CONTACT_X,attackAt:0};b=stepBattle(launchSpell(b,48,'#fff','tidalcrest'),.01);assert.equal(b.phase,'defeat');assert.equal(b.tidalWaves.length,0);
+ b=setup();b.approachAt=0;b.playerHP=1;b.enemies[0]={...b.enemies[0],x:CONTACT_X,attackAt:0};b=stepBattle(launchSpell(b,45,'#fff','tidalcrest'),.01);assert.equal(b.phase,'defeat');assert.equal(b.tidalWaves.length,0);
 });
 test('swept collisions work at different frame rates, hit moving foes, preserve input states and expire even on an empty field',()=>{
  let b=setup();b.approachAt=0;b=launchSpell(b,60,'#fff','tidalcrest');const snapshot=structuredClone(b),fine=advance(b,.9,.01),coarse=advance(b,.9,.1);
  assert.deepEqual(b,snapshot);assert.deepEqual(fine.enemies.map(e=>e.hp),coarse.enemies.map(e=>e.hp));assert.ok(fine.enemies.every(e=>e.hp<1000));assert.equal(fine.tidalWaves.length,0);assert.equal(coarse.tidalWaves.length,0);
  b=setup();b.enemies.forEach(e=>e.spawnAt=2);b=advance(launchSpell(b,60,'#fff','tidalcrest'),1);assert.equal(b.tidalWaves.length,0);assert.ok(b.enemies.every(e=>e.hp===1000));
- for(const q of [0,47,NaN])assert.equal(launchSpell(setup(),q,'#fff','tidalcrest').tidalWaves.length,0);
+ for(const q of [0,44,NaN])assert.equal(launchSpell(setup(),q,'#fff','tidalcrest').tidalWaves.length,0);
 });
 test('both spells appear naturally, remain separate in the book, are developer-grantable, and upgrade exactly once',()=>{
  const columns=spellbookColumns(['tidalcrest','water','wave']);assert.deepEqual(columns[0].spells.map(s=>s.id),['water','wave','tidalcrest']);

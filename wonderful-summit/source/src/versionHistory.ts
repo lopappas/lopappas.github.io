@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.7',publishedAt:'2026-11-17T08:13:34.720373Z',changes:['Faint spells now cast at 45–59% quality, spreading their existing damage and knockback ranges across the wider tier.','Ambiguous drawings still need clearer defining details; Steady and higher tiers are unchanged.']},
  {"version":"0.3.6","publishedAt":"2026-11-16T23:14:59.631Z","changes":["Removed the cooldown heading and added border feedback when casting a spell before its cooldown ends."]},
  {"version":"0.3.5","publishedAt":"2026-11-16T23:01:10.608Z","changes":["Moved cooldowns to the bottom-left of the spell canvas, with newest cooldowns first."]},
  {version:'0.3.4',publishedAt:'2026-11-16T18:18:36Z',changes:['Added a small canvas Hide trace button while a guide is active.','Opening Spells dismisses the current trace and hides Clear Ink; the picker no longer contains Hide trace.']},

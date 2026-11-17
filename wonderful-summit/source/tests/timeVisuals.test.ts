@@ -6,7 +6,7 @@ import {newRun,camp} from '../src/run.ts';
 import {PLAYER_SPELLS,SPELLS} from '../src/magic.ts';
 import {spellName,spellUpgradePreview} from '../src/spellbook.ts';
 test('weak Chronos keeps its small pulse and freezes the environment for its duration',()=>{
- for(const q of [48,59,60,69]){
+ for(const q of [45,59,60,69]){
   const b=hitWithSpell(newBattle('active','pack'),q,'chronos');
   assert.equal(chronosVisuals(b).environment,true);assert.equal(chronosVisuals(b).pulse?.strong,false);
   for(const e of b.enemies){assert.equal(chronosAffected(e,b.time),true);assert.equal(enemyStatusLabel(e,b),null);assert.equal(chronosAffected(e,chronosEffect(q).duration),false);}
@@ -24,7 +24,7 @@ test('strong Chronos keeps a brief pulse and leaves environment colors unchanged
  }
 });
 test('Chronos visuals do not suppress unrelated burn/freeze cues, and leaf Slow returns after Chronos ends',()=>{
- let b=newBattle('active');b.enemies[0].slowUntil=20;b=hitWithSpell(b,48,'chronos');
+ let b=newBattle('active');b.enemies[0].slowUntil=20;b=hitWithSpell(b,45,'chronos');
  assert.equal(enemyStatusLabel(b.enemies[0],b),null);b.time=1.01;assert.equal(enemyStatusLabel(b.enemies[0],b),'Slow');
  b.enemies[0].burn={damage:2,nextTick:3,ticks:3};assert.equal(enemyStatusLabel(b.enemies[0],b),'Burn');
  b.freezeUntil=4;assert.equal(enemyStatusLabel(b.enemies[0],b),'❄');

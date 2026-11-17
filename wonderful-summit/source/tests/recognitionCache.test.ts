@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SPELLS,SPELL_VARIATIONS,recognize,type Strokes,type SpellId} from '../src/magic.ts';
+import {SPELLS,SPELL_VARIATIONS,recognize,applyRecognitionBonus,type Strokes,type SpellId} from '../src/magic.ts';
 import {legacyRecognize} from './fixtures/recognition-0.2.91.ts';
 const all=SPELLS.map(s=>s.id);
-function parity(strokes:Strokes,known:SpellId[]=all,bonus=0){assert.deepEqual(recognize(strokes,known,bonus),legacyRecognize(strokes,known,bonus));}
+function parity(strokes:Strokes,known:SpellId[]=all,bonus=0){assert.deepEqual(recognize(strokes,known,bonus),applyRecognitionBonus(legacyRecognize(strokes,known,0),bonus));}
 test('all reference shapes and variants retain exact candidate order, floating errors, scores and decisions',()=>{
  for(const spell of SPELLS)for(const shape of [spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])]){
   parity(shape);parity(shape.toReversed().map(stroke=>stroke.toReversed()));

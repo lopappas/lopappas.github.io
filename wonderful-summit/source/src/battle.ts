@@ -1,3 +1,4 @@
+import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
 import {torrentDuration,torrentContains,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,type Torrent} from './torrent.ts';
 import {GOBLIN_KING_DIALOGUE_MS,kingHasCrown,type KingState} from './goblinKing.ts';
 import {damageUpgradeBonus} from './magic.ts';
@@ -65,8 +66,8 @@ export function elementalMatchup(element:Element,target:Enemy['element']){
  return{damage:1.5,knockback:1,immuneEffects:false};
 }
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
-export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<48||!kingDamageMultiplier(target,quality))return 0;return spellDamage({...target,rocky:false,shield:null,goblinKing:false},60,'water',damageBonus,upgrade,time)*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time);}if(!kingDamageMultiplier(target,quality)||spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?(1.265*.95):spellId==='wave'?.9:spellId==='leaf'?.75:1;const precision=['thistleBush','water','fire','nature'].includes(spellId)?1e6:1;return Math.round(precision*(isNearSpell(spellId)?nearDamage(spellId,quality,upgrade):spellId==='ender'?(Number.isFinite(quality)&&quality>=48?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)&&spellId!=='thistleBush'?Math.max(0,Math.min(1,upgrade)):0)*damageUpgradeBonus(spellId))*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*(spellId==='sneakyVine'?1:shieldProtection(target.shield,time)))/precision;}
-export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<48||goblinKing&&quality<60)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,goblinKing)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time);}if(goblinKing&&quality<60)return 0;if(spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm')return 0;const base=isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=48&&quality<60?40+14*(quality-48)/11:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?.5:1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
+export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY||!kingDamageMultiplier(target,quality))return 0;return spellDamage({...target,rocky:false,shield:null,goblinKing:false},60,'water',damageBonus,upgrade,time)*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time);}if(!kingDamageMultiplier(target,quality)||spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?(1.265*.95):spellId==='wave'?.9:spellId==='leaf'?.75:1;const precision=['thistleBush','water','fire','nature'].includes(spellId)?1e6:1;return Math.round(precision*(isNearSpell(spellId)?nearDamage(spellId,quality,upgrade):spellId==='ender'?(Number.isFinite(quality)&&quality>=MIN_CAST_QUALITY?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)&&spellId!=='thistleBush'?Math.max(0,Math.min(1,upgrade)):0)*damageUpgradeBonus(spellId))*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*(spellId==='sneakyVine'?1:shieldProtection(target.shield,time)))/precision;}
+export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY||goblinKing&&quality<60)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,goblinKing)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time);}if(goblinKing&&quality<60)return 0;if(spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm')return 0;const base=isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=MIN_CAST_QUALITY&&quality<60?40+14*(quality-45)/14:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?.5:1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 // Rain retains fractional damage so small elemental/rock/shield reductions remain meaningful.
 export function amuletDamageMultiplier(quality:number,id:SpellId,amulets:Battle['amulets']){
  if(!Number.isFinite(quality)||quality<60)return 1;
@@ -74,7 +75,7 @@ export function amuletDamageMultiplier(quality:number,id:SpellId,amulets:Battle[
  return element==='Fire'&&amulets.sun||element==='Water'&&amulets.moon||element==='Nature'&&amulets.twilight?1.15:1;
 }
 export function firestormTickDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>,quality:number,damageBonus=1,upgrade=0,multiplier=1,time=0){
- if(!Number.isFinite(quality)||quality<48||!kingDamageMultiplier(target,quality))return 0;
+ if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY||!kingDamageMultiplier(target,quality))return 0;
  return Math.round(firestormBaseDamage(upgrade)*damageBonus*multiplier*elementalMatchup('Fire',target.element).damage*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time)*1000000)/1000000;
 }
 export function bogSlow(state:Battle,e:Enemy,time:number){
@@ -131,13 +132,13 @@ function stormRain(state:Battle,time:number):Battle{
 }
 export function eliteRush(e:Enemy){if(e.kind!=='goblin'||e.goblinKing)return 'none';const cycle=e.clock%10;return cycle>=6&&cycle<7?'warning':cycle>=7&&cycle<9?'rush':'none';}
 export function chronosEffect(quality:number,upgrade=0){
- if(!Number.isFinite(quality)||quality<48)return{kind:'slow' as const,duration:0};
- const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,1,2.4]:q<70?[60,69,2.5,5]:q<80?[70,79,5.1,9]:[80,100,9.1,18];
+ if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return{kind:'slow' as const,duration:0};
+ const q=balanceQuality(quality),[lo,hi,min,max]=q<60?[48,59,1,2.4]:q<70?[60,69,2.5,5]:q<80?[70,79,5.1,9]:[80,100,9.1,18];
  return{kind:'stun' as const,duration:Math.round((min+(max-min)*(q-lo)/(hi-lo))*(1+.12*Math.max(0,Math.min(1,upgrade)))*1000)/1000};
 }
 export function brambleEffect(quality:number,upgrade=0){
- if(!Number.isFinite(quality)||quality<48)return{duration:0,amount:0};
- const q=Math.min(100,quality),[lo,hi,d0,d1,a0,a1]=q<60?[48,59,3,4,.35,.45]:q<70?[60,69,4.1,5,.46,.55]:q<80?[70,79,5.1,6,.56,.61]:[80,100,6.1,8,.62,.75];
+ if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return{duration:0,amount:0};
+ const q=balanceQuality(quality),[lo,hi,d0,d1,a0,a1]=q<60?[48,59,3,4,.35,.45]:q<70?[60,69,4.1,5,.46,.55]:q<80?[70,79,5.1,6,.56,.61]:[80,100,6.1,8,.62,.75];
  const t=(q-lo)/(hi-lo);return{duration:Math.round((d0+(d1-d0)*t)*1000)/1000,amount:Math.round((a0+(a1-a0)*t+(upgrade>=1?.05:0))*1000)/1000};
 }
 function applyChronos(e:Enemy,field:Battle['chronosFields'][number],time:number):Enemy{
@@ -176,7 +177,7 @@ export function rollBlackFlash(state:Battle,id:SpellId,quality:number,random:()=
 }
 export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water',targetId?:number,random:()=>number=Math.random,damageMultiplier=1,inkUsed=0,bonuses?:TidalWave['bonuses'],knockbackMultiplier=1,blackFlashMultiplier?:number):Battle{
  if(spellId==='alchemize'){
-  if(state.phase!=='active'||!Number.isFinite(quality)||quality<48||alchemizeBlockReason(state,false,true))return state;
+  if(state.phase!=='active'||!Number.isFinite(quality)||quality<MIN_CAST_QUALITY||alchemizeBlockReason(state,false,true))return state;
   const count=(state.upgrades.alchemize??0)>=1?2:1;
   const rolled=Array.from({length:count},()=>rollAlchemizePotion(quality,random)!);
   const room=Math.max(0,state.potionCapacity-POTION_IDS.reduce((n,id)=>n+(state.potions[id]??0),0)),kept=rolled.slice(0,room),potions={...state.potions};
@@ -184,7 +185,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   return{...state,alchemizeUsed:true,alchemizedPotion:kept[0]??null,alchemizedPotions:kept,alchemizeAt:state.time,casts:state.casts+1,potions,potionFullSerial:(state.potionFullSerial??0)+(kept.length<rolled.length?1:0)};
  }
  if(isNearSpell(spellId)&&targetId===undefined)return castNearSpell(state,quality,spellId,damageMultiplier,inkUsed,knockbackMultiplier);
- if(state.phase!=='active'||(spellId==='bog'||spellId==='ender'||spellId==='firestorm'||spellId==='tidalcrest')&&(!Number.isFinite(quality)||quality<48))return state;
+ if(state.phase!=='active'||(spellId==='bog'||spellId==='ender'||spellId==='firestorm'||spellId==='tidalcrest')&&(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY))return state;
  if(spellId==='torrent')return beginTorrent(state,quality,damageMultiplier,inkUsed,knockbackMultiplier,random);
  if(spellId==='bog')return{...state,casts:state.casts+1,bog:extendBog(state.bog,state.time,{quality,upgrade:state.upgrades.bog??0,damageBonus:state.damageBonus,multiplier:damageMultiplier,midnight:state.midnightStone?midnightBonus(inkUsed):0,twilight:state.amulets.twilight})};
  if(spellId==='firestorm')return{...state,casts:state.casts+1,firestorm:extendFirestorm(state.firestorm,state.time,quality,state.upgrades.firestorm??0,state.damageBonus*amuletDamageMultiplier(quality,spellId,state.amulets),damageMultiplier,state.midnightStone?midnightBonus(inkUsed):0)};
@@ -240,10 +241,10 @@ export function spellCooldownRemaining(state:Battle,id:SpellId){if(state.cooldow
 export function staleMultiplier(state:Battle,id:SpellId){return state.stale.spellId===id&&state.stale.count>=3?.75:1;}
 export function releaseMultiplier(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){const element=SPELLS.find(s=>s.id===spellId)!.element;return(source==='cast'?staleMultiplier(state,spellId):1)*(state.castingRelics.sphere?1.15:1)*(1+robesBonus(state)/100)*(source==='cast'&&state.furyReady?2:1)*(state.lotus&&state.lotusReady&&!['chronos','puddleGuard','alchemize'].includes(spellId)?1.25:1)*(state.colorful&&state.lastElement!==null&&element!==state.lastElement?1.15:1);}
 export function releaseSpell(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){return{...state,stale:source==='cast'?{spellId,count:state.stale.spellId===spellId?state.stale.count+1:1}:state.stale,cooldowns:!state.cooldownsDisabled&&source==='cast'&&SPELL_COOLDOWNS[spellId]?{...state.cooldowns,[spellId]:state.time+SPELL_COOLDOWNS[spellId]!}:state.cooldowns,furyReady:source==='cast'?false:state.furyReady,lotusReady:!['chronos','puddleGuard','alchemize'].includes(spellId)?false:state.lotusReady,lastElement:SPELLS.find(s=>s.id===spellId)!.element};}
-export function launchSpell(state:Battle,quality:number,color:string,spellId:SpellId='water',inkUsed=0,random:()=>number=Math.random):Battle{if(spellId==='alchemize'&&alchemizeBlockReason(state))return state;const target=nearestEnemy(state);if(state.phase!=='active'||state.projectile||spellCooldownRemaining(state,spellId)>0)return state;if(!target&&!['torrent','alchemize','bog','firestorm','tidalcrest','flameBlade','puddleGuard','thistleBush'].includes(spellId))return fizzleSpell(state);if(!Number.isFinite(quality))return fizzleSpell(state);const rawQuality=quality;quality=effectiveAccuracy(state,quality);if(quality<48)return fizzleSpell(state);const knockbackMultiplier=staleMultiplier(state,spellId);state=prepareRelicCast(state,quality,spellId,rawQuality);const released=releaseSpell(state,spellId);if(spellId==='tidalcrest')return beginTidalWave(released,quality,releaseMultiplier(state,spellId),inkUsed,knockbackMultiplier);if(spellId==='torrent'||spellId==='sneakyVine'||spellId==='alchemize'||spellId==='bog'||spellId==='firestorm'||isNearSpell(spellId))return hitWithSpell(released,quality,spellId,undefined,random,releaseMultiplier(state,spellId),inkUsed,undefined,knockbackMultiplier);if(!target)return fizzleSpell(state);return{...released,projectile:{knockbackMultiplier,inkUsed,damageMultiplier:releaseMultiplier(state,spellId),started:state.time,duration:spellId==='leaf'?.32/.7:spellId==='wave'?.32/1.25:spellId==='bolt'?.16:.32,quality,color,spellId,targetId:target.id}};}
+export function launchSpell(state:Battle,quality:number,color:string,spellId:SpellId='water',inkUsed=0,random:()=>number=Math.random):Battle{if(spellId==='alchemize'&&alchemizeBlockReason(state))return state;const target=nearestEnemy(state);if(state.phase!=='active'||state.projectile||spellCooldownRemaining(state,spellId)>0)return state;if(!target&&!['torrent','alchemize','bog','firestorm','tidalcrest','flameBlade','puddleGuard','thistleBush'].includes(spellId))return fizzleSpell(state);if(!Number.isFinite(quality))return fizzleSpell(state);const rawQuality=quality;quality=effectiveAccuracy(state,quality);if(quality<MIN_CAST_QUALITY)return fizzleSpell(state);const knockbackMultiplier=staleMultiplier(state,spellId);state=prepareRelicCast(state,quality,spellId,rawQuality);const released=releaseSpell(state,spellId);if(spellId==='tidalcrest')return beginTidalWave(released,quality,releaseMultiplier(state,spellId),inkUsed,knockbackMultiplier);if(spellId==='torrent'||spellId==='sneakyVine'||spellId==='alchemize'||spellId==='bog'||spellId==='firestorm'||isNearSpell(spellId))return hitWithSpell(released,quality,spellId,undefined,random,releaseMultiplier(state,spellId),inkUsed,undefined,knockbackMultiplier);if(!target)return fizzleSpell(state);return{...released,projectile:{knockbackMultiplier,inkUsed,damageMultiplier:releaseMultiplier(state,spellId),started:state.time,duration:spellId==='leaf'?.32/.7:spellId==='wave'?.32/1.25:spellId==='bolt'?.16:.32,quality,color,spellId,targetId:target.id}};}
 
 function castNearSpell(state:Battle,quality:number,id:NearSpell,multiplier:number,inkUsed:number,knockbackMultiplier:number):Battle{
- if(state.phase!=='active'||!Number.isFinite(quality)||quality<48)return state;
+ if(state.phase!=='active'||!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return state;
  const cast:NearCast={quality,multiplier,inkUsed,knockbackMultiplier,amulets:{...state.amulets},bonuses:{damageBonus:state.damageBonus,pushBonus:state.pushBonus,upgrade:state.upgrades[id]??0,midnightStone:state.midnightStone,moon:state.amulets.moon}};
  if(id==='puddleGuard')return{...state,casts:state.casts+1,puddle:{x:CONTACT_X+30,cast}};
  if(id==='thistleBush'){const stats=thistleStats(quality,cast.bonuses.upgrade);return{...state,casts:state.casts+1,thistle:{...stats,started:state.time,spent:0,nextTick:state.time+.5,cast}};}
@@ -288,7 +289,7 @@ function advanceNearSpells(previous:Battle,state:Battle):Battle{
 
 export function tidalWavePosition(wave:TidalWave,time:number){return TIDAL_START_X+(ENEMY_BACK_X-TIDAL_START_X)*Math.max(0,Math.min(1,(time-wave.started)/wave.duration));}
 function beginTidalWave(state:Battle,quality:number,damageMultiplier=1,inkUsed=0,knockbackMultiplier=1):Battle{
- if(state.phase!=='active'||!Number.isFinite(quality)||quality<48)return state;
+ if(state.phase!=='active'||!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return state;
  const wave:TidalWave={id:state.tidalSerial+1,started:state.time,duration:TIDAL_TRAVEL_SECONDS,quality,damageMultiplier,inkUsed,hitIds:[],bonuses:{damageBonus:state.damageBonus,pushBonus:state.pushBonus*knockbackMultiplier,upgrade:state.upgrades.tidalcrest??0,midnightStone:state.midnightStone,moon:state.amulets.moon}};
  return{...state,casts:state.casts+1,tidalSerial:wave.id,tidalWaves:[...state.tidalWaves,wave]};
 }
@@ -397,7 +398,7 @@ export function alchemizeBlockReason(state:Battle,fromBottle=false,ignoreFlight=
  return null;
 }
 export function rollAlchemizePotion(quality:number,random:()=>number=Math.random):Potion|null{
- if(!Number.isFinite(quality)||quality<48)return null;
+ if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return null;
  const rareChance=quality>=80?1:quality>=70?.25:quality>=60?.1:0;
  const roll=random(),rare=rareChance===1||(rareChance>0&&roll<rareChance),pool=rare?RARE_POTIONS.filter(id=>id!=='spellBottle'):COMMON_POTIONS.filter(id=>quality>=70||id!=='heal');
  return pool[Math.max(0,Math.min(pool.length-1,Math.floor(random()*pool.length)))];

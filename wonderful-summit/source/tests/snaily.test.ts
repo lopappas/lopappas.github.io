@@ -15,7 +15,7 @@ test('Snaily is an uncommon collectible available to shops, rewards, developer g
  assert.equal(finishBattle({...r,screen:'battle',node:3},{...newBattle('active'),phase:'victory'},()=>0).reward?.relic,'snaily');
 });
 test('Bramble Leaf gains five points at every quality and upgrade, without extending its duration',()=>{
- for(const q of [48,60,70,80,100])for(const upgrade of [0,1]){
+ for(const q of [45,60,70,80,100])for(const upgrade of [0,1]){
   const b=field();b.upgrades.leaf=upgrade;const hit=hitWithSpell(b,q,'leaf');const e=hit.enemies[0];
   near(spellSlow(hit,e,hit.time),brambleEffect(q,upgrade).amount+.05);
   near(e.leafSlows[0].until,brambleEffect(q,upgrade).duration);
@@ -31,10 +31,10 @@ test('Bog gains five points, overlaps use the strongest slow once, and movement 
 });
 test('Snaily creates no slow on ordinary spells, fizzles or immune targets and preserves king resistance',()=>{
  const b=field();assert.equal(spellSlow(b,b.enemies[0],0),0);
- for(const spell of ['fire','water','nature','leaf'] as const){const hit=hitWithSpell(b,spell==='leaf'?47:80,spell);assert.equal(spellSlow(hit,hit.enemies[0],0),0);}
+ for(const spell of ['fire','water','nature','leaf'] as const){const hit=hitWithSpell(b,spell==='leaf'?44:80,spell);assert.equal(spellSlow(hit,hit.enemies[0],0),0);}
  for(const [element,rocky] of [['Nature',false],['Neutral',true]] as const){
-  const target={...b.enemies[0],element,rocky};const hit=hitWithSpell({...b,enemies:[target]},48,'leaf');assert.equal(spellSlow(hit,hit.enemies[0],0),0);
-  const bog=launchSpell({...b,enemies:[target]},48,'#fff','bog');assert.equal(spellSlow(bog,target,2),0);
+  const target={...b.enemies[0],element,rocky};const hit=hitWithSpell({...b,enemies:[target]},45,'leaf');assert.equal(spellSlow(hit,hit.enemies[0],0),0);
+  const bog=launchSpell({...b,enemies:[target]},45,'#fff','bog');assert.equal(spellSlow(bog,target,2),0);
  }
  const king={...b.enemies[0],goblinKing:true,hp:1000,maxHP:1000,leafSlows:[{amount:.5,until:20}]};near(spellSlow(b,king,0),.35);near(spellSlow(b,{...king,kingEnragedAt:0},0),.55);
 });

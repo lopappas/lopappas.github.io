@@ -24,8 +24,8 @@ test('approved two-arc Torrent glyph recognizes with all spells known and practi
 });
 test('Steady lasts eight seconds, has eight orbs, and does not launch a targeting projectile',()=>{
  const b=cast();assert.equal(b.torrent?.until,8);assert.equal(b.torrent?.orbs.length,8);assert.equal(b.projectile,null);assert.equal(b.casts,1);assert.equal(b.enemies[0].hp,10000);
- assert.equal(torrentDuration(69),8);assert.equal(torrentDuration(48),5);assert.equal(torrentDuration(70),11);assert.equal(torrentDuration(80),14);
- for(const q of [0,47,NaN])assert.equal(cast(setup(),q).torrent,null);
+ assert.equal(torrentDuration(69),8);assert.equal(torrentDuration(45),5);assert.equal(torrentDuration(70),11);assert.equal(torrentDuration(80),14);
+ for(const q of [0,44,NaN])assert.equal(cast(setup(),q).torrent,null);
 });
 test('locations use random reachable lanes and runway bounds, independent of enemies current x',()=>{
  for(const encounter of ['slime','mother','spiderGoblinElite','rockWebNest'] as const){
@@ -45,9 +45,9 @@ test('landing splashes harm every nearby enemy once, miss distant or hidden enem
 });
 test('orb base damage and knockback stay at Steady Dewdrop while defenses use cast quality',()=>{
  for(const q of [60,69,70,80,100]){assert.equal(spellDamage({element:'Neutral'},q,'torrent'),spellDamage({element:'Neutral'},60,'water'));assert.equal(spellKnockback(q,'torrent'),spellKnockback(60,'water'));}
- assert.equal(spellDamage({element:'Neutral',goblinKing:true,hp:1000,maxHP:1000},48,'torrent'),0);
- assert.equal(spellDamage({element:'Neutral',rocky:true},48,'torrent'),spellDamage({element:'Neutral'},60,'water')*.5);
- assert.equal(spellKnockback(48,'torrent',1,'Neutral',true),0);
+ assert.equal(spellDamage({element:'Neutral',goblinKing:true,hp:1000,maxHP:1000},45,'torrent'),0);
+ assert.equal(spellDamage({element:'Neutral',rocky:true},45,'torrent'),spellDamage({element:'Neutral'},60,'water')*.5);
+ assert.equal(spellKnockback(45,'torrent',1,'Neutral',true),0);
  assert.ok(spellDamage({element:'Fire'},60,'torrent')>spellDamage({element:'Water'},60,'torrent'));
 });
 test('cast snapshots damage bonuses and upgrades, consumes Fury once, and cooldown blocks recast',()=>{
@@ -74,13 +74,13 @@ test('advancement does not mutate prior states and landing damage agrees across 
  const fine=advance(b,1,.01),coarse=advance(b,1,.1);assert.deepEqual(b,snapshot);assert.equal(fine.enemies[0].hp,coarse.enemies[0].hp);
 });
 test('orb defenses match the full elemental matrix, shields, rocky tiers, and crown loss',()=>{
- for(const element of ['Neutral','Fire','Nature','Water'] as const)for(const q of [48,60,70,100])for(const rocky of [false,true]){
+ for(const element of ['Neutral','Fire','Nature','Water'] as const)for(const q of [45,60,70,100])for(const rocky of [false,true]){
   const expected=spellDamage({element},60,'water')*(rocky?(q<60?.5:q<70?.75:1):1);
   assert.ok(Math.abs(spellDamage({element,rocky},q,'torrent')-expected)<1e-8);
  }
  assert.equal(spellDamage({element:'Neutral',shield:woodenShield()},60,'torrent'),spellDamage({element:'Neutral'},60,'water')*.5);
  assert.equal(spellKnockback(60,'torrent',1,'Neutral',false,woodenShield()),spellKnockback(60,'water')*.5);
- const king={element:'Neutral' as const,goblinKing:true,hp:1000,maxHP:1000};assert.equal(spellDamage(king,48,'torrent'),0);assert.ok(spellDamage({...king,kingEnragedAt:0,hp:500},48,'torrent')>0);
+ const king={element:'Neutral' as const,goblinKing:true,hp:1000,maxHP:1000};assert.equal(spellDamage(king,45,'torrent'),0);assert.ok(spellDamage({...king,kingEnragedAt:0,hp:500},45,'torrent')>0);
 });
 test('a single Black Flash roll doubles every victim of one splash',t=>{
  t.mock.method(Math,'random',()=>0);

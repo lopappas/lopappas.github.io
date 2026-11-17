@@ -15,10 +15,10 @@ test('circle and centered Bramble Leaf replace every old Bog variant',()=>{
  assert.equal(recognize([bog.strokes[0]],['bog']).spell,null);assert.equal(recognize([bog.strokes[1]],['bog']).spell,null);
 });
 test('bog quality endpoints and one upgrade match all durations, slow strengths and damage tiers',()=>{
- for(const [q,d,ud,s,damage] of [[48,5,6,.3,1],[59,6,7,.35,1],[60,7.5,9,.4,1.5],[69,9.5,11,.44,1.5],[70,12,14,.46,2],[79,15,17,.5,2],[80,18,20,.54,2.5],[100,24,28,.58,2.5]]){
+ for(const [q,d,ud,s,damage] of [[45,5,6,.3,1],[59,6,7,.35,1],[60,7.5,9,.4,1.5],[69,9.5,11,.44,1.5],[70,12,14,.46,2],[79,15,17,.5,2],[80,18,20,.54,2.5],[100,24,28,.58,2.5]]){
   const e=bogEffect(q);assert.equal(e.duration,d);assert.ok(Math.abs(e.slow-s)<1e-9);assert.equal(e.damage,damage);
   const up=bogEffect(q,1);assert.equal(up.damage,damage+1);assert.ok(Math.abs(up.slow-s-.08)<1e-9);assert.equal(up.duration,ud);assert.deepEqual(bogEffect(q,4),up);
- }for(const q of [0,47,NaN,Infinity])assert.equal(bogEffect(q).duration,0);
+ }for(const q of [0,44,NaN,Infinity])assert.equal(bogEffect(q).duration,0);
 });
 test('approved sigil is recognized at any size, position and stroke order',()=>{
  const s=SPELLS.find(s=>s.id==='bog')!;assert.equal(s.rarity,'Uncommon');assert.equal(s.strokes.length,2);
@@ -30,11 +30,11 @@ test('bog arrives after one second, then ticks on every present foe without knoc
  b=advance(b,7);assert.equal(b.bog,null);assert.ok(b.enemies.every(e=>e.hp===977.5));
 });
 test('bottled recasts during cooldown append their own quality and upgrade without another arrival delay',()=>{
- let b=launchSpell(setup(),48,'#9bbe72','bog');b=advance(b,2);b.upgrades.bog=1;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'bog',quality:80}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.bog!.arrives,1);assert.equal(b.bog!.portions.at(-1)!.until,26);assert.equal(b.bog!.portions[1].upgrade,1);b=advance(b,3.44);assert.equal(bogSlow(b,b.enemies[0],b.time),.62);
+ let b=launchSpell(setup(),45,'#9bbe72','bog');b=advance(b,2);b.upgrades.bog=1;b.potions.spellBottle=1;b.bottledSpells=[{spellId:'bog',quality:80}];b=advance(drinkPotion(b,'spellBottle'),.66);assert.equal(b.bog!.arrives,1);assert.equal(b.bog!.portions.at(-1)!.until,26);assert.equal(b.bog!.portions[1].upgrade,1);b=advance(b,3.44);assert.equal(bogSlow(b,b.enemies[0],b.time),.62);
 });
 test('elemental and rocky defenses apply to damage and slowing',()=>{
  const b=launchSpell(setup(),60,'#9bbe72','bog');b.time=2;const e=b.enemies[0];assert.equal(bogSlow(b,{...e,element:'Nature'},2),0);assert.equal(bogSlow(b,{...e,element:'Fire'},2),.4);assert.equal(bogTickDamage({element:'Nature'},60),.75);assert.equal(bogTickDamage({element:'Fire'},60),1.125);assert.equal(bogTickDamage({element:'Water'},60),2.25);
- const faint=launchSpell(setup(),48,'#9bbe72','bog');assert.equal(bogSlow(faint,{...e,rocky:true},2),0);assert.equal(bogTickDamage({element:'Neutral',rocky:true},48),.5);
+ const faint=launchSpell(setup(),45,'#9bbe72','bog');assert.equal(bogSlow(faint,{...e,rocky:true},2),0);assert.equal(bogTickDamage({element:'Neutral',rocky:true},45),.5);
 });
 test('reinforcements enter the active bog; fractional ticks, end cleanup and frame rates remain consistent',()=>{
  let b=setup();b.enemies[1].spawnAt=2;const launched=launchSpell(b,80,'#9bbe72','bog'),before=structuredClone(launched);const fine=advance(launched,4),coarse=advance(launched,4,.1);assert.deepEqual(launched,before);assert.deepEqual(fine.enemies.map(e=>e.hp),coarse.enemies.map(e=>e.hp));assert.equal(fine.enemies[1].hp,987.5);assert.equal(bogSlow(fine,fine.enemies[1],4),.54);

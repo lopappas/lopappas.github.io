@@ -10,17 +10,17 @@ test('ink follows length and lasts 40% longer with the same 100-ink capacity',()
 test('cast requires the full half second',()=>{assert.equal(chargeComplete(1000,1499),false);assert.equal(chargeComplete(1000,1500),true);});
 
 test('every faint score is weaker and every higher grade is stronger than the previous balance',()=>{
- for(let q=48;q<=100;q++){
+ for(let q=45;q<=100;q++){
   const oldDamage=Math.round(8+24*(q/100)**2),oldPush=24+q*.5;
   if(q<60){assert.ok(power(q)<oldDamage,`Faint damage at ${q}`);assert.ok(knockback(q)<oldPush,`Faint push at ${q}`);}
   else{assert.ok(power(q)>oldDamage,`Higher-grade damage at ${q}`);assert.ok(knockback(q)>oldPush,`Higher-grade push at ${q}`);}
-  if(q>48){assert.ok(power(q)>=power(q-1));assert.ok(knockback(q)>=knockback(q-1));}
+  if(q>45){assert.ok(power(q)>=power(q-1));assert.ok(knockback(q)>=knockback(q-1));}
  }
- const endpoints=[[48,'Faint',8,18],[59,'Faint',12,26],[60,'Steady',19,58],[69,'Steady',23,67],[70,'Beautiful',27,81],[79,'Beautiful',33,93],[80,'Wonderful',40,111],[100,'Wonderful',64,160]] as const;
+ const endpoints=[[45,'Faint',8,18],[59,'Faint',12,26],[60,'Steady',19,58],[69,'Steady',23,67],[70,'Beautiful',27,81],[79,'Beautiful',33,93],[80,'Wonderful',40,111],[100,'Wonderful',64,160]] as const;
  for(const [q,label,damage,push] of endpoints){assert.equal(grade(q),label);assert.equal(power(q),damage);assert.equal(knockback(q),push);}
  assert.ok(power(100)-power(90)>power(90)-power(80));
  assert.ok(knockback(100)-knockback(90)>knockback(90)-knockback(80));
- for(const q of [-10,0,47,NaN]){assert.equal(power(q),0);assert.equal(knockback(q),0);}
+ for(const q of [-10,0,44,NaN]){assert.equal(power(q),0);assert.equal(knockback(q),0);}
  assert.equal(power(200),power(100));assert.equal(knockback(200),knockback(100));
 });
 test('a careful wonderful cast outperforms several faint casts',()=>{

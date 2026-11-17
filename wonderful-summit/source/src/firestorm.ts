@@ -1,9 +1,10 @@
+import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
 export const FIRESTORM_ARRIVAL_SECONDS=2,FIRESTORM_TICK_SECONDS=.5;
 export type FirestormPortion={until:number;quality:number;baseDamage:number;damageBonus:number;multiplier:number;midnightBonus:number};
 export type Firestorm={started:number;rainAt:number;nextTick:number;portions:FirestormPortion[]};
 export function firestormDuration(quality:number){
- if(!Number.isFinite(quality)||quality<48)return 0;
- const q=Math.min(100,quality),[lo,hi,min,max]=q<60?[48,59,4.5,5.5]:q<70?[60,69,6.5,8]:q<80?[70,79,10,13]:[80,100,15,18];
+ if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;
+ const q=balanceQuality(quality),[lo,hi,min,max]=q<60?[48,59,4.5,5.5]:q<70?[60,69,6.5,8]:q<80?[70,79,10,13]:[80,100,15,18];
  return Math.round((min+(max-min)*(q-lo)/(hi-lo))*1000)/1000;
 }
 export function firestormBaseDamage(upgrade=0){return upgrade>=1?3.8:2.8;}

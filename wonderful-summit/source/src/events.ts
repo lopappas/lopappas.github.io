@@ -1,3 +1,4 @@
+import {MIN_CAST_QUALITY} from './quality.ts';
 import {SPELLS,type SpellId} from './magic.ts';
 
 export type TrailEventId='forgottenCampsite';
@@ -8,7 +9,7 @@ export const TRAIL_EVENTS={forgottenCampsite:{name:'Forgotten Campsite',descript
 export const ACT_ONE_EVENTS:TrailEventId[]=['forgottenCampsite'];
 export function rollTrailEvent(random:()=>number=Math.random):TrailEventState{return{id:ACT_ONE_EVENTS[Math.min(ACT_ONE_EVENTS.length-1,Math.floor(Math.max(0,random())*ACT_ONE_EVENTS.length))],outcome:'pending'};}
 export function forgottenCampsiteOutcome(spellId:SpellId|null,quality:number):EventOutcome{
- if(!Number.isFinite(quality)||quality<48||SPELLS.find(s=>s.id===spellId)?.element!=='Fire')return 'noEffect';
+ if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY||SPELLS.find(s=>s.id===spellId)?.element!=='Fire')return 'noEffect';
  return quality>=65?'lit':quality>=60?'fleeting':'spark';
 }
 export function trailEventDescription(event:TrailEventState){
