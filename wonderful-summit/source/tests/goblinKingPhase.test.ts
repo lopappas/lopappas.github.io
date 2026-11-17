@@ -7,7 +7,7 @@ function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);
 test('King is 15 percent larger and changes phase at exactly half health, permanently',()=>{
  assert.ok(Math.abs(GOBLIN_KING_SCALE/1.35-1.15)<1e-9);
  assert.ok(kingHasCrown(field(501).enemies[0]));assert.equal(kingHasCrown(field(500).enemies[0]),false);
- let b=hitWithSpell(field(516.5),60,'water');assert.equal(b.enemies[0].hp,500);assert.equal(b.enemies[0].kingEnragedAt,0);
+ let b=hitWithSpell(field(514.85),60,'water');assert.equal(b.enemies[0].hp,500);assert.equal(b.enemies[0].kingEnragedAt,0);
  assert.equal(kingHasCrown(b.enemies[0]),false);
  b.enemies[0].hp=1000;b=stepBattle(b,.01);assert.equal(kingHasCrown(b.enemies[0]),false);assert.equal(b.enemies[0].kingEnragedAt,0);
 });
@@ -39,8 +39,8 @@ test('tick damage triggers the phase and crown falls once in combat time',()=>{
  }
 });
 
-test('an existing Faint burn starts damaging the King after he loses his resistance',()=>{
- let b=hitWithSpell(field(501),59,'bolt');b=advance(b,.5);assert.equal(b.enemies[0].hp,501);
+test('an existing Faint burn continues after crown loss at full strength',()=>{
+ let b=hitWithSpell(field(520),59,'bolt');b=advance(b,.5);assert.equal(b.enemies[0].hp,520-spellDamage(field().enemies[0],59,'bolt'));assert.ok(kingHasCrown(b.enemies[0]));
  b=hitWithSpell(b,60,'water');const hp=b.enemies[0].hp;assert.ok(hp<500);b=advance(b,.6);assert.ok(b.enemies[0].hp<hp);
 });
 
@@ -69,9 +69,16 @@ test('crown-loss dialogue stops walking and attack clocks, then resumes without 
 
 
 test('crown-loss dialogue holds knockback motion and resumes it afterward',()=>{
- let b=field(516.5);b.approachAt=0;
+ let b=field(514.85);b.approachAt=0;
  b=hitWithSpell(b,60,'water');const x=b.enemies[0].x;
  assert.ok(b.enemies[0].push);
  b=advance(b,2.99);assert.equal(b.enemies[0].x,x);assert.ok(b.enemies[0].push);
  b=advance(b,.11);assert.ok(b.enemies[0].x>x);
+});
+
+test('a Faint hit crossing half health drops the crown and immediately receives full knockback',()=>{
+ const b=field(504.875),snapshot=structuredClone(b);
+ const hit=hitWithSpell(b,45,'water');assert.deepEqual(b,snapshot);
+ assert.equal(hit.enemies[0].hp,500);assert.equal(hit.enemies[0].kingEnragedAt,0);
+ assert.equal(hit.enemies[0].push!.to,350+18);
 });

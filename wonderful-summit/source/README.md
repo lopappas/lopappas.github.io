@@ -98,3 +98,7 @@ Performance milestones 1–2 add an optional Developer-panel monitor, stop idle 
 ### Faint quality range (0.3.7)
 
 Both modes accept unambiguous spells at 45% quality. Faint spans 45–59%, with the previous Faint minimum and maximum damage/knockback preserved at 45% and 59%. Within-tier duration, slowdown and placed-effect ranges follow the same mapping. Scores, stored drawings and accuracy bonuses retain their actual values. Steady begins at 60%; higher tiers are unchanged. Recognition still requires a seven-point lead over the next candidate, so accuracy bonuses cannot resolve ambiguity. The tutorial’s scripted weakest Faint cast is now 45%, preserving its original damage demonstration.
+
+### Goblin King crown defenses (0.3.8)
+
+While crowned, the King reduces spell damage and knockback by 25% at Faint (45–59%) and 10% at Steady (60–69%). Beautiful and Wonderful have no crown damage/knockback reduction. This applies to direct hits, Torrent splashes, Firestorm/Bog/Thistle damage and burn ticks. The cast’s actual quality determines Torrent’s defense despite its fixed Steady base strength. Existing slow resistance remains 20 percentage points. At half health, crown loss removes all these defenses and retains the existing dialogue pause and 80% speed increase. Potions and other non-spell damage are unchanged.

@@ -45,7 +45,7 @@ test('landing splashes harm every nearby enemy once, miss distant or hidden enem
 });
 test('orb base damage and knockback stay at Steady Dewdrop while defenses use cast quality',()=>{
  for(const q of [60,69,70,80,100]){assert.equal(spellDamage({element:'Neutral'},q,'torrent'),spellDamage({element:'Neutral'},60,'water'));assert.equal(spellKnockback(q,'torrent'),spellKnockback(60,'water'));}
- assert.equal(spellDamage({element:'Neutral',goblinKing:true,hp:1000,maxHP:1000},45,'torrent'),0);
+ assert.equal(spellDamage({element:'Neutral',goblinKing:true,hp:1000,maxHP:1000},45,'torrent'),spellDamage({element:'Neutral'},45,'torrent')*.75);
  assert.equal(spellDamage({element:'Neutral',rocky:true},45,'torrent'),spellDamage({element:'Neutral'},60,'water')*.5);
  assert.equal(spellKnockback(45,'torrent',1,'Neutral',true),0);
  assert.ok(spellDamage({element:'Fire'},60,'torrent')>spellDamage({element:'Water'},60,'torrent'));
@@ -80,7 +80,7 @@ test('orb defenses match the full elemental matrix, shields, rocky tiers, and cr
  }
  assert.equal(spellDamage({element:'Neutral',shield:woodenShield()},60,'torrent'),spellDamage({element:'Neutral'},60,'water')*.5);
  assert.equal(spellKnockback(60,'torrent',1,'Neutral',false,woodenShield()),spellKnockback(60,'water')*.5);
- const king={element:'Neutral' as const,goblinKing:true,hp:1000,maxHP:1000};assert.equal(spellDamage(king,45,'torrent'),0);assert.ok(spellDamage({...king,kingEnragedAt:0,hp:500},45,'torrent')>0);
+ const king={element:'Neutral' as const,goblinKing:true,hp:1000,maxHP:1000};assert.equal(spellDamage(king,45,'torrent'),spellDamage({element:'Neutral'},45,'torrent')*.75);assert.ok(spellDamage({...king,kingEnragedAt:0,hp:500},45,'torrent')>0);
 });
 test('a single Black Flash roll doubles every victim of one splash',t=>{
  t.mock.method(Math,'random',()=>0);

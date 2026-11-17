@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS} from '../src/magic.ts';
-import {newBattle,hitWithSpell,spellDamage,spellKnockback,firestormTickDamage,bogTickDamage,launchSpell,stepBattle,drinkPotion,CONTACT_X,eliteRush,resistedSlow,type Battle} from '../src/battle.ts';
+import {newBattle,hitWithSpell,spellDamage,spellKnockback,firestormTickDamage,bogTickDamage,launchSpell,stepBattle,drinkPotion,CONTACT_X,eliteRush,resistedSlow,kingDamageMultiplier,ENEMY_BACK_X,type Battle} from '../src/battle.ts';
 import {newRun,startRun,enterNode,battleForRun,finishBattle,encounterGold} from '../src/run.ts';
 const field=()=>{const b=newBattle('active','goblinKing',()=>0);b.approachAt=1000;b.enemies[0].x=350;return b;};
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
@@ -25,23 +25,30 @@ test('Goblin King has 1000 health, is neutral, moves at rock-slime speed and nev
  const rock=newBattle('active','rock',()=>0);b.approachAt=rock.approachAt=0;b.enemies[0].x=rock.enemies[0].x=600;
  assert.ok(Math.abs(advance(b,2).enemies[0].x-advance(rock,2).enemies[0].x)<1e-8);
 });
-test('Faint spells deal zero direct and tick damage without knockback, but status effects still apply',()=>{
+test('crowned defenses reduce Faint damage/push by 25 percent, Steady by 10 percent and higher grades by zero',()=>{
  const b=field(),king=b.enemies[0];
- for(const q of [48,55,59]){
-  for(const spell of SPELLS){assert.equal(spellDamage(king,q,spell.id,10,1),0);assert.equal(spellKnockback(q,spell.id,10,'Neutral',false,null,0,1,true),0);}
-  assert.equal(firestormTickDamage(king,q,10,1),0);assert.equal(bogTickDamage(king,q,1,10),0);
-  const leaf=hitWithSpell(b,q,'leaf');assert.equal(leaf.enemies[0].hp,1000);assert.ok(leaf.enemies[0].leafSlows.length);assert.equal(leaf.enemies[0].push,null);
-  const burn=hitWithSpell(b,q,'bolt');assert.ok(burn.enemies[0].burn);assert.equal(advance(burn,3).enemies[0].hp,1000);
+ for(const q of [45,46,47,48,55,59,60,69,70,79,80,100]){
+  const multiplier=q<60?.75:q<70?.9:1;
+  assert.equal(kingDamageMultiplier(king,q),multiplier);
+  for(const spell of SPELLS){
+   const damage=spellDamage(king,q,spell.id),normal=spellDamage({element:'Neutral'},q,spell.id);
+   assert.ok(Math.abs(damage-normal*multiplier)<=1,`${spell.id} damage at ${q}`); // Per-spell rounding remains in effect.
+   assert.ok(Math.abs(spellKnockback(q,spell.id,1,'Neutral',false,null,0,0,true)-spellKnockback(q,spell.id)*multiplier)<1e-8,`${spell.id} push at ${q}`);
+  }
+  for(const id of ['water','fire','nature'] as const)assert.equal(spellDamage(king,q,id),Math.round(spellDamage({element:'Neutral'},q,id)*multiplier*1e6)/1e6);
+  assert.equal(firestormTickDamage(king,q),Math.round(firestormTickDamage({element:'Neutral'},q)*multiplier*1e6)/1e6);
+  assert.equal(bogTickDamage(king,q),Math.round(bogTickDamage({element:'Neutral'},q)*multiplier*1e6)/1e6);
+  const leaf=hitWithSpell(b,q,'leaf');assert.equal(leaf.enemies[0].hp,1000-spellDamage(king,q,'leaf'));assert.ok(leaf.enemies[0].leafSlows.length);assert.ok(leaf.enemies[0].push);
   const frozen=hitWithSpell(b,q,'chronos');assert.ok(frozen.enemies[0].stunUntil>0);
-  for(const id of ['bog','firestorm','thistleBush'] as const){const result=advance(launchSpell(b,q,'#fff',id),6);assert.equal(result.enemies[0].hp,1000);}
+  for(const id of ['bog','firestorm','thistleBush'] as const){const result=advance(launchSpell(b,q,'#fff',id),3);assert.ok(result.enemies[0].hp<1000,`${id} ${q}`);}
  }
 });
-test('competent spells deal normal neutral damage and half knockback, including Sneaky Vine',()=>{
- for(const q of [60,69,70,79,80,100])for(const id of ['water','fire','nature','wave','bolt','leaf','tidalcrest','puddleGuard','sneakyVine'] as const){
-  const b=field(),king=b.enemies[0];assert.equal(spellDamage(king,q,id),spellDamage({element:'Neutral'},q,id));
+test('direct hits apply grade-based knockback including Sneaky Vine and interrupt attacks at Faint',()=>{
+ for(const q of [45,59,60,69,70,79,80,100])for(const id of ['water','fire','nature','wave','bolt','leaf','tidalcrest','puddleGuard','sneakyVine'] as const){
+  const b=field(),king=b.enemies[0];king.attackAt=1;
   const hit=hitWithSpell(b,q,id,king.id);
-  const expected=spellKnockback(q,id)*.5;
-  if(expected)assert.ok(Math.abs(hit.enemies[0].push!.to-king.x-expected)<1e-8,`${id} ${q}`);
+  const expected=spellKnockback(q,id)*(q<60?.75:q<70?.9:1);
+  if(expected){assert.ok(Math.abs(hit.enemies[0].push!.to-Math.min(ENEMY_BACK_X,king.x+expected))<1e-8,`${id} ${q}`);assert.equal(hit.enemies[0].attackAt,null);}
  }
 });
 test('slow resistance subtracts 20 percentage points, clamps to zero and does not affect freeze potions',()=>{
@@ -56,4 +63,27 @@ test('King attacks for exactly 34 damage with normal goblin timing and produces 
  b=stepBattle(b,.01);assert.equal(b.enemies[0].attackAt,.66);b=advance(b,.64);assert.equal(b.playerHP,100);b=advance(b,.02);assert.equal(b.playerHP,66);
  const dead=hitWithSpell({...field(),enemies:[{...field().enemies[0],hp:1}]},100,'water');assert.equal(dead.phase,'victory');assert.equal(dead.motherSplit,null);
  const reward=finishBattle({...newRun(),screen:'battle',node:11,bossEncounter:'goblinKing'},dead,()=>.99);assert.equal(reward.screen,'rewards');assert.equal(reward.reward?.gold,54);
+});
+
+test('Faint Torrent splashes damage and interrupt the crowned King with the real cast-grade defense',()=>{
+ for(const q of [45,59,60,69,70,100]){
+  let b=launchSpell(field(),q,'#fff','torrent');
+  b={...b,torrent:{...b.torrent!,orbs:[{x:350,y:420,landsAt:1,applied:false}]}};
+  b.enemies[0].attackAt=2;
+  const king={...b.enemies[0]};b=advance(b,1);
+  assert.equal(b.enemies[0].hp,1000-spellDamage(king,q,'torrent'));
+  assert.ok(Math.abs(b.enemies[0].push!.to-350-spellKnockback(q,'torrent',1,'Neutral',false,null,0,0,true))<1e-8);
+  assert.equal(b.enemies[0].attackAt,null);
+ }
+});
+test('Bolt and Sun burns apply the crown defense once per tick and retain full-strength snapshots',()=>{
+ for(const q of [45,59,60,69,70,100])for(const id of ['bolt','fire'] as const){
+  if(id==='fire'&&q<60)continue;
+  const b=field();b.amulets.sun=true;
+  const normal={...b,enemies:b.enemies.map(e=>({...e,goblinKing:false}))};
+  const hit=hitWithSpell(b,q,id),ordinary=hitWithSpell(normal,q,id),burn=hit.enemies[0].burn!;
+  assert.equal(burn.damage,ordinary.enemies[0].burn!.damage,`${id} snapshot at ${q}`);
+  const tick=(Math.round(burn.damage*3)-Math.round(burn.damage*2))*(q<60?.75:q<70?.9:1);
+  const after=advance(hit,1);assert.ok(Math.abs(after.enemies[0].hp-(hit.enemies[0].hp-tick))<1e-8,`${id} tick at ${q}`);
+ }
 });
