@@ -6,7 +6,7 @@ import {stepBattle} from '../src/battle.ts';
 test('the preview advances only through the authored sequence of real control actions',()=>{
  let state=newTutorial2(steps);assert.equal(tutorial2Step(steps,state)?.id,'welcome');
  state=transitionTutorial2(steps,state,{type:'continue',token:state.token});
- for(const [action,spellId] of [['book',undefined],['select','water'],['close','water'],['draw',undefined],['clear',undefined]] as const){
+ for(const [action,spellId] of [['book',undefined],['select','water'],['draw',undefined],['clear',undefined]] as const){
   assert.equal(canTutorial2Action(steps,state,action,spellId),true);
   state=transitionTutorial2(steps,state,{type:'action',action,spellId,token:state.token});
  }

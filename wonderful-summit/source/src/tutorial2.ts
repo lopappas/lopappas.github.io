@@ -44,14 +44,13 @@ export function resumeTutorial2(state:Tutorial2State):Tutorial2State{return stat
 // A reviewable foundation sequence using real controls; encounters arrive in later milestones.
 export const TUTORIAL2_FOUNDATION_STEPS:readonly Tutorial2Step[]=[
  {id:'welcome',kind:'dialogue',text:'Welcome to the Tutorial 2.0 preview. Follow one highlighted instruction at a time. You can pause or return to the menu whenever you need.'},
- {id:'open-book',kind:'action',action:'book',target:'book',text:'Tap the highlighted Spellbook button.'},
+ {id:'open-book',kind:'action',action:'book',target:'book',text:'Tap Spells to see your spells.'},
  {id:'choose-dewdrop',kind:'action',action:'select',target:'spell-water',spellId:'water',text:'Tap Dewdrop to select the water spell.'},
- {id:'close-book',kind:'action',action:'close',target:'book-close',text:'Tap Ready to close your spellbook.'},
  {id:'draw-mark',kind:'action',action:'draw',target:'canvas',text:'Draw a mark on the highlighted paper.'},
  {id:'clear-mark',kind:'action',action:'clear',target:'clear',text:'Tap the highlighted clear button to erase your mark.'},
  {id:'preview-finished',kind:'dialogue',text:'You followed every highlighted action. This completes the Tutorial 2.0 preview.'}
 ];
-export function tutorial2Journey(){return{...newRun(),screen:'battle' as const,relics:[],health:100,potions:{heal:1,freeze:0,ink:0}};}
+export function tutorial2Journey(){return{...newRun(),playMode:'apprentice' as const,screen:'battle' as const,relics:[],health:100,potions:{heal:1,freeze:0,ink:0}};}
 export function tutorial2FoundationBattle():Battle{
  return{...newBattle('active','slime',()=>0),approachAt:Infinity,potions:{heal:1,freeze:0,ink:0}};
 }

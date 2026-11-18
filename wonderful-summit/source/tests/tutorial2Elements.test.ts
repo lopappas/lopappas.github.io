@@ -107,3 +107,15 @@ test('element advantages require an explicit Continue after Water victory, befor
  const continued=transitionElement(s,{type:'continue',token:s.token});assert.equal(continued.phase,'complete');
  assert.equal(transitionElement(continued,{type:'continue',token:s.token}),continued);
 });
+
+test('each spell picker can be dismissed, reopened and used to start its drawing lesson',()=>{
+ for(const [lesson,spell] of [['fire','water'],['nature','fire'],['water','nature']] as const){
+  let state=at(`${lesson}-select`);
+  assert.equal(elementActionAllowed(state,'close'),true);
+  state=transitionElement(state,{type:'action',action:'close',token:state.token});
+  assert.equal(elementStep(state).id,`${lesson}-book`);
+  state=transitionElement(state,{type:'action',action:'book',token:state.token});
+  state=transitionElement(state,{type:'action',action:'select',spellId:spell,token:state.token});
+  assert.equal(elementStep(state).id,`${lesson}-demo`);
+ }
+});

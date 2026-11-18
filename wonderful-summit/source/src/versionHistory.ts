@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.14',publishedAt:'2026-11-18T20:07:28Z',changes:['The tutorial now uses the combat Spells button. Choose a spell to watch its drawing lesson and follow its Apprentice trace.']},
  {version:'0.3.13',publishedAt:'2026-11-18T19:50:50Z',changes:['Reorganized the developer panel with emoji shortcuts, elemental spell groups and a Grant all spells button.','Thinned five spell traces.','Version History and Credits now say Tap anywhere to close.']},
  {version:'0.3.12',publishedAt:'2026-11-18T12:41:01Z',changes:['Restored scrolling in Version History.']},
  {version:'0.3.11',publishedAt:'2026-11-18T11:07:29Z',changes:['Combat cooldown badges hide while choosing a spell and return when the picker closes.','The combat spell picker shows a vertical scrollbar when more spells are available below.']},

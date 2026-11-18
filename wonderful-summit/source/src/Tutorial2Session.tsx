@@ -70,7 +70,7 @@ function Tutorial2Content({Combat,onExit,onComplete,dialogueFont}:{Combat:Compon
   const tick=(now:number)=>{const delta=now-last;last=now;if(latest.current.phase==='running'&&!document.hidden)setState(s=>transitionTutorial2Fire(s,{type:'tick',deltaMs:delta,token}));frame=requestAnimationFrame(tick);};frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);
  },[state.token]);
  useEffect(()=>{
-  const key=(e:KeyboardEvent)=>{if(e.key!=='Escape')return;e.preventDefault();e.stopImmediatePropagation();setState(s=>({...s,...(s.phase==='paused'?resumeTutorial2(s):pauseTutorial2(s))}));};
+  const key=(e:KeyboardEvent)=>{if(e.key!=='Escape')return;if(latest.current.phase==='running'&&document.querySelector('.combat-spells'))return;e.preventDefault();e.stopImmediatePropagation();setState(s=>({...s,...(s.phase==='paused'?resumeTutorial2(s):pauseTutorial2(s))}));};
   const visibility=()=>{if(document.hidden)pause();};window.addEventListener('keydown',key,true);document.addEventListener('visibilitychange',visibility);
   return()=>{window.removeEventListener('keydown',key,true);document.removeEventListener('visibilitychange',visibility);};
  },[]);
@@ -85,7 +85,7 @@ function Tutorial2Content({Combat,onExit,onComplete,dialogueFont}:{Combat:Compon
   {!paused&&step?.kind==='dialogue'&&step.presentation==='screen'&&<Tutorial2Dialog title={step.id==='water-elements'?'Know The Elements':step.id==='goblin-qualities'?'Make Every Spell Count':step.id==='final-intro'?'Your Final Test':'Tutorial Complete'} text={step.text} label={step.id==='final-complete'?'Return to menu':'Continue'} onContinue={()=>{if(step.id==='final-complete'){(onComplete??onExit)();return;}const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'continue',token}));}} onExit={onExit}/>}
   {!paused&&step?.id==='goblin-relic-continue'&&createPortal(<><CanvasNotice text="Tap anywhere to continue"/><button className="t2-continue-anywhere" aria-label="Tap anywhere to continue" onClick={e=>{e.preventDefault();e.stopPropagation();const token=state.token;setState(s=>transitionTutorial2Fire(s,{type:'action',action:'continue-anywhere',token}));}}/></>,document.body)}
   {!paused&&defeated&&<Tutorial2Dialog title="Try again" text="Take another shot at the final slime" label="Retry final battle" onContinue={()=>{setDefeated(false);setState(retryFinal);}} onExit={onExit}/>}
-  {(paused||complete)&&<Tutorial2Dialog title={paused?'Tutorial Paused':'Tutorial Complete'} text={paused?'Your place, drawing, and spellbook are kept. Resume whenever you are ready.':'You defended your village! You are ready to begin your journey'} label={paused?'Resume':'Return to menu'} onContinue={paused?resume:returnFromTutorial} onExit={onExit}/>}
+  {(paused||complete)&&<Tutorial2Dialog title={paused?'Tutorial Paused':'Tutorial Complete'} text={paused?'Your place and drawing are saved while paused. Resume whenever you are ready.':'You defended your village! You are ready to begin your journey'} label={paused?'Resume':'Return to menu'} onContinue={paused?resume:returnFromTutorial} onExit={onExit}/>}
  </>;
 }
 

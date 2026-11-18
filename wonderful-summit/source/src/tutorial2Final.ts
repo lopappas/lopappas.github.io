@@ -5,7 +5,7 @@ import type {Tutorial2FireState} from './tutorial2Fire.ts';
 
 export const FINAL_STEPS:readonly Tutorial2Step[]=[
  {id:'final-enter',kind:'settling',durationMs:800,text:''},
- {id:'final-intro',kind:'dialogue',presentation:'screen',text:'This is your battle. Defeat the final slime. Remember your spellbook to review spells! And always remember, quality is always better than quantity. Make every spell count <3'},
+ {id:'final-intro',kind:'dialogue',presentation:'screen',text:'This is your battle. Defeat the final slime. Tap Spells and choose a spell if you want a tracing guide. And always remember, quality is always better than quantity. Make every spell count <3'},
  {id:'final-battle',kind:'settling',durationMs:0,text:''},
  {id:'final-victory-wait',kind:'settling',durationMs:1800,text:''},
  {id:'final-complete',kind:'dialogue',presentation:'screen',text:'You defended your village! You are ready to begin your journey'}

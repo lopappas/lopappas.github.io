@@ -13,7 +13,7 @@ Updated: 2026-11-18
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.13): Developer panel has four emoji shortcuts, a separate Grant all spells action, elemental groups, and a close button above the scrolling content. Firestorm, Puddle Guard, Flame Blade, Thistle Bush and Torrent guides use thinner strokes. Version History distinguishes taps from swipes so tapping the list closes it and swiping scrolls it. Version History and Credits say “Tap anywhere to close.” All 658 tests and the production build passed. Phone gesture and layout verification is outstanding.
+Latest update (version 0.3.14): The tutorial uses the combat spell picker with Apprentice traces. Selecting the highlighted spell begins its animated drawing lesson. Dismissing the picker lets the player reopen it. All 659 tests passed. On-device touch verification is outstanding.
 
 Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 

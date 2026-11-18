@@ -4,9 +4,8 @@ import {newTutorial2,transitionTutorial2,type Tutorial2Step,type Tutorial2Event,
 import {CONTACT_X} from './battle.ts';
 export const LESSONS=[{id:'fire',spell:'water',name:'Dewdrop',duration:4500},{id:'nature',spell:'fire',name:'Hearthspark',duration:4000},{id:'water',spell:'nature',name:'Little Sprout',duration:4000}] as const;
 function castingSteps(i:1|2):Tutorial2Step[]{const l=LESSONS[i];return[
- {id:`${l.id}-book`,kind:'action',action:'book',target:'book',text:'Open your spellbook.'},
- {id:`${l.id}-select`,kind:'action',action:'select',spellId:l.spell,target:`spell-${l.spell}`,text:`Select ${l.name}, your ${i===1?'fire':'nature'} spell.`},
- {id:`${l.id}-close`,kind:'action',action:'close',target:'book-close',text:'Close your spellbook.'},
+ {id:`${l.id}-book`,kind:'action',action:'book',target:'book',text:'Tap Spells to open your spell canvas menu.'},
+ {id:`${l.id}-select`,kind:'action',action:'select',spellId:l.spell,target:`spell-${l.spell}`,text:`Tap ${l.name} to trace your ${i===1?'fire':'nature'} spell.`},
  {id:`${l.id}-demo`,kind:'demonstration',completion:l.spell,text:`Tutorial: How to draw ${l.name}`},
  {id:`${l.id}-draw`,kind:'action',action:'draw',target:'canvas',text:`Try to draw your own ${l.name}!`},
  {id:`${l.id}-cast`,kind:'action',action:'cast',target:'cast',text:'Hold Cast!'},
@@ -43,6 +42,7 @@ export const elementLesson=(s:Tutorial2FireState)=>(s.phase==='complete'?2:LESSO
 function jump(s:Tutorial2FireState,id:string,reset=false){return{...s,index:ELEMENT_STEPS.findIndex(x=>x.id===id),token:s.token+1,elapsedMs:0,resetSerial:s.resetSerial+(reset?1:0)};}
 export function elementActionAllowed(s:Tutorial2FireState,action:Tutorial2Action,spellId?:SpellId){
  const step=elementStep(s);if(s.phase!=='running')return false;
+ if(step.kind==='action'&&step.action==='select'&&action==='close')return true;
  if(/-(draw|cast)$/.test(step.id)&&['draw','clear'].includes(action))return true;
  return step.kind==='action'&&step.action===action&&(!step.spellId||step.spellId===spellId);
 }
@@ -51,6 +51,7 @@ export const replayElement=(s:Tutorial2FireState)=>elementCanReplay(s)?jump(s,`$
 export function transitionElement(s:Tutorial2FireState,e:Tutorial2Event){
  if(s.phase!=='running'||e.token!==s.token)return s;
  const step=elementStep(s);
+ if(step.kind==='action'&&step.action==='select'&&e.type==='action'&&e.action==='close')return jump(s,`${LESSONS[elementLesson(s)].id}-book`);
  if(e.type==='tick'&&['water-draw','water-cast'].includes(step.id)&&Number.isFinite(e.deltaMs)&&e.deltaMs>0)return s.elapsedMs>=6000?s:{...s,elapsedMs:Math.min(6000,s.elapsedMs+e.deltaMs)};
  if(step.kind==='settling'&&step.durationMs===0)return s;
  if(step.id.endsWith('-retry')&&e.type==='tick'&&Number.isFinite(e.deltaMs)&&e.deltaMs>0&&s.elapsedMs+e.deltaMs>=1000)return{...jump(s,`${LESSONS[elementLesson(s)].id}-draw`),retry:true};

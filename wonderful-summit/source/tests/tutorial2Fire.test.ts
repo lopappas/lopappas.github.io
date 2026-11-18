@@ -14,9 +14,9 @@ test('a 60 percent advantageous Dewdrop kills in one hit while all successful Fa
  for(let q=48;q<60;q++){assert.ok(spellDamage({element:'Fire'},q,'water')<24);assert.ok(outcome(q).enemies[0].hp>0);}
  assert.equal(outcome(60).phase,'victory');assert.equal(outcome(60).enemies[0].hp,0);
 });
-test('the authored flow requires book, explicit Dewdrop selection, book close and demonstration before drawing',()=>{
+test('the authored flow requires opening Spells, selecting Dewdrop and watching the demonstration before drawing',()=>{
  let state=newTutorial2Fire();assert.equal(steps[state.index].id,'fire-intro');state=transitionTutorial2Fire(state,{type:'continue',token:state.token});
- for(const [action,spellId] of [['book',undefined],['select','water'],['close','water']] as const)state=transitionTutorial2Fire(state,{type:'action',action,spellId,token:state.token});
+ for(const [action,spellId] of [['book',undefined],['select','water']] as const)state=transitionTutorial2Fire(state,{type:'action',action,spellId,token:state.token});
  assert.equal(steps[state.index].id,'fire-demo');assert.equal(fireActionAllowed(state,'draw'),false);assert.equal(fireActionAllowed(state,'cast'),false);
  state=transitionTutorial2Fire(state,{type:'demonstration-finished',completion:'dewdrop',token:state.token});assert.equal(steps[state.index].id,'fire-draw');
  assert.equal(fireActionAllowed(state,'cast'),false);state=transitionTutorial2Fire(state,{type:'action',action:'draw',token:state.token});assert.equal(steps[state.index].id,'fire-cast');assert.equal(fireActionAllowed(state,'draw'),true);assert.equal(fireActionAllowed(state,'clear'),true);
