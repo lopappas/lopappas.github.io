@@ -334,7 +334,8 @@
 .ending-relics .relic-detail,.ending-relics .relic-detail :is(h2,p,strong,.rarity-label,.spell-name){color:#000!important;text-shadow:none;opacity:1}
 
 .settings-history-tab{margin-top:12px}
-.version-history .credits-copy{width:min(460px,100%)}
+.credits-screen.version-history{align-items:stretch;overflow:hidden;padding-bottom:max(78px,calc(env(safe-area-inset-bottom) + 56px))}
+.version-history .credits-copy{z-index:1;width:min(460px,100%);min-height:0;margin:0 auto;overflow-y:auto;overscroll-behavior-y:contain;touch-action:pan-y;pointer-events:auto;padding:0 4px}
 .version-history-list{list-style:none;margin:0 0 24px;padding:0;text-align:left}
 .version-history-list>li{padding:18px 0;border-bottom:1px solid #d9c49b55}
 .version-history .credits-copy h2{margin:0 0 8px;font-family:Kurale,Georgia,serif;font-size:23px;font-weight:400;letter-spacing:0;text-transform:none;color:#fff5d9}

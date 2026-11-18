@@ -13,7 +13,7 @@ Updated: 2026-11-18
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.11) hides cooldown badges while the combat spell picker is open and restores any still-active badges on dismissal or spell selection. The list shows a persistent vertical scroll indicator when it overflows. The build and 15 targeted tests passed. Phone visual review remains outstanding.
+Latest update (version 0.3.12) restores Version History scrolling in a focusable release list, with the Continue button outside the scroll area. Production build and four release checks passed. Touch verification is outstanding because local Chromium could not launch.
 
 Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 

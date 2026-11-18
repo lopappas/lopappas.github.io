@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.12',publishedAt:'2026-11-18T12:41:01Z',changes:['Restored scrolling in Version History.']},
  {version:'0.3.11',publishedAt:'2026-11-18T11:07:29Z',changes:['Combat cooldown badges hide while choosing a spell and return when the picker closes.','The combat spell picker shows a vertical scrollbar when more spells are available below.']},
  {version:'0.3.10',publishedAt:'2026-11-18T10:55:22.498156Z',changes:['Centered spell tracing guides by their complete shapes in combat, tutorials and practice.','Added developer buttons for 999 max health and upgrading all owned spells.']},
  {version:'0.3.9',publishedAt:'2026-11-17T09:25:51.025507Z',changes:['Pre-rendered the aurora glow to reduce rendering work on the opening and home screens while preserving its three moving ribbons.']},
