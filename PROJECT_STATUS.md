@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-18
+Updated: 2026-11-19
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,9 +13,9 @@ Updated: 2026-11-18
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.20): Snowman is a Legendary Water summon with a two-circle sigil and a 30-second cooldown. It walks up to 250 units ahead, takes 1.5× normal enemy damage, and throws one snowball every two seconds at an enemy within 10 units. An 80% cast grants 80 HP and 20 base snowball damage with zero knockback. Faint casts last 20 seconds and melt over the final three. Steady and stronger casts last until the guardian falls, is recast, or combat ends. The spell is available in the Legendary reward pool, shops, spellbook, encyclopedia, and Practice.
+Latest update (version 0.3.21): Snowman has a simple, broad-shouldered sprite three resting slimes tall. An 80% cast grants 100 HP and 16 base damage per snowball. Base health is rounded up to a multiple of 5, base damage is rounded down, and Snowman+ adds 20% health and 10% damage to those values. Snowman inherits half of the combined player damage boost at cast time. The Legendary Water spell has a two-circle sigil, a 30-second cooldown, a 250-unit travel limit, and a two-second snowball interval when an enemy is within 10 units. Snowballs have zero knockback. Enemies deal 1.5× damage to the guardian. Faint casts last 20 seconds and melt over the final three. Steady and stronger casts last until the guardian falls, is recast, or combat ends.
 
-Snowman validation: all 666 automated tests and the production build passed. A rendered SVG check covered melting, snowball artwork, and the absence of a guardian meter. In-browser and physical-device checks remain outstanding.
+Snowman validation: all 668 automated tests and the production build passed. Rendered SVG checks covered the new sprite height, melting, snowball artwork, and the absence of a guardian meter. In-browser and physical-device checks remain outstanding.
 
 Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 

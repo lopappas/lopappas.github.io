@@ -1,7 +1,7 @@
 import {
  SNOWBALL_FLIGHT_SECONDS,SNOWMAN_ATTACK_INTERVAL,SNOWMAN_CONTACT_DISTANCE,SNOWMAN_COOLDOWN,
  SNOWMAN_DAMAGE_TAKEN,SNOWMAN_FAINT_LIFETIME,SNOWMAN_MAX_DISTANCE,SNOWMAN_SPEED,
- SNOWMAN_STRIKE_RANGE,snowmanStats,type Snowman,
+ SNOWMAN_STRIKE_RANGE,snowmanBoostMultiplier,snowmanStats,type Snowman,
 } from './snowman.ts';
 import {playerMaxHealth} from './playerHealth.ts';
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
@@ -191,7 +191,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
  }
  if(isNearSpell(spellId)&&targetId===undefined)return castNearSpell(state,quality,spellId,damageMultiplier,inkUsed,knockbackMultiplier);
  if(state.phase!=='active'||(spellId==='bog'||spellId==='ender'||spellId==='firestorm'||spellId==='tidalcrest')&&(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY))return state;
- if(spellId==='snowman')return beginSnowman(state,quality,damageMultiplier,inkUsed);
+ if(spellId==='snowman')return beginSnowman(state,quality,snowmanDamageBonus(state,quality,damageMultiplier,inkUsed));
  if(spellId==='torrent')return beginTorrent(state,quality,damageMultiplier,inkUsed,knockbackMultiplier,random);
  if(spellId==='bog')return{...state,casts:state.casts+1,bog:extendBog(state.bog,state.time,{quality,upgrade:state.upgrades.bog??0,damageBonus:state.damageBonus,multiplier:damageMultiplier,midnight:state.midnightStone?midnightBonus(inkUsed):0,twilight:state.amulets.twilight})};
  if(spellId==='firestorm')return{...state,casts:state.casts+1,firestorm:extendFirestorm(state.firestorm,state.time,quality,state.upgrades.firestorm??0,state.damageBonus*amuletDamageMultiplier(quality,spellId,state.amulets),damageMultiplier,state.midnightStone?midnightBonus(inkUsed):0)};
@@ -247,7 +247,7 @@ export function spellCooldownRemaining(state:Battle,id:SpellId){if(state.cooldow
 export function staleMultiplier(state:Battle,id:SpellId){return state.stale.spellId===id&&state.stale.count>=3?.75:1;}
 export function releaseMultiplier(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){const element=SPELLS.find(s=>s.id===spellId)!.element;return(source==='cast'?staleMultiplier(state,spellId):1)*(state.castingRelics.sphere?1.15:1)*(1+robesBonus(state)/100)*(source==='cast'&&state.furyReady?2:1)*(state.lotus&&state.lotusReady&&!['chronos','puddleGuard','alchemize'].includes(spellId)?1.25:1)*(state.colorful&&state.lastElement!==null&&element!==state.lastElement?1.15:1);}
 export function releaseSpell(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){return{...state,stale:source==='cast'?{spellId,count:state.stale.spellId===spellId?state.stale.count+1:1}:state.stale,cooldowns:!state.cooldownsDisabled&&source==='cast'&&SPELL_COOLDOWNS[spellId]?{...state.cooldowns,[spellId]:state.time+SPELL_COOLDOWNS[spellId]!}:state.cooldowns,furyReady:source==='cast'?false:state.furyReady,lotusReady:!['chronos','puddleGuard','alchemize'].includes(spellId)?false:state.lotusReady,lastElement:SPELLS.find(s=>s.id===spellId)!.element};}
-export function launchSpell(state:Battle,quality:number,color:string,spellId:SpellId='water',inkUsed=0,random:()=>number=Math.random):Battle{if(spellId==='alchemize'&&alchemizeBlockReason(state))return state;const target=nearestEnemy(state);if(state.phase!=='active'||state.projectile||spellCooldownRemaining(state,spellId)>0)return state;if(!target&&!['snowman','torrent','alchemize','bog','firestorm','tidalcrest','flameBlade','puddleGuard','thistleBush'].includes(spellId))return fizzleSpell(state);if(!Number.isFinite(quality))return fizzleSpell(state);const rawQuality=quality;quality=effectiveAccuracy(state,quality);if(quality<MIN_CAST_QUALITY)return fizzleSpell(state);const knockbackMultiplier=staleMultiplier(state,spellId);state=prepareRelicCast(state,quality,spellId,rawQuality);const released=releaseSpell(state,spellId);if(spellId==='tidalcrest')return beginTidalWave(released,quality,releaseMultiplier(state,spellId),inkUsed,knockbackMultiplier);if(spellId==='snowman'||spellId==='torrent'||spellId==='sneakyVine'||spellId==='alchemize'||spellId==='bog'||spellId==='firestorm'||isNearSpell(spellId))return hitWithSpell(released,quality,spellId,undefined,random,releaseMultiplier(state,spellId),inkUsed,undefined,knockbackMultiplier);if(!target)return fizzleSpell(state);return{...released,projectile:{knockbackMultiplier,inkUsed,damageMultiplier:releaseMultiplier(state,spellId),started:state.time,duration:spellId==='leaf'?.32/.7:spellId==='wave'?.32/1.25:spellId==='bolt'?.16:.32,quality,color,spellId,targetId:target.id}};}
+export function launchSpell(state:Battle,quality:number,color:string,spellId:SpellId='water',inkUsed=0,random:()=>number=Math.random):Battle{if(spellId==='alchemize'&&alchemizeBlockReason(state))return state;const target=nearestEnemy(state);if(state.phase!=='active'||state.projectile||spellCooldownRemaining(state,spellId)>0)return state;if(!target&&!['snowman','torrent','alchemize','bog','firestorm','tidalcrest','flameBlade','puddleGuard','thistleBush'].includes(spellId))return fizzleSpell(state);if(!Number.isFinite(quality))return fizzleSpell(state);const rawQuality=quality;quality=effectiveAccuracy(state,quality);if(quality<MIN_CAST_QUALITY)return fizzleSpell(state);const knockbackMultiplier=staleMultiplier(state,spellId);state=prepareRelicCast(state,quality,spellId,rawQuality);const released=releaseSpell(state,spellId);if(spellId==='tidalcrest')return beginTidalWave(released,quality,releaseMultiplier(state,spellId),inkUsed,knockbackMultiplier);if(spellId==='snowman')return beginSnowman(released,quality,snowmanCastDamageBonus(state,quality,inkUsed));if(spellId==='torrent'||spellId==='sneakyVine'||spellId==='alchemize'||spellId==='bog'||spellId==='firestorm'||isNearSpell(spellId))return hitWithSpell(released,quality,spellId,undefined,random,releaseMultiplier(state,spellId),inkUsed,undefined,knockbackMultiplier);if(!target)return fizzleSpell(state);return{...released,projectile:{knockbackMultiplier,inkUsed,damageMultiplier:releaseMultiplier(state,spellId),started:state.time,duration:spellId==='leaf'?.32/.7:spellId==='wave'?.32/1.25:spellId==='bolt'?.16:.32,quality,color,spellId,targetId:target.id}};}
 
 function castNearSpell(state:Battle,quality:number,id:NearSpell,multiplier:number,inkUsed:number,knockbackMultiplier:number):Battle{
  if(state.phase!=='active'||!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return state;
@@ -477,13 +477,24 @@ function advanceTorrent(state:Battle):Battle{
  return{...next,torrent:next.phase!=='active'||state.time+1e-9>=torrent.until+TORRENT_SPLASH_SECONDS?null:{...torrent,orbs}};
 }
 
-function beginSnowman(state:Battle,quality:number,multiplier:number,inkUsed:number):Battle{
- const {hp}=snowmanStats(quality);
- if(!hp)return state;
- const damageBonus=state.damageBonus*multiplier*amuletDamageMultiplier(quality,'snowman',state.amulets)
+function snowmanDamageBonus(state:Battle,quality:number,castBoost:number,inkUsed:number):number{
+ const playerMultiplier=state.damageBonus*castBoost*amuletDamageMultiplier(quality,'snowman',state.amulets)
   *(1+(state.midnightStone?midnightBonus(inkUsed):0));
+ return snowmanBoostMultiplier(playerMultiplier);
+}
+
+export function snowmanCastDamageBonus(state:Battle,quality:number,inkUsed:number):number{
+ const stale=staleMultiplier(state,'snowman');
+ const castBoost=releaseMultiplier(state,'snowman')/stale;
+ return snowmanDamageBonus(state,quality,castBoost,inkUsed)*stale;
+}
+
+function beginSnowman(state:Battle,quality:number,damageBonus:number):Battle{
+ const upgrade=state.upgrades.snowman??0;
+ const {hp}=snowmanStats(quality,upgrade);
+ if(!hp)return state;
  const snowman:Snowman={
-  x:CONTACT_X,hp,quality,damageBonus,upgrade:state.upgrades.snowman??0,
+  x:CONTACT_X,hp,quality,damageBonus,upgrade,
   expiresAt:quality<60?state.time+SNOWMAN_FAINT_LIFETIME:null,
   nextShotAt:state.time,hurtUntil:0,snowball:null,
  };

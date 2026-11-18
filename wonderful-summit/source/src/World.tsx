@@ -61,6 +61,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
 <TorrentArt torrent={battle.torrent} time={battle.time} gray={0}/>
 <FirestormArt storm={battle.firestorm} time={battle.time} gray={0} cloudY={cloudY}/>
 <BogArt bog={battle.bog} time={battle.time} gray={0}/><TidalcrestArt battle={battle} gray={0}/>
+<SnowmanArt battle={battle}/>
 {battle.playerHits>0&&<g key={`ward-${battle.playerHits}`} transform="translate(295 410)" aria-label="Light blue magic flashes when Fila is hit"><g className="magic-hit-flash"><circle r="22" fill="#a9e7ff" opacity=".28"/><circle r="16" fill="none" stroke="#b4eeff" strokeWidth="3"/><path d="M0-29V-21M0 21v8M-29 0h8M21 0h8M-19-19l5 5M14 14l5 5M19-19l-5 5M-14 14l-5 5" fill="none" stroke="#d7f6ff" strokeWidth="3" strokeLinecap="round"/></g></g>}
 {robesBurst>0&&<g key={`robes-${robesBurst}`} transform="translate(260 390)" aria-hidden="true" pointerEvents="none">{Array.from({length:24},(_,i)=>{
  const angle=i*Math.PI*2/24,reach=35+(i%4)*12;
@@ -94,7 +95,6 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
  </g>;
 })()}
 <NearSpellArt battle={battle} gray={0}/>
-<SnowmanArt battle={battle}/>
 {orb&&battle.projectile&&battle.projectile.spellId!=='chronos'&&(battle.projectile.spellId==='leaf'?<g transform={`translate(${orb.x} ${orb.y}) rotate(${Math.sin((battle.time-battle.projectile.started)*20)*14}) scale(2.4)`} aria-label="Bramble Leaf, a drifting green diamond"><path d="M0-9 9 0 0 9-9 0Z" fill="#8fbe64" stroke="#d0e4a3" strokeWidth="1.5"/><path d="M0-6V6M-6 0H6" stroke="#4e833f" strokeWidth="1"/></g>:battle.projectile.spellId==='bolt'?<g transform={`translate(${orb.x} ${orb.y})`} shapeRendering="crispEdges" aria-label="Retro red-orange fire lightning bolt">
  <path d="M-42-12H-10L-20 0H12L-2 14 43-4H13L25-16H-5L5-27Z" fill="#df3f24"/>
  <path d="M-28-9H-3L-13 3H14L-2 10 30-1H5L15-12H-10Z" fill="#ff9639"/>
