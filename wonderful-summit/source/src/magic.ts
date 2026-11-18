@@ -74,6 +74,15 @@ const RECOGNITION_TEMPLATES=SPELLS.map(spell=>({spell,variants:[spell.strokes,..
  const normalized=normalize(strokes);return{points:sample(normalized),length:strokeLength(normalized)};
 })}));
 export type RecognitionResult={spell:Spell|null;quality:number;candidates:{spell:Spell;quality:number;error:number}[];reason:string};
+const RECOGNITION_MARGIN=7;
+
+export function ambiguousSpells(result:RecognitionResult):Spell[]{
+ const {spell,candidates}=result;
+ if(spell||candidates.length<2||candidates[0].quality-candidates[1].quality>=RECOGNITION_MARGIN)return [];
+ const topQuality=candidates[0].quality;
+ return candidates.filter(candidate=>topQuality-candidate.quality<RECOGNITION_MARGIN).map(candidate=>candidate.spell);
+}
+
 export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),accuracyBonus=0):RecognitionResult{
  const normalized=normalize(strokes),points=sample(normalized);if(points.length<5)return{spell:null,quality:0,candidates:[],reason:'Draw a complete sigil first.'};
  const len=strokeLength(normalized),candidates:RecognitionResult['candidates']=[];
@@ -100,8 +109,8 @@ export function applyRecognitionBonus(raw:RecognitionResult,accuracyBonus=0):Rec
  const {candidates}=raw;if(!candidates.length)return raw;
  const top=candidates[0],margin=top.quality-(candidates[1]?.quality??0);
  const quality=Math.min(100,top.quality+Math.max(0,accuracyBonus));
- const accepted=quality>=MIN_CAST_QUALITY&&margin>=7;
- return{spell:accepted?top.spell:null,quality,candidates,reason:accepted?'':margin<7?'The shape is between two sigils. Make its defining details clearer.':'The sigil is incomplete or its shape needs more care.'};
+ const accepted=quality>=MIN_CAST_QUALITY&&margin>=RECOGNITION_MARGIN;
+ return{spell:accepted?top.spell:null,quality,candidates,reason:accepted?'':margin<RECOGNITION_MARGIN?'The shape is between two sigils. Make its defining details clearer.':'The sigil is incomplete or its shape needs more care.'};
 }
 
 export function grade(quality:number){return quality>=80?'Wonderful':quality>=70?'Beautiful':quality>=60?'Steady':'Faint';}

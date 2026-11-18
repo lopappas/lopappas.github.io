@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {SPELLS,recognize,applyRecognitionBonus,type RecognitionResult,inkCost,strokeLength,chargeComplete,power,knockback,grade} from '../src/magic.ts';
+import {SPELLS,recognize,ambiguousSpells,applyRecognitionBonus,type RecognitionResult,inkCost,strokeLength,chargeComplete,power,knockback,grade} from '../src/magic.ts';
 test('each reference sigil recognizes with excellent quality',()=>{for(const s of SPELLS){const r=recognize(s.strokes);assert.equal(r.spell?.id,s.id);assert.ok(r.quality>=98);}});
 test('position and uniform scale do not change quality',()=>{for(const s of SPELLS){const base=recognize(s.strokes);for(const scale of [.15,2,9]){const moved=s.strokes.map(st=>st.map(p=>({x:p.x*scale+321,y:p.y*scale-78})));const r=recognize(moved);assert.equal(r.spell?.id,s.id);assert.equal(r.quality,base.quality);}}});
 test('stroke direction and order do not affect nature classification',()=>{const s=SPELLS[2];const r=recognize([...s.strokes].reverse().map(st=>[...st].reverse()));assert.equal(r.spell?.id,'nature');assert.ok(r.quality>=95);});
@@ -43,4 +43,13 @@ test('reusing results applies each bonus from original scores without accumulati
  const raw=recognize(SPELLS[0].strokes.map(stroke=>stroke.map(p=>({...p,x:p.x*.8}))),['water']);
  const snapshot=structuredClone(raw),first=applyRecognitionBonus(raw,3),second=applyRecognitionBonus(first,10);
  assert.equal(first.quality,Math.min(100,raw.quality+3));assert.equal(second.quality,Math.min(100,raw.quality+10));assert.equal(first.candidates,raw.candidates);assert.deepEqual(raw,snapshot);
+});
+test('spell details include every contender within the ambiguity margin and skip other results',()=>{
+ const candidates=[70,68,64,63,30].map((quality,i)=>({spell:SPELLS[i],quality,error:0}));
+ const match=(count:number,offset=0)=>applyRecognitionBonus({spell:null,quality:0,reason:'',candidates:candidates.slice(-count).map(candidate=>({...candidate,quality:candidate.quality-offset}))},20);
+ assert.deepEqual(ambiguousSpells(match(5)),SPELLS.slice(0,3));
+ assert.deepEqual(ambiguousSpells(match(2)),[]);
+ assert.deepEqual(ambiguousSpells(match(2,55)),[]);
+ assert.deepEqual(ambiguousSpells(recognize([])),[]);
+ assert.deepEqual(ambiguousSpells(recognize([[{x:0,y:0},{x:100,y:0}]],['water'])),[]);
 });

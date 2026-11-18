@@ -21,15 +21,16 @@ const successMessages:Record<DeveloperCommand['type'],string>={
  gold:'+1000 gold',maxHealth:'Health set to 999 / 999',upgradeSpells:'Owned spells upgraded',
  grantAllSpells:'All spells learned',spell:'Spell learned',potion:'Potion collected',travel:'Encounter selected',relic:'Relic acquired',
 };
-const Context=createContext<{allowed:boolean;open:()=>void;targets:Map<number,DeveloperTarget>}|null>(null);
+const Context=createContext<{allowed:boolean;open:()=>void;targets:Map<number,DeveloperTarget>;spellDetailsEnabled:boolean}|null>(null);
 export function DeveloperProvider({children}:{children:ReactNode}){
  const allowed=true;
+ const [spellDetailsEnabled,setSpellDetailsEnabled]=useState(false);
  const [open,setOpen]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[trailAvailable,setTrailAvailable]=useState(false);
  const targets=useRef(new Map<number,DeveloperTarget>()),dialog=useRef<HTMLElement>(null);
  useEffect(()=>{if(!open)return;const previous=document.activeElement as HTMLElement|null;dialog.current?.querySelector<HTMLButtonElement>('button')?.focus({preventScroll:true});const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();setOpen(false);}if(e.key==='Tab'){const items=Array.from(dialog.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')??[]),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus({preventScroll:true});};},[open]);
  async function grant(command:DeveloperCommand){if(busy)return;setBusy(true);setMessage('');try{const verified=parseDeveloperCommand(command);if(!verified)throw new Error('Invalid command.');const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];if(!target)throw new Error('No active game.');const response=target.execute(verified);if(verified.type==='travel'&&!response)setOpen(false);setMessage(response??successMessages[verified.type]);}catch(error){setMessage(error instanceof Error?error.message:'Please try again.');}finally{setBusy(false);}}
  function show(){const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];const travel=!!target?.canTravel();if(travel)target?.onOpen();setTrailAvailable(travel);setMessage('');setOpen(true);}
- return <Context.Provider value={{allowed,open:show,targets:targets.current}}>
+ return <Context.Provider value={{allowed,open:show,targets:targets.current,spellDetailsEnabled}}>
   {children}<PerformanceMonitor/>
   {open&&allowed&&createPortal(<div className="modal-backdrop developer-backdrop" onClick={()=>setOpen(false)}>
    <section className="help-modal developer-panel" ref={dialog} role="dialog" aria-modal="true" aria-label="Developer panel" onClick={e=>e.stopPropagation()}>
@@ -39,7 +40,10 @@ export function DeveloperProvider({children}:{children:ReactNode}){
       <PerformanceControls/>
       {quickActions.map(({type,label,emoji})=><button key={type} className="primary-small" title={label} aria-label={label} disabled={busy} onClick={()=>void grant({type})}><span aria-hidden="true">{emoji}</span></button>)}
      </div>
-     <button className="primary-small developer-grant-spells" disabled={busy} onClick={()=>void grant({type:'grantAllSpells'})}>Grant all spells</button>
+     <div className="developer-quick-actions developer-spell-actions">
+      <button type="button" className="primary-small" disabled={busy} onClick={()=>void grant({type:'grantAllSpells'})}>Grant all spells</button>
+      <button type="button" className="primary-small" aria-pressed={spellDetailsEnabled} onClick={()=>setSpellDetailsEnabled(enabled=>!enabled)}>Spell details</button>
+     </div>
      <p className="developer-status" role="status">{message}</p>
      {trailAvailable&&<><h3>Trail encounters</h3><div className="developer-options">{ROUTE.map((node,index)=><button key={index} disabled={busy} onClick={()=>void grant({type:'travel',node:index})}>{index+1}. {node.name}</button>)}</div></>}
      <h3>Spells</h3>
@@ -54,6 +58,7 @@ export function DeveloperProvider({children}:{children:ReactNode}){
   </div>,document.body)}
  </Context.Provider>;
 }
+export function useSpellDetailsEnabled(){return useContext(Context)?.spellDetailsEnabled??false;}
 export function useDeveloperTarget(handler:(command:DeveloperCommand)=>string|void,priority=0,options?:{onOpen:()=>void;canTravel:boolean}){const context=useContext(Context),ref=useRef(handler),optionsRef=useRef(options);ref.current=handler;optionsRef.current=options;const targets=context?.targets;useEffect(()=>{if(!targets)return;const target:DeveloperTarget={execute:c=>ref.current(c),onOpen:()=>optionsRef.current?.onOpen(),canTravel:()=>!!optionsRef.current?.canTravel};targets.set(priority,target);return()=>{if(targets.get(priority)===target)targets.delete(priority);};},[targets,priority]);}
 export function useDeveloperHold(onClick:()=>void){
  const context=useContext(Context),hold=useRef(new HoldGesture()),start=useRef({x:0,y:0});

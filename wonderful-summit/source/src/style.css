@@ -169,7 +169,12 @@
 .developer-content{width:100%;min-height:0;max-height:inherit;overflow-y:auto;overscroll-behavior-y:contain;padding:52px 20px 20px}
 .developer-quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .developer-quick-actions .primary-small{margin:0;padding:0;min-height:44px;font-size:21px}
-.developer-grant-spells{margin-top:8px}
+.developer-spell-actions{margin-top:8px;grid-auto-rows:44px}
+.developer-spell-actions .primary-small{font-size:12px;line-height:1.1;padding:0 3px;min-width:0}
+.developer-spell-actions .primary-small:first-child{grid-column:2}
+.developer-spell-actions .primary-small[aria-pressed="true"]{background:#456451;color:#fff4d8;border-color:#9eb896}
+.spell-details-fizzle{position:absolute;z-index:4;top:min(18%,40px);left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);padding:8px 12px;border:1px solid #b2bd91;border-radius:8px;background:#253b30f5;color:#f0e2bd;text-align:center;font-size:14px;line-height:1.3;pointer-events:none}
+.spell-details-fizzle strong{display:block;font-weight:600}
 .developer-status{font-size:13px;margin:8px 0 0}
 .developer-status:empty{margin:0}
 .developer-panel h4{font-size:13px;font-weight:500;margin:12px 0 6px}

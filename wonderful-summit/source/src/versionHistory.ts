@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.31',publishedAt:'2026-11-18T23:01:29Z',changes:['The developer panel now has a Spell details toggle that shows the competing spells after an ambiguous fizzle.']},
  {version:'0.3.30',publishedAt:'2026-11-18T22:48:40Z',changes:['Enemies use up to three closely spaced tracks and queue behind the lead enemy. Reinforcements reuse tracks with room.','Snowman always summons in the center track.']},
  {version:'0.3.22',publishedAt:'2026-11-18T22:28:13Z',changes:['Snowman has a round, smiling sprite that stands slightly shorter than Filadora. Its right twig flicks when it throws a snowball, and snowballs look twice as wide.']},
  {version:'0.3.21',publishedAt:'2026-11-18T22:14:24Z',changes:['Snowman has a taller, simpler snow guardian sprite.','Snowman has more health and lower base snowball damage. It inherits half of your spell damage bonus. Snowman+ grants 10% more damage and 20% more health.']},
