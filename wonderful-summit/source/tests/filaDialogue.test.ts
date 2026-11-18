@@ -47,6 +47,6 @@ test('completed dialogue remains tappable indefinitely and rejects early, paused
  }
 });
 
-test('dialogue character rate is 15 percent faster while retaining punctuation pauses',()=>{
- assert.equal(FILA_CHARACTER_MS,48/1.15);assert.equal(FILA_PUNCTUATION_PAUSE_MS,500);
+test('dialogue character rate is 25 percent faster than the previous rate while retaining punctuation pauses',()=>{
+ assert.equal(FILA_CHARACTER_MS,(48/1.15)/1.25);assert.equal(FILA_PUNCTUATION_PAUSE_MS,500);
 });

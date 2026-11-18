@@ -1,4 +1,4 @@
-export const FILA_CHARACTER_MS=48/1.15;
+export const FILA_CHARACTER_MS=48/(1.15*1.25);
 export const FILA_PUNCTUATION_PAUSE_MS=500;
 
 // Shared timing for every Tutorial 2.0 Fila line; only active, visible time counts.

@@ -13,7 +13,7 @@ Updated: 2026-11-18
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.14): The tutorial uses the combat spell picker with Apprentice traces. Selecting the highlighted spell begins its animated drawing lesson. Dismissing the picker lets the player reopen it. All 659 tests passed. On-device touch verification is outstanding.
+Latest update (version 0.3.15): Tutorial pause shows a centered title and Resume. Filadora types 25% faster and retains punctuation pauses. Drawing lessons leave an Apprentice trace on the active encounter canvas, including after a scripted victory. The production build passed. Phone layout and gestures are unverified.
 
 Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 

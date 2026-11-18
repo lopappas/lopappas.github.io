@@ -111,7 +111,22 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
   closeQuickSpells();
   tutorial?.onAction('close',tutorial.token);
  }
- function chooseTrace(spell:Spell){const tutorial=tutorial2Ref.current;if(tutorial&&!tutorial.canAction('select',spell.id)||pausedRef.current||battleRef.current.phase!=='active')return;if(!trace.current.select(spell.id,journey.spells,apprentice?'apprentice':'expert',battleRef.current.time))return;setGuide(spell);closeQuickSpells();tutorial?.onAction('select',tutorial.token,spell.id);const ready=trace.current.canSelect(apprentice?'apprentice':'expert',battleRef.current.time);traceReadyRef.current=ready;setTraceReady(ready);}
+ function chooseTrace(spell:Spell){const tutorial=tutorial2Ref.current;if(tutorial&&!tutorial.canAction('select',spell.id)||pausedRef.current||battleRef.current.phase!=='active')return;if(!placeTrace(spell))return;closeQuickSpells();tutorial?.onAction('select',tutorial.token,spell.id);}
+ function placeTrace(spell:Spell){
+  const mode=apprentice?'apprentice':'expert',time=battleRef.current.time;
+  if(!trace.current.select(spell.id,journey.spells,mode,time))return false;
+  setGuide(spell);
+  const ready=trace.current.canSelect(mode,time);
+  traceReadyRef.current=ready;
+  setTraceReady(ready);
+  return true;
+ }
+ const completedTrace=tutorial2?.completedTrace;
+ useEffect(()=>{
+  if(!completedTrace)return;
+  const spell=SPELLS.find(spell=>spell.id===completedTrace);
+  if(spell)placeTrace(spell);
+ },[completedTrace]);
  function hideTrace(){trace.current.hide();setGuide(null);closeQuickSpells();}
  const [bookClosing,setBookClosing]=useState(false);
  const bookClosingRef=useRef(false),bookCloseTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -170,7 +185,7 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
    const session=refillSession.current;if(session&&!pausedRef.current){inkRef.current=refillInk(session.ink,now-session.started);setInk(inkRef.current);}
   return !pausedRef.current&&battleRef.current.phase==='active';
  },!paused&&battle.phase==='active');
- useEffect(()=>{if(battle.phase==='victory'||battle.phase==='defeat'){stopTransient();const t2=tutorial2Ref.current;if(t2?.freeCombat)t2.onBattleEnd?.(battle.phase,t2.token);}},[battle.phase]);
+ useEffect(()=>{if(battle.phase==='victory'||battle.phase==='defeat'){const t2=tutorial2Ref.current;stopTransient(!!t2&&!t2.freeCombat);if(t2?.freeCombat)t2.onBattleEnd?.(battle.phase,t2.token);}},[battle.phase]);
  useEffect(()=>{if(battle.playerHits>0)playSpellSound('hurt',0);},[battle.playerHits]);
  useEffect(()=>{if(practice?.infiniteInk||battle.unlimitedUntil>battle.time){inkRef.current=100;setInk(100);if(reloadTimer.current)clearTimeout(reloadTimer.current);reloadTimer.current=null;refillSession.current=null;setReload(false);}},[battle.unlimitedUntil,practice?.infiniteInk]);
  function pos(e:React.PointerEvent):Point{const r=canvasLayout.get();return{x:Math.max(0,Math.min(r.width,e.clientX-r.left)),y:Math.max(0,Math.min(r.height,e.clientY-r.top))};}
