@@ -5,8 +5,9 @@ import {SNOWBALL_FLIGHT_SECONDS,SNOWMAN_MELT_SECONDS} from './snowman';
 
 const GROUND_Y=COMBAT_LANE_Y[CENTER_LANE];
 const BODY_OFFSET_X=-67;
-const FOOT_Y=2,HAT_TOP_Y=-105;
-const BODY_SCALE=FILA_SPRITE_HEIGHT*FILA_ART_SCALE*.85/(FOOT_Y-HAT_TOP_Y);
+const FOOT_Y=2,ORIGINAL_HAT_TOP_Y=-105,HAT_BRIM_Y=-69;
+const HAT_TOP_Y=HAT_BRIM_Y+(ORIGINAL_HAT_TOP_Y-HAT_BRIM_Y)*.75;
+const BODY_SCALE=FILA_SPRITE_HEIGHT*FILA_ART_SCALE*.85/(FOOT_Y-ORIGINAL_HAT_TOP_Y);
 const RELEASE_TIP={x:49,y:-49};
 const LEFT_TWIG='M-24-24h-8v-4h-7v-5h-6v-4h-5';
 const RIGHT_TWIG={
@@ -30,8 +31,8 @@ const SnowmanBody=memo(function SnowmanBody({pose}:{pose:keyof typeof RIGHT_TWIG
   <path d="M-12-38h20v4h8v7h4v13h-4v6h-33v-4h-5v-14h5v-8h5z" fill="#e9f7ff"/>
   <path d="M-10-72h20v4h8v7h4v15h-5v7h-34v-7h-5v-15h4v-7h8z" fill="#334b68"/>
   <path d="M-10-67h20v4h7v7h3v9h-6v5h-27v-4h-5v-13h5v-5h3z" fill="#f4faff"/>
-  <path d={`M-22-69v-7h7V${HAT_TOP_Y+1}h3v-1h24v1h3v28h7v7z`} fill="#233447"/>
-  <path d="M-9-101H9v3H-9zM-15-81h30v5h-30z" fill="#6490a5"/>
+  <path d={`M-22 ${HAT_BRIM_Y}v-7h7V${HAT_TOP_Y+1}h3v-1h24v1h3V-76h7v7z`} fill="#233447"/>
+  <path d={`M-9 ${HAT_TOP_Y+4}H9v3H-9zM-15-81h30v5h-30z`} fill="#6490a5"/>
   <path d="M-7-61h4v5h-4zm14 0h4v5h-4z" fill="#28354b"/>
   <path d="M3-55h12v3H9v3H3z" fill="#eb8652"/>
   <path d="M-17-54h5v3h-5zm32 0h4v3h-4z" fill="#e7aeb9"/>

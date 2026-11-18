@@ -79,7 +79,20 @@ test('Snowman throws at 20 units, deals 16 neutral damage at 80% and waits two s
  assert.equal(advance(battle,.28).enemies[0].hp,68);
 });
 
-test('enemies keep walking while hitting Snowman on contact and push it back 10 units per hit',()=>{
+test('Snowman stops at the range boundary and stays there between throws',()=>{
+ const field=newBattle('active');
+ field.approachAt=100;
+ field.enemies[0].x=CONTACT_X+25;
+ let battle=advance(summon(field),.5);
+ assert.equal(battle.snowman?.x,CONTACT_X+5);
+ battle=advance(battle,1.2);
+ assert.equal(battle.snowman?.x,CONTACT_X+5);
+ battle.enemies[0].x=CONTACT_X+40;
+ battle=advance(battle,.5);
+ assert.ok(battle.snowman!.x>CONTACT_X+5);
+});
+
+test('enemies keep walking while hitting Snowman and push it back 30 units per hit',()=>{
  const field=newBattle('active','pack',()=>.5);
  field.approachAt=0;
  const guardianX=CONTACT_X+80;
@@ -88,8 +101,9 @@ test('enemies keep walking while hitting Snowman on contact and push it back 10 
  battle.snowman!.x=guardianX;
  battle=advance(battle,.01);
  assert.equal(battle.snowman?.hp,64);
- assert.equal(battle.snowman?.x,guardianX-20);
+ assert.equal(battle.snowman?.x,guardianX-60);
  assert.ok(battle.enemies.every(e=>e.x<guardianX+8&&e.attackAt===null&&e.push===null));
+ assert.ok(battle.enemies.every(e=>e.snowmanHitAt===battle.time));
  const walkedTo=battle.enemies[0].x;
  battle=advance(battle,.1);
  assert.ok(Math.abs(walkedTo-battle.enemies[0].x-1.44)<1e-8);
@@ -97,7 +111,7 @@ test('enemies keep walking while hitting Snowman on contact and push it back 10 
  assert.equal(battle.playerHP,100);
  assert.equal(battle.playerHits,0);
 
- battle=advance(battle,2);
+ battle=advance(battle,4.5);
  assert.equal(battle.snowman,null);
  assert.equal(battle.playerHits,0);
  assert.ok(advance(battle,5).playerHits>0);
@@ -113,6 +127,17 @@ test('Snowman stays at the player line and continuous overlap only lands one gua
  const next=advance(first,.24);
  assert.equal(next.snowman?.hp,82);
  assert.equal(next.playerHits,0);
+});
+
+test('Snowman stops at the contact line when less than 30 units of recoil are available',()=>{
+ const field=newBattle('active');
+ field.approachAt=0;
+ field.enemies[0].x=CONTACT_X+23;
+ const battle=summon(field);
+ battle.snowman!.x=CONTACT_X+15;
+ const next=advance(battle,.01);
+ assert.equal(next.snowman?.hp,82);
+ assert.equal(next.snowman?.x,CONTACT_X);
 });
 
 test('snowballs apply Water matchups and rocky defenses without knockback',()=>{

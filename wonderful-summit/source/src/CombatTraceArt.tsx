@@ -1,7 +1,7 @@
 import {traceViewBox} from './traceLayout';
 import React,{useLayoutEffect,useState} from 'react';
 import type {Spell} from './magic';
-import {combatTraceScale,TRACE_FADE_MS,traceStrokeWidth} from './combatTracePresentation';
+import {combatTraceScale,TRACE_FADE_MS,traceSize,traceStrokeWidth} from './combatTracePresentation';
 /** Retain exiting artwork only for its short opacity transition; never alter drawing points. */
 export function CombatTraceArt({spell}:{spell:Spell|null}){
  const [shown,setShown]=useState<Spell|null>(null),[visible,setVisible]=useState(false);
@@ -15,5 +15,5 @@ export function CombatTraceArt({spell}:{spell:Spell|null}){
  },[spell]);
  if(!shown)return null;
  const scale=combatTraceScale(shown.id);
- return <div className="perfect-guide combat-trace-art" role="img" aria-label={`${shown.name} spell trace`} style={{color:shown.color,opacity:visible?.24:0,transition:`opacity ${TRACE_FADE_MS}ms ease`}}><svg viewBox={traceViewBox(shown.strokes)} aria-hidden="true" style={{width:`${78*scale}%`,height:`${78*scale}%`,maxWidth:230*scale,maxHeight:230*scale}}><path d={shown.path} fill="none" stroke="currentColor" strokeWidth={traceStrokeWidth(shown.id)} strokeLinecap="round" strokeLinejoin="round"/></svg></div>;
+ return <div className="perfect-guide combat-trace-art" role="img" aria-label={`${shown.name} spell trace`} style={{color:shown.color,opacity:visible?.24:0,transition:`opacity ${TRACE_FADE_MS}ms ease`}}><svg viewBox={traceViewBox(shown.strokes)} aria-hidden="true" style={traceSize(scale)}><path d={shown.path} fill="none" stroke="currentColor" strokeWidth={traceStrokeWidth(shown.id)} strokeLinecap="round" strokeLinejoin="round"/></svg></div>;
 }

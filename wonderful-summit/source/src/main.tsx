@@ -1,6 +1,6 @@
 import {isUpgradableSpell} from './magic';
 import {playerMaxHealth} from './playerHealth';
-import {traceStrokeWidth} from './combatTracePresentation';
+import {combatTraceScale,traceSize,traceStrokeWidth} from './combatTracePresentation';
 import {traceViewBox} from './traceLayout';
 import {CooldownBadges} from './CooldownBadges';
 import {orderedActiveCooldowns} from './cooldownQueue';
@@ -53,7 +53,7 @@ import {CombatRelics} from './CombatRelics';
 import {combatRelicIds,battleForRun,potionSlots,potionCapacity,RELICS} from './run';
 import type {CombatProps} from './combatTypes';
 import './style.css';
-function Sigil({spell}:{spell:Spell}){return <svg viewBox={traceViewBox(spell.strokes)} aria-hidden="true"><path d={spell.path} fill="none" stroke="currentColor" strokeWidth={traceStrokeWidth(spell.id,4)} strokeLinecap="round" strokeLinejoin="round"/></svg>}
+function Sigil({spell}:{spell:Spell}){return <svg viewBox={traceViewBox(spell.strokes)} aria-hidden="true" style={spell.id==='snowman'?traceSize(combatTraceScale(spell.id)):undefined}><path d={spell.path} fill="none" stroke="currentColor" strokeWidth={traceStrokeWidth(spell.id,4)} strokeLinecap="round" strokeLinejoin="round"/></svg>}
 type Result={goldGain?:number;rawQuality?:number;name:string;quality:number;power:number;success:boolean;detail:string;color:string};
 export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewReady,tutorial2}:CombatProps){
  const showSpellDetails=useSpellDetailsEnabled();
