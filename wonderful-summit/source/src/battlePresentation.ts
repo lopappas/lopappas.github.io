@@ -4,7 +4,7 @@ import type {SpellId} from './magic.ts';
 /** Only displayed values belong here; simulation and drawing always read the live battle. */
 export function combatControlValues(b:Battle,known:SpellId[],practice=false):readonly unknown[]{
  const remaining=(until:number)=>until>b.time?(until-b.time).toFixed(1):null;
- return [b.phase,b.encounter,b.playerHP,b.sphereShatteredAt,b.shaleContacts,b.castingRelics.calculus,cloverReady(b),robesBonus(b),b.robes.spells,b.furyReady,b.lotus,b.lotusReady,b.stellarReady,b.potionCapacity,
+ return [b.phase,b.encounter,b.playerHP,b.maxHealth,b.sphereShatteredAt,b.shaleContacts,b.castingRelics.calculus,cloverReady(b),robesBonus(b),b.robes.spells,b.furyReady,b.lotus,b.lotusReady,b.stellarReady,b.potionCapacity,
   ...POTION_IDS.map(id=>b.potions[id]??0),b.bottledSpells,b.potionFlights.some(f=>f.potion==='stellar'&&!f.applied),
   b.alchemizedPotion&&b.time<b.alchemizeAt+3?b.alchemizedPotions??b.alchemizedPotion:null,
   b.sphereShatteredAt!==null&&b.time<b.sphereShatteredAt+3.6,

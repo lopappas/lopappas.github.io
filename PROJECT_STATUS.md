@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-17
+Updated: 2026-11-18
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,7 @@ Updated: 2026-11-17
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.9, displayed 0.3.09): Opening/home auroras now use three high-resolution lossless WebP layers baked from the original SVG, removing live Gaussian blur while preserving separate CSS motion, timing, opacity and reduced-motion behavior. Symmetric padding preserves transform centers and avoids clipped glow; HTML preloads the hashed layers alongside fonts. Original vectors and a reproducible offline exporter remain in source. Added initial image payload is 560,150 bytes. Four release-version tests, TypeScript/production build, asset-path checks and offline artwork comparisons pass. Local Chromium preview is blocked by socket restrictions; Safari appearance and a five-minute physical-iPhone heat comparison remain unverified. Gameplay and other decorative animations are unchanged.
+Latest update (version 0.3.10): All canvas tracing guides center complete shape bounds horizontally/vertically, including progressive tutorial/practice guides. Size multipliers, recognition geometry and fades remain. Developer panel adds “999 max health” (sets/refills active and run health; persists through encounters; healing/UI honor the cap) and “Upgrade owned spells” (one normal upgrade per eligible owned spell). Practice/no-run combat supports both actions directly. Existing/normal runs default to 100 HP. All 656 tests plus four release checks and the production build pass; centering is checked for every reference and practice shape. Browser/device visual review remains outstanding because local browser launch is blocked.
 
 Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 

@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.10',publishedAt:'2026-11-18T10:55:22.498156Z',changes:['Centered spell tracing guides by their complete shapes in combat, tutorials and practice.','Added developer buttons for 999 max health and upgrading all owned spells.']},
  {version:'0.3.9',publishedAt:'2026-11-17T09:25:51.025507Z',changes:['Pre-rendered the aurora glow to reduce rendering work on the opening and home screens while preserving its three moving ribbons.']},
  {version:'0.3.8',publishedAt:'2026-11-17T08:24:05.112098Z',changes:['The crowned Goblin King now takes Faint spells, reducing their damage and knockback by 25%.','Steady spells have 10% damage and knockback reduction; Beautiful and Wonderful bypass these crown defenses.']},
  {version:'0.3.7',publishedAt:'2026-11-17T08:13:34.720373Z',changes:['Faint spells now cast at 45–59% quality, spreading their existing damage and knockback ranges across the wider tier.','Ambiguous drawings still need clearer defining details; Steady and higher tiers are unchanged.']},

@@ -1,3 +1,4 @@
+import {playerMaxHealth} from './playerHealth';
 import {rarityClass} from './rarity';
 import {PotionIcon} from './PotionIcon';
 import React,{useEffect,useRef,useState} from 'react';
@@ -35,7 +36,7 @@ export function RunPotions({run,onDrop,onDrinkHealing,visibleSlots=false}:{run:R
     <h3>{potionName(id)}</h3>
     <p><LessonText text={POTIONS[id].detail}/></p>
     {stored&&<p className="inventory-sealed-spell">Sealed spell: <LessonText text={spell?.name??'Fizzle'}/> · {stored.quality}% quality</p>}
-    {run.screen!=='battle'&&(id==='heal'||id==='theodoraHeal')&&onDrinkHealing&&<button className="drink-trail-potion" disabled={run.health>=100||run.health<=0||run.pendingBottle} onClick={()=>{onDrinkHealing(id);close();}}>Drink</button>}
+    {run.screen!=='battle'&&(id==='heal'||id==='theodoraHeal')&&onDrinkHealing&&<button className="drink-trail-potion" disabled={run.health>=playerMaxHealth(run)||run.health<=0||run.pendingBottle} onClick={()=>{onDrinkHealing(id);close();}}>Drink</button>}
     <button className="drop-potion" disabled={run.pendingBottle} aria-label={`Drop ${potionName(id)}`} onClick={()=>{onDrop(id,bottleIndex);if(visibleSlots)close();else{setSelected(null);panel.current?.querySelector<HTMLButtonElement>('.close-modal')?.focus({preventScroll:true});}}}>Drop potion</button>
    </div>}
   </section>}

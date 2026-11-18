@@ -1,3 +1,4 @@
+import {playerMaxHealth} from './playerHealth.ts';
 import {MIN_CAST_QUALITY} from './quality.ts';
 import {pickByRarity,type RelicRarity,type SpellRarity} from './rarity.ts';
 import {rollTrailEvent,forgottenCampsiteOutcome,type TrailEventState} from './events.ts';
@@ -19,7 +20,7 @@ export function encounterGold(node:number,random:()=>number=Math.random){
 export type RunScreen='opening'|'menu'|'tutorial'|'sister'|'map'|'battle'|'rewards'|'shop'|'camp'|'event'|'complete'|'defeat';
 export type Stock={id:string;kind:'spell'|'potion'|'relic'|'randomSpell';item:SpellId|Potion|RelicId|'randomSpell';price:number;sold:boolean};
 export type Reward={spellSkipped?:boolean;gold:number;potion:Potion|null;offers:SpellId[];relic:RelicId|null;goldClaimed:boolean;potionStatus:'pending'|'collected'|'skipped';relicClaimed:boolean;learned:SpellId|null};
-export type Run={playMode?:'apprentice'|'expert';bossEncounter?:'mother'|'goblinKing';pendingSpellOffers?:SpellId[];reviewedSpells:SpellId[];keepsakeOffers:RelicId[];wonderfulSpells:SpellId[];stellarReady:boolean;developerTrailUnlocked:boolean;event:TrailEventState|null;bestDrawing:PlayerDrawing|null;worstDrawing:PlayerDrawing|null;shaleContacts:number;screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
+export type Run={maxHealth?:number;playMode?:'apprentice'|'expert';bossEncounter?:'mother'|'goblinKing';pendingSpellOffers?:SpellId[];reviewedSpells:SpellId[];keepsakeOffers:RelicId[];wonderfulSpells:SpellId[];stellarReady:boolean;developerTrailUnlocked:boolean;event:TrailEventState|null;bestDrawing:PlayerDrawing|null;worstDrawing:PlayerDrawing|null;shaleContacts:number;screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
 export function newRun():Run{return{pendingSpellOffers:[],reviewedSpells:[...BEGINNER_SPELLS],keepsakeOffers:[],wonderfulSpells:[],stellarReady:false,developerTrailUnlocked:false,event:null,bestDrawing:null,worstDrawing:null,shaleContacts:0,screen:'opening',node:0,health:100,gold:0,combats:0,spells:[...BEGINNER_SPELLS],upgrades:{},relics:['filadoraRobes'],potions:{theodoraHeal:1,heal:0,freeze:0,ink:0},bottledSpells:[],pendingBottle:false,furyReady:false,reward:null,stock:[],campUsed:false};}
 export function finishOpening(run:Run):Run{return run.screen==='opening'?{...run,screen:'menu'}:run;}
 export function rollKeepsakeOffers(random:()=>number=Math.random):RelicId[]{
@@ -58,7 +59,7 @@ export function enterNode(run:Run,random:()=>number=Math.random):Run{
 }
 export function battleForRun(run:Run,random:()=>number=Math.random):Battle{
  const node=ROUTE[run.node];const battle=newBattle('active',node.kind==='battle'?(node.encounter==='mother'?run.bossEncounter??'mother':node.encounter) as Encounter:'slime',random);
- return{...battle,contactPushMultiplier:run.playMode==='apprentice'?1.5:1,fireFriend:run.relics.includes('fireFriend'),snaily:run.relics.includes('snaily'),blackFlash:{enabled:run.relics.includes('blackFlash'),chain:false},potionCapacity:potionCapacity(run),hazardousVials:run.relics.includes('hazardousVials'),stellarReady:run.stellarReady,robes:{enabled:run.relics.includes('filadoraRobes')||run.relics.includes('artisanRobes'),artisan:run.relics.includes('artisanRobes'),spells:[...run.wonderfulSpells]},castingRelics:{...battle.castingRelics,calculus:run.relics.includes('forgivingCalculus'),sphere:run.relics.includes('perfectedSphere'),stardust:run.relics.includes('blackStardust'),clover:run.relics.includes('sevenLeafClover')},bestDrawing:run.bestDrawing,worstDrawing:run.worstDrawing,lotus:run.relics.includes('lotus'),lotusReady:run.relics.includes('lotus'),colorful:run.relics.includes('colorfulRock'),shaleActive:run.relics.includes('impossibleShale')&&run.shaleContacts<3,shaleContacts:run.shaleContacts,furyReady:run.furyReady,midnightStone:run.relics.includes('midnightStone'),amulets:{sun:run.relics.includes('sunAmulet'),moon:run.relics.includes('moonAmulet'),twilight:run.relics.includes('twilightAmulet')},enemies:battle.enemies.map(e=>run.node===1&&e.id===2?{...e,spawnAt:10}:e),playerHP:run.health,potions:{...run.potions},bottledSpells:run.bottledSpells.map(s=>({...s})),upgrades:{...run.upgrades},damageBonus:runDamageBonus(run),pushBonus:run.relics.includes('moon')?1.15:1,firstHitPush:run.relics.includes('bell')?80:0,difficulty:run.node>=5?1.2:1};
+ return{...battle,contactPushMultiplier:run.playMode==='apprentice'?1.5:1,fireFriend:run.relics.includes('fireFriend'),snaily:run.relics.includes('snaily'),blackFlash:{enabled:run.relics.includes('blackFlash'),chain:false},potionCapacity:potionCapacity(run),hazardousVials:run.relics.includes('hazardousVials'),stellarReady:run.stellarReady,robes:{enabled:run.relics.includes('filadoraRobes')||run.relics.includes('artisanRobes'),artisan:run.relics.includes('artisanRobes'),spells:[...run.wonderfulSpells]},castingRelics:{...battle.castingRelics,calculus:run.relics.includes('forgivingCalculus'),sphere:run.relics.includes('perfectedSphere'),stardust:run.relics.includes('blackStardust'),clover:run.relics.includes('sevenLeafClover')},bestDrawing:run.bestDrawing,worstDrawing:run.worstDrawing,lotus:run.relics.includes('lotus'),lotusReady:run.relics.includes('lotus'),colorful:run.relics.includes('colorfulRock'),shaleActive:run.relics.includes('impossibleShale')&&run.shaleContacts<3,shaleContacts:run.shaleContacts,furyReady:run.furyReady,midnightStone:run.relics.includes('midnightStone'),amulets:{sun:run.relics.includes('sunAmulet'),moon:run.relics.includes('moonAmulet'),twilight:run.relics.includes('twilightAmulet')},enemies:battle.enemies.map(e=>run.node===1&&e.id===2?{...e,spawnAt:10}:e),maxHealth:playerMaxHealth(run),playerHP:run.health,potions:{...run.potions},bottledSpells:run.bottledSpells.map(s=>({...s})),upgrades:{...run.upgrades},damageBonus:runDamageBonus(run),pushBonus:run.relics.includes('moon')?1.15:1,firstHitPush:run.relics.includes('bell')?80:0,difficulty:run.node>=5?1.2:1};
 }
 export function finishBattle(run:Run,battle:Battle,random:()=>number=Math.random):Run{
  if(run.screen!=='battle'||!['victory','defeat'].includes(battle.phase))return run;
@@ -69,7 +70,7 @@ export function finishBattle(run:Run,battle:Battle,random:()=>number=Math.random
  const offers:SpellId[]=(combats-1)%4===0?rollSpellOffers(run,random):[];
  const available=(Object.keys(RELICS) as RelicId[]).filter(id=>relicCanDrop(carried,id)&&!carried.relics.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));const relic=isEliteNode(run.node)&&available.length?pickRelic(available,random):null;
  const gold=encounterGold(run.node,random);
- return{...carried,screen:'rewards',combats,health:Math.min(100,battle.playerHP+(run.relics.includes('moss')?10:0)),reward:{gold,potion,offers,relic,goldClaimed:false,potionStatus:potion?'pending':'skipped',relicClaimed:!relic,learned:null}};
+ return{...carried,screen:'rewards',combats,health:Math.min(playerMaxHealth(run),battle.playerHP+(run.relics.includes('moss')?10:0)),reward:{gold,potion,offers,relic,goldClaimed:false,potionStatus:potion?'pending':'skipped',relicClaimed:!relic,learned:null}};
 }
 export function claimGold(run:Run):Run{
  const r=run.reward;if(run.screen!=='rewards'||!r||r.goldClaimed)return run;
@@ -112,12 +113,12 @@ export function discardPotion(run:Run,id:Potion,bottleIndex=0):Run{
  return{...run,bottledSpells:id==='spellBottle'?run.bottledSpells.filter((_,index)=>index!==bottleIndex):run.bottledSpells,potions:{...run.potions,[id]:(run.potions[id]??0)-1}};
 }
 export function drinkTrailHealing(run:Run,id:Potion='heal'):Run{
- if(['opening','menu','battle','defeat'].includes(run.screen)||run.pendingBottle||(run.pendingSpellOffers?.length??0)>0||run.health<=0||run.health>=100||(id!=='heal'&&id!=='theodoraHeal')||(run.potions[id]??0)<1)return run;
- return{...run,health:Math.min(100,run.health+(id==='theodoraHeal'?35:30)),potions:{...run.potions,[id]:(run.potions[id]??0)-1}};
+ if(['opening','menu','battle','defeat'].includes(run.screen)||run.pendingBottle||(run.pendingSpellOffers?.length??0)>0||run.health<=0||run.health>=playerMaxHealth(run)||(id!=='heal'&&id!=='theodoraHeal')||(run.potions[id]??0)<1)return run;
+ return{...run,health:Math.min(playerMaxHealth(run),run.health+(id==='theodoraHeal'?35:30)),potions:{...run.potions,[id]:(run.potions[id]??0)-1}};
 }
 export function camp(run:Run,spell?:SpellId):Run{if(run.pendingBottle||(run.pendingSpellOffers?.length??0)>0||!(run.screen==='camp'||run.screen==='event'&&run.event?.outcome==='lit')||run.campUsed||spell&&(!run.spells.includes(spell)||!isUpgradableSpell(spell)))return run;
  if(spell&&((run.upgrades[spell]??0)>=1))return run;
- return spell?{...run,campUsed:true,upgrades:{...run.upgrades,[spell]:(run.upgrades[spell]??0)+1}}:{...run,campUsed:true,health:Math.min(100,run.health+60)};
+ return spell?{...run,campUsed:true,upgrades:{...run.upgrades,[spell]:(run.upgrades[spell]??0)+1}}:{...run,campUsed:true,health:Math.min(playerMaxHealth(run),run.health+60)};
 }
 
 export function sealBottle(run:Run,spell:BottledSpell):Run{

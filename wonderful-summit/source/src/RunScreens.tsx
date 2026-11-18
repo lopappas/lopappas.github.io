@@ -1,3 +1,4 @@
+import {playerMaxHealth} from './playerHealth';
 import {HomeModeChoices} from './HomeModeChoices';
 import {resizeInkCanvas,inkPixelRatio} from './inkCanvas';
 import {playActIntro} from './actIntro';
@@ -83,7 +84,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  },[run.screen,run.node,run.pendingBottle]);
 
  const finishTutorial=()=>{setTutorial2Preview(false);setRun(returnToMenu());setMenuTour(0);};
- const stats=<div className="run-stats"><span className="run-stat" aria-label={`Health: ${run.health} out of 100`}>♡ {run.health}/100</span><RunPotions onDrinkHealing={id=>update(r=>drinkTrailHealing(r,id),'bottle')} visibleSlots key={`${run.screen}-${run.node}`} run={run} onDrop={(id,bottleIndex)=>update(r=>discardPotion(r,id,bottleIndex))}/><span className="run-stat" aria-label={`Gold: ${run.gold}`}>◈ {run.gold}</span></div>;
+ const stats=<div className="run-stats"><span className="run-stat" aria-label={`Health: ${run.health} out of ${playerMaxHealth(run)}`}>♡ {run.health}/{playerMaxHealth(run)}</span><RunPotions onDrinkHealing={id=>update(r=>drinkTrailHealing(r,id),'bottle')} visibleSlots key={`${run.screen}-${run.node}`} run={run} onDrop={(id,bottleIndex)=>update(r=>discardPotion(r,id,bottleIndex))}/><span className="run-stat" aria-label={`Gold: ${run.gold}`}>◈ {run.gold}</span></div>;
  if(run.pendingBottle)return <BottleCapture journey={run} stats={stats} inkMultiplier={run.relics.includes('feather')?.8:1} known={run.spells} upgrades={run.upgrades} onSeal={spell=>{setBottleReturning(true);update(r=>sealBottle(r,spell));}}/>;
  if(tutorial2Preview)return <Tutorial2Session Combat={Combat} onComplete={finishTutorial} onExit={()=>{setTutorial2Preview(false);setRun(returnToMenu());}}/>;
  if(run.screen==='opening')return <main className="app opening-shell"><Opening onStart={()=>update(finishOpening)}/></main>;
