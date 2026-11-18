@@ -19,7 +19,8 @@ import {WoodenShieldArt} from './WoodenShieldArt';
 import {PetPurse} from './PetPurse';
 import {enemyStatusLabel} from './timeVisuals';
 import {EnemyEffects} from './EnemyEffects';
-import {enemyElementColor,presentEnemies,projectilePosition,enemyY,targetedEnemy,potionPosition,POTION_FLIGHT_SECONDS,POTION_BREAK_SECONDS,type Battle} from './battle';
+import {BATTLEFIELD_BOTTOM_Y,FILA_ART_SCALE,FILA_ART_Y,MOTHER_ART_SCALE,SLIME_FOOT_OFFSET,enemyFootOffset} from './combatLanes';
+import {enemyElementColor,presentEnemies,projectilePosition,enemyArtY,enemyY,targetedEnemy,potionPosition,POTION_FLIGHT_SECONDS,POTION_BREAK_SECONDS,type Battle} from './battle';
 export function World({burst,color,battle,hasRelics=false,purseExpanded=false,practice=false,companion=true,companionPaused=false,enemyEntrance}:{burst:number;color:string;battle:Battle;hasRelics?:boolean;purseExpanded?:boolean;practice?:boolean;companion?:boolean;companionPaused?:boolean;enemyEntrance?:'slide'|'fade'}){
 const [sad,setSad]=useState(false),[viewHeight,setViewHeight]=useState(410),[cloudY,setCloudY]=useState(210);
 const worldRef=useRef<HTMLDivElement>(null);
@@ -48,7 +49,7 @@ useEffect(()=>{
   // Keep the highest cloud's stepped top and bob inside the visible scene.
   const healthRect=health?.getBoundingClientRect();
   const healthCenter=Math.max(0,healthRect?(healthRect.top+healthRect.bottom)/2-r.top:28);
-  const visibleTop=510-r.height*unitsPerPixel;
+  const visibleTop=BATTLEFIELD_BOTTOM_Y-r.height*unitsPerPixel;
   setCloudY(Math.max(visibleTop+55,visibleTop+healthCenter*unitsPerPixel+10));
  };
  const observer=new ResizeObserver(measure);observer.observe(el);if(health)observer.observe(health);measure();
@@ -61,7 +62,7 @@ const grouped=battle.enemies.length>1&&!practice;
 function colorForEnemy(e:Battle["enemies"][number]){
  return practice?'#e6b844':e.rocky?'#a5aaa4':e.element==='Fire'?'#ef9c70':e.element==='Water'?'#7ccbd6':e.element==='Nature'?'#99bf76':'#bcc3a2';
 }
-return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 720 ${viewHeight}`} preserveAspectRatio="xMidYMax slice" aria-label={practice?"Fila practices spells with a golden slime":"Fila faces the enemies, paintbrush in hand"} role="img">
+return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTTOM_Y-viewHeight} 720 ${viewHeight}`} preserveAspectRatio="xMidYMax slice" aria-label={practice?"Fila practices spells with a golden slime":"Fila faces the enemies, paintbrush in hand"} role="img">
 <StaticScenery gray={0}/>
 <TorrentArt torrent={battle.torrent} time={battle.time} gray={0}/>
 <FirestormArt storm={battle.firestorm} time={battle.time} gray={0} cloudY={cloudY}/>
@@ -72,15 +73,15 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
  const angle=i*Math.PI*2/24,reach=35+(i%4)*12;
  return <g key={i} className="robes-glitter" style={{'--glitter-x':`${Math.cos(angle)*reach}px`,'--glitter-y':`${Math.sin(angle)*reach*.85}px`,'--glitter-delay':`${i%4*25}ms`} as React.CSSProperties}><path d="M0-4 1-1 4 0 1 1 0 4-1 1-4 0-1-1Z" fill="#fff" transform={`translate(${Math.cos(angle)*12} ${Math.sin(angle)*18}) scale(${.65+i%3*.22})`}/></g>;
 })}</g>}
-<g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" data-tutorial2-speaker="fila" shapeRendering="crispEdges" transform="translate(190 320) scale(5)" aria-label="Fila, a little pixel witch holding a paintbrush">
+<g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" data-tutorial2-speaker="fila" shapeRendering="crispEdges" transform={`translate(190 ${FILA_ART_Y}) scale(${FILA_ART_SCALE})`} aria-label="Fila, a little pixel witch holding a paintbrush">
 {battle.rejectionUntil>battle.time&&<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#fff" stroke="#fff" strokeWidth="3" opacity=".65" className="rejection-aura"/>}
 <FilaBody/>
 </g></g>
 {companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
-{enemies.map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=grouped?null:enemyStatusLabel(e,battle),color=colorForEnemy(e);return <g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter,e.lane)})`} aria-label={practice?'A non-elemental golden practice slime':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
+{enemies.map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=grouped?null:enemyStatusLabel(e,battle),color=colorForEnemy(e);return <g key={e.id} transform={`translate(${e.x} ${enemyArtY(e,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
-<ellipse cy="22" rx={e.kind==='mother'?72:e.goblinKing?59.8:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<g transform={e.goblinKing?`translate(0 ${-24+kingUIOffset})`:undefined}><TargetCaret element={e.element} mother={e.kind==='mother'||!!e.goblinKing}/></g>}
-<g transform={e.kind==='mother'?'scale(2.1)':e.goblinKing?`scale(${GOBLIN_KING_SCALE})`:undefined}><g className={`${e.kind==='spider'?'spider':e.kind==='goblin'?'goblin':'slime'}${e.stunUntil>battle.time?' stunned':''}${(e.shield?.burnUntil??0)>battle.time?' shield-burning':''}${e.hurtUntil>battle.time?' slime-hit':''}${e.attackAt!==null?' slime-attacking':''}`} style={{filter:frozen?'hue-rotate(100deg) brightness(1.2)':undefined}}>
+<ellipse cy={enemyFootOffset(e)} rx={e.kind==='mother'?72:e.goblinKing?59.8:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<g transform={e.goblinKing?`translate(0 ${-24+kingUIOffset})`:undefined}><TargetCaret element={e.element} mother={e.kind==='mother'||!!e.goblinKing}/></g>}
+<g transform={e.kind==='mother'?`scale(${MOTHER_ART_SCALE})`:e.goblinKing?`scale(${GOBLIN_KING_SCALE})`:undefined}><g className={`${e.kind==='spider'?'spider':e.kind==='goblin'?'goblin':'slime'}${e.stunUntil>battle.time?' stunned':''}${(e.shield?.burnUntil??0)>battle.time?' shield-burning':''}${e.hurtUntil>battle.time?' slime-hit':''}${e.attackAt!==null?' slime-attacking':''}`} style={{filter:frozen?'hue-rotate(100deg) brightness(1.2)':undefined}}>
 {e.kind==='spider'?<SpiderArt color={color} clock={e.clock} moving={!frozen&&e.attackAt===null&&!e.push&&e.rootUntil<=battle.time&&e.stunUntil<=battle.time}/>:e.kind!=='goblin'?<SlimeBody color={color} attacking={e.attackAt!==null} practice={practice} rocky={e.rocky}/>:<g shapeRendering="crispEdges"><GoblinBody/>{e.goblinKing?crown.visible&&<g aria-label="Gold crown" transform={`translate(${crown.x} ${crown.y}) rotate(${crown.rotation})`} opacity={crown.opacity}><CrownBody/></g>:<GoblinHelmet/>}</g>}
 </g></g>
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
@@ -93,11 +94,11 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
  <text textAnchor="middle" fontFamily="Fredoka" fontSize="21" fontWeight="500" fill="#ffd700" stroke="#283519" strokeWidth="1.4" paintOrder="stroke" aria-hidden="true"><tspan x="0" y="30">My crown!</tspan><tspan x="0" y="58">You’ll pay for this!</tspan></text>
 </g>}
 </g></g>;})}
-{grouped&&enemies.map(e=><g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter,e.lane)})`}>
+{grouped&&enemies.map(e=><g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter,e.lane)-SLIME_FOOT_OFFSET})`}>
  <EnemyNameplate kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={colorForEnemy(e)} kingUIOffset={0} enemyEntrance={enemyEntrance} grouped attacking={e.attackAt!==null} status={enemyStatusLabel(e,battle)}/>
 </g>)}
 {battle.motherSplit&&battle.time-battle.motherSplit.at<2.6&&(()=>{
- const split=battle.motherSplit,age=battle.time-split.at,c=split.element==='Fire'?'#ef9c70':split.element==='Water'?'#7ccbd6':'#99bf76';
+ const split=battle.motherSplit,age=battle.time-split.at,scale=MOTHER_ART_SCALE+age*.12,c=split.element==='Fire'?'#ef9c70':split.element==='Water'?'#7ccbd6':'#99bf76';
  return <g transform={`translate(${split.x} ${enemyY(1)})`} pointerEvents="none" aria-label={age<2?'Slime Mother trembles before splitting':'Slime Mother bursts into three slimes'}>
  {age<2?<g transform={`translate(${Math.sin(age*30)*age*2} 0) scale(${2.1+age*.12} ${2.1-age*.2})`}><path d="M-36 12v-24h6v-16h10v-8h36v6h12v12h8v30h-6v8h-60v-8z" fill="#2d493d"/><path d="M-30 12v-22h6v-14h12v-6h24v6h12v12h6v24h-6v4h-48v-4z" fill={c}/><path d="m-16-8 8 6m-8 0 8-6m16 0 8 6m-8 0 8-6" stroke="#2d493d" strokeWidth="3"/><path d="M-3 6h9v3h-9z" fill="#2d493d"/></g>:<g opacity={Math.max(0,1-(age-2)/.6)}><circle r={20+(age-2)*180} stroke={c} strokeWidth="9" fill="none"/>{Array.from({length:12},(_,i)=>{const a=i*Math.PI/6,r=25+(age-2)*180;return <rect key={i} x={Math.cos(a)*r-6} y={Math.sin(a)*r*.65-6} width="12" height="12" fill={i%2?c:'#e9e8bb'}/>;})}</g>}
  </g>;
@@ -116,6 +117,6 @@ const t=Math.min(1,age/POTION_BREAK_SECONDS);return <g key={f.id} opacity={1-t} 
 <PaletteGroup className="chronos-environment" amount={0} fill="#2a4939"><path d="M0 600V550q42-22 73 5l34 45zM720 600V520q-69-5-119 80z"/></PaletteGroup>
 {battle.vineGrab&&<g key={`vine-${battle.vineGrab.started}`} className="sneaky-vine-grab" pointerEvents="none" aria-label="Sneaky Vine grabs the furthest enemy from behind and drags them backwards">{(()=>{const grab=battle.vineGrab,x=battle.enemies.find(e=>e.id===grab.targetId)?.x??grab.x,y=grab.y;return <><path d={`M760 ${y-16} C700 ${y-50} ${x+75} ${y+24} ${x+18} ${y}`} fill="none" stroke="#263e28" strokeWidth="12"/><path d={`M760 ${y-16} C700 ${y-50} ${x+75} ${y+24} ${x+18} ${y}`} fill="none" stroke="#88ad58" strokeWidth="6"/><ellipse cx={x} cy={y} rx="36" ry="20" fill="none" stroke="#263e28" strokeWidth="11"/><ellipse cx={x} cy={y} rx="36" ry="20" fill="none" stroke="#88ad58" strokeWidth="5"/><path d={`M${x+48} ${y-4}q-9-34 18-28q4 20-18 28M${x+83} ${y}q8 29 28 15q-3-18-28-15`} fill="#9bbe72" stroke="#365a37" strokeWidth="2"/></>;})()}</g>}
 {flashBurst&&<g key={flashBurst.serial} transform={`translate(${flashBurst.x} 410) scale(0.75)`} pointerEvents="none" aria-label="Black Flash explosion"><g className="black-flash-explosion"><circle r="78" fill="#09070c"/><path d="M0-112 18-62 62-85 50-38 116-22 66 4 104 63 45 48 22 110 0 65-43 99-39 42-109 52-64 6-112-35-51-37-60-96-18-61Z" fill="#e11c38" stroke="#10070d" strokeWidth="8"/><circle r="39" fill="#08060a"/><path d="m-16-58 28 40-23 9 30 59M-71-14l38 15-10 20 32 7M32-37l-6 25 31 4 22 24" fill="none" stroke="#ff5470" strokeWidth="7"/></g></g>}
-<ChronosClock frame={chronosClockFrame(battle)} y={510-viewHeight+140}/>
+<ChronosClock frame={chronosClockFrame(battle)} y={BATTLEFIELD_BOTTOM_Y-viewHeight+140}/>
 </svg></div>;
 }

@@ -1,4 +1,4 @@
-import {COMBAT_LANE_Y,LANE_FOLLOW_GAP,combatLane,laneQueues,placeLaneArrivals,staggeredWalkX,type CombatLane} from './combatLanes.ts';
+import {COMBAT_LANE_Y,FILA_FOOT_Y,LANE_FOLLOW_GAP,combatLane,enemyFootOffset,laneQueues,placeLaneArrivals,staggeredWalkX,type CombatLane} from './combatLanes.ts';
 import {
  SNOWBALL_FLIGHT_SECONDS,SNOWMAN_ATTACK_INTERVAL,SNOWMAN_CONTACT_DISTANCE,SNOWMAN_COOLDOWN,
  SNOWMAN_DAMAGE_TAKEN,SNOWMAN_FAINT_LIFETIME,SNOWMAN_MAX_DISTANCE,SNOWMAN_SPEED,
@@ -220,7 +220,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   const burnTick=((spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier*amuletDamageMultiplier(q,spellId,state.amulets):0)+(steady&&spellId==='fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null,goblinKing:false},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0))*(state.fireFriend?1.5:1);
   return{...e,shield,hp:Math.max(0,e.hp-damage),push:spellId==='ender'||spellId==='thistleBush'||spellId==='flameBlade'?e.push:shieldBurning?null:rockyFaint?e.push:{from:e.x,to:Math.min(ENEMY_BACK_X,e.x+spellKnockback(q,spellId,casting.pushBonus*knockbackMultiplier*flash.multiplier*(moon&&spellId==='water'?1.15:1),e.element,e.rocky,e.shield,state.time,level,kingHasCrown({...e,hp:Math.max(0,e.hp-damage)}))*(e.kind==='mother'?.8:1)),started:state.time,ends:state.time+(spellId==='sneakyVine'?.9:PUSH_DURATION)},attackAt:spellId==='ender'||spellId==='thistleBush'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q,level).duration,amount:brambleEffect(q,level).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q,level).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{quality:burnTick>=(e.burn?.damage??0)?q:e.burn?.quality??q,damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
  });
- return resolveMother({...state,enemies,casts:state.casts+1,vineGrab:spellId==='sneakyVine'?{targetId:target.id,x:target.x,y:enemyY(target.id,state.encounter,target.lane)-12,started:state.time}:state.vineGrab});
+ return resolveMother({...state,enemies,casts:state.casts+1,vineGrab:spellId==='sneakyVine'?{targetId:target.id,x:target.x,y:enemyArtY(target,state.encounter)-12,started:state.time}:state.vineGrab});
 }
 // Resolve direct damage and damage-over-time deaths through the same boss phase.
 function resolveMother(state:Battle):Battle{
@@ -331,8 +331,9 @@ function advanceTidalWaves(previous:Battle,state:Battle):Battle{
  }
  return{...next,tidalWaves:next.phase==='active'?remaining:[]};
 }
-export function projectilePosition(state:Battle){const p=state.projectile;if(!p)return null;const target=presentEnemies(state).find(e=>e.id===p.targetId)??nearestEnemy(state);if(!target)return null;const t=Math.min(1,Math.max(0,(state.time-p.started)/p.duration));const wobble=p.spellId==='leaf'?Math.sin(Math.PI*t)*(Math.sin(t*17)*13+Math.sin(t*29)*4):0;return{x:300+(target.x-300)*t,y:420+(enemyY(target.id,state.encounter,target.lane)-15-420)*t+wobble};}
+export function projectilePosition(state:Battle){const p=state.projectile;if(!p)return null;const target=presentEnemies(state).find(e=>e.id===p.targetId)??nearestEnemy(state);if(!target)return null;const t=Math.min(1,Math.max(0,(state.time-p.started)/p.duration));const wobble=p.spellId==='leaf'?Math.sin(Math.PI*t)*(Math.sin(t*17)*13+Math.sin(t*29)*4):0;return{x:300+(target.x-300)*t,y:420+(enemyArtY(target,state.encounter)-15-420)*t+wobble};}
 export function enemyY(id:number,encounter:Encounter='slime',lane?:CombatLane){return COMBAT_LANE_Y[combatLane(id,encounter,lane)];}
+export function enemyArtY(enemy:Enemy,encounter:Encounter){return enemyY(enemy.id,encounter,enemy.lane)-enemyFootOffset(enemy);}
 export function burnDamage(quality:number,element:Enemy['element'],rocky=false){const match=elementalMatchup('Fire',element);return match.immuneEffects||rockyDefense(rocky,quality).immuneEffects?0:Math.round(power(quality)*.25*(advantage('Fire',element)?1.5:1)*rockyDefense(rocky,quality).damage);}
 export function potionPosition(flight:PotionFlight,time:number){const t=Math.max(0,Math.min(1,(time-flight.started)/POTION_FLIGHT_SECONDS));return{x:160+(flight.toX-160)*t,y:383+(flight.toY-383)*t-440*t*(1-t),rotation:-30+330*t,progress:t};}
 export function stepBattle(state:Battle,delta:number):Battle{
@@ -433,7 +434,7 @@ export function drinkPotion(state:Battle,potion:Potion,bottleIndex=0):Battle{
  if(state.phase!=='active'||(state.potions[potion]??0)<=0)return state;
  if(potion==='stellar'&&(state.stellarReady||state.potionFlights.some(f=>f.potion==='stellar'&&!f.applied)))return state;
  const spell=potion==='spellBottle'?state.bottledSpells[bottleIndex]:undefined;if(potion==='spellBottle'&&!spell)return state;if(spell?.spellId==='alchemize'&&alchemizeBlockReason(state,true))return state;
- const live=presentEnemies(state),toX=(potion==='freeze'||potion==='spellBottle'||potion==='miasma')?(live.length?live.reduce((n,e)=>n+e.x,0)/live.length:ENEMY_BACK_X):245,toY=(potion==='freeze'||potion==='spellBottle'||potion==='miasma')?435:395;
+ const live=presentEnemies(state),toX=(potion==='freeze'||potion==='spellBottle'||potion==='miasma')?(live.length?live.reduce((n,e)=>n+e.x,0)/live.length:ENEMY_BACK_X):245,toY=(potion==='freeze'||potion==='spellBottle'||potion==='miasma')?FILA_FOOT_Y:395;
  return{...state,bottledSpells:potion==='spellBottle'?state.bottledSpells.filter((_,i)=>i!==bottleIndex):state.bottledSpells,potions:{...state.potions,[potion]:(state.potions[potion]??0)-1},potionSerial:state.potionSerial+1,potionFlights:[...state.potionFlights,{id:state.potionSerial+1,potion,spell,started:state.time,toX,toY,applied:false}]};
 }
 

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {BATTLEFIELD_BOTTOM_Y} from '../src/combatLanes.ts';
 import {createSpider,newBattle,stepBattle,presentEnemies,hitWithSpell,enemyY,CONTACT_X,SLIME_SPEED,spellDamage,type Battle} from '../src/battle.ts';
 import {ROUTE,newRun,battleForRun,finishBattle,claimGold,leaveNode,enterNode,learnReward,claimRelic} from '../src/run.ts';
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
@@ -40,7 +41,7 @@ test('Rockweb nest starts with three full-health rock slimes and adds a neutral 
  assert.ok(b.enemies.slice(0,3).every(e=>e.kind==='slime'&&e.rocky&&e.hp===150&&e.spawnAt===0));
  assert.equal(b.enemies[3].kind,'spider');assert.equal(b.enemies[3].element,'Neutral');assert.equal(b.enemies[3].hp,100);assert.equal(b.enemies[3].spawnAt,10);
  b=advance(b,9.99);assert.equal(presentEnemies(b).length,3);assert.equal(b.enemies[3].clock,0);b=advance(b,.01);assert.equal(presentEnemies(b).length,4);
- assert.ok(b.enemies.every(e=>enemyY(e.id,b.encounter)+26<=510));
+ assert.ok(b.enemies.every(e=>enemyY(e.id,b.encounter,e.lane)+7<=BATTLEFIELD_BOTTOM_Y));
 });
 
 test('Rockweb nest cannot end before its delayed Spider arrives, even if all three slimes die early',()=>{

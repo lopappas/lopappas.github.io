@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {FILA_FOOT_Y} from '../src/combatLanes.ts';
 import {SPELLS} from '../src/magic.ts';
 import {newBattle,hitWithSpell,spellDamage,spellKnockback,firestormTickDamage,bogTickDamage,launchSpell,stepBattle,drinkPotion,CONTACT_X,eliteRush,resistedSlow,kingDamageMultiplier,ENEMY_BACK_X,type Battle} from '../src/battle.ts';
 import {newRun,startRun,enterNode,battleForRun,finishBattle,encounterGold} from '../src/run.ts';
@@ -68,7 +69,7 @@ test('King attacks for exactly 34 damage with normal goblin timing and produces 
 test('Faint Torrent splashes damage and interrupt the crowned King with the real cast-grade defense',()=>{
  for(const q of [45,59,60,69,70,100]){
   let b=launchSpell(field(),q,'#fff','torrent');
-  b={...b,torrent:{...b.torrent!,orbs:[{x:350,y:420,landsAt:1,applied:false}]}};
+  b={...b,torrent:{...b.torrent!,orbs:[{x:350,y:FILA_FOOT_Y,landsAt:1,applied:false}]}};
   b.enemies[0].attackAt=2;
   const king={...b.enemies[0]};b=advance(b,1);
   assert.equal(b.enemies[0].hp,1000-spellDamage(king,q,'torrent'));

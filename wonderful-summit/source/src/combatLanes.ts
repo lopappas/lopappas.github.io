@@ -1,6 +1,19 @@
 import type {Encounter,Enemy} from './battle.ts';
+import {GOBLIN_KING_SCALE} from './goblinKing.ts';
 
-export const COMBAT_LANE_Y=[392,420,448] as const;
+export const FILA_ART_Y=320,FILA_ART_SCALE=5,FILA_SPRITE_HEIGHT=31;
+export const FILA_FOOT_Y=FILA_ART_Y+FILA_ART_SCALE*FILA_SPRITE_HEIGHT;
+export const COMBAT_LANE_Y=[FILA_FOOT_Y-28,FILA_FOOT_Y,FILA_FOOT_Y+28] as const;
+export const BATTLEFIELD_BOTTOM_Y=540;
+export const SLIME_FOOT_OFFSET=20;
+export const MOTHER_ART_SCALE=2.1;
+
+export function enemyFootOffset(enemy:Pick<Enemy,'kind'|'goblinKing'>){
+ if(enemy.kind==='mother')return SLIME_FOOT_OFFSET*MOTHER_ART_SCALE;
+ if(enemy.kind==='goblin')return 25*(enemy.goblinKing?GOBLIN_KING_SCALE:1);
+ if(enemy.kind==='spider')return 28.5;
+ return SLIME_FOOT_OFFSET;
+}
 export type CombatLane=0|1|2;
 export const CENTER_LANE=1;
 const BACK_LANE=0,FRONT_LANE=2;

@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {BATTLEFIELD_BOTTOM_Y} from '../src/combatLanes.ts';
 import {newBattle,stepBattle,presentEnemies,enemyY,type Battle} from '../src/battle.ts';
 import {newRun,ROUTE,battleForRun,finishBattle,isEliteNode,enterNode,buy} from '../src/run.ts';
 import {PLAYER_SPELLS} from '../src/magic.ts';
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 test('Webbed ambush arrives in three waves at zero, thirteen and nineteen seconds',()=>{
  let b=newBattle('active','spiderGoblinElite');assert.deepEqual(b.enemies.map(e=>[e.kind,e.spawnAt,e.hp]),[['spider',0,100],['spider',0,100],['goblin',13,200],['goblin',13,200],['spider',19,100]]);
- assert.equal(new Set(b.enemies.map(e=>e.id)).size,5);assert.ok(b.enemies.every(e=>e.element==='Neutral'&&enemyY(e.id,b.encounter)+26<=510));
+ assert.equal(new Set(b.enemies.map(e=>e.id)).size,5);assert.ok(b.enemies.every(e=>e.element==='Neutral'&&enemyY(e.id,b.encounter,e.lane)+7<=BATTLEFIELD_BOTTOM_Y));
  assert.equal(presentEnemies(b).length,2);const initial=b.enemies[0].x;b=advance(b,5);assert.equal(b.enemies[0].x,initial);b=advance(b,7.99);assert.ok(b.enemies[0].x<initial);assert.equal(presentEnemies(b).length,2);const paused={...b,phase:'ready' as const};assert.equal(stepBattle(paused,20),paused);
  b=advance(b,.01);assert.equal(presentEnemies(b).length,4);assert.equal(b.enemies[2].clock,0);
  b=advance(b,5.99);assert.equal(presentEnemies(b).length,4);assert.equal(b.enemies[4].clock,0);b=advance(b,.01);assert.equal(presentEnemies(b).length,5);

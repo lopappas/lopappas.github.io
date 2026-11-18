@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CONTACT_X,ENEMY_BACK_X,ENCOUNTERS,enemyY,hitWithSpell,newBattle,presentEnemies,stepBattle,type Battle,type Encounter} from '../src/battle.ts';
-import {COMBAT_LANE_Y,LANE_FOLLOW_GAP,combatLane} from '../src/combatLanes.ts';
+import {CONTACT_X,ENEMY_BACK_X,ENCOUNTERS,enemyArtY,enemyY,hitWithSpell,newBattle,presentEnemies,stepBattle,type Battle,type Encounter} from '../src/battle.ts';
+import {BATTLEFIELD_BOTTOM_Y,COMBAT_LANE_Y,FILA_FOOT_Y,LANE_FOLLOW_GAP,combatLane,enemyFootOffset} from '../src/combatLanes.ts';
 
 function advance(battle:Battle,seconds:number){
  const end=battle.time+seconds;
@@ -13,14 +13,19 @@ function tracks(battle:Battle){
 }
 
 test('solos start in the center, pairs use the outer lanes and triple groups use all three',()=>{
- assert.deepEqual(COMBAT_LANE_Y,[392,420,448]);
- assert.deepEqual(tracks(newBattle('active','slime')),[420]);
- for(const encounter of ['pack','spiderGoblinElite'] as const)assert.deepEqual(tracks(newBattle('active',encounter)),[392,448]);
- assert.deepEqual(tracks(newBattle('active','rockWebNest')),[392,420,448]);
+ assert.deepEqual(COMBAT_LANE_Y,[FILA_FOOT_Y-28,FILA_FOOT_Y,FILA_FOOT_Y+28]);
+ assert.deepEqual(tracks(newBattle('active','slime')),[FILA_FOOT_Y]);
+ for(const encounter of ['pack','spiderGoblinElite'] as const)assert.deepEqual(tracks(newBattle('active',encounter)),[COMBAT_LANE_Y[0],COMBAT_LANE_Y[2]]);
+ assert.deepEqual(tracks(newBattle('active','rockWebNest')),[...COMBAT_LANE_Y]);
  for(const encounter of Object.keys(ENCOUNTERS) as Encounter[]){
   const battle=newBattle('active',encounter);
-  assert.ok(battle.enemies.every(e=>[392,420,448].includes(enemyY(e.id,encounter,e.lane))));
+  for(const e of battle.enemies){
+   const track=enemyY(e.id,encounter,e.lane);
+   assert.ok(COMBAT_LANE_Y.includes(track));
+   assert.equal(enemyArtY(e,encounter)+enemyFootOffset(e),track);
+  }
  }
+ assert.ok(BATTLEFIELD_BOTTOM_Y-COMBAT_LANE_Y[2]>=35);
 });
 
 test('later enemies prefer an empty track and wait outside when all entrances are blocked',()=>{
