@@ -3,6 +3,7 @@ import {FilaBody,SlimeBody,GoblinBody,CrownBody,GoblinHelmet} from './CharacterB
 import {chronosClockFrame} from './chronosClock';
 import {ChronosClock} from './ChronosClockArt';
 import {StaticScenery} from './StaticScenery';
+import {SnowmanArt} from './SnowmanArt';
 import {TorrentArt} from './TorrentArt';
 import {GOBLIN_KING_SCALE,kingCrownFrame,kingDialogueVisible,kingHasCrown} from './goblinKing';
 import {SpiderArt} from './SpiderArt';
@@ -93,6 +94,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
  </g>;
 })()}
 <NearSpellArt battle={battle} gray={0}/>
+<SnowmanArt battle={battle}/>
 {orb&&battle.projectile&&battle.projectile.spellId!=='chronos'&&(battle.projectile.spellId==='leaf'?<g transform={`translate(${orb.x} ${orb.y}) rotate(${Math.sin((battle.time-battle.projectile.started)*20)*14}) scale(2.4)`} aria-label="Bramble Leaf, a drifting green diamond"><path d="M0-9 9 0 0 9-9 0Z" fill="#8fbe64" stroke="#d0e4a3" strokeWidth="1.5"/><path d="M0-6V6M-6 0H6" stroke="#4e833f" strokeWidth="1"/></g>:battle.projectile.spellId==='bolt'?<g transform={`translate(${orb.x} ${orb.y})`} shapeRendering="crispEdges" aria-label="Retro red-orange fire lightning bolt">
  <path d="M-42-12H-10L-20 0H12L-2 14 43-4H13L25-16H-5L5-27Z" fill="#df3f24"/>
  <path d="M-28-9H-3L-13 3H14L-2 10 30-1H5L15-12H-10Z" fill="#ff9639"/>

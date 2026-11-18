@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {spellbookColumns,spellName,spellUpgradePreview} from '../src/spellbook.ts';
 import {SPELLS,PLAYER_SPELLS,type SpellId} from '../src/magic.ts';
 import {newRun,camp,battleForRun,type Run} from '../src/run.ts';
-import {hitWithSpell} from '../src/battle.ts';
+import {CONTACT_X,hitWithSpell,stepBattle} from '../src/battle.ts';
 
 test('spellbook columns keep each element together with its beginner first',()=>{
  const columns=spellbookColumns(['leaf','bolt','wave','nature','fire','water']);
@@ -25,7 +25,10 @@ test('upgrade previews preserve the campsite choice until confirmation and match
   assert.equal(preview.currentName,spell.name+'+'.repeat(level));assert.equal(preview.nextName,spell.name+'+'.repeat(level+1));
   const confirmed=camp(run,spell.id);assert.equal(confirmed.health,27);assert.equal(confirmed.campUsed,true);assert.equal(confirmed.upgrades[spell.id],level+1);
   for(const [state,expected] of [[run,preview.currentDamage],[confirmed,preview.nextDamage]] as const){
-   const battle=battleForRun(state,()=>.2);battle.enemies[0].element='Neutral';const hit=hitWithSpell(battle,60,spell.id,battle.enemies[0].id);
+   const battle=battleForRun(state,()=>.2);battle.enemies[0].element='Neutral';
+   if(spell.id==='snowman')battle.enemies[0].x=CONTACT_X+8;
+   let hit=hitWithSpell(battle,60,spell.id,battle.enemies[0].id);
+   if(spell.id==='snowman')for(let i=0;i<30;i++)hit=stepBattle(hit,.01);
    assert.ok(Math.abs(battle.enemies[0].hp-hit.enemies[0].hp-expected)<1e-8);
   }
   assert.ok(preview.knockback?preview.nextKnockback>preview.currentKnockback:preview.nextDamage>preview.currentDamage);

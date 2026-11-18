@@ -87,6 +87,12 @@ Existing review links remain supported and start fresh sessions:
 
 Milestone 6's full-sequence coverage and user-confirmed browser/device verification are recorded in `docs/tutorial2-verification.md`. Milestone 7 removes the retired implementation while preserving the verified Tutorial 2.0 sequence.
 
+## Snowman
+
+Draw a small closed circle touching a larger circle below it. Snowman is a Legendary Water summon with a 30-second cooldown. It moves 14 world units per second from the player's contact line, up to 250 units ahead. Multiple enemies can attack it at once, each dealing 1.5 times their normal damage. It throws one snowball every 2 seconds when an enemy is within 10 units, favoring an attacker already winding up. Snowballs deal no knockback and use the standard Water matchups and enemy defenses.
+
+Snowman's HP equals its cast quality, and each snowball deals one quarter of that as base damage. An 80% cast gives 80 HP and 20 base damage. The upgrade adds 25% snowball damage. Faint summons last up to 20 seconds and visibly melt during the final 3. Steady or better summons last for the rest of the battle unless defeated or replaced by a recast.
+
 ## Torrent
 Uncommon Water spell with the approved two-stroke blowhole glyph: two mirrored arcs sharing a bottom point, with an open center and no vertical jet. Drops one large orb per second at random x positions from CONTACT_X to ENEMY_BACK_X and at one of the encounter’s walkable enemy lanes, including future arrivals. Each landing splashes an elliptical area (65 × 35 world-unit radii), applying Steady (60%) Dewdrop base damage and knockback to each present foe caught within it. Element, shields, rocky defense and the Goblin King’s crown still apply; actual drawing quality controls defenses and a 5/8/11/14-second Faint/Steady/Beautiful/Wonderful duration. Each orb falls for 650 ms; the last splash fades for 400 ms after the final impact.
 

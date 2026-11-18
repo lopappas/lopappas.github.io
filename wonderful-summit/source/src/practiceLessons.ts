@@ -6,6 +6,7 @@ function startAt(path:Point[],x:number,y:number){
  const rotated=[...points.slice(index),...points.slice(0,index)];return [...rotated,{...rotated[0]}];
 }
 export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
+ snowman:'Draw a small circle for the head. Then start where it meets the body and draw a larger circle below it.',
  torrent:'Start at the left tip, follow the arc down to the shared bottom point, then sweep up the right arc in one continuous stroke.',
  water:'Start at the tip and draw the droplet counterclockwise.',fire:'Start at the top and draw the triangle counterclockwise.',nature:'Draw the sprouts from left to right, then draw the stem down.',
  wave:'Start at the tip of the water droplet and draw counterclockwise. Once the droplet is finished, start from the left of the caret and draw it from left to right.',

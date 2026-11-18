@@ -33,9 +33,9 @@ test('relic rarities exactly match the approved labeling and keepsakes stay excl
  assert.deepEqual(Object.entries(RELICS).filter(([,r])=>r.rarity==='Keepsake').map(([id])=>id).sort(),[...STARTER_RELICS].sort());
 });
 test('spell rarities exactly match the approved labeling, including the developer-only Legendary Ender',()=>{
- assert.deepEqual(Object.fromEntries(SPELLS.map(s=>[s.id,s.rarity])),{torrent:'Uncommon',sneakyVine:'Uncommon',water:'Common',fire:'Common',nature:'Common',wave:'Uncommon',bolt:'Uncommon',leaf:'Uncommon',chronos:'Legendary',ender:'Legendary',firestorm:'Uncommon',tidalcrest:'Uncommon',bog:'Uncommon',flameBlade:'Uncommon',puddleGuard:'Uncommon',thistleBush:'Uncommon',alchemize:'Legendary'});
+ assert.deepEqual(Object.fromEntries(SPELLS.map(s=>[s.id,s.rarity])),{torrent:'Uncommon',sneakyVine:'Uncommon',water:'Common',fire:'Common',nature:'Common',wave:'Uncommon',bolt:'Uncommon',leaf:'Uncommon',chronos:'Legendary',ender:'Legendary',firestorm:'Uncommon',tidalcrest:'Uncommon',bog:'Uncommon',flameBlade:'Uncommon',puddleGuard:'Uncommon',thistleBush:'Uncommon',alchemize:'Legendary',snowman:'Legendary'});
  assert.equal(SPELLS.find(s=>s.id==='ender')?.developerOnly,true);assert.ok(!PLAYER_SPELLS.some(s=>s.id==='ender'));
- assert.deepEqual(PLAYER_SPELLS.filter(s=>s.rarity==='Legendary').map(s=>s.id),['chronos','alchemize']);
+ assert.deepEqual(PLAYER_SPELLS.filter(s=>s.rarity==='Legendary').map(s=>s.id),['chronos','alchemize','snowman']);
 });
 
 test('legendary spells cost fifty percent more, and relic prices follow their tiers',()=>{
@@ -94,7 +94,9 @@ test('exhausted tiers redistribute their odds without blocking remaining spells 
   assert.equal(stock.length,2);assert.notEqual(stock[0].item,stock[1].item);
   assert.ok(stock.every(s=>RELICS[s.item as RelicId].rarity==='Rare'));
   const reward=finishBattle({...run,node:3,screen:'battle',combats:4},{...battleForRun(run),phase:'victory'},()=>roll).reward!;
-  assert.deepEqual([...reward.offers].sort(),['alchemize','chronos']);assert.equal(RELICS[reward.relic!].rarity,'Rare');
+  assert.equal(reward.offers.length,2);assert.equal(new Set(reward.offers).size,2);
+  assert.ok(reward.offers.every(id=>PLAYER_SPELLS.some(s=>s.id===id&&s.rarity==='Legendary')));
+  assert.equal(RELICS[reward.relic!].rarity,'Rare');
  }
 });
 

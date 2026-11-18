@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.20',publishedAt:'2026-11-18T21:46:30Z',changes:['Added Snowman, a Legendary Water spell. Draw two stacked circles to summon a guardian that intercepts enemies and throws snowballs.','Snowman lasts until defeated or replaced at Steady quality and above. Faint summons melt after 20 seconds.']},
  {version:'0.3.16',publishedAt:'2026-11-18T20:28:12Z',changes:['Fixed tutorial spell traces fading away after the drawing demonstration.']},
  {version:'0.3.15',publishedAt:'2026-11-18T20:20:45Z',changes:['Centered the Tutorial Paused title and removed its description.','Filadora types 25% faster in the tutorial.','Tutorial spell traces stay on the canvas after each drawing lesson.']},
  {version:'0.3.14',publishedAt:'2026-11-18T20:07:28Z',changes:['The tutorial now uses the combat Spells button. Choose a spell to watch its drawing lesson and follow its Apprentice trace.']},

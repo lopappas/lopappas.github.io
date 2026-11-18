@@ -11,6 +11,7 @@ export const RARITY_ORDER:Rarity[]=['Starter','Common','Uncommon','Rare','Legend
 // Temporary until journey discoveries can be saved between visits.
 export const ENCYCLOPEDIA_PREVIEW=true;
 export const CASTING_TIPS:Record<SpellId,string>={
+ snowman:'Draw a small circle for the head and a larger circle below it. Let the two circles touch and close each one.',
  torrent:'Start at the left tip and draw one continuous stroke down to the shared bottom point, then up the matching right arc. Keep the middle open.',
  sneakyVine:'Draw a simple candy cane in one stroke: a long straight stem on the right, a rounded hook over the top toward the left, and a short downward tip. Leave both ends open.',
  alchemize:'Draw a round bottle with a narrow rectangular neck, then close a small cork across its top.',
