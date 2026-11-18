@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {SPELLS,type SpellId} from '../src/magic.ts';
 import {orderedCombatSpells,combatSpellColumns,combatTraceScale,TRACE_STROKE_WIDTH,TRACE_FADE_MS,traceStrokeWidth} from '../src/combatTracePresentation.ts';
 import {CombatTrace} from '../src/combatTrace.ts';
@@ -26,4 +27,10 @@ test('requested trace thicknesses scale relative to each guide’s base stroke',
  for(const [id,width] of Object.entries(widths))assert.equal(traceStrokeWidth(id as SpellId),width);
  assert.equal(traceStrokeWidth('water'),4.4);
  assert.equal(traceStrokeWidth('puddleGuard',3.45),2.9325);
+});
+
+test('the spellbook fade cannot override persistent combat or tutorial trace opacity',()=>{
+ const css=readFileSync(new URL('../src/style.css',import.meta.url),'utf8');
+ const fadeSelectors=Array.from(css.matchAll(/([^{}]+)\{[^{}]*animation:\s*hintFade\b/g),rule=>rule[1].trim());
+ assert.deepEqual(fadeSelectors,['.spellbook-trace']);
 });
