@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.33',publishedAt:'2026-11-18T23:34:09Z',changes:['The Snowman sigil has two raised arms.','Snowman throws at enemies within 20 units. Enemies now hit Snowman as they walk into it, pushing it back 10 units on impact.']},
  {version:'0.3.32',publishedAt:'2026-11-18T23:14:22Z',changes:['Snowman wears a blue scarf and a tall hat, with a five-coal smile and thicker throwing branches.','The center combat lane is level with Filadora’s feet, with one track above her and one below.']},
  {version:'0.3.31',publishedAt:'2026-11-18T23:01:29Z',changes:['The developer panel now has a Spell details toggle that shows the competing spells after an ambiguous fizzle.']},
  {version:'0.3.30',publishedAt:'2026-11-18T22:48:40Z',changes:['Enemies use up to three closely spaced tracks and queue behind the lead enemy. Reinforcements reuse tracks with room.','Snowman always summons in the center track.']},

@@ -9,11 +9,18 @@ export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;c
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
 const snowmanCircles = [[50,25,16],[50,66,25]];
-const snowmanPath = snowmanCircles.map(([x,y,r])=>`M${x} ${y-r} A${r} ${r} 0 1 1 ${x} ${y+r} A${r} ${r} 0 1 1 ${x} ${y-r} Z`).join(' ');
-const snowmanStrokes = snowmanCircles.map(([x,y,r])=>Array.from({length:97},(_,i)=>{
+const snowmanArms:Strokes=[
+ [{x:35,y:46},{x:21,y:32}],
+ [{x:65,y:46},{x:79,y:32}],
+];
+const snowmanPath = [
+ ...snowmanCircles.map(([x,y,r])=>`M${x} ${y-r} A${r} ${r} 0 1 1 ${x} ${y+r} A${r} ${r} 0 1 1 ${x} ${y-r} Z`),
+ ...snowmanArms.map(([a,b])=>`M${a.x} ${a.y} L${b.x} ${b.y}`),
+].join(' ');
+const snowmanStrokes = [...snowmanCircles.map(([x,y,r])=>Array.from({length:97},(_,i)=>{
  const angle=i*Math.PI/48-Math.PI/2;
  return {x:x+r*Math.cos(angle),y:y+r*Math.sin(angle)};
-}));
+})),...snowmanArms];
 
 export const SPELLS:Spell[]=[
 
@@ -34,7 +41,7 @@ export const SPELLS:Spell[]=[
  {id:'sneakyVine',rarity:'Uncommon',name:'Sneaky Vine',element:'Nature',color:'#9bbe72',description:'A vine reaches from the right, grabs the furthest enemy from behind and drags them backwards with strong knockback. Ignores shield damage and knockback reductions. Deals 27 base damage at 60% accuracy. Cooldown: 12 seconds.',path:'M70 90 L70 30 C70 18.954 61.046 10 50 10 C38.954 10 30 18.954 30 30 L30 42',strokes:[[{x:70,y:90},{x:70,y:30},...shape([70,30],[[70,18.954,61.046,10,50,10],[38.954,10,30,18.954,30,30]]).slice(1),{x:30,y:42}]]},
  {id:'alchemize',rarity:'Legendary',name:'Alchemize',element:'Ancient',color:'#8b9099',description:'Create a random potion once per battle. Faint: non-healing common. Steady: 90% non-healing common, 10% rare. Beautiful: 75% common (including healing), 25% rare. Wonderful: guaranteed rare. Requires room in your purse. Cannot create Spell in a bottle. Upgrade: roll two potions, keeping only those that fit.',path:'M41 14 L59 14 L59 35.6 C77 41 86 52.7 84.2 66.2 C82.4 82.4 70.7 89.6 50 89.6 C29.3 89.6 17.6 82.4 15.8 66.2 C14 52.7 23 41 41 35.6 L41 14 Z M39.2 5 L60.8 5 L59 14 L41 14 L39.2 5 Z',strokes:[[{x:41,y:14},{x:59,y:14},...shape([59,35.6],[[77,41,86,52.7,84.2,66.2],[82.4,82.4,70.7,89.6,50,89.6],[29.3,89.6,17.6,82.4,15.8,66.2],[14,52.7,23,41,41,35.6]]),{x:41,y:14}],[{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14},{x:41,y:14},{x:39.2,y:5}]]},
  {id:'torrent',rarity:'Uncommon',name:'Torrent',element:'Water',color:'#69c2d6',description:'Rain large water orbs onto random enemy-accessible ground. Each splash deals Steady Dewdrop damage and knockback to nearby foes. Faint: 5 seconds. Steady: 8 seconds. Beautiful: 11 seconds. Wonderful: 14 seconds. One orb per second. Cooldown: 10 seconds.',path:'M50 90 C39 40 23 32 10 48 M50 90 C61 40 77 32 90 48',strokes:[shape([50,90],[[39,40,23,32,10,48]]),shape([50,90],[[61,40,77,32,90,48]])]},
- {id:'snowman',rarity:'Legendary',name:'Snowman',element:'Water',color:'#69c2d6',description:'Summon a guardian that marches up to 250 units ahead. Enemies can gang up on it and deal 50% extra damage. It throws a snowball every 2 seconds at enemies within 10 units, with zero knockback. An 80% cast gives 100 HP and 16 base damage per snowball. Snowballs inherit half your spell damage bonuses. Faint snowmen melt after 20 seconds. Stronger snowmen last until defeated or replaced. Cooldown is 30 seconds. Upgrade adds 10% snowball damage and 20% health.',path:snowmanPath,strokes:snowmanStrokes},
+ {id:'snowman',rarity:'Legendary',name:'Snowman',element:'Water',color:'#69c2d6',description:'Summon a guardian that marches up to 250 units ahead. Enemies hit it on contact, deal 50% extra damage, and push it back 10 units. It throws a snowball every 2 seconds at enemies within 20 units, with zero knockback. An 80% cast gives 100 HP and 16 base damage per snowball. Snowballs inherit half your spell damage bonuses. Faint snowmen melt after 20 seconds. Stronger snowmen last until defeated or replaced. Cooldown is 30 seconds. Upgrade adds 10% snowball damage and 20% health.',path:snowmanPath,strokes:snowmanStrokes},
 ];
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function damageUpgradeBonus(id:SpellId){return id==='snowman'?SNOWMAN_UPGRADE_DAMAGE_BONUS:id==='bolt'?.2:id==='tidalcrest'||id==='flameBlade'?.15:.25;}

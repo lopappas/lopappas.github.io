@@ -4,7 +4,8 @@ export const SNOWMAN_COOLDOWN = 30;
 export const SNOWMAN_MAX_DISTANCE = 250;
 export const SNOWMAN_SPEED = 14;
 export const SNOWMAN_CONTACT_DISTANCE = 8;
-export const SNOWMAN_STRIKE_RANGE = 10;
+export const SNOWMAN_CONTACT_PUSH = 10;
+export const SNOWMAN_STRIKE_RANGE = 20;
 export const SNOWMAN_ATTACK_INTERVAL = 2;
 export const SNOWMAN_DAMAGE_TAKEN = 1.5;
 export const SNOWMAN_FAINT_LIFETIME = 20;
@@ -28,6 +29,7 @@ export type Snowman = {
  expiresAt: number | null;
  nextShotAt: number;
  hurtUntil: number;
+ contactIds: number[];
  snowball: Snowball | null;
 };
 

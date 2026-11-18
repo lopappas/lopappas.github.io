@@ -18,7 +18,11 @@ function summon(state:Battle,quality=80){
 test('the Snowman lesson casts the new spell against the full recognition roster',()=>{
  const lesson=practiceLesson('snowman')!;
  const match=recognize(lesson.paths);
- assert.equal(lesson.paths.length,2);
+ assert.equal(lesson.paths.length,4);
+ assert.deepEqual(lesson.paths.slice(2),[
+  [{x:35,y:46},{x:21,y:32}],
+  [{x:65,y:46},{x:79,y:32}],
+ ]);
  assert.equal(match.spell?.id,'snowman');
  assert.ok(match.quality>=80);
 });
@@ -51,12 +55,12 @@ test('Faint Snowman expires at 20 active seconds and a recast replaces the exist
  assert.equal(replacement.casts,2);
 });
 
-test('Snowman throws at 10 units, deals 16 neutral damage at 80% and waits two seconds between throws',()=>{
+test('Snowman throws at 20 units, deals 16 neutral damage at 80% and waits two seconds between throws',()=>{
  const field=newBattle('active');
  field.approachAt=100;
  const enemy=field.enemies[0];
  enemy.element='Neutral';
- enemy.x=CONTACT_X+261;
+ enemy.x=CONTACT_X+271;
  let battle=advance(summon(field),20);
  assert.equal(battle.snowman?.snowball,null);
  battle.enemies[0].x--;
@@ -67,7 +71,7 @@ test('Snowman throws at 10 units, deals 16 neutral damage at 80% and waits two s
  battle=advance(battle,.28);
  assert.equal(battle.enemies[0].hp,84);
  assert.equal(battle.enemies[0].push,null);
- assert.equal(battle.enemies[0].x,CONTACT_X+260);
+ assert.equal(battle.enemies[0].x,CONTACT_X+270);
  battle=advance(battle,1.71);
  assert.equal(battle.snowman?.snowball,null);
  battle=advance(battle,.01);
@@ -75,20 +79,40 @@ test('Snowman throws at 10 units, deals 16 neutral damage at 80% and waits two s
  assert.equal(advance(battle,.28).enemies[0].hp,68);
 });
 
-test('multiple enemies hit Snowman for 1.5 times their normal damage and resume attacking the player after it falls',()=>{
+test('enemies keep walking while hitting Snowman on contact and push it back 10 units per hit',()=>{
  const field=newBattle('active','pack',()=>.5);
  field.approachAt=0;
- field.enemies=field.enemies.map(e=>({...e,x:CONTACT_X+8,element:'Neutral'}));
- let battle=advance(summon(field),.46);
+ const guardianX=CONTACT_X+80;
+ field.enemies=field.enemies.map(e=>({...e,x:guardianX+8,element:'Neutral'}));
+ let battle=summon(field);
+ battle.snowman!.x=guardianX;
+ battle=advance(battle,.01);
+ assert.equal(battle.snowman?.hp,64);
+ assert.equal(battle.snowman?.x,guardianX-20);
+ assert.ok(battle.enemies.every(e=>e.x<guardianX+8&&e.attackAt===null&&e.push===null));
+ const walkedTo=battle.enemies[0].x;
+ battle=advance(battle,.1);
+ assert.ok(Math.abs(walkedTo-battle.enemies[0].x-1.44)<1e-8);
  assert.equal(battle.snowman?.hp,64);
  assert.equal(battle.playerHP,100);
  assert.equal(battle.playerHits,0);
- assert.deepEqual(battle.enemies.map(e=>e.hp),[84,100]);
 
- battle=advance(battle,4);
+ battle=advance(battle,2);
  assert.equal(battle.snowman,null);
  assert.equal(battle.playerHits,0);
- assert.ok(advance(battle,3).playerHits>0);
+ assert.ok(advance(battle,5).playerHits>0);
+});
+
+test('Snowman stays at the player line and continuous overlap only lands one guardian hit',()=>{
+ const field=newBattle('active');
+ field.approachAt=0;
+ field.enemies[0].x=CONTACT_X;
+ const first=advance(summon(field),.01);
+ assert.equal(first.snowman?.hp,82);
+ assert.equal(first.snowman?.x,CONTACT_X);
+ const next=advance(first,.24);
+ assert.equal(next.snowman?.hp,82);
+ assert.equal(next.playerHits,0);
 });
 
 test('snowballs apply Water matchups and rocky defenses without knockback',()=>{

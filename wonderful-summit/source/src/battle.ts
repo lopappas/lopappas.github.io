@@ -1,6 +1,6 @@
 import {COMBAT_LANE_Y,FILA_FOOT_Y,LANE_FOLLOW_GAP,combatLane,enemyFootOffset,laneQueues,placeLaneArrivals,staggeredWalkX,type CombatLane} from './combatLanes.ts';
 import {
- SNOWBALL_FLIGHT_SECONDS,SNOWMAN_ATTACK_INTERVAL,SNOWMAN_CONTACT_DISTANCE,SNOWMAN_COOLDOWN,
+ SNOWBALL_FLIGHT_SECONDS,SNOWMAN_ATTACK_INTERVAL,SNOWMAN_CONTACT_DISTANCE,SNOWMAN_CONTACT_PUSH,SNOWMAN_COOLDOWN,
  SNOWMAN_DAMAGE_TAKEN,SNOWMAN_FAINT_LIFETIME,SNOWMAN_MAX_DISTANCE,SNOWMAN_SPEED,
  SNOWMAN_STRIKE_RANGE,snowmanBoostMultiplier,snowmanStats,type Snowman,
 } from './snowman.ts';
@@ -42,7 +42,7 @@ export const POTION_FLIGHT_SECONDS=.65,POTION_BREAK_SECONDS=.35;
 export type PotionFlight={spell?:BottledSpell;id:number;potion:Potion;started:number;toX:number;toY:number;applied:boolean};
 export type Burn={quality?:number;damage:number;nextTick:number;ticks:number};
 export type Push={from:number;to:number;started:number;ends:number};
-export type Enemy={lane?:CombatLane;attackingSnowman?:true;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
+export type Enemy={lane?:CombatLane;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
 export type Projectile={knockbackMultiplier?:number;inkUsed:number;damageMultiplier:number;started:number;duration:number;quality:number;color:string;spellId:SpellId;targetId:number};
 export type TidalWave={blackFlashMultiplier?:number;id:number;started:number;duration:number;quality:number;damageMultiplier:number;inkUsed:number;hitIds:number[];bonuses:{damageBonus:number;pushBonus:number;upgrade:number;midnightStone:boolean;moon:boolean}};
 export const TIDAL_TRAVEL_SECONDS=.9,TIDAL_START_X=300;
@@ -336,6 +336,10 @@ export function enemyY(id:number,encounter:Encounter='slime',lane?:CombatLane){r
 export function enemyArtY(enemy:Enemy,encounter:Encounter){return enemyY(enemy.id,encounter,enemy.lane)-enemyFootOffset(enemy);}
 export function burnDamage(quality:number,element:Enemy['element'],rocky=false){const match=elementalMatchup('Fire',element);return match.immuneEffects||rockyDefense(rocky,quality).immuneEffects?0:Math.round(power(quality)*.25*(advantage('Fire',element)?1.5:1)*rockyDefense(rocky,quality).damage);}
 export function potionPosition(flight:PotionFlight,time:number){const t=Math.max(0,Math.min(1,(time-flight.started)/POTION_FLIGHT_SECONDS));return{x:160+(flight.toX-160)*t,y:383+(flight.toY-383)*t-440*t*(1-t),rotation:-30+330*t,progress:t};}
+function enemyContactDamage(enemy:Enemy,difficulty:number){
+ return enemy.goblinKing?34:enemy.kind==='spider'?10:enemy.kind==='mother'?20:enemy.offspring?12:(enemy.kind==='goblin'?18:CONTACT_DAMAGE)*difficulty;
+}
+
 export function stepBattle(state:Battle,delta:number):Battle{
  if(state.phase!=='active'||!Number.isFinite(delta)||delta<=0)return state;
  const dt=Math.min(delta,.1),time=state.time+dt;
@@ -349,6 +353,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
  next.potionFlights=potionFlights;
  next=resolveMother(bogRain(stormRain(next,time),time));if(next.phase==='victory')return next;
  next.snowman=moveSnowman(next,next.snowman===state.snowman?dt:0);
+ const guardianAtContact=next.snowman;
  const frozen=state.time<next.freezeUntil;
  const live=presentEnemies(next);
  const groupSpeed=live.length>=2?.8:1;
@@ -380,41 +385,37 @@ export function stepBattle(state:Battle,delta:number):Battle{
   if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=constrainX(p.from+(p.to-p.from)*(1-(1-t)**3));e.attackAt=null;if(t>=1)e.push=null;return e;}
   if(frozen||actionDelta<=1e-9)return {...e,x:constrainX(e.x)};
   const rush=eliteRush(e);const speed=e.goblinKing?SLIME_SPEED*.9*(kingHasCrown(e)?1:1.8):e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.kind==='spider'?2:e.rocky?.9:1);
-  const guardian=next.snowman&&e.x>=next.snowman.x?next.snowman:null;
-  const stopX=guardian?Math.min(e.x,guardian.x+SNOWMAN_CONTACT_DISTANCE):CONTACT_X;
-  const walkX=Math.max(stopX,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows},state.time))*actionDelta);
-  e.x=constrainX(staggeredWalkX(e,walkX,stopX,walkers,next.encounter));
-  if(ahead||e.x>stopX||(e.attackingSnowman&&!guardian)||(e.attackAt!==null&&guardian&&!e.attackingSnowman)){
+  const walkX=Math.max(CONTACT_X,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows},state.time))*actionDelta);
+  e.x=constrainX(staggeredWalkX(e,walkX,CONTACT_X,walkers,next.encounter));
+  const guardian=next.snowman;
+  // Use the start-of-step contact line for enemies that arrive together.
+  if(!ahead&&guardianAtContact&&guardian&&old.x>=guardianAtContact.x&&e.x<=guardianAtContact.x+SNOWMAN_CONTACT_DISTANCE+1e-9&&!guardianAtContact.contactIds.includes(e.id)){
+   const hp=guardian.hp-enemyContactDamage(e,state.difficulty)*SNOWMAN_DAMAGE_TAKEN;
+   next.snowman=hp>0?{
+    ...guardian,hp,x:Math.max(CONTACT_X,guardian.x-SNOWMAN_CONTACT_PUSH),hurtUntil:time+.25,
+    contactIds:[...guardian.contactIds,e.id],
+   }:null;
    e.attackAt=null;
-   if(e.attackingSnowman)e.attackingSnowman=undefined;
+   return e;
   }
-  if(ahead||e.x>stopX)return e;
+  if(ahead||e.x>CONTACT_X){e.attackAt=null;return e;}
   if(e.attackAt===null){
-   if(e.clock>=e.nextAttackAt){
-    e.attackAt=e.clock+(e.kind==='goblin'?.65:ATTACK_WINDUP);
-    if(guardian)e.attackingSnowman=true;
-   }
+   if(e.clock>=e.nextAttackAt)e.attackAt=e.clock+(e.kind==='goblin'?.65:ATTACK_WINDUP);
   }else if(e.clock>=e.attackAt){
-   const damage=e.goblinKing?34:e.kind==='spider'?10:e.kind==='mother'?20:e.offspring?12:(e.kind==='goblin'?18:CONTACT_DAMAGE)*state.difficulty;
-   if(guardian){
-    const hp=guardian.hp-damage*SNOWMAN_DAMAGE_TAKEN;
-    next.snowman=hp>0?{...guardian,hp,hurtUntil:time+.25}:null;
-   }else{
-    next.playerHP=Math.max(0,next.playerHP-Math.round(damage*(next.rejectionUntil>time?.5:1)));
-    next.playerHurtUntil=time+.25;
-    next.playerHits++;
-    if(next.shaleActive&&next.shaleContacts<3){
-     e.curseTick=e.curseTick??time+1;
-     next.shaleContacts++;
-     if(next.shaleContacts===3){
-      next.shaleActive=false;
-      next.playerHP=Math.min(playerMaxHealth(next),next.playerHP+15);
-     }
+   const damage=enemyContactDamage(e,state.difficulty);
+   next.playerHP=Math.max(0,next.playerHP-Math.round(damage*(next.rejectionUntil>time?.5:1)));
+   next.playerHurtUntil=time+.25;
+   next.playerHits++;
+   if(next.shaleActive&&next.shaleContacts<3){
+    e.curseTick=e.curseTick??time+1;
+    next.shaleContacts++;
+    if(next.shaleContacts===3){
+     next.shaleActive=false;
+     next.playerHP=Math.min(playerMaxHealth(next),next.playerHP+15);
     }
-    e.push={from:e.x,to:Math.min(ENEMY_BACK_X,e.x+(PLAYER_HIT_PUSH+(next.playerHits===1?state.firstHitPush:0)+(next.rejectionUntil>time?100:0))*state.pushBonus*(state.contactPushMultiplier??1)*shieldProtection(e.shield,time)),started:time,ends:time+PUSH_DURATION};
    }
+   e.push={from:e.x,to:Math.min(ENEMY_BACK_X,e.x+(PLAYER_HIT_PUSH+(next.playerHits===1?state.firstHitPush:0)+(next.rejectionUntil>time?100:0))*state.pushBonus*(state.contactPushMultiplier??1)*shieldProtection(e.shield,time)),started:time,ends:time+PUSH_DURATION};
    e.attackAt=null;
-   if(e.attackingSnowman)e.attackingSnowman=undefined;
    e.nextAttackAt=e.clock+(e.kind==='goblin'?2:ATTACK_COOLDOWN);
   }
   return e;
@@ -424,6 +425,11 @@ export function stepBattle(state:Battle,delta:number):Battle{
   for(const e of [...next.enemies].sort((a,b)=>a.x-b.x||a.id-b.id))advanced.set(e.id,advanceEnemy(e));
   next.enemies=next.enemies.map(e=>advanced.get(e.id)!);
  }else next.enemies=next.enemies.map(advanceEnemy);
+ const guardian=next.snowman;
+ if(guardian?.contactIds.length){
+  const contactIds=guardian.contactIds.filter(id=>next.enemies.some(e=>e.id===id&&e.hp>0&&e.x>=guardian.x&&e.x<=guardian.x+SNOWMAN_CONTACT_DISTANCE+1e-9));
+  if(contactIds.length!==guardian.contactIds.length)next.snowman={...guardian,contactIds};
+ }
  next=resolveMother(next);
  if(next.phase==='victory')return next;
  if(next.playerHP===0){next.phase='defeat';next.projectile=null;next.tidalWaves=[];next.torrent=null;next.snowman=null;return next;}
@@ -513,10 +519,9 @@ function beginSnowman(state:Battle,quality:number,damageBonus:number):Battle{
  const snowman:Snowman={
   x:CONTACT_X,hp,quality,damageBonus,upgrade,
   expiresAt:quality<60?state.time+SNOWMAN_FAINT_LIFETIME:null,
-  nextShotAt:state.time,hurtUntil:0,snowball:null,
+  nextShotAt:state.time,hurtUntil:0,contactIds:[],snowball:null,
  };
- const enemies=state.snowman?state.enemies.map(e=>e.attackingSnowman?{...e,attackAt:null,attackingSnowman:undefined}:e):state.enemies;
- return {...state,snowman,enemies,casts:state.casts+1};
+ return {...state,snowman,casts:state.casts+1};
 }
 
 function moveSnowman(state:Battle,delta:number):Snowman|null{
@@ -549,8 +554,7 @@ function advanceSnowman(state:Battle):Battle{
  if(time+1e-9<guardian.nextShotAt)return state;
  const target=presentEnemies(state)
   .filter(e=>Math.abs(e.x-guardian.x)<=SNOWMAN_STRIKE_RANGE+1e-9)
-  .sort((a,b)=>Number(b.attackAt!==null&&!!b.attackingSnowman)-Number(a.attackAt!==null&&!!a.attackingSnowman)
-   ||Math.abs(a.x-guardian.x)-Math.abs(b.x-guardian.x)||a.id-b.id)[0];
+  .sort((a,b)=>Math.abs(a.x-guardian.x)-Math.abs(b.x-guardian.x)||a.id-b.id)[0];
  if(!target)return state;
  const snowball={x:guardian.x,targetId:target.id,started:time};
  return {...state,snowman:{...guardian,nextShotAt:time+SNOWMAN_ATTACK_INTERVAL,snowball}};
