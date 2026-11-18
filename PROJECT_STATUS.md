@@ -13,7 +13,7 @@ Updated: 2026-11-18
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.10): All canvas tracing guides center complete shape bounds horizontally/vertically, including progressive tutorial/practice guides. Size multipliers, recognition geometry and fades remain. Developer panel adds “999 max health” (sets/refills active and run health; persists through encounters; healing/UI honor the cap) and “Upgrade owned spells” (one normal upgrade per eligible owned spell). Practice/no-run combat supports both actions directly. Existing/normal runs default to 100 HP. All 656 tests plus four release checks and the production build pass; centering is checked for every reference and practice shape. Browser/device visual review remains outstanding because local browser launch is blocked.
+Latest update (version 0.3.11) hides cooldown badges while the combat spell picker is open and restores any still-active badges on dismissal or spell selection. The list shows a persistent vertical scroll indicator when it overflows. The build and 15 targeted tests passed. Phone visual review remains outstanding.
 
 Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 

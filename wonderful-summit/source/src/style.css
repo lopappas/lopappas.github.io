@@ -433,7 +433,11 @@
 .combat-spells{width:100%;min-height:0;display:flex;flex-direction:column;color:#46583e;padding:0 4px}
 .combat-spells header{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-shrink:0;margin-bottom:4px;font-size:12px}
 .combat-spells header button{display:inline-flex;align-items:center;justify-content:center;line-height:1;min-width:30px;height:28px;padding:2px 6px;background:#243c2f;border:1px solid #788d77;border-radius:5px;color:#f1e5c8;font-size:20px}.combat-spells header .close-combat-spells{width:30px;padding:0;margin-left:auto}
-.combat-spells-grid{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-content:start;justify-items:stretch;padding:2px}
+.combat-spells-scroll{position:relative;flex:1;min-height:0;display:flex}
+.combat-spells-grid{flex:1;min-height:0;overflow:auto;scrollbar-width:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-content:start;justify-items:stretch;padding:2px 10px 2px 2px}
+.combat-spells-grid::-webkit-scrollbar{display:none}
+.combat-spells-scrollbar{position:absolute;inset:0 0 0 auto;width:5px;background:#788d7740;border-radius:5px;pointer-events:none}
+.combat-spells-scrollbar::before{content:"";position:absolute;left:0;right:0;top:var(--thumb-offset);height:var(--thumb-height);background:#566d53;border-radius:inherit}
 .combat-spells-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:68px;padding:5px 3px;background:transparent;border:0;border-radius:6px;font-size:11.5px;font-weight:500;line-height:1.15;text-align:center}.combat-spells-grid svg{width:38px;height:38px;flex-shrink:0}.combat-spells-grid span{overflow-wrap:anywhere}
 .combat-spells p{flex-shrink:0;font-size:10px;line-height:1.2;text-align:center;margin:4px 0 0}
 .journey-combat .perfect-guide{animation:none!important;filter:none}
