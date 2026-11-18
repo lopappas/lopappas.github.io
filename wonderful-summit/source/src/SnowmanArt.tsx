@@ -1,8 +1,9 @@
 import React,{memo} from 'react';
 import {enemyY,type Battle} from './battle';
+import {CENTER_LANE,COMBAT_LANE_Y} from './combatLanes';
 import {SNOWBALL_FLIGHT_SECONDS,SNOWMAN_MELT_SECONDS} from './snowman';
 
-const GROUND_Y=440;
+const GROUND_Y=COMBAT_LANE_Y[CENTER_LANE]+20;
 const BODY_OFFSET_X=-67;
 // Filadora is 31 sprite pixels tall at 5 world units per pixel.
 const BODY_SCALE=31*5*.85/40;
@@ -55,7 +56,7 @@ export function SnowmanArt({battle}:{battle:Battle}){
    const fromX=shot.x+BODY_OFFSET_X+RELEASE_TIP.x*BODY_SCALE;
    const fromY=GROUND_Y+RELEASE_TIP.y*BODY_SCALE*(1-meltProgress(guardian.expiresAt,shot.started)*.9);
    const x=fromX+(target.x-fromX)*t;
-   const y=fromY+(enemyY(target.id,encounter)-18-fromY)*t-90*t*(1-t);
+   const y=fromY+(enemyY(target.id,encounter,target.lane)-18-fromY)*t-90*t*(1-t);
    return <g transform={`translate(${x} ${y}) scale(2)`} shapeRendering="crispEdges" aria-label="Snowball">
     <path d="M-6-4h2v-2h8v2h2v8H4v2h-8V4h-2z" fill="#516c90"/>
     <path d="M-3-4h6v2h2v5h-8v-2h-2v-3h2z" fill="#f1f9ff"/>

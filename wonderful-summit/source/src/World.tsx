@@ -56,6 +56,11 @@ useEffect(()=>{
 },[hasRelics]);
 useEffect(()=>{if(!battle.playerHits){setSad(false);return;}setSad(true);const timer=setTimeout(()=>setSad(false),2000);return()=>clearTimeout(timer);},[battle.playerHits]);
 const orb=projectilePosition(battle),target=targetedEnemy(battle);
+const enemies=presentEnemies(battle).sort((a,b)=>enemyY(a.id,battle.encounter,a.lane)-enemyY(b.id,battle.encounter,b.lane)||b.x-a.x||a.id-b.id);
+const grouped=battle.enemies.length>1&&!practice;
+function colorForEnemy(e:Battle["enemies"][number]){
+ return practice?'#e6b844':e.rocky?'#a5aaa4':e.element==='Fire'?'#ef9c70':e.element==='Water'?'#7ccbd6':e.element==='Nature'?'#99bf76':'#bcc3a2';
+}
 return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 720 ${viewHeight}`} preserveAspectRatio="xMidYMax slice" aria-label={practice?"Fila practices spells with a golden slime":"Fila faces the enemies, paintbrush in hand"} role="img">
 <StaticScenery gray={0}/>
 <TorrentArt torrent={battle.torrent} time={battle.time} gray={0}/>
@@ -72,7 +77,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
 <FilaBody/>
 </g></g>
 {companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
-{presentEnemies(battle).map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=enemyStatusLabel(e,battle),color=practice?'#e6b844':e.rocky?'#a5aaa4':e.element==='Fire'?'#ef9c70':e.element==='Water'?'#7ccbd6':e.element==='Nature'?'#99bf76':'#bcc3a2';return <g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
+{enemies.map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=grouped?null:enemyStatusLabel(e,battle),color=colorForEnemy(e);return <g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter,e.lane)})`} aria-label={practice?'A non-elemental golden practice slime':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
 <ellipse cy="22" rx={e.kind==='mother'?72:e.goblinKing?59.8:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<g transform={e.goblinKing?`translate(0 ${-24+kingUIOffset})`:undefined}><TargetCaret element={e.element} mother={e.kind==='mother'||!!e.goblinKing}/></g>}
 <g transform={e.kind==='mother'?'scale(2.1)':e.goblinKing?`scale(${GOBLIN_KING_SCALE})`:undefined}><g className={`${e.kind==='spider'?'spider':e.kind==='goblin'?'goblin':'slime'}${e.stunUntil>battle.time?' stunned':''}${(e.shield?.burnUntil??0)>battle.time?' shield-burning':''}${e.hurtUntil>battle.time?' slime-hit':''}${e.attackAt!==null?' slime-attacking':''}`} style={{filter:frozen?'hue-rotate(100deg) brightness(1.2)':undefined}}>
@@ -80,14 +85,17 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${510-viewHeight} 
 </g></g>
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>
-{!practice&&<EnemyNameplate kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={color} kingUIOffset={kingUIOffset} enemyEntrance={enemyEntrance}/>}
-<EnemyIndicators attacking={e.attackAt!==null} status={status} statusY={e.goblinKing?-195+kingUIOffset:e.kind==='mother'?-145:-97}/>
+{!practice&&!grouped&&<EnemyNameplate kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={color} kingUIOffset={kingUIOffset} enemyEntrance={enemyEntrance}/>}
+{!grouped&&<EnemyIndicators attacking={e.attackAt!==null} status={status} statusY={e.goblinKing?-195+kingUIOffset:e.kind==='mother'?-145:-97}/>}
 {kingDialogueVisible(e,battle.time)&&<g role="status" aria-label="Goblin King says: My crown! You’ll pay for this!" transform={`translate(${Math.max(134,Math.min(586,e.x))-e.x} -282)`} pointerEvents="none">
  <path d="M-8 73 0 87 8 73" fill="#354d29" stroke="#25381d" strokeWidth="2"/>
  <rect x="-128" y="0" width="256" height="76" rx="10" fill="#354d29" stroke="#e7c663" strokeWidth="2"/>
  <text textAnchor="middle" fontFamily="Fredoka" fontSize="21" fontWeight="500" fill="#ffd700" stroke="#283519" strokeWidth="1.4" paintOrder="stroke" aria-hidden="true"><tspan x="0" y="30">My crown!</tspan><tspan x="0" y="58">You’ll pay for this!</tspan></text>
 </g>}
 </g></g>;})}
+{grouped&&enemies.map(e=><g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter,e.lane)})`}>
+ <EnemyNameplate kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={colorForEnemy(e)} kingUIOffset={0} enemyEntrance={enemyEntrance} grouped attacking={e.attackAt!==null} status={enemyStatusLabel(e,battle)}/>
+</g>)}
 {battle.motherSplit&&battle.time-battle.motherSplit.at<2.6&&(()=>{
  const split=battle.motherSplit,age=battle.time-split.at,c=split.element==='Fire'?'#ef9c70':split.element==='Water'?'#7ccbd6':'#99bf76';
  return <g transform={`translate(${split.x} ${enemyY(1)})`} pointerEvents="none" aria-label={age<2?'Slime Mother trembles before splitting':'Slime Mother bursts into three slimes'}>

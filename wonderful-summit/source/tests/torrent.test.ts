@@ -8,6 +8,7 @@ import {practiceLesson} from '../src/practiceLessons.ts';
 import {parseDeveloperCommand} from '../src/developerCommands.ts';
 import {newRun,rollSpellOffers,camp} from '../src/run.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
+import {COMBAT_LANE_Y} from '../src/combatLanes.ts';
 function setup(encounter:Battle['encounter']='slime'){
  const b=newBattle('active',encounter,()=>0);b.approachAt=1000;
  b.enemies=b.enemies.map(e=>({...e,element:'Neutral',initialElement:'Neutral',hp:10000,maxHP:10000}));return b;
@@ -31,13 +32,13 @@ test('locations use random reachable lanes and runway bounds, independent of ene
  for(const encounter of ['slime','mother','spiderGoblinElite','rockWebNest'] as const){
   const b=setup(encounter),a=cast(b,60,()=>.9999),other=cast({...b,enemies:b.enemies.map(e=>({...e,x:CONTACT_X}))},60,()=>.9999);
   assert.deepEqual(a.torrent?.orbs,other.torrent?.orbs);
-  const lanes=encounter==='mother'?[420,449,478]:b.enemies.map(e=>enemyY(e.id,encounter));
+  const lanes=encounter==='slime'?[enemyY(1,encounter)]:COMBAT_LANE_Y;
   for(const orb of a.torrent!.orbs){assert.ok(orb.x>=CONTACT_X&&orb.x<=ENEMY_BACK_X);assert.ok(lanes.includes(orb.y));}
  }
  const b=setup();b.enemies[0].spawnAt=5;assert.ok(cast(b).torrent);
 });
 test('landing splashes harm every nearby enemy once, miss distant or hidden enemies, and knock back',()=>{
- let b=setup('pack');b.enemies=[{...b.enemies[0],x:CONTACT_X},{...b.enemies[1],x:CONTACT_X+5},{...b.enemies[0],id:3,x:ENEMY_BACK_X},{...b.enemies[0],id:4,x:CONTACT_X,spawnAt:5}];
+ let b=setup('pack');b.enemies=[{...b.enemies[0],x:CONTACT_X},{...b.enemies[1],lane:1,x:CONTACT_X+5},{...b.enemies[0],id:3,lane:2,x:ENEMY_BACK_X},{...b.enemies[0],id:4,x:CONTACT_X,spawnAt:5}];
  b=cast(b,60,()=>0);b=advance(b,.99);assert.ok(b.enemies.every(e=>e.hp===10000));
  b=advance(b,.01);assert.equal(b.enemies[0].hp,10000-spellDamage({element:'Neutral'},60,'water'));assert.ok(b.enemies[1].hp<10000);assert.equal(b.enemies[2].hp,10000);assert.equal(b.enemies[3].hp,10000);assert.ok(b.enemies[0].push);
  const hp=b.enemies[0].hp;b=advance(b,.1);assert.equal(b.enemies[0].hp,hp);
@@ -84,7 +85,7 @@ test('orb defenses match the full elemental matrix, shields, rocky tiers, and cr
 });
 test('a single Black Flash roll doubles every victim of one splash',t=>{
  t.mock.method(Math,'random',()=>0);
- let b=setup('pack');b.blackFlash.enabled=true;b.enemies=b.enemies.map(e=>({...e,x:CONTACT_X}));b=advance(cast(b,60,()=>0),1);
+ let b=setup('pack');b.blackFlash.enabled=true;b.enemies=b.enemies.map((e,i)=>({...e,lane:i===0?0:1,x:CONTACT_X}));b=advance(cast(b,60,()=>0),1);
  const base=spellDamage({element:'Neutral'},60,'water');assert.equal(10000-b.enemies[0].hp,base*2);assert.equal(10000-b.enemies[1].hp,base*2);assert.equal(b.blackFlashBurst?.serial,1);assert.equal(b.blackFlash.chain,true);
 });
 test('Torrent damage triggers the Goblin King dialogue and the Slime Mother split',()=>{

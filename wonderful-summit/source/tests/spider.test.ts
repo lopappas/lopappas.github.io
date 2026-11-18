@@ -9,7 +9,7 @@ test('Spider has 100 HP and is neutral by default, with explicit elemental suppo
 });
 test('Spider moves twice as fast as a slime under the same encounter modifiers',()=>{
  for(const difficulty of [1,1.2]){
-  const b=newBattle('active');b.approachAt=0;b.difficulty=difficulty;b.enemies=[{...b.enemies[0],x:500},createSpider(2,500)];
+  const b=newBattle('active','pack');b.approachAt=0;b.difficulty=difficulty;b.enemies=[{...b.enemies[0],x:500},createSpider(2,500)];
   const n=advance(b,1);assert.ok(Math.abs(500-n.enemies[0].x-SLIME_SPEED*.8*difficulty)<1e-8);assert.ok(Math.abs(500-n.enemies[1].x-2*(500-n.enemies[0].x))<1e-8);
  }
 });
