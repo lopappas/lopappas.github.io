@@ -4,7 +4,8 @@ import {performanceMetrics,performanceEnabled,setPerformanceEnabled,subscribePer
 import packageInfo from '../package.json';
 export function PerformanceControls(){
  const enabled=useSyncExternalStore(subscribePerformance,performanceEnabled);
- return <button className="primary-small" onClick={()=>setPerformanceEnabled(!enabled)}>{enabled?'Stop performance monitor':'Start performance monitor'}</button>;
+ const label=enabled?'Stop performance monitor':'Start performance monitor';
+ return <button type="button" className="primary-small" title={label} aria-label={label} onClick={()=>setPerformanceEnabled(!enabled)}><span aria-hidden="true">{enabled?'⏹️':'📊'}</span></button>;
 }
 export function PerformanceMonitor(){
  const enabled=useSyncExternalStore(subscribePerformance,performanceEnabled),[snapshot,setSnapshot]=useState(()=>performanceMetrics.snapshot()),[message,setMessage]=useState('');

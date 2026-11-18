@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,type SpellId} from '../src/magic.ts';
-import {orderedCombatSpells,combatSpellColumns,combatTraceScale,TRACE_STROKE_WIDTH,TRACE_FADE_MS} from '../src/combatTracePresentation.ts';
+import {orderedCombatSpells,combatSpellColumns,combatTraceScale,TRACE_STROKE_WIDTH,TRACE_FADE_MS,traceStrokeWidth} from '../src/combatTracePresentation.ts';
 import {CombatTrace} from '../src/combatTrace.ts';
 test('combat picker puts starters first, then owned spells by Water, Fire, Nature, Ancient',()=>{
  const before=structuredClone(SPELLS),all=orderedCombatSpells(SPELLS.map(s=>s.id));assert.deepEqual(all.slice(0,3).map(s=>s.id),['water','fire','nature']);
@@ -18,4 +18,12 @@ test('each elemental column contains only owned matching spells, with starters f
  const known:SpellId[]=['bog','water','fire','nature','wave','leaf','bolt'];const columns=combatSpellColumns(known);assert.deepEqual(columns.map(c=>c.element),['Water','Fire','Nature']);assert.deepEqual(columns.map(c=>c.spells[0].id),['water','fire','nature']);
  for(const column of columns)for(const spell of column.spells){assert.equal(spell.element,column.element);assert.ok(known.includes(spell.id));}
  const ancient=combatSpellColumns([...known,'chronos']);assert.equal(ancient.length,4);assert.deepEqual(ancient[3].spells.map(s=>s.id),['chronos']);assert.equal(combatTraceScale('puddleGuard'),1.4);
+});
+
+
+test('requested trace thicknesses scale relative to each guide’s base stroke',()=>{
+ const widths={firestorm:3.872,puddleGuard:3.74,flameBlade:3.96,thistleBush:3.872,torrent:3.96};
+ for(const [id,width] of Object.entries(widths))assert.equal(traceStrokeWidth(id as SpellId),width);
+ assert.equal(traceStrokeWidth('water'),4.4);
+ assert.equal(traceStrokeWidth('puddleGuard',3.45),2.9325);
 });

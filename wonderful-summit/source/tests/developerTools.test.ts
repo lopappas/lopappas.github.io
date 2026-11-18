@@ -38,3 +38,17 @@ test('complete reference and lesson shapes are centered without changing drawing
  }
  assert.deepEqual(SPELLS,snapshot);
 });
+
+
+test('grant all spells includes every developer option without duplicating spells or replacing upgrades',()=>{
+ const command={type:'grantAllSpells'} as const;
+ assert.deepEqual(parseDeveloperCommand(command),command);
+ const run={...newRun(),spells:['torrent','water'] as const,upgrades:{torrent:1}};
+ const start={...run,spells:[...run.spells]};
+ const granted=applyDeveloperCommand(start,command);
+ assert.equal(granted.spells.length,SPELLS.length);
+ assert.deepEqual(new Set(granted.spells),new Set(SPELLS.map(spell=>spell.id)));
+ assert.deepEqual(granted.spells.slice(0,2),start.spells);
+ assert.equal(granted.upgrades,start.upgrades);
+ assert.equal(applyDeveloperCommand(granted,command),granted);
+});

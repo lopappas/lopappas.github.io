@@ -5,20 +5,54 @@ import React,{createContext,useContext,useEffect,useRef,useState,type ReactNode}
 import {HoldGesture} from './holdGesture';
 import {createPortal} from 'react-dom';
 import {SPELLS} from './magic';
+import {combatSpellColumns} from './combatTracePresentation';
 import {POTIONS,POTION_IDS} from './battle';
 import {RELICS,ROUTE} from './run';
 import {LessonText} from './LessonText';
 import {parseDeveloperCommand,type DeveloperCommand} from './developerCommands';
 type DeveloperTarget={execute:(command:DeveloperCommand)=>string|void;onOpen:()=>void;canTravel:()=>boolean};
+const spellGroups=combatSpellColumns(SPELLS.map(spell=>spell.id));
+const quickActions=[
+ {type:'gold',label:'+1000 gold',emoji:'🪙'},
+ {type:'maxHealth',label:'999 max health',emoji:'❤️'},
+ {type:'upgradeSpells',label:'Upgrade owned spells',emoji:'⬆️'},
+] as const;
+const successMessages:Record<DeveloperCommand['type'],string>={
+ gold:'+1000 gold',maxHealth:'Health set to 999 / 999',upgradeSpells:'Owned spells upgraded',
+ grantAllSpells:'All spells learned',spell:'Spell learned',potion:'Potion collected',travel:'Encounter selected',relic:'Relic acquired',
+};
 const Context=createContext<{allowed:boolean;open:()=>void;targets:Map<number,DeveloperTarget>}|null>(null);
 export function DeveloperProvider({children}:{children:ReactNode}){
  const allowed=true;
  const [open,setOpen]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[trailAvailable,setTrailAvailable]=useState(false);
  const targets=useRef(new Map<number,DeveloperTarget>()),dialog=useRef<HTMLElement>(null);
  useEffect(()=>{if(!open)return;const previous=document.activeElement as HTMLElement|null;dialog.current?.querySelector<HTMLButtonElement>('button')?.focus({preventScroll:true});const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();setOpen(false);}if(e.key==='Tab'){const items=Array.from(dialog.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')??[]),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus({preventScroll:true});};},[open]);
- async function grant(command:DeveloperCommand){if(busy)return;setBusy(true);setMessage('');try{const verified=parseDeveloperCommand(command);if(!verified)throw new Error('Invalid command.');const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];if(!target)throw new Error('No active game.');const response=target.execute(verified);if(verified.type==='travel'&&!response)setOpen(false);setMessage(response??(verified.type==='maxHealth'?'Health set to 999 / 999':verified.type==='upgradeSpells'?'Owned spells upgraded':verified.type==='gold'?'+1000 gold':verified.type==='spell'?'Spell learned':verified.type==='potion'?'Potion collected':verified.type==='travel'?'Encounter selected':'Relic acquired'));}catch(error){setMessage(error instanceof Error?error.message:'Please try again.');}finally{setBusy(false);}}
+ async function grant(command:DeveloperCommand){if(busy)return;setBusy(true);setMessage('');try{const verified=parseDeveloperCommand(command);if(!verified)throw new Error('Invalid command.');const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];if(!target)throw new Error('No active game.');const response=target.execute(verified);if(verified.type==='travel'&&!response)setOpen(false);setMessage(response??successMessages[verified.type]);}catch(error){setMessage(error instanceof Error?error.message:'Please try again.');}finally{setBusy(false);}}
  function show(){const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];const travel=!!target?.canTravel();if(travel)target?.onOpen();setTrailAvailable(travel);setMessage('');setOpen(true);}
- return <Context.Provider value={{allowed,open:show,targets:targets.current}}>{children}<PerformanceMonitor/>{open&&allowed&&createPortal(<div className="modal-backdrop developer-backdrop" onClick={()=>setOpen(false)}><section className="help-modal developer-panel" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="developer-title" onClick={e=>e.stopPropagation()}><button className="close-modal" onClick={()=>setOpen(false)} aria-label="Close developer panel">×</button><h2 id="developer-title">Developer panel</h2><PerformanceControls/><button className="primary-small" disabled={busy} onClick={()=>void grant({type:'gold'})}>+1000 gold</button><button className="primary-small" disabled={busy} onClick={()=>void grant({type:'maxHealth'})}>999 max health</button><button className="primary-small" disabled={busy} onClick={()=>void grant({type:'upgradeSpells'})}>Upgrade owned spells</button>{trailAvailable&&<><h3>Trail encounters</h3><div className="developer-options">{ROUTE.map((node,index)=><button key={index} disabled={busy} onClick={()=>void grant({type:'travel',node:index})}>{index+1}. {node.name}</button>)}</div></>}<h3>Spells</h3><div className="developer-options">{SPELLS.map(s=><button key={s.id} className={spellRarityClass(s.rarity)} aria-label={`${s.name}, ${s.rarity}`} disabled={busy} onClick={()=>void grant({type:'spell',id:s.id})}><LessonText text={s.name}/></button>)}</div><h3>Potions</h3><div className="developer-options">{POTION_IDS.map(id=><button key={id} disabled={busy} onClick={()=>void grant({type:'potion',id})}>{POTIONS[id].icon} {POTIONS[id].name}</button>)}</div><h3>Relics</h3><div className="developer-options">{Object.entries(RELICS).map(([id,r])=><button key={id} className={rarityClass(r.rarity)} aria-label={`${r.name}, ${r.rarity}`} disabled={busy} onClick={()=>void grant({type:'relic',id:id as keyof typeof RELICS})}><span><RelicIcon relic={id as keyof typeof RELICS}/> {r.name}</span><em className="rarity-label">{r.rarity}</em></button>)}</div><p role="status">{message}</p></section></div>,document.body)}</Context.Provider>;
+ return <Context.Provider value={{allowed,open:show,targets:targets.current}}>
+  {children}<PerformanceMonitor/>
+  {open&&allowed&&createPortal(<div className="modal-backdrop developer-backdrop" onClick={()=>setOpen(false)}>
+   <section className="help-modal developer-panel" ref={dialog} role="dialog" aria-modal="true" aria-label="Developer panel" onClick={e=>e.stopPropagation()}>
+    <button className="close-modal" onClick={()=>setOpen(false)} aria-label="Close developer panel">×</button>
+    <div className="developer-content">
+     <div className="developer-quick-actions">
+      <PerformanceControls/>
+      {quickActions.map(({type,label,emoji})=><button key={type} className="primary-small" title={label} aria-label={label} disabled={busy} onClick={()=>void grant({type})}><span aria-hidden="true">{emoji}</span></button>)}
+     </div>
+     <button className="primary-small developer-grant-spells" disabled={busy} onClick={()=>void grant({type:'grantAllSpells'})}>Grant all spells</button>
+     <p className="developer-status" role="status">{message}</p>
+     {trailAvailable&&<><h3>Trail encounters</h3><div className="developer-options">{ROUTE.map((node,index)=><button key={index} disabled={busy} onClick={()=>void grant({type:'travel',node:index})}>{index+1}. {node.name}</button>)}</div></>}
+     <h3>Spells</h3>
+     {spellGroups.map(({element,spells})=><section key={element} aria-labelledby={`developer-spells-${element}`}>
+      <h4 id={`developer-spells-${element}`}>{element}</h4>
+      <div className="developer-options">{spells.map(s=><button key={s.id} className={spellRarityClass(s.rarity)} aria-label={`${s.name}, ${s.rarity}`} disabled={busy} onClick={()=>void grant({type:'spell',id:s.id})}><LessonText text={s.name}/></button>)}</div>
+     </section>)}
+     <h3>Potions</h3><div className="developer-options">{POTION_IDS.map(id=><button key={id} disabled={busy} onClick={()=>void grant({type:'potion',id})}>{POTIONS[id].icon} {POTIONS[id].name}</button>)}</div>
+     <h3>Relics</h3><div className="developer-options">{Object.entries(RELICS).map(([id,r])=><button key={id} className={rarityClass(r.rarity)} aria-label={`${r.name}, ${r.rarity}`} disabled={busy} onClick={()=>void grant({type:'relic',id:id as keyof typeof RELICS})}><span><RelicIcon relic={id as keyof typeof RELICS}/> {r.name}</span><em className="rarity-label">{r.rarity}</em></button>)}</div>
+    </div>
+   </section>
+  </div>,document.body)}
+ </Context.Provider>;
 }
 export function useDeveloperTarget(handler:(command:DeveloperCommand)=>string|void,priority=0,options?:{onOpen:()=>void;canTravel:boolean}){const context=useContext(Context),ref=useRef(handler),optionsRef=useRef(options);ref.current=handler;optionsRef.current=options;const targets=context?.targets;useEffect(()=>{if(!targets)return;const target:DeveloperTarget={execute:c=>ref.current(c),onOpen:()=>optionsRef.current?.onOpen(),canTravel:()=>!!optionsRef.current?.canTravel};targets.set(priority,target);return()=>{if(targets.get(priority)===target)targets.delete(priority);};},[targets,priority]);}
 export function useDeveloperHold(onClick:()=>void){
