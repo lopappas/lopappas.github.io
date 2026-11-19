@@ -1,10 +1,10 @@
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
-import {SNOWMAN_UPGRADE_DAMAGE_BONUS,snowmanStats} from './snowman.ts';
+import {GUARDIAN_UPGRADE_DAMAGE_BONUS,guardianStats,isGuardianSpell,type GuardianSpell} from './guardian.ts';
 import type {SpellRarity} from './rarity.ts';
 export type Point = {x:number;y:number};
 export type Strokes = Point[][];
 export type Element = 'Water'|'Fire'|'Nature'|'Ancient';
-export type SpellId = 'snowman'|'torrent'|'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize'|'sneakyVine';
+export type SpellId = GuardianSpell|'torrent'|'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize'|'sneakyVine';
 export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;color:string;description:string;path:string;strokes:Strokes;developerOnly?:boolean;upgradable?:boolean};
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
@@ -17,10 +17,19 @@ const snowmanPath = [
  ...snowmanCircles.map(([x,y,r])=>`M${x} ${y-r} A${r} ${r} 0 1 1 ${x} ${y+r} A${r} ${r} 0 1 1 ${x} ${y-r} Z`),
  ...snowmanArms.map(([a,b])=>`M${a.x} ${a.y} L${b.x} ${b.y}`),
 ].join(' ');
-const snowmanStrokes = [...snowmanCircles.map(([x,y,r])=>Array.from({length:97},(_,i)=>{
+const circleStroke = (x:number,y:number,r:number)=>Array.from({length:97},(_,i)=>{
  const angle=i*Math.PI/48-Math.PI/2;
  return {x:x+r*Math.cos(angle),y:y+r*Math.sin(angle)};
-})),...snowmanArms];
+});
+const snowmanStrokes = [...snowmanCircles.map(([x,y,r])=>circleStroke(x,y,r)),...snowmanArms];
+
+const scorchyEye = (x:number):Point[]=>[{x,y:29},{x:x+11,y:45},{x:x-11,y:45},{x,y:29}];
+const scorchyMouth:Point[]=[{x:26,y:57},...Array.from({length:49},(_,i)=>{
+ const angle=i*Math.PI/48;
+ return {x:50+24*Math.cos(angle),y:57+19*Math.sin(angle)};
+})];
+const scorchyStrokes:Strokes=[circleStroke(50,50,43),scorchyEye(37),scorchyEye(63),scorchyMouth];
+const scorchyPath='M50 7 A43 43 0 1 1 50 93 A43 43 0 1 1 50 7 Z M37 29 L48 45 L26 45 Z M63 29 L74 45 L52 45 Z M26 57 H74 A24 19 0 0 1 26 57 Z';
 
 export const SPELLS:Spell[]=[
 
@@ -42,9 +51,10 @@ export const SPELLS:Spell[]=[
  {id:'alchemize',rarity:'Legendary',name:'Alchemize',element:'Ancient',color:'#8b9099',description:'Create a random potion once per battle. Faint: non-healing common. Steady: 90% non-healing common, 10% rare. Beautiful: 75% common (including healing), 25% rare. Wonderful: guaranteed rare. Requires room in your purse. Cannot create Spell in a bottle. Upgrade: roll two potions, keeping only those that fit.',path:'M41 14 L59 14 L59 35.6 C77 41 86 52.7 84.2 66.2 C82.4 82.4 70.7 89.6 50 89.6 C29.3 89.6 17.6 82.4 15.8 66.2 C14 52.7 23 41 41 35.6 L41 14 Z M39.2 5 L60.8 5 L59 14 L41 14 L39.2 5 Z',strokes:[[{x:41,y:14},{x:59,y:14},...shape([59,35.6],[[77,41,86,52.7,84.2,66.2],[82.4,82.4,70.7,89.6,50,89.6],[29.3,89.6,17.6,82.4,15.8,66.2],[14,52.7,23,41,41,35.6]]),{x:41,y:14}],[{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14},{x:41,y:14},{x:39.2,y:5}]]},
  {id:'torrent',rarity:'Uncommon',name:'Torrent',element:'Water',color:'#69c2d6',description:'Rain large water orbs onto random enemy-accessible ground. Each splash deals Steady Dewdrop damage and knockback to nearby foes. Faint: 5 seconds. Steady: 8 seconds. Beautiful: 11 seconds. Wonderful: 14 seconds. One orb per second. Cooldown: 10 seconds.',path:'M50 90 C39 40 23 32 10 48 M50 90 C61 40 77 32 90 48',strokes:[shape([50,90],[[39,40,23,32,10,48]]),shape([50,90],[[61,40,77,32,90,48]])]},
  {id:'snowman',rarity:'Legendary',name:'Snowman',element:'Water',color:'#69c2d6',description:'Summon a guardian that marches up to 250 units ahead. It throws a snowball as soon as an enemy comes within 40 units, then every 2 seconds while a target is in range. Enemies hit it immediately on contact for 50% extra damage and can hit it again after 1.5 seconds. Snowballs and hits on Snowman cause no knockback. An 80% cast gives 100 HP and 16 base damage per snowball. Snowballs inherit half your spell damage bonuses. Faint snowmen melt after 20 seconds. Stronger snowmen last until defeated or replaced. Cooldown is 30 seconds. Upgrade adds 10% snowball damage and 20% health.',path:snowmanPath,strokes:snowmanStrokes},
+ {id:'scorchy',rarity:'Legendary',name:'Scorchy',element:'Fire',color:'#f0a068',description:'Summon a floating jack-o’-lantern that advances up to 250 units. It spits fire at the nearest enemy within 40 units, then again every 2 seconds while a target is in range. Fireballs deal no knockback and inherit half your spell damage bonuses. An 80% cast gives 100 HP and 16 base damage per fireball. Faint casts last 20 seconds. Cooldown: 30 seconds. Upgrade adds 10% fireball damage and 20% health.',path:scorchyPath,strokes:scorchyStrokes},
 ];
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
-export function damageUpgradeBonus(id:SpellId){return id==='snowman'?SNOWMAN_UPGRADE_DAMAGE_BONUS:id==='bolt'?.2:id==='tidalcrest'||id==='flameBlade'?.15:.25;}
+export function damageUpgradeBonus(id:SpellId){return isGuardianSpell(id)?GUARDIAN_UPGRADE_DAMAGE_BONUS:id==='bolt'?.2:id==='tidalcrest'||id==='flameBlade'?.15:.25;}
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
 // Recognition-only alternatives; spellbook art and perfect traces use SPELLS unchanged.
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
@@ -131,7 +141,7 @@ function accuracyStrength(quality:number){
 }
 export function power(quality:number){return accuracyStrength(quality).damage;}
 export function spellPower(id:SpellId,quality:number){
- if(id==='snowman')return snowmanStats(quality).baseDamage;
+ if(isGuardianSpell(id))return guardianStats(quality).baseDamage;
  if(id==='sneakyVine'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;const q=balanceQuality(quality),[lo,hi,min,max]=q<60?[48,59,12,20]:q<70?[60,69,27,36]:q<80?[70,79,43,58]:[80,100,67,95];return min+(max-min)*(q-lo)/(hi-lo);}
  if(!['water','fire','nature'].includes(id))return power(quality);
  if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;

@@ -93,6 +93,12 @@ Draw a small closed circle touching a larger circle below it, then add two short
 
 Snowman's base HP is 1.2 times cast quality, rounded up to a multiple of 5. Each snowball deals one fifth of cast quality, rounded down. An 80% cast gives 100 HP and 16 base damage. Snowman inherits half of the player's combined spell damage boost at summon time, so +120% becomes +60%. The upgrade adds 10% damage and 20% HP to the rounded base stats. Faint summons last up to 20 seconds and visibly melt during the final 3. Steady or better summons last for the rest of the battle unless defeated or replaced by a recast.
 
+## Scorchy
+
+Draw a circle, two upward triangles, and a wide D turned clockwise so its flat edge sits on top. The outer eye corners line up with the ends of the grin. Scorchy is a Legendary Fire summon that hovers and bobs. A small ember stays in its mouth until it spits a fireball.
+
+Scorchy shares Snowman's health, movement, contact rules, range, attack cadence, cast-time damage bonuses and upgrade. It deals Fire damage with no knockback. Its 30-second cooldown is independent, and both summons can be active together. Faint Scorchy fades over its last three seconds.
+
 ## Torrent
 Uncommon Water spell with the approved two-stroke blowhole glyph: two mirrored arcs sharing a bottom point, with an open center and no vertical jet. Drops one large orb per second at random x positions from CONTACT_X to ENEMY_BACK_X and at one of the encounter’s walkable enemy lanes, including future arrivals. Each landing splashes an elliptical area (65 × 35 world-unit radii), applying Steady (60%) Dewdrop base damage and knockback to each present foe caught within it. Element, shields, rocky defense and the Goblin King’s crown still apply; actual drawing quality controls defenses and a 5/8/11/14-second Faint/Steady/Beautiful/Wonderful duration. Each orb falls for 650 ms; the last splash fades for 400 ms after the final impact.
 

@@ -1,7 +1,7 @@
 import React,{memo} from 'react';
 import {enemyArtY,type Battle} from './battle';
 import {CENTER_LANE,COMBAT_LANE_Y,FILA_ART_SCALE,FILA_SPRITE_HEIGHT} from './combatLanes';
-import {SNOWBALL_FLIGHT_SECONDS,SNOWMAN_MELT_SECONDS,snowmanStats} from './snowman';
+import {GUARDIAN_SHOT_FLIGHT_SECONDS,GUARDIAN_FADE_SECONDS,guardianStats} from './guardian';
 
 const GROUND_Y=COMBAT_LANE_Y[CENTER_LANE];
 const BODY_OFFSET_X=-67;
@@ -18,7 +18,7 @@ const RIGHT_TWIG={
 const COAL_SMILE=[[-12,-51],[-7,-48.5],[-1.5,-47],[4,-48.5],[9.5,-51]];
 
 function meltProgress(expiresAt:number|null,time:number){
- return expiresAt===null?0:Math.max(0,Math.min(1,1-(expiresAt-time)/SNOWMAN_MELT_SECONDS));
+ return expiresAt===null?0:Math.max(0,Math.min(1,1-(expiresAt-time)/GUARDIAN_FADE_SECONDS));
 }
 
 const SnowmanBody=memo(function SnowmanBody({pose}:{pose:keyof typeof RIGHT_TWIG}){
@@ -49,10 +49,10 @@ export function SnowmanArt({battle}:{battle:Battle}){
  if(!guardian)return null;
  const {time,encounter}=battle;
  const melt=meltProgress(guardian.expiresAt,time);
- const maxHP=snowmanStats(guardian.quality,guardian.upgrade).hp;
+ const maxHP=guardianStats(guardian.quality,guardian.upgrade).hp;
  const healthFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
  const hatY=(HAT_TOP_Y-FOOT_Y)*BODY_SCALE*(1-melt*.9);
- const shot=guardian.snowball;
+ const shot=guardian.shot;
  const shotAge=shot?time-shot.started:Infinity;
  const pose=shotAge<.08?'flick':shotAge<.18?'followThrough':'idle';
  const target=shot&&battle.enemies.find(e=>e.id===shot.targetId&&e.hp>0);
@@ -69,7 +69,7 @@ export function SnowmanArt({battle}:{battle:Battle}){
    </g>
   </g>
   {shot&&target&&(()=>{
-   const t=Math.max(0,Math.min(1,shotAge/SNOWBALL_FLIGHT_SECONDS));
+   const t=Math.max(0,Math.min(1,shotAge/GUARDIAN_SHOT_FLIGHT_SECONDS));
    const fromX=shot.x+BODY_OFFSET_X+RELEASE_TIP.x*BODY_SCALE;
    const fromY=GROUND_Y+(RELEASE_TIP.y-FOOT_Y)*BODY_SCALE*(1-meltProgress(guardian.expiresAt,shot.started)*.9);
    const x=fromX+(target.x-fromX)*t;

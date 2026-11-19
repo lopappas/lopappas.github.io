@@ -1,3 +1,4 @@
+import {isGuardianSpell} from '../src/guardian.ts';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {spellbookColumns,spellName,spellUpgradePreview} from '../src/spellbook.ts';
@@ -26,9 +27,9 @@ test('upgrade previews preserve the campsite choice until confirmation and match
   const confirmed=camp(run,spell.id);assert.equal(confirmed.health,27);assert.equal(confirmed.campUsed,true);assert.equal(confirmed.upgrades[spell.id],level+1);
   for(const [state,expected] of [[run,preview.currentDamage],[confirmed,preview.nextDamage]] as const){
    const battle=battleForRun(state,()=>.2);battle.enemies[0].element='Neutral';
-   if(spell.id==='snowman')battle.enemies[0].x=CONTACT_X+8;
+   if(isGuardianSpell(spell.id))battle.enemies[0].x=CONTACT_X+8;
    let hit=hitWithSpell(battle,60,spell.id,battle.enemies[0].id);
-   if(spell.id==='snowman')for(let i=0;i<30;i++)hit=stepBattle(hit,.01);
+   if(isGuardianSpell(spell.id))for(let i=0;i<30;i++)hit=stepBattle(hit,.01);
    assert.ok(Math.abs(battle.enemies[0].hp-hit.enemies[0].hp-expected)<1e-8);
   }
   assert.ok(preview.knockback?preview.nextKnockback>preview.currentKnockback:preview.nextDamage>preview.currentDamage);

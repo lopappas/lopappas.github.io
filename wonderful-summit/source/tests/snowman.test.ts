@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {CONTACT_X,drinkPotion,enemyY,fizzleSpell,hitWithSpell,launchSpell,newBattle,spellDamage,stepBattle,type Battle} from '../src/battle.ts';
 import {recognize} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
-import {snowmanStats} from '../src/snowman.ts';
+import {guardianStats} from '../src/guardian.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
 
 function advance(state:Battle,seconds:number){
@@ -36,7 +36,7 @@ test('Snowman walks slowly, stops 250 units ahead and lasts indefinitely at Stea
   assert.ok(Math.abs(advance(battle,1).snowman!.x-CONTACT_X-14)<1e-8);
   battle=advance(battle,65);
   assert.equal(battle.snowman?.x,CONTACT_X+250);
-  assert.equal(battle.snowman?.snowball,null);
+  assert.equal(battle.snowman?.shot,null);
  }
 });
 
@@ -62,20 +62,20 @@ test('Snowman throws at 40 units, deals 16 neutral damage at 80% and waits two s
  enemy.element='Neutral';
  enemy.x=CONTACT_X+291;
  let battle=advance(summon(field),20);
- assert.equal(battle.snowman?.snowball,null);
+ assert.equal(battle.snowman?.shot,null);
  battle.enemies[0].x--;
 
  battle=advance(battle,.01);
- assert.equal(battle.snowman?.snowball?.targetId,enemy.id);
+ assert.equal(battle.snowman?.shot?.targetId,enemy.id);
  assert.equal(battle.enemies[0].hp,100);
  battle=advance(battle,.28);
  assert.equal(battle.enemies[0].hp,84);
  assert.equal(battle.enemies[0].push,null);
  assert.equal(battle.enemies[0].x,CONTACT_X+290);
  battle=advance(battle,1.71);
- assert.equal(battle.snowman?.snowball,null);
+ assert.equal(battle.snowman?.shot,null);
  battle=advance(battle,.01);
- assert.equal(battle.snowman?.snowball?.targetId,enemy.id);
+ assert.equal(battle.snowman?.shot?.targetId,enemy.id);
  assert.equal(advance(battle,.28).enemies[0].hp,68);
 });
 
@@ -104,7 +104,7 @@ test('enemies hit Snowman immediately on contact and every 1.5 seconds without s
  let battle=atContact();
  const guardianX=battle.snowman!.x,enemyX=battle.enemies[0].x;
  assert.equal(battle.snowman?.hp,82);
- assert.equal(battle.enemies[0].snowmanHitAt,.01);
+ assert.equal(battle.enemies[0].guardianHitAt,.01);
  battle=advance(battle,1.49);
  assert.equal(battle.snowman?.hp,82);
  assert.equal(battle.enemies[0].x,enemyX);
@@ -204,11 +204,11 @@ test('Snowman rounds health and damage before applying upgrades',()=>{
   [79,95,15],[80,100,16],[100,120,20],
  ];
  for(const [quality,hp,baseDamage] of samples){
-  assert.deepEqual(snowmanStats(quality),{hp,baseDamage});
-  assert.equal(snowmanStats(quality,1).hp,hp*6/5);
+  assert.deepEqual(guardianStats(quality),{hp,baseDamage});
+  assert.equal(guardianStats(quality,1).hp,hp*6/5);
   assert.equal(spellDamage({element:'Neutral'},quality,'snowman',1,1),baseDamage*11/10);
  }
- assert.deepEqual(spellUpgradePreview('snowman')?.snowmanHealth,{current:75,next:90});
+ assert.deepEqual(spellUpgradePreview('snowman')?.guardianHealth,{current:75,next:90});
 });
 
 test('Snowman inherits half the combined cast-time damage bonus, including Fury and relics',()=>{
