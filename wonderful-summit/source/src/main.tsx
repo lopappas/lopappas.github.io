@@ -60,7 +60,7 @@ function ConstellationBoostNotice({presentation,boost}:{presentation:BattlePrese
  const getOpacity=()=>constellationNoticeOpacity(presentation.getSnapshot().time-boost.castAt);
  const opacity=useSyncExternalStore(presentation.subscribe,getOpacity,getOpacity);
  if(opacity===0)return null;
- return <span className="constellation-bonuses" role="status" style={{opacity}}>+{boost.maxArmor} armor · +{boost.damage}% damage · +{boost.knockback}% knockback</span>;
+ return <span className="constellation-bonuses" role="status" style={{opacity}}>+{boost.damage}% damage · +{boost.knockback}% knockback</span>;
 }
 type Result={goldGain?:number;rawQuality?:number;name:string;quality:number;power:number;success:boolean;detail:string;color:string};
 export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewReady,tutorial2}:CombatProps){
@@ -244,7 +244,7 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
  const activeCooldowns=orderedActiveCooldowns(battle,journey.spells);
  const armor=battle.constellation?.armor??0,healthMax=playerMaxHealth(battle);
  const healthTrackMax=healthMax+(battle.constellation?.maxArmor??0);
- const damageMax=Math.max(result?.name==='Constellation'?45:(result?.name==='Firestorm'||result?.name==='Drudge Bog')?6:240,result?.power??0);
+ const damageMax=Math.max(result?.name==='Constellation'?constellationBonus(100,1).armor:(result?.name==='Firestorm'||result?.name==='Drudge Bog')?6:240,result?.power??0);
  const inkUnlimited=!!practice?.infiniteInk||battle.unlimitedUntil>battle.time;
  return <main inert={!!tutorial2&&(tutorial2.paused||tutorial2.blocking)} className={`app${!tutorial2&&!practice?' journey-combat':''}${tutorial2?' tutorial2-app':''}${practice?' practice-app':''}${battle.sphereShatteredAt!==null?' sphere-shatter-flash':''}`}><header className="topbar">{!tutorial2&&!practice?<MapButton run={journey} onOpen={openPauseMenu} onClose={closePauseMenu}/>:(<a className="brand" href="#" tabIndex={tutorial2?-1:undefined} onClick={e=>{if(tutorial2)e.preventDefault();}} aria-label="Wonderful Summit home"><span className="brand-mark">☾<i>✧</i></span><span>{tutorial2?'Tutorial':'Practice'}</span></a>)}<div className="header-actions">{practice&&<button className="practice-menu" onClick={practice.onExit}>Menu</button>}<span inert={!!tutorial2} style={{display:'contents'}}><SettingsButton combat onOpen={openPauseMenu} onClose={closePauseMenu}/></span><button className="icon-button" disabled={!!tutorial2||paused} onClick={()=>{if(!practice)openPauseMenu();setHelp(true);}} aria-label="How to play">?</button></div></header>
  {resumeCount>0&&!pauseMenuOpen&&<div className="resume-countdown" role="status" aria-live="polite" aria-label={`Combat resumes in ${resumeCount}`}><span key={resumeCount}>{resumeCount}</span></div>}

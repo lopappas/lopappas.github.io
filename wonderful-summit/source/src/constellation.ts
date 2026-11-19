@@ -1,22 +1,13 @@
 import {MIN_CAST_QUALITY} from './quality.ts';
 
 export const CONSTELLATION_FLIGHT_SECONDS=1.25;
-export const CONSTELLATION_HAT_SECONDS=3;
-export const CONSTELLATION_HAT_REPEAT_SECONDS=16;
-const HAT_ASSEMBLY_SECONDS=.85,HAT_RETURN_FADE_SECONDS=.6;
+const HAT_ASSEMBLY_SECONDS=.85,HAT_SETTLED_SECONDS=4,HAT_REST_OPACITY=.2;
 
 export function constellationHatFrame(burstAge:number){
- const phase=burstAge%CONSTELLATION_HAT_REPEAT_SECONDS;
- if(burstAge<CONSTELLATION_HAT_REPEAT_SECONDS){
-  return{
-   assembly:Math.min(1,burstAge/HAT_ASSEMBLY_SECONDS),
-   opacity:Math.max(0,Math.min(1,1-(burstAge-HAT_ASSEMBLY_SECONDS)/CONSTELLATION_HAT_SECONDS)),
-  };
- }
+ const fade=Math.max(0,Math.min(1,(burstAge-HAT_ASSEMBLY_SECONDS)/(HAT_SETTLED_SECONDS-HAT_ASSEMBLY_SECONDS)));
  return{
-  assembly:1,
-  opacity:phase<HAT_RETURN_FADE_SECONDS?phase/HAT_RETURN_FADE_SECONDS:
-   Math.max(0,1-(phase-HAT_RETURN_FADE_SECONDS)/CONSTELLATION_HAT_SECONDS),
+  assembly:Math.min(1,burstAge/HAT_ASSEMBLY_SECONDS),
+  opacity:HAT_REST_OPACITY+(1-HAT_REST_OPACITY)*(1-fade),
  };
 }
 
@@ -27,28 +18,27 @@ export function constellationNoticeOpacity(age:number){
 export type ConstellationBonus={armor:number;damage:number;knockback:number};
 export type Constellation=ConstellationBonus&{castAt:number;maxArmor:number};
 
+const STEADY_BONUSES=[
+ {armor:6,damage:11,knockback:9},
+ {armor:8,damage:15,knockback:11},
+ {armor:11,damage:22,knockback:15},
+ {armor:15,damage:28,knockback:20},
+ {armor:20,damage:34,knockback:24},
+];
+const FAINT_BONUSES=[{armor:3,damage:5,knockback:5},{armor:5,damage:8,knockback:7}];
+
 export function constellationBonus(quality:number,upgrade=0):ConstellationBonus{
  if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return{armor:0,damage:0,knockback:0};
- let armor=5,damage=8,knockback=5;
- if(quality>=80){
-  const progress=Math.min(1,(quality-80)/20);
-  armor=30+10*progress;
-  damage=30+10*progress;
-  knockback=20+5*progress;
- }else if(quality>=60){
-  const progress=(quality-60)/20;
-  armor=12+18*progress;
-  damage=14+16*progress;
-  knockback=10+10*progress;
- }else if(quality>=50){
-  armor=8;
-  damage=11;
-  knockback=8;
- }
+ const position=(Math.min(100,quality)-60)/10;
+ const index=Math.floor(position);
+ const lower=quality<60?FAINT_BONUSES[quality<50?0:1]:STEADY_BONUSES[index];
+ const upper=quality<60?lower:STEADY_BONUSES[index+1]??lower;
+ const progress=position-index;
+ const interpolate=(stat:keyof ConstellationBonus)=>Math.round(lower[stat]+(upper[stat]-lower[stat])*progress);
  const upgraded=upgrade>=1;
  return{
-  armor:Math.round(armor)+(upgraded?5:0),
-  damage:Math.round(damage)+(upgraded?5:0),
-  knockback:Math.round(knockback)+(upgraded?3:0),
+  armor:interpolate('armor')+(upgraded?3:0),
+  damage:interpolate('damage')+(upgraded?5:0),
+  knockback:interpolate('knockback')+(upgraded?3:0),
  };
 }

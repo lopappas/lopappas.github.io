@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.62',publishedAt:'2026-11-19T19:21:56Z',changes:['Rebalanced Constellation at every cast quality. Constellation+ adds 3 armor.','The pixel witch hat settles at 20% opacity and stays in the sky. The popup shows damage and knockback bonuses.']},
  {version:'0.3.61',publishedAt:'2026-11-19T18:47:41Z',changes:['Constellation stars form a pixel witch hat that reappears every 16 seconds. Its boost popup fades after eight seconds.','Constellation gains a stronger 50–59% tier and a thicker trace. Successful Constellation and Alchemize casts dismiss their traces.','Snowman and Scorchy appear in front of Filadora, and the Snowman trace is thinner.']},
  {version:'0.3.60',publishedAt:'2026-11-19T18:23:13Z',changes:['Added Constellation, a Legendary Ancient spell that grants armor, spell damage, and knockback once per battle.','Draw a cursive L to launch a purple and gold witch hat firework.']},
  {version:'0.3.58',publishedAt:'2026-11-19T18:02:34Z',changes:['Snowman and Scorchy move a little faster. Scorchy stays in battle at Faint quality and has a thinner trace.','Scorchy fires every 1.4 seconds, or every 1.2 seconds when upgraded. Both have 2–3 base knockback.','The Apprentice cooldown cue lasts one second and glows more brightly.']},

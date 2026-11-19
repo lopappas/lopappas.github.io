@@ -61,7 +61,6 @@ export function ConstellationArt({castAt,time,skyY}:{castAt:number;time:number;s
   </g>;
  }
  const {assembly,opacity}=constellationHatFrame(age-CONSTELLATION_FLIGHT_SECONDS);
- if(opacity===0)return null;
  const assembling=assembly<1;
  const explosion=Math.min(1,assembly/.36);
  const gather=Math.max(0,(assembly-.28)/.72);

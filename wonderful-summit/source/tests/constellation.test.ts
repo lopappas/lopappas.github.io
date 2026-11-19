@@ -27,13 +27,13 @@ test('Constellation is a Legendary Ancient spell whose one-stroke lesson is reco
 });
 
 test('Constellation scales between the selected anchors and the upgrade adds fixed points',()=>{
- for(const [quality,armor,damage,knockback] of [[45,5,8,5],[49,5,8,5],[50,8,11,8],[59,8,11,8],[60,12,14,10],[70,21,22,15],[80,30,30,20],[90,35,35,23],[100,40,40,25]]){
+ for(const [quality,armor,damage,knockback] of [[45,3,5,5],[49,3,5,5],[50,5,8,7],[59,5,8,7],[60,6,11,9],[65,7,13,10],[70,8,15,11],[75,10,19,13],[80,11,22,15],[85,13,25,18],[90,15,28,20],[95,18,31,22],[100,20,34,24]]){
   assert.deepEqual(constellationBonus(quality),{armor,damage,knockback});
-  assert.deepEqual(constellationBonus(quality,1),{armor:armor+5,damage:damage+5,knockback:knockback+3});
+  assert.deepEqual(constellationBonus(quality,1),{armor:armor+3,damage:damage+5,knockback:knockback+3});
  }
  assert.deepEqual(constellationBonus(44,1),{armor:0,damage:0,knockback:0});
  assert.deepEqual(spellUpgradePreview('constellation')?.constellation,{
-  current:{armor:12,damage:14,knockback:10},next:{armor:17,damage:19,knockback:13},
+  current:{armor:6,damage:11,knockback:9},next:{armor:9,damage:16,knockback:12},
  });
 });
 
@@ -43,18 +43,14 @@ test('the boost notice holds for eight seconds, then fades over two',()=>{
  }
 });
 
-test('the hat assembles at the first burst and fades back in each sixteen-second cycle',()=>{
+test('the hat assembles, dims to 20% at four seconds and remains there',()=>{
  assert.deepEqual(constellationHatFrame(0),{assembly:0,opacity:1});
  assert.equal(constellationHatFrame(.425).assembly,.5);
  assert.deepEqual(constellationHatFrame(.85),{assembly:1,opacity:1});
- assert.equal(constellationHatFrame(4).opacity,0);
- assert.equal(constellationHatFrame(15.99).opacity,0);
- assert.deepEqual(constellationHatFrame(16),{assembly:1,opacity:0});
- assert.ok(Math.abs(constellationHatFrame(16.3).opacity-.5)<1e-9);
- assert.ok(Math.abs(constellationHatFrame(16.6).opacity-1)<1e-9);
- assert.ok(Math.abs(constellationHatFrame(18.1).opacity-.5)<1e-9);
- assert.equal(constellationHatFrame(20).opacity,0);
- assert.ok(Math.abs(constellationHatFrame(32.3).opacity-.5)<1e-9);
+ assert.ok(constellationHatFrame(2).opacity>constellationHatFrame(3).opacity);
+ for(const age of [4,16,16.6,32,90]){
+  assert.deepEqual(constellationHatFrame(age),{assembly:1,opacity:.2});
+ }
 });
 
 test('drawn Constellation applies additive buffs once even when no enemy is present',()=>{
@@ -64,17 +60,17 @@ test('drawn Constellation applies additive buffs once even when no enemy is pres
  assert.equal(summon(field,44).constellation,null);
  const cast=summon(field);
  assert.equal(cast.playerHP,72);
- assert.equal(cast.constellation?.armor,30);
- assert.equal(cast.damageBonus,1.5);
- assert.ok(Math.abs(cast.pushBonus-1.35)<1e-9);
+ assert.equal(cast.constellation?.armor,11);
+ assert.equal(cast.damageBonus,1.42);
+ assert.ok(Math.abs(cast.pushBonus-1.3)<1e-9);
  assert.equal(cast.lotusReady,true);
  assert.equal(cast.casts,1);
  assert.equal(cast.projectile,null);
  assert.match(spellCastBlockReason(cast,'constellation')!,/already been used/);
  assert.strictEqual(summon(cast,100),cast);
  const ongoing=advance(cast,15);
- assert.equal(ongoing.constellation?.armor,30);
- assert.equal(ongoing.damageBonus,1.5);
+ assert.equal(ongoing.constellation?.armor,11);
+ assert.equal(ongoing.damageBonus,1.42);
 });
 
 test('armor absorbs contact first, damage spills into health, and buffs survive empty armor',()=>{
@@ -82,21 +78,21 @@ test('armor absorbs contact first, damage spills into health, and buffs survive 
  const cast=summon(field,45);
  Object.assign(cast.enemies[0],{x:CONTACT_X,attackAt:0,clock:1});
  const hit=stepBattle(cast,.01);
- assert.equal(hit.playerHP,63);
+ assert.equal(hit.playerHP,61);
  assert.equal(hit.constellation?.armor,0);
- assert.equal(hit.damageBonus,1.08);
+ assert.equal(hit.damageBonus,1.05);
  assert.strictEqual(summon(hit),hit);
- const guard=summon(field);
+ const guard=summon(field,90);
  Object.assign(guard.enemies[0],{x:CONTACT_X,attackAt:0,clock:1});
  const shielded=stepBattle(guard,.01);
  assert.equal(shielded.playerHP,70);
- assert.equal(shielded.constellation?.armor,18);
+ assert.equal(shielded.constellation?.armor,3);
  const baseEnemy={element:'Neutral' as const};
  assert.equal(spellDamage(baseEnemy,80,'constellation'),0);
  assert.equal(spellKnockback(80,'constellation'),0);
  Object.assign(shielded.enemies[0],{element:'Neutral'});
  const spell=hitWithSpell(shielded,80,'water');
- assert.equal(shielded.enemies[0].hp-spell.enemies[0].hp,spellDamage(baseEnemy,80,'water',1.3,.0,shielded.time));
+ assert.equal(shielded.enemies[0].hp-spell.enemies[0].hp,spellDamage(baseEnemy,80,'water',1.28,0,shielded.time));
 });
 
 test('a Constellation bottle reserves the cast and a spent cast blocks subsequent bottles',()=>{
@@ -110,9 +106,9 @@ test('a Constellation bottle reserves the cast and a spent cast blocks subsequen
  assert.strictEqual(drinkPotion(flight,'spellBottle'),flight);
  const cast=advance(flight,.66);
  assert.equal(cast.casts,1);
- assert.equal(cast.constellation?.armor,35);
- assert.equal(cast.damageBonus,1.35);
- assert.equal(cast.pushBonus,1.23);
+ assert.equal(cast.constellation?.armor,14);
+ assert.equal(cast.damageBonus,1.27);
+ assert.equal(cast.pushBonus,1.18);
  assert.strictEqual(drinkPotion(cast,'spellBottle'),cast);
  assert.equal(cast.potions.spellBottle,1);
  assert.equal(newBattle('active').constellation,null);

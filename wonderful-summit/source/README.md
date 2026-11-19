@@ -93,9 +93,9 @@ Milestone 6's full-sequence coverage and user-confirmed browser/device verificat
 
 ## Constellation
 
-Draw a single cursive L with a descending stem, a low left loop and a rightward tail. This Legendary Ancient spell can be activated once per battle, including through a spell bottle. It grants armor and adds percentage points to battle damage and knockback. Armor absorbs damage before health and is spent first on each contact. Constellation+ adds 5 armor, 5 damage percentage points and 3 knockback percentage points.
+Draw a single cursive L with a descending stem, a low left loop and a rightward tail. This Legendary Ancient spell can be activated once per battle, including through a spell bottle. It grants armor and adds percentage points to battle damage and knockback. Armor absorbs damage before health and is spent first on each contact. Constellation+ adds 3 armor, 5 damage percentage points and 3 knockback percentage points.
 
-At 45–49%, casts grant 5 armor, +8% damage and +5% knockback. At 50–59%, they grant 8 armor, +11% damage and +8% knockback. At 60%, the values are 12, +14% and +10%. They rise at 80% to 30, +30% and +20%, and at 100% to 40, +40% and +25%. Values between those anchors are interpolated and rounded to whole points. The firework spirals upward and bursts into stars that form a purple and gold pixel witch hat. The hat fades over three seconds and reappears every 16 seconds of active combat, measured from the first burst. The boost notice stays fully visible for eight seconds, then fades over two seconds.
+At 45–49%, casts grant 3 armor, +5% damage and +5% knockback. At 50–59%, they grant 5 armor, +8% damage and +7% knockback. At 60%, the values are 6, +11% and +9%. They rise at 80% to 11, +22% and +15%, and at 100% to 20, +34% and +24%. Values between those anchors are interpolated and rounded to whole points. The firework spirals upward and bursts into stars that form a purple and gold pixel witch hat. Four seconds after the burst, the hat settles at 20% opacity for the rest of combat. The damage and knockback notice stays fully visible for eight seconds, then fades over two seconds.
 
 ## Snowman
 
