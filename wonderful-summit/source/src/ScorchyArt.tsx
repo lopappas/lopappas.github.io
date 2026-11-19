@@ -39,7 +39,7 @@ export function ScorchyArt({battle}:{battle:Battle}){
  const bodyX=guardian.x+offsetX,bodyY=hoverY+bob(time);
  const facing=target&&target.x<bodyX?-1:1;
  const opacity=guardian.expiresAt===null?1:Math.max(0,Math.min(1,(guardian.expiresAt-time)/GUARDIAN_FADE_SECONDS));
- const maxHP=guardianStats(guardian.quality,guardian.upgrade).hp;
+ const maxHP=guardianStats('scorchy',guardian.quality,guardian.upgrade).hp;
  const hpFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
 
  return <g pointerEvents="none" aria-label="Scorchy guardian">

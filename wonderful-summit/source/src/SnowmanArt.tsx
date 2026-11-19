@@ -49,7 +49,7 @@ export function SnowmanArt({battle}:{battle:Battle}){
  if(!guardian)return null;
  const {time,encounter}=battle;
  const melt=meltProgress(guardian.expiresAt,time);
- const maxHP=guardianStats(guardian.quality,guardian.upgrade).hp;
+ const maxHP=guardianStats('snowman',guardian.quality,guardian.upgrade).hp;
  const healthFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
  const hatY=(HAT_TOP_Y-FOOT_Y)*BODY_SCALE*(1-melt*.9);
  const shot=guardian.shot;

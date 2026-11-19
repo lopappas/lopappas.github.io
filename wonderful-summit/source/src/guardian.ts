@@ -14,7 +14,7 @@ export const GUARDIAN_CONTACT_ANIMATION_SECONDS = .18;
 export const GUARDIAN_ENEMY_COOLDOWN = 1.5;
 export const GUARDIAN_MAX_CONTACT_REACH = 30;
 export const GUARDIAN_STRIKE_RANGE = 40;
-export const GUARDIAN_ATTACK_INTERVAL = 2;
+export const GUARDIAN_ATTACK_INTERVAL:Record<GuardianSpell,number> = {snowman:2,scorchy:1.5};
 export const GUARDIAN_DAMAGE_TAKEN = 1.5;
 export const GUARDIAN_FAINT_LIFETIME = 20;
 export const GUARDIAN_FADE_SECONDS = 3;
@@ -40,11 +40,21 @@ export type Guardian = {
  shot: GuardianShot | null;
 };
 
-export function guardianStats(quality: number, upgrade = 0) {
+export function guardianStats(spell: GuardianSpell, quality: number, upgrade = 0) {
  const normalizedQuality = Number.isFinite(quality) && quality >= MIN_CAST_QUALITY ? Math.min(100, quality) : 0;
- // Round the base stats before applying the upgrade.
- const hp = Math.ceil(normalizedQuality * 6 / 25) * 5;
- return {hp: hp + (upgrade >= 1 ? hp * GUARDIAN_UPGRADE_HEALTH_BONUS : 0), baseDamage: Math.floor(normalizedQuality / 5)};
+ const baseHP = Math.ceil(normalizedQuality * 6 / 25) * 5;
+ const hp = spell === 'snowman' ? baseHP * 13 / 10 : baseHP;
+ const damage = Math.floor(normalizedQuality / 5);
+ return {
+  hp: hp + (upgrade >= 1 ? hp * GUARDIAN_UPGRADE_HEALTH_BONUS : 0),
+  baseDamage: spell === 'scorchy' ? damage * 6 / 5 : damage,
+ };
+}
+
+export function snowballKnockback(quality: number) {
+ if (!Number.isFinite(quality) || quality < MIN_CAST_QUALITY) return 0;
+ const progress = (Math.min(100, quality) - MIN_CAST_QUALITY) / (100 - MIN_CAST_QUALITY);
+ return 6 + progress * 6;
 }
 
 export function guardianBoostMultiplier(playerMultiplier: number) {

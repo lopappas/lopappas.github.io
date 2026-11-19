@@ -32,8 +32,8 @@ test('the S1 lesson keeps the eye corners aligned to the grin and recognizes Sco
  assert.ok(result.quality>=80);
 });
 
-test('Scorchy fires at 40 units, waits two seconds, and deals Fire damage without knockback',()=>{
- for(const [element,damage] of [['Nature',24],['Fire',8],['Water',12]] as const){
+test('Scorchy fires at 40 units, waits 1.5 seconds, and deals 20% more Fire damage without knockback',()=>{
+ for(const [element,damage] of [['Nature',28.8],['Fire',9.6],['Water',14.4]] as const){
   const field=newBattle('active');
   field.enemies[0].element=element;
   field.enemies[0].x=CONTACT_X+40;
@@ -48,7 +48,7 @@ test('Scorchy fires at 40 units, waits two seconds, and deals Fire damage withou
   assert.equal(battle.enemies[0].hp,100-damage);
   assert.equal(battle.enemies[0].push,null);
   assert.equal(spellKnockback(80,'scorchy'),0);
-  battle=advance(battle,1.71);
+  battle=advance(battle,1.21);
   assert.equal(battle.scorchy?.shot,null);
   assert.ok(advance(battle,.01).scorchy?.shot);
  }
@@ -65,7 +65,7 @@ test('Snowman and Scorchy can coexist and the leading guardian takes the contact
  const struck=advance(summoned,.01);
  assert.equal(struck.scorchy?.hp,82);
  assert.equal(struck.scorchy?.x,CONTACT_X+60);
- assert.equal(struck.snowman?.hp,100);
+ assert.equal(struck.snowman?.hp,130);
  assert.ok(struck.scorchy?.shot&&struck.snowman?.shot);
  const push=hitWithSpell(struck,80,'water');
  assert.ok(push.enemies[0].push);
@@ -83,6 +83,6 @@ test('Scorchy inherits half of the Fire-specific amulet bonus and upgrades like 
  field.upgrades.scorchy=1;
  const battle=advance(summon(field),.29);
  assert.equal(battle.scorchy?.hp,120);
- assert.equal(battle.enemies[0].hp,100-18.92);
+ assert.equal(battle.enemies[0].hp,100-22.704);
  assert.deepEqual(spellUpgradePreview('scorchy')?.guardianHealth,{current:75,next:90});
 });
