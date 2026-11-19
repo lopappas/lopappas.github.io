@@ -23,7 +23,7 @@ test('each elemental column contains only owned matching spells, with starters f
 
 
 test('requested trace thicknesses scale relative to each guide’s base stroke',()=>{
- const widths={firestorm:3.872,puddleGuard:3.74,flameBlade:3.96,thistleBush:3.872,torrent:3.96,scorchy:3.564};
+ const widths={firestorm:3.872,puddleGuard:3.74,flameBlade:3.96,thistleBush:3.872,torrent:3.96,scorchy:3.564,snowman:3.872,constellation:5.06};
  for(const [id,width] of Object.entries(widths))assert.equal(traceStrokeWidth(id as SpellId),width);
  assert.equal(traceStrokeWidth('water'),4.4);
  assert.equal(traceStrokeWidth('puddleGuard',3.45),2.9325);

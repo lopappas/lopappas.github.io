@@ -13,7 +13,9 @@ Updated: 2026-11-19
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.60): Constellation is a once-per-battle Legendary Ancient spell with a single-stroke cursive L and purple-and-gold witch hat firework. It adds armor before health, plus additive damage and knockback bonuses. Faint grants 5 armor, +8% damage and +5% knockback. At 80% it grants 30 armor, +30% damage and +20% knockback. Constellation+ adds 5 armor, 5 damage points and 3 knockback points. A purple segment extends the player's health bar. Drawn and bottled casts share the same limit. All 701 tests and the production build passed. Rendered checks covered the firework path and three-second fade.
+Latest update (version 0.3.61): Constellation's colorful starburst forms a pixel-art witch hat, which fades and returns every 16 active seconds from the first burst. Its boost notice holds for eight seconds and fades over two. The 45–49% tier gives 5 armor, +8% damage and +5% knockback. The 50–59% tier gives 8 armor, +11% damage and +8% knockback. Constellation's trace is 15% thicker and Snowman's is 12% thinner. Successful Constellation and Alchemize casts dismiss their selected traces. The summons render in front of Filadora. All 704 tests and the production build passed. Rendered checks covered star assembly, hat recurrence, and layer order.
+
+Constellation is a once-per-battle Legendary Ancient spell with a single-stroke cursive L. At 80% it grants 30 armor, +30% damage and +20% knockback. Constellation+ adds 5 armor, 5 damage points and 3 knockback points. Armor extends the player's health bar and absorbs damage first. Damage and knockback bonuses stack additively. Drawn and bottled casts share the same limit.
 
 The selected Apprentice trace glows and reaches 150% saturation during a one-second cooldown cue. Scorchy's trace is 19% thinner. The iPhone appearance of the cue remains unverified.
 

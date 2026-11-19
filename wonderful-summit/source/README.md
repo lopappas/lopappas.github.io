@@ -42,7 +42,7 @@ The home menu opens a single-page field journal with Spells, Relics, and Potions
 
 ## Apprentice traces
 
-When its spell comes off cooldown, the selected Apprentice trace brightens and glows as it reaches 150% saturation, then eases back to normal over one second.
+Successful casts of Constellation and Alchemize dismiss their selected traces in either combat mode. When its spell comes off cooldown, the selected Apprentice trace brightens and glows as it reaches 150% saturation, then eases back to normal over one second.
 
 ## Practice
 
@@ -95,7 +95,7 @@ Milestone 6's full-sequence coverage and user-confirmed browser/device verificat
 
 Draw a single cursive L with a descending stem, a low left loop and a rightward tail. This Legendary Ancient spell can be activated once per battle, including through a spell bottle. It grants armor and adds percentage points to battle damage and knockback. Armor absorbs damage before health and is spent first on each contact. Constellation+ adds 5 armor, 5 damage percentage points and 3 knockback percentage points.
 
-Faint casts grant 5 armor, +8% damage and +5% knockback. At 60%, the values are 12, +14% and +10%. They rise at 80% to 30, +30% and +20%, and at 100% to 40, +40% and +25%. Values between those anchors are interpolated and rounded to whole points. The firework spirals upward before forming a purple and gold witch hat that fades over three seconds.
+At 45–49%, casts grant 5 armor, +8% damage and +5% knockback. At 50–59%, they grant 8 armor, +11% damage and +8% knockback. At 60%, the values are 12, +14% and +10%. They rise at 80% to 30, +30% and +20%, and at 100% to 40, +40% and +25%. Values between those anchors are interpolated and rounded to whole points. The firework spirals upward and bursts into stars that form a purple and gold pixel witch hat. The hat fades over three seconds and reappears every 16 seconds of active combat, measured from the first burst. The boost notice stays fully visible for eight seconds, then fades over two seconds.
 
 ## Snowman
 

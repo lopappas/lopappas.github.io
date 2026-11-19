@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {CombatTrace} from '../src/combatTrace.ts';
 import {finishOpening,newRun,selectMode,startRun,battleForRun,finishBattle,returnToMenu,bookWormBonus,runDamageBonus} from '../src/run.ts';
-import {stepBattle,CONTACT_X,newBattle,ENEMY_BACK_X} from '../src/battle.ts';
+import {stepBattle,CONTACT_X,newBattle,ENEMY_BACK_X,launchSpell,drinkPotion} from '../src/battle.ts';
 
 test('both modes enter the same adventure, preserve mode across battles, and reset on a fresh menu',()=>{
  for(const mode of ['apprentice','expert'] as const){let run=selectMode(finishOpening(newRun()),mode,()=>.5);assert.equal(run.playMode,mode);assert.equal(run.screen,'sister');run=startRun(run,run.keepsakeOffers[0],()=>.5);assert.equal(run.playMode,mode);assert.equal(run.screen,'map');run={...run,screen:'battle'};const battle=battleForRun(run,()=>.5);assert.equal(battle.contactPushMultiplier,mode==='apprentice'?1.5:1);const won=finishBattle(run,{...battle,phase:'victory'},()=>.5);assert.equal(won.playMode,mode);}
@@ -28,6 +28,31 @@ test('a successful long-cooldown cast hides only its own indefinite trace',()=>{
  assert.equal(trace.spellId,'snowman');
  assert.equal(trace.advance(2),true);
 });
+test('once-per-battle traces disappear only after their own successful drawn or bottled cast',()=>{
+ const known=['constellation','alchemize','firestorm'] as const;
+ for(const mode of ['apprentice','expert'] as const)for(const id of ['constellation','alchemize'] as const){
+  const before=newBattle('active');
+  before.potions={heal:0,freeze:0,ink:0};
+  const recognized=new CombatTrace();
+  recognized.select(id,[...known],mode,0);
+  assert.equal(recognized.dismissAfterOneUseCast(before,launchSpell(before,44,'#fff',id)),false);
+  assert.equal(recognized.dismissAfterOneUseCast(before,launchSpell(before,80,'#fff','firestorm')),false);
+  assert.equal(recognized.dismissAfterOneUseCast(before,launchSpell(before,80,'#fff',id)),true);
+  assert.equal(recognized.spellId,null);
+
+  const bottled=new CombatTrace();
+  bottled.select(id,[...known],mode,0);
+  before.potions.spellBottle=1;
+  before.bottledSpells=[{spellId:id,quality:80}];
+  const flight=drinkPotion(before,'spellBottle');
+  assert.equal(bottled.dismissAfterOneUseCast(before,flight),false);
+  let impact=flight;
+  for(let i=0;i<7;i++)impact=stepBattle(impact,.1);
+  assert.equal(bottled.dismissAfterOneUseCast(flight,impact),true);
+  assert.equal(bottled.spellId,null);
+ }
+});
+
 test('only the visible Apprentice trace signals an actual spell cooldown expiry',()=>{
  const trace=new CombatTrace();
  const known=['flameBlade','snowman'] as const;

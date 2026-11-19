@@ -1,8 +1,39 @@
 import React from 'react';
-import {CONSTELLATION_FLIGHT_SECONDS,CONSTELLATION_HAT_SECONDS} from './constellation';
+import {CONSTELLATION_FLIGHT_SECONDS,constellationHatFrame} from './constellation';
 
 const GOLD='#ffd884',PURPLE='#a869ed';
 const SKY_X=360,BRUSH_X=282,BRUSH_Y=390;
+
+const PIXEL=7;
+const HAT_ROWS=[
+ '.................pppp.....',
+ '...............ppvvvp.....',
+ '..............plvvpp......',
+ '.............plvvp........',
+ '.............plvp.........',
+ '............plvvp.........',
+ '...........plvvvp.........',
+ '..........plvvvvvp........',
+ '..........plvvwvvpp.......',
+ '.........plvvvvvvvpp......',
+ '........plvvvvvvvvvpp.....',
+ '........pggggggggggp......',
+ '.......pagggggggggaap.....',
+ '...pppppppppppppppppppp...',
+ '..ppvvvvvvvvvvvvvvvvvvpp..',
+ '.ppggggggggggggggggggggpp.',
+ '...pppppppppppppppppppp...',
+];
+const HAT_COLORS={p:'#51317a',v:'#9060dc',l:'#c498ff',g:GOLD,a:'#bb874b',w:'#fff3bb'};
+const pixels=HAT_ROWS.flatMap((row,y)=>Array.from(row,(mark,x)=>({
+ mark,x:(x-13)*PIXEL,y:(y-8)*PIXEL,
+})).filter(pixel=>pixel.mark!=='.'));
+const hatPaths=Object.entries(HAT_COLORS).map(([mark,fill])=>({
+ fill,d:pixels.filter(pixel=>pixel.mark===mark).map(({x,y})=>`M${x} ${y}h${PIXEL}v${PIXEL}h-${PIXEL}Z`).join(''),
+}));
+const stars=Array.from({length:32},(_,index)=>pixels[Math.floor(index*pixels.length/32)]);
+const starColors=[GOLD,'#be97ff','#ffa9db','#92efe8','#fff3bb'];
+const STAR='M0-6H2V-2H6V2H2V6H-2V2H-6V-2H-2V-6Z';
 
 function flightPoint(progress:number,skyY:number){
  const angle=progress*Math.PI*3.5;
@@ -16,7 +47,7 @@ function flightPoint(progress:number,skyY:number){
 
 export function ConstellationArt({castAt,time,skyY}:{castAt:number;time:number;skyY:number}){
  const age=time-castAt;
- if(age<0||age>=CONSTELLATION_FLIGHT_SECONDS+CONSTELLATION_HAT_SECONDS)return null;
+ if(age<0)return null;
  if(age<CONSTELLATION_FLIGHT_SECONDS){
   const progress=age/CONSTELLATION_FLIGHT_SECONDS;
   const tip=flightPoint(progress,skyY);
@@ -29,25 +60,25 @@ export function ConstellationArt({castAt,time,skyY}:{castAt:number;time:number;s
    <circle cx={tip.x} cy={tip.y} r="5.5" fill={GOLD}/>
   </g>;
  }
- const burstAge=age-CONSTELLATION_FLIGHT_SECONDS;
- const burst=Math.min(1,burstAge/.55),radius=30+120*burst;
- const scale=.86+.14*Math.min(1,burstAge/.22);
- return <g pointerEvents="none" aria-label="Purple and gold witch hat firework"
-  transform={`translate(${SKY_X} ${skyY})`} opacity={Math.max(0,1-burstAge/CONSTELLATION_HAT_SECONDS)}>
-  {burst<1&&Array.from({length:14},(_,index)=>{
-   const angle=index*Math.PI/7,x=radius*Math.cos(angle),y=radius*.62*Math.sin(angle);
-   const color=index%3===0?PURPLE:GOLD;
-   return <g key={index} transform={`translate(${x} ${y})`} opacity={1-burst}>
-    <path d="M0-6 2-2 6 0 2 2 0 6-2 2-6 0-2-2Z" fill={color}/>
-   </g>;
-  })}
-  <g transform={`scale(${scale})`} strokeLinejoin="round">
-   <path d="M-52 24Q-30 16-23-6Q-12-34 14-57L36-68 24-46Q30-16 48 23Q10 35-52 24Z" fill="#7846c3" stroke={PURPLE} strokeWidth="4"/>
-   <path d="M-42 15Q-2 27 39 12L47 24Q7 38-51 25Z" fill={GOLD}/>
-   <path d="M-66 25Q-89 39-57 48Q-9 61 55 44Q81 37 78 25Q78 18 49 23Q8 37-40 24Q-57 21-66 25Z" fill="#59379d" stroke={GOLD} strokeWidth="4"/>
-   <path d="M4-34 7-27 14-24 7-21 4-14 1-21-6-24 1-27Z" fill="#fff0ae"/>
-   <path d="M-23 0-21 4-17 6-21 8-23 12-25 8-29 6-25 4Z" fill={GOLD}/>
-   <circle cx="23" cy="-8" r="2.3" fill={GOLD}/>
+ const {assembly,opacity}=constellationHatFrame(age-CONSTELLATION_FLIGHT_SECONDS);
+ if(opacity===0)return null;
+ const assembling=assembly<1;
+ const explosion=Math.min(1,assembly/.36);
+ const gather=Math.max(0,(assembly-.28)/.72);
+ const settle=gather*gather*(3-2*gather);
+ return <g pointerEvents="none" aria-label="Purple and gold pixel witch hat firework"
+  transform={`translate(${SKY_X} ${skyY})`} opacity={opacity} shapeRendering="crispEdges">
+  {assembling&&<g aria-hidden="true" opacity={Math.min(1,(1-assembly)/.2)}>
+   {stars.map((pixel,index)=>{
+    const angle=index*2.39996;
+    const spread=(65+index%6*12)*explosion*(2-explosion);
+    const x=Math.cos(angle)*spread*(1-settle)+(pixel.x+PIXEL/2)*settle;
+    const y=Math.sin(angle)*spread*.64*(1-settle)+(pixel.y+PIXEL/2)*settle;
+    return <path key={index} d={STAR} transform={`translate(${x} ${y})`} fill={starColors[index%starColors.length]}/>;
+   })}
+  </g>}
+  <g opacity={Math.max(0,(assembly-.47)/.53)}>
+   {hatPaths.map(({fill,d})=><path key={fill} fill={fill} d={d}/>)}
   </g>
  </g>;
 }

@@ -17,6 +17,13 @@ export class CombatTrace{
   if(this.until!==Infinity||!id||next.phase!=='active'||next.cooldownsDisabled||previous.cooldowns[id]!==next.cooldowns[id])return null;
   return spellCooldownRemaining(previous,id)>0&&spellCooldownRemaining(next,id)===0?id:null;
  }
+ dismissAfterOneUseCast(previous:Battle,next:Battle){
+  const completed=this.spellId==='constellation'? !previous.constellation&&!!next.constellation:
+   this.spellId==='alchemize'&&next.alchemizeUsed&&(!previous.alchemizeUsed||previous.alchemizeAt!==next.alchemizeAt);
+  if(!completed)return false;
+  this.hide();
+  return true;
+ }
  dismissAfterCast(id:SpellId,cooldown:number){
   if(this.spellId!==id||this.until!==Infinity||cooldown<=10)return false;
   this.hide();
