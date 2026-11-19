@@ -1,7 +1,7 @@
 import {COMBAT_LANE_Y,FILA_FOOT_Y,combatLane,enemyFootOffset,laneContactReach,placeLaneArrivals,spaceLaneEnemies,type CombatLane} from './combatLanes.ts';
 import {
  SNOWBALL_FLIGHT_SECONDS,SNOWMAN_ATTACK_INTERVAL,SNOWMAN_CONTACT_DISTANCE,SNOWMAN_COOLDOWN,
- SNOWMAN_DAMAGE_TAKEN,SNOWMAN_ENEMY_COOLDOWN,SNOWMAN_ENEMY_WINDUP,SNOWMAN_FAINT_LIFETIME,
+ SNOWMAN_DAMAGE_TAKEN,SNOWMAN_ENEMY_COOLDOWN,SNOWMAN_FAINT_LIFETIME,SNOWMAN_MAX_CONTACT_REACH,
  SNOWMAN_MAX_DISTANCE,SNOWMAN_SPEED,SNOWMAN_STRIKE_RANGE,snowmanBoostMultiplier,snowmanStats,type Snowman,
 } from './snowman.ts';
 import {playerMaxHealth} from './playerHealth.ts';
@@ -42,7 +42,7 @@ export const POTION_FLIGHT_SECONDS=.65,POTION_BREAK_SECONDS=.35;
 export type PotionFlight={spell?:BottledSpell;id:number;potion:Potion;started:number;toX:number;toY:number;applied:boolean};
 export type Burn={quality?:number;damage:number;nextTick:number;ticks:number};
 export type Push={from:number;to:number;started:number;ends:number};
-export type Enemy={lane?:CombatLane;snowmanAttackAt?:number;nextSnowmanAttackAt?:number;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
+export type Enemy={lane?:CombatLane;snowmanHitAt?:number;nextSnowmanAttackAt?:number;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
 export type Projectile={knockbackMultiplier?:number;inkUsed:number;damageMultiplier:number;started:number;duration:number;quality:number;color:string;spellId:SpellId;targetId:number};
 export type TidalWave={blackFlashMultiplier?:number;id:number;started:number;duration:number;quality:number;damageMultiplier:number;inkUsed:number;hitIds:number[];bonuses:{damageBonus:number;pushBonus:number;upgrade:number;midnightStone:boolean;moon:boolean}};
 export const TIDAL_TRAVEL_SECONDS=.9,TIDAL_START_X=300;
@@ -167,17 +167,8 @@ export function prepareRelicCast(state:Battle,quality:number,id:SpellId,rawQuali
  const add=state.robes.enabled&&rawQuality>=80&&!state.robes.spells.includes(id);
  return {...state,stellarReady:false,castingRelics:{...state.castingRelics,steadyCasts:cloverReady(state)||quality<60?0:state.castingRelics.steadyCasts+1},robes:{...state.robes,spells:add?[...state.robes.spells,id]:state.robes.spells}};
 }
-export function enemyAttackingSnowman(state:Battle,enemy:Enemy){
- return state.snowman!==null&&enemy.snowmanAttackAt!==undefined&&inSnowmanContact(state.snowman,enemy);
-}
-
-function enemyKnockback(state:Battle,enemy:Enemy,distance:number,duration=PUSH_DURATION):Push|null{
- if(enemyAttackingSnowman(state,enemy))return null;
+function enemyKnockback(state:Battle,enemy:Enemy,distance:number,duration=PUSH_DURATION):Push{
  return {from:enemy.x,to:Math.min(ENEMY_BACK_X,enemy.x+distance),started:state.time,ends:state.time+duration};
-}
-
-function inSnowmanContact(snowman:Snowman,enemy:Enemy){
- return enemy.x>=snowman.x&&enemy.x<=snowman.x+SNOWMAN_STRIKE_RANGE+1e-9;
 }
 
 export function fizzleSpell(state:Battle):Battle{
@@ -233,7 +224,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   const burnTick=((spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier*amuletDamageMultiplier(q,spellId,state.amulets):0)+(steady&&spellId==='fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null,goblinKing:false},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0))*(state.fireFriend?1.5:1);
   return{...e,shield,hp:Math.max(0,e.hp-damage),push:spellId==='ender'||spellId==='thistleBush'||spellId==='flameBlade'?e.push:shieldBurning?null:rockyFaint?e.push:enemyKnockback(state,e,spellKnockback(q,spellId,casting.pushBonus*knockbackMultiplier*flash.multiplier*(moon&&spellId==='water'?1.15:1),e.element,e.rocky,e.shield,state.time,level,kingHasCrown({...e,hp:Math.max(0,e.hp-damage)}))*(e.kind==='mother'?.8:1),spellId==='sneakyVine'?.9:PUSH_DURATION),attackAt:spellId==='ender'||spellId==='thistleBush'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q,level).duration,amount:brambleEffect(q,level).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q,level).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{quality:burnTick>=(e.burn?.damage??0)?q:e.burn?.quality??q,damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
  });
- return resolveMother({...state,enemies,casts:state.casts+1,vineGrab:spellId==='sneakyVine'&&!enemyAttackingSnowman(state,target)?{targetId:target.id,x:target.x,y:enemyArtY(target,state.encounter)-12,started:state.time}:state.vineGrab});
+ return resolveMother({...state,enemies,casts:state.casts+1,vineGrab:spellId==='sneakyVine'?{targetId:target.id,x:target.x,y:enemyArtY(target,state.encounter)-12,started:state.time}:state.vineGrab});
 }
 // Resolve direct damage and damage-over-time deaths through the same boss phase.
 function resolveMother(state:Battle):Battle{
@@ -388,31 +379,25 @@ export function stepBattle(state:Battle,delta:number):Battle{
   const dialogueHold=Math.max(0,Math.min(time,dialogueEnd)-state.time);
   if(e.push&&dialogueHold>0)e.push={...e.push,started:e.push.started+dialogueHold,ends:e.push.ends+dialogueHold};
   if(time<dialogueEnd)return e;
-  const guardian=next.snowman;
-  if(guardian&&e.snowmanAttackAt!==undefined&&inSnowmanContact(guardian,e)){
-   e.push=null;
-   if(e.clock+1e-9>=e.snowmanAttackAt){
-    const hp=guardian.hp-enemyContactDamage(e,state.difficulty)*SNOWMAN_DAMAGE_TAKEN;
-    next.snowman=hp>0?{...guardian,hp,hurtUntil:time+.25}:null;
-    e.nextSnowmanAttackAt=e.snowmanAttackAt+SNOWMAN_ENEMY_COOLDOWN;
-    e.snowmanAttackAt=undefined;
-   }
-   return e;
-  }
-  if(e.snowmanAttackAt!==undefined)e.snowmanAttackAt=undefined;
   if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=Math.max(e.x,p.from+(p.to-p.from)*(1-(1-t)**3));e.attackAt=null;if(t>=1)e.push=null;return e;}
   if(frozen||actionDelta<=1e-9)return e;
   const rush=eliteRush(e);const speed=e.goblinKing?SLIME_SPEED*.9*(kingHasCrown(e)?1:1.8):e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.kind==='spider'?2:e.rocky?.9:1);
+  const guardian=next.snowman;
   const targetsSnowman=guardian&&e.x>=guardian.x;
   const frontX=targetsSnowman?guardian.x:CONTACT_X;
   const contactX=targetsSnowman?guardian.x+SNOWMAN_CONTACT_DISTANCE:CONTACT_X;
-  const furthestX=targetsSnowman?guardian.x+SNOWMAN_STRIKE_RANGE:Infinity;
+  const furthestX=targetsSnowman?guardian.x+SNOWMAN_MAX_CONTACT_REACH:Infinity;
   const reach=Math.min(furthestX,laneContactReach(e,marchOrder,next.encounter,frontX,contactX));
   const stopX=Math.max(CONTACT_X,Math.min(e.x,reach));
   e.x=Math.max(stopX,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows},state.time))*actionDelta);
   if(targetsSnowman&&e.x<=reach+1e-9){
    e.attackAt=null;
-   if(e.clock+1e-9>=(e.nextSnowmanAttackAt??0))e.snowmanAttackAt=e.clock+SNOWMAN_ENEMY_WINDUP;
+   if(e.clock+1e-9>=(e.nextSnowmanAttackAt??0)){
+    const hp=guardian.hp-enemyContactDamage(e,state.difficulty)*SNOWMAN_DAMAGE_TAKEN;
+    next.snowman=hp>0?{...guardian,hp,hurtUntil:time+.25}:null;
+    e.nextSnowmanAttackAt=e.clock+SNOWMAN_ENEMY_COOLDOWN;
+    e.snowmanHitAt=time;
+   }
    return e;
   }
   if(e.x>reach+1e-9){e.attackAt=null;return e;}
@@ -530,8 +515,7 @@ function beginSnowman(state:Battle,quality:number,damageBonus:number):Battle{
   expiresAt:quality<60?state.time+SNOWMAN_FAINT_LIFETIME:null,
   nextShotAt:state.time,hurtUntil:0,snowball:null,
  };
- const enemies=state.enemies.some(e=>e.snowmanAttackAt!==undefined)?state.enemies.map(e=>e.snowmanAttackAt===undefined?e:{...e,snowmanAttackAt:undefined}):state.enemies;
- return {...state,snowman,enemies,casts:state.casts+1};
+ return {...state,snowman,casts:state.casts+1};
 }
 
 function moveSnowman(state:Battle,delta:number):Snowman|null{

@@ -1,7 +1,7 @@
 import React,{memo} from 'react';
 import {enemyArtY,type Battle} from './battle';
 import {CENTER_LANE,COMBAT_LANE_Y,FILA_ART_SCALE,FILA_SPRITE_HEIGHT} from './combatLanes';
-import {SNOWBALL_FLIGHT_SECONDS,SNOWMAN_MELT_SECONDS} from './snowman';
+import {SNOWBALL_FLIGHT_SECONDS,SNOWMAN_MELT_SECONDS,snowmanStats} from './snowman';
 
 const GROUND_Y=COMBAT_LANE_Y[CENTER_LANE];
 const BODY_OFFSET_X=-67;
@@ -49,6 +49,9 @@ export function SnowmanArt({battle}:{battle:Battle}){
  if(!guardian)return null;
  const {time,encounter}=battle;
  const melt=meltProgress(guardian.expiresAt,time);
+ const maxHP=snowmanStats(guardian.quality,guardian.upgrade).hp;
+ const healthFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
+ const hatY=(HAT_TOP_Y-FOOT_Y)*BODY_SCALE*(1-melt*.9);
  const shot=guardian.snowball;
  const shotAge=shot?time-shot.started:Infinity;
  const pose=shotAge<.08?'flick':shotAge<.18?'followThrough':'idle';
@@ -59,6 +62,10 @@ export function SnowmanArt({battle}:{battle:Battle}){
    <g transform={`scale(1 ${1-melt*.9})`} opacity={1-melt}>
     <SnowmanBody pose={pose}/>
     {guardian.hurtUntil>time&&<path d="M47-50h10m-11-10 6-6m-5 24 6 6" fill="none" stroke="#f8f4ff" strokeWidth="3"/>}
+   </g>
+   <g transform={`translate(0 ${hatY-12})`} opacity={1-melt} role="meter" aria-label="Snowman health" aria-valuemin={0} aria-valuemax={maxHP} aria-valuenow={guardian.hp}>
+    <rect x="-23" width="46" height="7" rx="2" fill="#233447" stroke="#dcecf7"/>
+    <rect x="-21" y="2" width={42*healthFraction} height="3" rx="1" fill="#8be1f3"/>
    </g>
   </g>
   {shot&&target&&(()=>{

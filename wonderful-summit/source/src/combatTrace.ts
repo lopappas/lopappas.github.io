@@ -11,5 +11,10 @@ export class CombatTrace{
   this.spellId=id;this.until=mode==='apprentice'?Infinity:time+2;this.readyAt=mode==='apprentice'?time:time+12;return true;
  }
  advance(time:number){if(this.spellId&&time>=this.until){this.spellId=null;return true;}return false;}
+ dismissAfterCast(id:SpellId,cooldown:number){
+  if(this.spellId!==id||this.until!==Infinity||cooldown<=10)return false;
+  this.hide();
+  return true;
+ }
  hide(){this.spellId=null;}
 }

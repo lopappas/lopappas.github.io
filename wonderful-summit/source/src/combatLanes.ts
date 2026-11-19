@@ -96,7 +96,7 @@ export function spaceLaneEnemies(previous:Enemy[],enemies:Enemy[],encounter:Enco
   };
   const moves=row.map(e=>{
    const old=earlier.get(e.id)??e;
-   const priority=old.push&&e.snowmanAttackAt===undefined?2:old.x===e.x?0:1;
+   const priority=old.push?2:old.x===e.x?0:1;
    return {e,old,priority};
   }).sort((a,b)=>a.priority-b.priority||(a.priority===2?b.old.x-a.old.x:a.old.x-b.old.x)||a.e.id-b.e.id);
   for(const {e,priority} of moves){

@@ -55,12 +55,12 @@ test('Faint Snowman expires at 20 active seconds and a recast replaces the exist
  assert.equal(replacement.casts,2);
 });
 
-test('Snowman throws at 30 units, deals 8 neutral damage at 80% and waits one second between throws',()=>{
+test('Snowman throws at 40 units, deals 16 neutral damage at 80% and waits two seconds between throws',()=>{
  const field=newBattle('active');
  field.approachAt=100;
  const enemy=field.enemies[0];
  enemy.element='Neutral';
- enemy.x=CONTACT_X+281;
+ enemy.x=CONTACT_X+291;
  let battle=advance(summon(field),20);
  assert.equal(battle.snowman?.snowball,null);
  battle.enemies[0].x--;
@@ -69,25 +69,25 @@ test('Snowman throws at 30 units, deals 8 neutral damage at 80% and waits one se
  assert.equal(battle.snowman?.snowball?.targetId,enemy.id);
  assert.equal(battle.enemies[0].hp,100);
  battle=advance(battle,.28);
- assert.equal(battle.enemies[0].hp,92);
+ assert.equal(battle.enemies[0].hp,84);
  assert.equal(battle.enemies[0].push,null);
- assert.equal(battle.enemies[0].x,CONTACT_X+280);
- battle=advance(battle,.71);
+ assert.equal(battle.enemies[0].x,CONTACT_X+290);
+ battle=advance(battle,1.71);
  assert.equal(battle.snowman?.snowball,null);
  battle=advance(battle,.01);
  assert.equal(battle.snowman?.snowball?.targetId,enemy.id);
- assert.equal(advance(battle,.28).enemies[0].hp,84);
+ assert.equal(advance(battle,.28).enemies[0].hp,68);
 });
 
 test('Snowman stops at the range boundary and stays there between throws',()=>{
  const field=newBattle('active');
  field.approachAt=100;
- field.enemies[0].x=CONTACT_X+35;
+ field.enemies[0].x=CONTACT_X+45;
  let battle=advance(summon(field),.5);
  assert.equal(battle.snowman?.x,CONTACT_X+5);
  battle=advance(battle,1.2);
  assert.equal(battle.snowman?.x,CONTACT_X+5);
- battle.enemies[0].x=CONTACT_X+40;
+ battle.enemies[0].x=CONTACT_X+50;
  battle=advance(battle,.5);
  assert.ok(battle.snowman!.x>CONTACT_X+5);
 });
@@ -100,90 +100,92 @@ function atContact(state:Battle=newBattle('active')){
  return advance(cast,.01);
 }
 
-test('enemies wind up for one second and recover for one second in place without shoving Snowman',()=>{
+test('enemies hit Snowman immediately on contact and every 1.5 seconds without shoving it',()=>{
  let battle=atContact();
  const guardianX=battle.snowman!.x,enemyX=battle.enemies[0].x;
- assert.equal(battle.enemies[0].snowmanAttackAt,1.01);
- battle=advance(battle,.99);
- assert.equal(battle.snowman?.hp,100);
+ assert.equal(battle.snowman?.hp,82);
+ assert.equal(battle.enemies[0].snowmanHitAt,.01);
+ battle=advance(battle,1.49);
+ assert.equal(battle.snowman?.hp,82);
  assert.equal(battle.enemies[0].x,enemyX);
  battle=advance(battle,.01);
- assert.equal(battle.snowman?.hp,82);
- assert.equal(battle.snowman?.x,guardianX);
- assert.equal(battle.enemies[0].snowmanAttackAt,undefined);
- battle=advance(battle,.99);
- assert.equal(battle.enemies[0].snowmanAttackAt,undefined);
- battle=advance(battle,.01);
- assert.ok(Math.abs(battle.enemies[0].snowmanAttackAt!-3.01)<1e-8);
- battle=advance(battle,1);
  assert.equal(battle.snowman?.hp,64);
+ assert.equal(battle.snowman?.x,guardianX);
+ battle=advance(battle,1.5);
+ assert.equal(battle.snowman?.hp,46);
  assert.equal(battle.snowman?.x,guardianX);
 });
 
 test('enemies can attack Snowman from separate lanes and resume marching when it falls',()=>{
  let battle=atContact(newBattle('active','pack',()=>.5));
  const guardianX=battle.snowman!.x;
- battle=advance(battle,1);
  assert.equal(battle.snowman?.hp,64);
  assert.equal(battle.snowman?.x,guardianX);
- battle=advance(battle,4);
+ battle=advance(battle,3);
  assert.equal(battle.snowman,null);
  assert.equal(battle.playerHits,0);
  assert.ok(advance(battle,5.8).playerHits>0);
 });
 
-test('wind-up blocks spell, relic and potion knockback while recovery permits it',()=>{
+test('spell, relic and potion knockback can move enemies right after they hit Snowman',()=>{
  const strike=atContact();
  const enemy=strike.enemies[0],attackX=enemy.x;
  const flash={...strike,blackFlash:{enabled:true,chain:false}};
  const spell=hitWithSpell(flash,80,'water',enemy.id,()=>0);
  assert.ok(spell.enemies[0].hp<enemy.hp);
  assert.ok(spell.blackFlashBurst);
- assert.equal(spell.enemies[0].push,null);
- assert.equal(spell.enemies[0].snowmanAttackAt,enemy.snowmanAttackAt);
+ assert.ok(spell.enemies[0].push!.to>attackX);
+ assert.ok(advance(spell,.05).enemies[0].x>attackX);
+
+ const vine=hitWithSpell(strike,80,'sneakyVine',enemy.id);
+ assert.equal(vine.vineGrab?.targetId,enemy.id);
 
  const fizzle=fizzleSpell({...strike,castingRelics:{...strike.castingRelics,sphere:true}});
  assert.ok(fizzle.enemies[0].hp<enemy.hp);
- assert.equal(fizzle.enemies[0].push,null);
+ assert.ok(fizzle.enemies[0].push!.to>attackX);
 
  const vial=advance(drinkPotion({...strike,hazardousVials:true},'heal'),.66);
- assert.equal(vial.enemies[0].x,attackX);
- assert.equal(vial.enemies[0].push,null);
+ assert.ok(vial.enemies[0].x>attackX);
 
  const rain=launchSpell(strike,80,'#69c2d6','torrent');
  rain.torrent!.orbs=[{x:attackX,y:enemyY(enemy.id),landsAt:.2,applied:false}];
  const splash=advance(rain,.25);
  assert.ok(splash.enemies[0].hp<enemy.hp);
- assert.equal(splash.enemies[0].x,attackX);
- assert.equal(splash.enemies[0].push,null);
-
- const recovery=advance(strike,1);
- const knockback=hitWithSpell(recovery,80,'water',enemy.id);
- assert.ok(knockback.enemies[0].push!.to>attackX);
- assert.ok(advance(knockback,.05).enemies[0].x>attackX);
- assert.equal(advance(knockback,.9).enemies[0].snowmanAttackAt,undefined);
+ assert.ok(splash.enemies[0].x>attackX);
 });
 
-test('freeze pauses the Snowman wind-up and recasting clears the old attack',()=>{
+test('knockback breaks contact and an enemy cannot hit again until it reaches Snowman',()=>{
+ const strike=atContact();
+ const enemy=strike.enemies[0];
+ const boosted={...strike,pushBonus:3};
+ const pushed=hitWithSpell(boosted,80,'water',enemy.id);
+ const waiting=advance(pushed,1.5);
+ assert.ok(waiting.enemies[0].x>waiting.snowman!.x+8);
+ assert.equal(waiting.snowman?.hp,82);
+ const resumed=advance(waiting,10);
+ assert.ok((resumed.snowman?.hp??0)<82);
+});
+
+test('freeze pauses the enemy cooldown and a recast starts with full health',()=>{
  const strike=atContact();
  const stopped=advance({...strike,freezeUntil:2},1.5);
- assert.equal(stopped.snowman?.hp,100);
+ assert.equal(stopped.snowman?.hp,82);
  assert.equal(stopped.enemies[0].clock,strike.enemies[0].clock);
- const resumed=advance(stopped,1.51);
- assert.equal(resumed.snowman?.hp,82);
+ assert.equal(advance(stopped,1.98).snowman?.hp,82);
+ assert.equal(advance(stopped,1.99).snowman?.hp,64);
 
  const replaced=summon({...strike,cooldownsDisabled:true});
- assert.equal(replaced.enemies[0].snowmanAttackAt,undefined);
+ assert.equal(replaced.snowman?.hp,100);
  assert.equal(advance(replaced,1).snowman?.hp,100);
 });
 
 test('snowballs apply Water matchups and rocky defenses without knockback',()=>{
  const examples=[
-  {quality:80,element:'Fire',rocky:false,damage:12},
-  {quality:80,element:'Water',rocky:false,damage:4},
-  {quality:80,element:'Nature',rocky:false,damage:6},
-  {quality:48,element:'Neutral',rocky:true,damage:2.25},
-  {quality:60,element:'Neutral',rocky:true,damage:4.5},
+  {quality:80,element:'Fire',rocky:false,damage:24},
+  {quality:80,element:'Water',rocky:false,damage:8},
+  {quality:80,element:'Nature',rocky:false,damage:12},
+  {quality:48,element:'Neutral',rocky:true,damage:4.5},
+  {quality:60,element:'Neutral',rocky:true,damage:9},
  ] as const;
  for(const {quality,element,rocky,damage} of examples){
   const field=newBattle('active');
@@ -195,14 +197,13 @@ test('snowballs apply Water matchups and rocky defenses without knockback',()=>{
  }
 });
 
-test('Snowman rounds health up and halves the previous rounded damage before applying upgrades',()=>{
+test('Snowman rounds health and damage before applying upgrades',()=>{
  const samples=[
   [44.99,0,0],[45,55,9],[49.99,60,9],[50,60,10],[50.01,65,10],
   [59,75,11],[60,75,12],[69,85,13],[70,85,14],[75,90,15],
   [79,95,15],[80,100,16],[100,120,20],
  ];
- for(const [quality,hp,previousDamage] of samples){
-  const baseDamage=previousDamage/2;
+ for(const [quality,hp,baseDamage] of samples){
   assert.deepEqual(snowmanStats(quality),{hp,baseDamage});
   assert.equal(snowmanStats(quality,1).hp,hp*6/5);
   assert.equal(spellDamage({element:'Neutral'},quality,'snowman',1,1),baseDamage*11/10);
@@ -211,7 +212,7 @@ test('Snowman rounds health up and halves the previous rounded damage before app
 });
 
 test('Snowman inherits half the combined cast-time damage bonus, including Fury and relics',()=>{
- for(const {stale,upgrade,damage} of [{stale:0,upgrade:0,damage:12.8},{stale:0,upgrade:1,damage:14.08},{stale:3,upgrade:0,damage:9.6}]){
+ for(const {stale,upgrade,damage} of [{stale:0,upgrade:0,damage:25.6},{stale:0,upgrade:1,damage:28.16},{stale:3,upgrade:0,damage:19.2}]){
   const field=newBattle('active');
   Object.assign(field.enemies[0],{element:'Neutral',x:CONTACT_X+8});
   field.potions.fury=1;

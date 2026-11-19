@@ -11,6 +11,23 @@ test('both modes enter the same adventure, preserve mode across battles, and res
 test('Apprentice guides persist indefinitely and may be changed or hidden without a cooldown',()=>{
  const trace=new CombatTrace();assert.equal(trace.select('fire',['fire','water'],'apprentice',0),true);assert.equal(trace.advance(100000),false);assert.equal(trace.spellId,'fire');assert.equal(trace.select('water',['fire','water'],'apprentice',100000),true);trace.hide();assert.equal(trace.spellId,null);assert.equal(trace.select('fire',['fire'],'apprentice',100000),true);assert.equal(trace.select('nature',['fire'],'apprentice',100000),false);
 });
+test('a successful long-cooldown cast hides only its own indefinite trace',()=>{
+ const trace=new CombatTrace();
+ const known=['firestorm','snowman'] as const;
+ trace.select('firestorm',[...known],'apprentice',0);
+ assert.equal(trace.dismissAfterCast('snowman',30),false);
+ assert.equal(trace.dismissAfterCast('firestorm',10),false);
+ assert.equal(trace.spellId,'firestorm');
+ trace.select('snowman',[...known],'apprentice',0);
+ assert.equal(trace.dismissAfterCast('snowman',30),true);
+ assert.equal(trace.spellId,null);
+ assert.equal(trace.canSelect('apprentice',0),true);
+
+ trace.select('snowman',[...known],'expert',0);
+ assert.equal(trace.dismissAfterCast('snowman',30),false);
+ assert.equal(trace.spellId,'snowman');
+ assert.equal(trace.advance(2),true);
+});
 test('Expert traces last exactly two active seconds then impose ten active seconds of cooldown',()=>{
  const trace=new CombatTrace();assert.equal(trace.select('fire',['fire','water'],'expert',5),true);assert.equal(trace.advance(6.999),false);assert.equal(trace.canSelect('expert',6.999),false);assert.equal(trace.advance(7),true);assert.equal(trace.spellId,null);assert.equal(trace.canSelect('expert',16.999),false);assert.equal(trace.canSelect('expert',17),true);assert.equal(trace.select('water',['fire','water'],'expert',17),true);
  // Repeated reads at paused battle time neither expire a guide nor consume cooldown.

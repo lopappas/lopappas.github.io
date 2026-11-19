@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.41',publishedAt:'2026-11-19T07:16:07Z',changes:['Snowman has a floating health bar and throws stronger snowballs every two seconds within 40 units.','Enemies hit Snowman on contact and can still be knocked back.','Successfully casting a spell with a cooldown above 10 seconds hides its Apprentice trace.']},
  {version:'0.3.40',publishedAt:'2026-11-19T06:44:10Z',changes:['Enemy health bars stay visible. Turn on Spell details to see enemy names and health numbers.','Enemies can overtake each other in a lane. Knockback moves only the enemies hit.']},
  {version:'0.3.36',publishedAt:'2026-11-19T06:13:40Z',changes:['Snowman throws half-strength snowballs once per second at enemies within 30 units.','Enemies wind up for one second and recover for one second when attacking Snowman. They resist knockback during wind-up, and their hits leave Snowman in place.']},
  {version:'0.3.35',publishedAt:'2026-11-19T00:04:56Z',changes:['Enemies hold their position while attacking Snowman. Knockback beyond 30 units interrupts the hold.']},
