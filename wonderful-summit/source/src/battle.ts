@@ -1,8 +1,8 @@
 import {COMBAT_LANE_Y,FILA_FOOT_Y,combatLane,enemyFootOffset,laneContactReach,placeLaneArrivals,spaceLaneEnemies,type CombatLane} from './combatLanes.ts';
 import {
- GUARDIAN_SHOT_FLIGHT_SECONDS,GUARDIAN_ATTACK_INTERVAL,GUARDIAN_CONTACT_DISTANCE,GUARDIAN_COOLDOWN,
+ GUARDIAN_SHOT_FLIGHT_SECONDS,GUARDIAN_CONTACT_DISTANCE,GUARDIAN_COOLDOWN,
  GUARDIAN_DAMAGE_TAKEN,GUARDIAN_ENEMY_COOLDOWN,GUARDIAN_FAINT_LIFETIME,GUARDIAN_MAX_CONTACT_REACH,
- GUARDIAN_MAX_DISTANCE,GUARDIAN_SPEED,guardianAttackRange,guardianBoostMultiplier,guardianStats,isGuardianSpell,snowballKnockback,type Guardian,type GuardianSpell,
+ GUARDIAN_MAX_DISTANCE,GUARDIAN_SPEED,guardianAttackInterval,guardianAttackRange,guardianBoostMultiplier,guardianKnockback,guardianStats,isGuardianSpell,type Guardian,type GuardianSpell,
 } from './guardian.ts';
 import {playerMaxHealth} from './playerHealth.ts';
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
@@ -75,7 +75,7 @@ export function elementalMatchup(element:Element,target:Enemy['element']){
 }
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
 export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellDamage({...target,rocky:false,shield:null,goblinKing:false},60,'water',damageBonus,upgrade,time)*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time)*kingDamageMultiplier(target,quality);}if(spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?(1.265*.95):spellId==='wave'?.9:spellId==='leaf'?.75:1;const precision=isGuardianSpell(spellId)||['thistleBush','water','fire','nature'].includes(spellId)?1e6:1;return Math.round(precision*(isNearSpell(spellId)?nearDamage(spellId,quality,upgrade):spellId==='ender'?(Number.isFinite(quality)&&quality>=MIN_CAST_QUALITY?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)&&spellId!=='thistleBush'?Math.max(0,Math.min(1,upgrade)):0)*damageUpgradeBonus(spellId))*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*(spellId==='sneakyVine'?1:shieldProtection(target.shield,time))*kingDamageMultiplier(target,quality))/precision;}
-export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,false)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time)*(goblinKing?kingSpellMultiplier(quality):1);}if(spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm'||spellId==='scorchy')return 0;const base=spellId==='snowman'?snowballKnockback(quality,upgrade):isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=MIN_CAST_QUALITY&&quality<60?40+14*(quality-45)/14:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?kingSpellMultiplier(quality):1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
+export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,false)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time)*(goblinKing?kingSpellMultiplier(quality):1);}if(spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm')return 0;const base=isGuardianSpell(spellId)?guardianKnockback(spellId,quality,upgrade):isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=MIN_CAST_QUALITY&&quality<60?40+14*(quality-45)/14:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?kingSpellMultiplier(quality):1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 // Rain retains fractional damage so small elemental/rock/shield reductions remain meaningful.
 export function amuletDamageMultiplier(quality:number,id:SpellId,amulets:Battle['amulets']){
  if(!Number.isFinite(quality)||quality<60)return 1;
@@ -577,7 +577,7 @@ function advanceGuardian(state:Battle,spellId:GuardianSpell):Battle{
    const ignited=shield!==e.shield;
    const distance=spellKnockback(guardian.quality,spellId,state.pushBonus,e.element,e.rocky,e.shield,time,guardian.upgrade,kingHasCrown(e));
    const push=extendEnemyKnockback(state,e,distance);
-   return {...e,hp,shield,hurtUntil:time+.25,push:hp===0||ignited?null:push,attackAt:hp===0||ignited?null:e.attackAt};
+   return {...e,hp,shield,hurtUntil:time+.25,push:hp===0?null:push,attackAt:hp===0||ignited?null:e.attackAt};
   });
   return resolveMother({...state,enemies,[spellId]:{...guardian,shot:null}});
  }
@@ -588,5 +588,5 @@ function advanceGuardian(state:Battle,spellId:GuardianSpell):Battle{
   .sort((a,b)=>Math.abs(a.x-guardian.x)-Math.abs(b.x-guardian.x)||a.id-b.id)[0];
  if(!target)return state;
  const nextShot={x:guardian.x,targetId:target.id,started:time};
- return {...state,[spellId]:{...guardian,nextShotAt:time+GUARDIAN_ATTACK_INTERVAL[spellId],shot:nextShot}};
+ return {...state,[spellId]:{...guardian,nextShotAt:time+guardianAttackInterval(spellId,guardian.upgrade),shot:nextShot}};
 }

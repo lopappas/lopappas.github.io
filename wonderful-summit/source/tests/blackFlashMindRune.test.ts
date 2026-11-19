@@ -37,7 +37,7 @@ test('guardian casts and projectile hits leave Black Flash and its existing chai
  const never=()=>{throw new Error('guardian cast rolled Black Flash');};
  const summoned=launchSpell(launchSpell(ready,80,'#fff','snowman',0,never),80,'#fff','scorchy',0,never);
  const impact=advance(summoned,.35);
- assert.equal(impact.enemies[0].hp,1000-16-19.2);
+ assert.equal(impact.enemies[0].hp,1000-16-21.12);
  assert.deepEqual(impact.blackFlash,blackFlash);
  assert.deepEqual(impact.blackFlashBurst,blackFlashBurst);
 });

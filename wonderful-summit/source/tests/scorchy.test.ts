@@ -33,8 +33,8 @@ test('the S1 lesson keeps the eye corners aligned to the grin and recognizes Sco
  assert.ok(result.quality>=80);
 });
 
-test('Scorchy fires at 40 units, waits 1.5 seconds, and deals 20% more Fire damage without knockback',()=>{
- for(const [element,damage] of [['Nature',28.8],['Fire',9.6],['Water',14.4]] as const){
+test('Scorchy fires at 40 units every 1.5 seconds with stronger Fire damage and a small push',()=>{
+ for(const [element,damage] of [['Nature',31.68],['Fire',10.56],['Water',15.84]] as const){
   const field=newBattle('active');
   field.enemies[0].element=element;
   field.enemies[0].x=CONTACT_X+40;
@@ -47,12 +47,40 @@ test('Scorchy fires at 40 units, waits 1.5 seconds, and deals 20% more Fire dama
   assert.equal(battle.scorchy?.x,CONTACT_X);
   battle=advance(battle,.28);
   assert.equal(battle.enemies[0].hp,100-damage);
-  assert.equal(battle.enemies[0].push,null);
-  assert.equal(spellKnockback(80,'scorchy'),0);
+  const push=battle.enemies[0].push!;
+  assert.ok(Math.abs(push.to-push.from-spellKnockback(80,'scorchy',1,element))<1e-8);
   battle=advance(battle,1.21);
   assert.equal(battle.scorchy?.shot,null);
   assert.ok(advance(battle,.01).scorchy?.shot);
  }
+});
+
+test('Scorchy knockback scales with cast quality and Scorchy+ attacks 15% more often',()=>{
+ const knockback=(quality:number,upgrade=0)=>spellKnockback(quality,'scorchy',1,'Neutral',false,null,0,upgrade);
+ assert.equal(knockback(44),0);
+ assert.equal(knockback(45),3);
+ assert.equal(knockback(100),5);
+ assert.equal(knockback(45,1),4);
+ assert.equal(knockback(100,1),8);
+ assert.ok(knockback(80)>knockback(60));
+ assert.ok(knockback(80,1)>knockback(60,1));
+ const expectedInterval=1.5/1.15;
+ const preview=spellUpgradePreview('scorchy');
+ assert.deepEqual(preview?.guardianKnockback,{current:'3–5',next:'4–8'});
+ assert.deepEqual(preview?.shotInterval,{current:1.5,next:expectedInterval});
+
+ const field=newBattle('active');
+ field.upgrades.scorchy=1;
+ Object.assign(field.enemies[0],{element:'Neutral',x:CONTACT_X+20});
+ const first=advance(summon(field),.01);
+ assert.ok(Math.abs(first.scorchy!.nextShotAt-first.time-expectedInterval)<1e-9);
+ const hit=advance(first,.28);
+ assert.equal(hit.enemies[0].hp,100-23.232);
+ const push=hit.enemies[0].push!;
+ assert.ok(Math.abs(push.to-push.from-knockback(80,1))<1e-8);
+ const before=advance(hit,1.02);
+ assert.equal(before.scorchy?.shot,null);
+ assert.ok(advance(before,.01).scorchy?.shot);
 });
 
 test('guardian upgrades extend the exact firing boundary by ten units',()=>{
@@ -103,7 +131,7 @@ test('Scorchy inherits half of the Fire-specific amulet bonus and upgrades like 
  field.upgrades.scorchy=1;
  const battle=advance(summon(field),.29);
  assert.equal(battle.scorchy?.hp,120);
- assert.equal(battle.enemies[0].hp,100-22.704);
+ assert.equal(battle.enemies[0].hp,100-24.9744);
  assert.deepEqual(spellUpgradePreview('scorchy')?.guardianHealth,{current:75,next:90});
 });
 
@@ -117,18 +145,19 @@ test('Scorchy fireballs ignite wooden shields on impact and leave armor active u
 
  const impact=advance(flying,.01);
  const burning=impact.enemies[0];
- assert.equal(burning.hp,100-4.8);
+ assert.equal(burning.hp,100-5.28);
  assert.equal(burning.shield?.burnUntil,impact.time+SHIELD_BURN_SECONDS);
  assert.equal(burning.burn,null);
- assert.equal(burning.push,null);
+ const push=burning.push!;
+ assert.ok(Math.abs(push.to-push.from-spellKnockback(80,'scorchy',1,'Fire',false,burning.shield,impact.time))<1e-8);
 
  const next=advance(impact,1.5);
  assert.equal(next.enemies[0].shield?.burnUntil,burning.shield?.burnUntil);
- assert.ok(Math.abs(next.enemies[0].hp-(100-9.6))<1e-8);
+ assert.ok(Math.abs(next.enemies[0].hp-(100-10.56))<1e-8);
  assert.equal(next.enemies[0].clock,burning.clock);
  assert.equal(advance(next,.5).enemies[0].shield,null);
 
  const unarmored=advance(next,1.5);
  assert.equal(unarmored.enemies[0].shield,null);
- assert.ok(Math.abs(unarmored.enemies[0].hp-(100-19.2))<1e-8);
+ assert.ok(Math.abs(unarmored.enemies[0].hp-(100-21.12))<1e-8);
 });
