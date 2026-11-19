@@ -1,7 +1,7 @@
 import {playerMaxHealth} from './playerHealth.ts';
 import {MIN_CAST_QUALITY} from './quality.ts';
 import {pickByRarity,type RelicRarity,type SpellRarity} from './rarity.ts';
-import {rollTrailEvent,forgottenCampsiteOutcome,heartRockReward,type TrailEventState} from './events.ts';
+import {rollTrailEvent,forgottenCampsiteOutcome,heartRockReward,type TrailEventId,type TrailEventState} from './events.ts';
 import {worstDrawing,bestDrawing,type PlayerDrawing} from './drawings.ts';
 import {SPELLS,PLAYER_SPELLS,isUpgradableSpell,type SpellId} from './magic.ts';
 import {newBattle,COMMON_POTIONS,RARE_POTIONS,SHOP_POTIONS,potionPrice,rollRewardPotion,POTION_IDS,type BottledSpell,type PotionCounts,type Battle,type Potion,type Encounter} from './battle.ts';
@@ -20,7 +20,7 @@ export function encounterGold(node:number,random:()=>number=Math.random){
 export type RunScreen='opening'|'menu'|'tutorial'|'sister'|'map'|'battle'|'rewards'|'shop'|'camp'|'event'|'complete'|'defeat';
 export type Stock={id:string;kind:'spell'|'potion'|'relic'|'randomSpell';item:SpellId|Potion|RelicId|'randomSpell';price:number;sold:boolean};
 export type Reward={spellSkipped?:boolean;gold:number;potion:Potion|null;offers:SpellId[];relic:RelicId|null;goldClaimed:boolean;potionStatus:'pending'|'collected'|'skipped';relicClaimed:boolean;learned:SpellId|null};
-export type Run={maxHealth?:number;playMode?:'apprentice'|'expert';bossEncounter?:'mother'|'goblinKing';pendingSpellOffers?:SpellId[];reviewedSpells:SpellId[];keepsakeOffers:RelicId[];wonderfulSpells:SpellId[];stellarReady:boolean;developerTrailUnlocked:boolean;event:TrailEventState|null;bestDrawing:PlayerDrawing|null;worstDrawing:PlayerDrawing|null;shaleContacts:number;screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
+export type Run={maxHealth?:number;playMode?:'apprentice'|'expert';bossEncounter?:'mother'|'goblinKing';trailEventId?:TrailEventId;pendingSpellOffers?:SpellId[];reviewedSpells:SpellId[];keepsakeOffers:RelicId[];wonderfulSpells:SpellId[];stellarReady:boolean;developerTrailUnlocked:boolean;event:TrailEventState|null;bestDrawing:PlayerDrawing|null;worstDrawing:PlayerDrawing|null;shaleContacts:number;screen:RunScreen;node:number;health:number;gold:number;combats:number;spells:SpellId[];upgrades:Partial<Record<SpellId,number>>;relics:RelicId[];potions:PotionCounts;bottledSpells:BottledSpell[];pendingBottle:boolean;furyReady:boolean;reward:Reward|null;stock:Stock[];campUsed:boolean};
 export function newRun():Run{return{pendingSpellOffers:[],reviewedSpells:[...BEGINNER_SPELLS],keepsakeOffers:[],wonderfulSpells:[],stellarReady:false,developerTrailUnlocked:false,event:null,bestDrawing:null,worstDrawing:null,shaleContacts:0,screen:'opening',node:0,health:100,gold:0,combats:0,spells:[...BEGINNER_SPELLS],upgrades:{},relics:['filadoraRobes'],potions:{theodoraHeal:1,heal:0,freeze:0,ink:0},bottledSpells:[],pendingBottle:false,furyReady:false,reward:null,stock:[],campUsed:false};}
 export function finishOpening(run:Run):Run{return run.screen==='opening'?{...run,screen:'menu'}:run;}
 export function rollKeepsakeOffers(random:()=>number=Math.random):RelicId[]{
@@ -38,7 +38,11 @@ const pickSpell=(items:SpellId[],random:()=>number)=>pickByRarity(items,spellRar
 const pickRelic=(items:RelicId[],random:()=>number)=>pickByRarity(items,id=>RELICS[id].rarity,RELIC_WEIGHTS,random);
 export function spellPrice(id:SpellId){return spellRarity(id)==='Legendary'?150:spellRarity(id)==='Uncommon'?100:45;}
 export function relicPrice(id:RelicId){return {Common:50,Uncommon:70,Rare:85,Keepsake:45,Starter:0}[RELICS[id].rarity];}
-export function startRun(run:Run,relic:RelicId,random:()=>number=Math.random):Run{if(run.screen!=='sister'||!run.keepsakeOffers.includes(relic))return run;return acquireRelic({...run,bossEncounter:random()<.5?'mother':'goblinKing',screen:'map',spells:[...BEGINNER_SPELLS],relics:['filadoraRobes']},relic,random);}
+export function startRun(run:Run,relic:RelicId,random:()=>number=Math.random):Run{
+ if(run.screen!=='sister'||!run.keepsakeOffers.includes(relic))return run;
+ const next=acquireRelic({...run,bossEncounter:random()<.5?'mother':'goblinKing',screen:'map',spells:[...BEGINNER_SPELLS],relics:['filadoraRobes']},relic,random);
+ return {...next,trailEventId:rollTrailEvent(random).id};
+}
 export function potionCapacity(run:Pick<Run,'relics'>){return run.relics.includes('birkinStock')?5:3;}
 // Expand every bottle into a separate slot, including duplicate potion types.
 export function potionSlots(potions:PotionCounts,capacity:number):(Potion|null)[]{const bottles=POTION_IDS.flatMap(id=>Array.from({length:potions[id]??0},()=>id));return [...bottles,...Array.from({length:Math.max(0,capacity-bottles.length)},()=>null)];}
@@ -47,7 +51,10 @@ export function enterNode(run:Run,random:()=>number=Math.random):Run{
  if(run.pendingBottle||(run.pendingSpellOffers?.length??0)>0||run.screen!=='map'||run.node>=ROUTE.length)return run;
  const node=ROUTE[run.node];
  if(node.kind==='battle')return{...run,screen:'battle'};
- if(node.kind==='event')return{...run,screen:'event',event:rollTrailEvent(random),campUsed:false};
+ if(node.kind==='event'){
+  const event:TrailEventState=run.trailEventId?{id:run.trailEventId,outcome:'pending'}:rollTrailEvent(random);
+  return {...run,screen:'event',trailEventId:event.id,event,campUsed:false};
+ }
  if(node.kind==='camp')return{...run,screen:'camp',campUsed:false};
  const allRelics=(Object.keys(RELICS) as RelicId[]).filter(id=>relicCanDrop(run,id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));
  // Relics prefer unowned items; each merchant has one sealed spell offer.

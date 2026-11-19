@@ -13,7 +13,9 @@ Updated: 2026-11-19
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.70): Heart Rock and Forgotten Campsite each have a 50% chance in the Act 1 random event slot. Heart Rock shows a pink heart trace for 1.25 seconds and gives one completed casting attempt. Quality below 50% gives no reward. Each 10-point band from 50% to 100% grants 5, 10, 15, 20, or 25 max HP and the same current HP. Version History now shows confirmed model names only, including GPT-6.2 Sol for 0.3.63.
+Latest update (version 0.3.71): Heart Rock waits for Ready before enabling its canvas and showing the 1.25-second heart trace. The trace is 12% thicker and the canvas has no clear button. The Developer Panel lists the event chosen at the start of the run. Normal entry and developer travel both use that selection.
+
+Heart Rock and Forgotten Campsite each have a 50% chance in the Act 1 random event slot. Heart Rock gives one completed casting attempt. Quality below 50% gives no reward. Each 10-point band from 50% to 100% grants 5, 10, 15, 20, or 25 max HP and the same current HP. Version History shows confirmed model names, including GPT-6.2 Sol for 0.3.63.
 
 Guardian projectiles render over enemies. Firestorm rain samples battle time at 60 Hz. Spells hides drawn ink until its picker closes. Practice uses the shared picker, Apprentice traces, and optional drawing lessons.
 

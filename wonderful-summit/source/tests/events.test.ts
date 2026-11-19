@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {ACT_ONE_EVENTS,forgottenCampsiteOutcome,HEART_TRACE_PATH,heartRockQuality,heartRockReward,trailEventDescription} from '../src/events.ts';
-import {ROUTE,newRun,enterNode,castHeartRock,castTrailEvent,camp,leaveNode,battleForRun,type Run} from '../src/run.ts';
+import {ROUTE,newRun,startRun,enterNode,selectTrailNode,unlockDeveloperTrail,castHeartRock,castTrailEvent,camp,leaveNode,battleForRun,type Run} from '../src/run.ts';
 import {SPELLS,recognize,shape} from '../src/magic.ts';
 import {snapshotDrawing} from '../src/drawings.ts';
 const eventNode=ROUTE.findIndex(n=>n.kind==='event');
@@ -12,6 +12,21 @@ test('the random event slot equally splits Heart Rock and Forgotten Campsite aft
  const r=visit();assert.equal(r.screen,'event');assert.deepEqual(r.event,{id:'forgottenCampsite',outcome:'pending'});assert.equal(r.campUsed,false);assert.equal(enterNode(r),r);
  assert.equal(visit(.49999).event?.id,'forgottenCampsite');
  for(const roll of [.5,.99,1])assert.deepEqual(visit(roll).event,{id:'heartRock',outcome:'pending'});
+});
+test('starting a run assigns one event shared by normal entry and developer travel',()=>{
+ const sister:Run={...newRun(),screen:'sister',keepsakeOffers:['amber']};
+ for(const [roll,id] of [[.49,'forgottenCampsite'],[.5,'heartRock']] as const){
+  const run=startRun(sister,'amber',()=>roll);
+  assert.equal(run.trailEventId,id);
+  const unexpectedRoll=()=>{throw new Error('Entering the node must reuse the run event');};
+  const entered=enterNode({...run,node:eventNode},unexpectedRoll);
+  const jumped=selectTrailNode(unlockDeveloperTrail(run),eventNode,unexpectedRoll);
+  for(const eventRun of [entered,jumped]){
+   assert.deepEqual(eventRun.event,{id,outcome:'pending'});
+   assert.equal(leaveNode(eventRun).trailEventId,id);
+  }
+ }
+ assert.equal(newRun().trailEventId,undefined);
 });
 test('fire quality boundaries, non-fire spells and fizzles resolve to the specified outcomes',()=>{
  for(const id of ['fire','bolt'] as const)for(const [q,outcome] of [[45,'spark'],[59,'spark'],[60,'fleeting'],[64,'fleeting'],[65,'lit'],[70,'lit'],[100,'lit']] as const)assert.equal(forgottenCampsiteOutcome(id,q),outcome);

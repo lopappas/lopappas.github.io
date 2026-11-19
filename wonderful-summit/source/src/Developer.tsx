@@ -8,9 +8,10 @@ import {SPELLS} from './magic';
 import {combatSpellColumns} from './combatTracePresentation';
 import {POTIONS,POTION_IDS} from './battle';
 import {RELICS,ROUTE} from './run';
+import {TRAIL_EVENTS,type TrailEventId} from './events';
 import {LessonText} from './LessonText';
 import {parseDeveloperCommand,type DeveloperCommand} from './developerCommands';
-type DeveloperTarget={execute:(command:DeveloperCommand)=>string|void;onOpen:()=>void;canTravel:()=>boolean};
+type DeveloperTarget={execute:(command:DeveloperCommand)=>string|void;onOpen:()=>void;canTravel:()=>boolean;trailEvent:()=>TrailEventId|undefined};
 const spellGroups=combatSpellColumns(SPELLS.map(spell=>spell.id));
 const quickActions=[
  {type:'gold',label:'+1000 gold',emoji:'🪙'},
@@ -26,10 +27,19 @@ export function DeveloperProvider({children}:{children:ReactNode}){
  const allowed=true;
  const [spellDetailsEnabled,setSpellDetailsEnabled]=useState(false);
  const [open,setOpen]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[trailAvailable,setTrailAvailable]=useState(false);
+ const [runEvent,setRunEvent]=useState<TrailEventId>();
  const targets=useRef(new Map<number,DeveloperTarget>()),dialog=useRef<HTMLElement>(null);
  useEffect(()=>{if(!open)return;const previous=document.activeElement as HTMLElement|null;dialog.current?.querySelector<HTMLButtonElement>('button')?.focus({preventScroll:true});const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();setOpen(false);}if(e.key==='Tab'){const items=Array.from(dialog.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')??[]),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus({preventScroll:true});};},[open]);
  async function grant(command:DeveloperCommand){if(busy)return;setBusy(true);setMessage('');try{const verified=parseDeveloperCommand(command);if(!verified)throw new Error('Invalid command.');const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];if(!target)throw new Error('No active game.');const response=target.execute(verified);if(verified.type==='travel'&&!response)setOpen(false);setMessage(response??successMessages[verified.type]);}catch(error){setMessage(error instanceof Error?error.message:'Please try again.');}finally{setBusy(false);}}
- function show(){const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];const travel=!!target?.canTravel();if(travel)target?.onOpen();setTrailAvailable(travel);setMessage('');setOpen(true);}
+ function show(){
+  const activeTargets=[...targets.current.entries()].sort((a,b)=>b[0]-a[0]).map(([,target])=>target);
+  const target=activeTargets[0],travel=!!target?.canTravel();
+  if(travel)target?.onOpen();
+  setTrailAvailable(travel);
+  setRunEvent(activeTargets.map(target=>target.trailEvent()).find(Boolean));
+  setMessage('');
+  setOpen(true);
+ }
  return <Context.Provider value={{allowed,open:show,targets:targets.current,spellDetailsEnabled}}>
   {children}<PerformanceMonitor/>
   {open&&allowed&&createPortal(<div className="modal-backdrop developer-backdrop" onClick={()=>setOpen(false)}>
@@ -44,6 +54,7 @@ export function DeveloperProvider({children}:{children:ReactNode}){
       <button type="button" className="primary-small" disabled={busy} onClick={()=>void grant({type:'grantAllSpells'})}>Grant all spells</button>
       <button type="button" className="primary-small" aria-pressed={spellDetailsEnabled} onClick={()=>setSpellDetailsEnabled(enabled=>!enabled)}>Spell details</button>
      </div>
+     {runEvent&&<p className="developer-run-event">Run event <span aria-hidden="true">{TRAIL_EVENTS[runEvent].emoji}</span> <strong>{TRAIL_EVENTS[runEvent].name}</strong></p>}
      <p className="developer-status" role="status">{message}</p>
      {trailAvailable&&<><h3>Trail encounters</h3><div className="developer-options">{ROUTE.map((node,index)=><button key={index} disabled={busy} onClick={()=>void grant({type:'travel',node:index})}>{index+1}. {node.name}</button>)}</div></>}
      <h3>Spells</h3>
@@ -59,7 +70,7 @@ export function DeveloperProvider({children}:{children:ReactNode}){
  </Context.Provider>;
 }
 export function useSpellDetailsEnabled(){return useContext(Context)?.spellDetailsEnabled??false;}
-export function useDeveloperTarget(handler:(command:DeveloperCommand)=>string|void,priority=0,options?:{onOpen:()=>void;canTravel:boolean}){const context=useContext(Context),ref=useRef(handler),optionsRef=useRef(options);ref.current=handler;optionsRef.current=options;const targets=context?.targets;useEffect(()=>{if(!targets)return;const target:DeveloperTarget={execute:c=>ref.current(c),onOpen:()=>optionsRef.current?.onOpen(),canTravel:()=>!!optionsRef.current?.canTravel};targets.set(priority,target);return()=>{if(targets.get(priority)===target)targets.delete(priority);};},[targets,priority]);}
+export function useDeveloperTarget(handler:(command:DeveloperCommand)=>string|void,priority=0,options?:{onOpen:()=>void;canTravel:boolean;trailEventId?:TrailEventId}){const context=useContext(Context),ref=useRef(handler),optionsRef=useRef(options);ref.current=handler;optionsRef.current=options;const targets=context?.targets;useEffect(()=>{if(!targets)return;const target:DeveloperTarget={execute:c=>ref.current(c),onOpen:()=>optionsRef.current?.onOpen(),canTravel:()=>!!optionsRef.current?.canTravel,trailEvent:()=>optionsRef.current?.trailEventId};targets.set(priority,target);return()=>{if(targets.get(priority)===target)targets.delete(priority);};},[targets,priority]);}
 export function useDeveloperHold(onClick:()=>void){
  const context=useContext(Context),hold=useRef(new HoldGesture()),start=useRef({x:0,y:0});
  const cancel=()=>hold.current.cancel();

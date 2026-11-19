@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.3.71',publishedAt:'2026-11-19T20:52:55Z',changes:['Heart Rock shows its thicker trace after you tap Ready.','The Developer Panel shows the trail event selected for the current run.']},
  {version:'0.3.70',publishedAt:'2026-11-19T20:33:53Z',changes:['Added Heart Rock, a trail event where drawing a heart can increase your maximum and current health.','Version History shows specific model names when recorded.']},
  {version:'0.3.63',publishedAt:'2026-11-19T20:01:48Z',model:'GPT-6.2 Sol',changes:['Snowman snowballs and Scorchy fireballs appear in front of enemies. Firestorm rain animates at 60 FPS.','Opening Spells hides the drawing until the picker closes. Practice uses the Spells picker with Apprentice traces.','Version History shows the recorded model and reasoning effort.']},
  {version:'0.3.62',publishedAt:'2026-11-19T19:21:56Z',changes:['Rebalanced Constellation at every cast quality. Constellation+ adds 3 armor.','The pixel witch hat settles at 20% opacity and stays in the sky. The popup shows damage and knockback bonuses.']},

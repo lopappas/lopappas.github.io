@@ -37,7 +37,7 @@ test('recognition-only variation keeps all canonical spellbook and perfect-trace
 });
 test('recognized variation works in the campsite and bottle without replacing the player drawing',()=>{
  const strokes=equilateral(),match=recognize(strokes,newRun().spells),drawing=snapshotDrawing(match.spell!.id,match.quality,strokes,300,240);
- const event=enterNode({...newRun(),screen:'map',node:ROUTE.findIndex(n=>n.kind==='event')});const lit=castTrailEvent(event,match.spell!.id,match.quality,drawing);assert.equal(lit.event?.outcome,'lit');assert.deepEqual(lit.bestDrawing?.strokes,strokes);
+ const event=enterNode({...newRun(),screen:'map',node:ROUTE.findIndex(n=>n.kind==='event')},()=>0);const lit=castTrailEvent(event,match.spell!.id,match.quality,drawing);assert.equal(lit.event?.outcome,'lit');assert.deepEqual(lit.bestDrawing?.strokes,strokes);
  const bottle=sealBottle({...newRun(),pendingBottle:true},{spellId:match.spell!.id,quality:match.quality,drawing});assert.equal(bottle.bottledSpells[0].spellId,'fire');assert.equal(bottle.bottledSpells[0].quality,100);assert.deepEqual(bottle.bottledSpells[0].drawing?.strokes,strokes);
 });
 test('steeper Little Sprout variation keeps the canonical book sigil and scores as one spell at every size and stroke order',()=>{

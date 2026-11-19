@@ -59,7 +59,7 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
  const [discoveries,setDiscoveries]=useState<Discoveries>({});
  const [run,setRun]=useState<Run>(()=>newRun()),[relic,setRelic]=useState<RelicId>('amber'),[replacingPotion,setReplacingPotion]=useState(false),[bottleReturning,setBottleReturning]=useState(false);
  useEffect(()=>{if(run.screen!=='menu')setModeSelection(false);},[run.screen]);
- useDeveloperTarget(command=>{const next=applyDeveloperCommand(run,command);setRun(next);if(next===run&&command.type==='potion')return 'Purse is full.';if(next===run&&command.type==='travel')return 'Return to the trail and finish any bottle first.';},0,{canTravel:run.screen==='map'&&!run.pendingBottle,onOpen:()=>setRun(unlockDeveloperTrail)});
+ useDeveloperTarget(command=>{const next=applyDeveloperCommand(run,command);setRun(next);if(next===run&&command.type==='potion')return 'Purse is full.';if(next===run&&command.type==='travel')return 'Return to the trail and finish any bottle first.';},0,{canTravel:run.screen==='map'&&!run.pendingBottle,trailEventId:run.trailEventId??run.event?.id,onOpen:()=>setRun(unlockDeveloperTrail)});
  const contentRef=useRef<HTMLDivElement>(null),introducedActs=useRef(new Set<number>());
  const [introAct,setIntroAct]=useState<number|null>(null);
  const update=(fn:(r:Run)=>Run,sound?:UISound)=>{const next=fn(run);if(next===run)return;setRun(next);if(run.screen!=='battle'&&run.relics.includes('perfectedSphere')&&!next.relics.includes('perfectedSphere'))playUISound('shatter');else if(sound)playUISound(sound);};

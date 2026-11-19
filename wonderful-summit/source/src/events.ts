@@ -7,8 +7,8 @@ export type TrailEventState=
  | {id:'forgottenCampsite';outcome:CampsiteOutcome;quality?:number}
  | {id:'heartRock';outcome:'pending'|'blessed'|'noEffect';quality?:number};
 export const TRAIL_EVENTS={
- forgottenCampsite:{name:'Forgotten Campsite',description:'You find yourself in a long abandoned campsite. Hmmm... Maybe we can light it up once more?'},
- heartRock:{name:'Heart Rock',description:'A smooth rock rests quietly among the pines. You instinctively reach for your quill and ink, as if in a trance. Draw and cast a heart.'},
+ forgottenCampsite:{name:'Forgotten Campsite',emoji:'🏕️',description:'You find yourself in a long abandoned campsite. Hmmm... Maybe we can light it up once more?'},
+ heartRock:{name:'Heart Rock',emoji:'🪨',description:'A smooth rock rests quietly among the pines. You instinctively reach for your quill and ink, as if in a trance.'},
 } as const;
 export const ACT_ONE_EVENTS:TrailEventId[]=['forgottenCampsite','heartRock'];
 
