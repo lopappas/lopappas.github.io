@@ -1,7 +1,7 @@
 import React,{memo} from 'react';
 import {enemyArtY,type Battle} from './battle';
 import {CENTER_LANE,COMBAT_LANE_Y,FILA_ART_SCALE,FILA_SPRITE_HEIGHT} from './combatLanes';
-import {GUARDIAN_SHOT_FLIGHT_SECONDS,GUARDIAN_FADE_SECONDS,guardianStats} from './guardian';
+import {GUARDIAN_SHOT_FLIGHT_SECONDS,guardianStats} from './guardian';
 
 const GROUND_Y=COMBAT_LANE_Y[CENTER_LANE];
 const BODY_OFFSET_X=-67;
@@ -16,10 +16,6 @@ const RIGHT_TWIG={
  followThrough:'M24-24h9v3h8v-3h7v-4h5',
 };
 const COAL_SMILE=[[-12,-51],[-7,-48.5],[-1.5,-47],[4,-48.5],[9.5,-51]];
-
-function meltProgress(expiresAt:number|null,time:number){
- return expiresAt===null?0:Math.max(0,Math.min(1,1-(expiresAt-time)/GUARDIAN_FADE_SECONDS));
-}
 
 const SnowmanBody=memo(function SnowmanBody({pose}:{pose:keyof typeof RIGHT_TWIG}){
  const arms=LEFT_TWIG+RIGHT_TWIG[pose];
@@ -48,22 +44,19 @@ export function SnowmanArt({battle}:{battle:Battle}){
  const guardian=battle.snowman;
  if(!guardian)return null;
  const {time,encounter}=battle;
- const melt=meltProgress(guardian.expiresAt,time);
  const maxHP=guardianStats('snowman',guardian.quality,guardian.upgrade).hp;
  const healthFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
- const hatY=(HAT_TOP_Y-FOOT_Y)*BODY_SCALE*(1-melt*.9);
+ const hatY=(HAT_TOP_Y-FOOT_Y)*BODY_SCALE;
  const shot=guardian.shot;
  const shotAge=shot?time-shot.started:Infinity;
  const pose=shotAge<.08?'flick':shotAge<.18?'followThrough':'idle';
  const target=shot&&battle.enemies.find(e=>e.id===shot.targetId&&e.hp>0);
  return <g pointerEvents="none" aria-label="Snowman guardian">
   <g transform={`translate(${guardian.x+BODY_OFFSET_X} ${GROUND_Y})`}>
-   <ellipse rx={30+melt*16} ry={4+melt*3} fill="#8ebdd8" opacity={.28+melt*.45}/>
-   <g transform={`scale(1 ${1-melt*.9})`} opacity={1-melt}>
-    <SnowmanBody pose={pose}/>
-    {guardian.hurtUntil>time&&<path d="M47-50h10m-11-10 6-6m-5 24 6 6" fill="none" stroke="#f8f4ff" strokeWidth="3"/>}
-   </g>
-   <g transform={`translate(0 ${hatY-12})`} opacity={1-melt} role="meter" aria-label="Snowman health" aria-valuemin={0} aria-valuemax={maxHP} aria-valuenow={guardian.hp}>
+   <ellipse rx="30" ry="4" fill="#8ebdd8" opacity=".28"/>
+   <SnowmanBody pose={pose}/>
+   {guardian.hurtUntil>time&&<path d="M47-50h10m-11-10 6-6m-5 24 6 6" fill="none" stroke="#f8f4ff" strokeWidth="3"/>}
+   <g transform={`translate(0 ${hatY-12})`} role="meter" aria-label="Snowman health" aria-valuemin={0} aria-valuemax={maxHP} aria-valuenow={guardian.hp}>
     <rect x="-23" width="46" height="7" rx="2" fill="#233447" stroke="#dcecf7"/>
     <rect x="-21" y="2" width={42*healthFraction} height="3" rx="1" fill="#8be1f3"/>
    </g>
@@ -71,7 +64,7 @@ export function SnowmanArt({battle}:{battle:Battle}){
   {shot&&target&&(()=>{
    const t=Math.max(0,Math.min(1,shotAge/GUARDIAN_SHOT_FLIGHT_SECONDS));
    const fromX=shot.x+BODY_OFFSET_X+RELEASE_TIP.x*BODY_SCALE;
-   const fromY=GROUND_Y+(RELEASE_TIP.y-FOOT_Y)*BODY_SCALE*(1-meltProgress(guardian.expiresAt,shot.started)*.9);
+   const fromY=GROUND_Y+(RELEASE_TIP.y-FOOT_Y)*BODY_SCALE;
    const x=fromX+(target.x-fromX)*t;
    const y=fromY+(enemyArtY(target,encounter)-18-fromY)*t-90*t*(1-t);
    return <g transform={`translate(${x} ${y}) scale(2)`} shapeRendering="crispEdges" aria-label="Snowball">

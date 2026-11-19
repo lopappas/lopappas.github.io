@@ -1,7 +1,7 @@
 import React,{memo} from 'react';
 import {enemyArtY,MOTHER_SPLIT_SECONDS,type Battle} from './battle';
 import {CENTER_LANE,COMBAT_LANE_Y} from './combatLanes';
-import {GUARDIAN_FADE_SECONDS,GUARDIAN_SHOT_FLIGHT_SECONDS,guardianStats} from './guardian';
+import {SCORCHY_FADE_SECONDS,GUARDIAN_SHOT_FLIGHT_SECONDS,guardianStats} from './guardian';
 
 const GROUND_Y=COMBAT_LANE_Y[CENTER_LANE];
 const BODY_SCALE=3.5;
@@ -42,7 +42,7 @@ export function ScorchyArt({battle}:{battle:Battle}){
  const hoverY=GROUND_Y-17-55*separation;
  const bodyX=guardian.x+offsetX,bodyY=hoverY+bob(time,motherSplit);
  const facing=target&&target.x<bodyX?-1:1;
- const opacity=guardian.expiresAt===null?1:Math.max(0,Math.min(1,(guardian.expiresAt-time)/GUARDIAN_FADE_SECONDS));
+ const opacity=guardian.expiresAt===null?1:Math.max(0,Math.min(1,(guardian.expiresAt-time)/SCORCHY_FADE_SECONDS));
  const maxHP=guardianStats('scorchy',guardian.quality,guardian.upgrade).hp;
  const hpFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
 

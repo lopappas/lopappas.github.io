@@ -28,7 +28,7 @@ test('the Snowman lesson casts the new spell against the full recognition roster
 });
 
 test('Snowman walks slowly, stops 250 units ahead and lasts indefinitely at Steady or better',()=>{
- for(const [quality,hp] of [[60,112.5],[70,127.5],[80,150],[100,180]]){
+ for(const [quality,hp] of [[60,117.5],[70,132.5],[80,155],[100,185]]){
   const field=newBattle('active');field.enemies[0].spawnAt=100;
   let battle=summon(field,quality);
   assert.equal(battle.snowman?.hp,hp);
@@ -40,17 +40,16 @@ test('Snowman walks slowly, stops 250 units ahead and lasts indefinitely at Stea
  }
 });
 
-test('Faint Snowman expires at 20 active seconds and a recast replaces the existing summon',()=>{
+test('Faint Snowman stays indefinitely and a recast replaces the existing summon',()=>{
  const field=newBattle('active');field.enemies[0].spawnAt=100;
  const faint=summon(field,59);
- assert.equal(faint.snowman?.expiresAt,20);
- const nearlyMelted=advance(faint,19.99);
- assert.ok(nearlyMelted.snowman);
- assert.equal(advance(nearlyMelted,.01).snowman,null);
+ assert.equal(faint.snowman?.expiresAt,null);
+ const first=advance(faint,30);
+ assert.equal(first.snowman?.hp,117.5);
 
- const first=advance(summon(field),30);
  const replacement=summon(first,60);
- assert.equal(replacement.snowman?.hp,112.5);
+ assert.notEqual(replacement.snowman,first.snowman);
+ assert.equal(replacement.snowman?.hp,117.5);
  assert.equal(replacement.snowman?.x,CONTACT_X);
  assert.equal(replacement.casts,2);
 });
@@ -109,23 +108,23 @@ test('enemies hit Snowman immediately on contact and every 1.5 seconds without s
  // Keep the enemy at contact to measure its cooldown independently of snowball push.
  battle.snowman={...battle.snowman!,shot:null,nextShotAt:Infinity};
  const guardianX=battle.snowman!.x,enemyX=battle.enemies[0].x;
- assert.equal(battle.snowman?.hp,132);
+ assert.equal(battle.snowman?.hp,137);
  assert.equal(battle.enemies[0].guardianHitAt,.01);
  battle=advance(battle,1.49);
- assert.equal(battle.snowman?.hp,132);
+ assert.equal(battle.snowman?.hp,137);
  assert.equal(battle.enemies[0].x,enemyX);
  battle=advance(battle,.01);
- assert.equal(battle.snowman?.hp,114);
+ assert.equal(battle.snowman?.hp,119);
  assert.equal(battle.snowman?.x,guardianX);
  battle=advance(battle,1.5);
- assert.equal(battle.snowman?.hp,96);
+ assert.equal(battle.snowman?.hp,101);
  assert.equal(battle.snowman?.x,guardianX);
 });
 
 test('enemies can attack Snowman from separate lanes and resume marching when it falls',()=>{
  let battle=atContact(newBattle('active','pack',()=>.5));
  const guardianX=battle.snowman!.x;
- assert.equal(battle.snowman?.hp,114);
+ assert.equal(battle.snowman?.hp,119);
  assert.equal(battle.snowman?.x,guardianX);
  battle=advance(battle,8.3);
  assert.equal(battle.snowman,null);
@@ -168,23 +167,23 @@ test('knockback breaks contact and an enemy cannot hit again until it reaches Sn
  const pushed=hitWithSpell(boosted,80,'water',enemy.id);
  const waiting=advance({...pushed,pushBonus:strike.pushBonus},1.5);
  assert.ok(waiting.enemies[0].x>waiting.snowman!.x+8);
- assert.equal(waiting.snowman?.hp,132);
+ assert.equal(waiting.snowman?.hp,137);
  const resumed=advance(waiting,10);
- assert.ok((resumed.snowman?.hp??0)<132);
+ assert.ok((resumed.snowman?.hp??0)<137);
 });
 
 test('freeze pauses the enemy cooldown and a recast starts with full health',()=>{
  const strike=atContact();
  strike.snowman={...strike.snowman!,shot:null,nextShotAt:Infinity};
  const stopped=advance({...strike,freezeUntil:2},1.5);
- assert.equal(stopped.snowman?.hp,132);
+ assert.equal(stopped.snowman?.hp,137);
  assert.equal(stopped.enemies[0].clock,strike.enemies[0].clock);
- assert.equal(advance(stopped,1.98).snowman?.hp,132);
- assert.equal(advance(stopped,1.99).snowman?.hp,114);
+ assert.equal(advance(stopped,1.98).snowman?.hp,137);
+ assert.equal(advance(stopped,1.99).snowman?.hp,119);
 
  const replaced=summon({...strike,cooldownsDisabled:true});
- assert.equal(replaced.snowman?.hp,150);
- assert.equal(advance(replaced,1).snowman?.hp,150);
+ assert.equal(replaced.snowman?.hp,155);
+ assert.equal(advance(replaced,1).snowman?.hp,155);
 });
 
 test('snowballs apply Water matchups and rocky defenses to damage and knockback',()=>{
@@ -209,11 +208,11 @@ test('snowballs apply Water matchups and rocky defenses to damage and knockback'
 
 test('snowball knockback grows mildly with quality and preserves a stronger active push',()=>{
  assert.equal(spellKnockback(44,'snowman'),0);
- assert.equal(spellKnockback(45,'snowman'),12);
- assert.equal(spellKnockback(100,'snowman'),30);
+ assert.equal(spellKnockback(45,'snowman'),13);
+ assert.equal(spellKnockback(100,'snowman'),26);
  assert.equal(spellKnockback(45,'snowman',1,'Neutral',false,null,0,1),16);
- assert.equal(spellKnockback(100,'snowman',1,'Neutral',false,null,0,1),36);
- assert.deepEqual(spellUpgradePreview('snowman')?.guardianKnockback,{current:'12–30',next:'16–36'});
+ assert.equal(spellKnockback(100,'snowman',1,'Neutral',false,null,0,1),28);
+ assert.deepEqual(spellUpgradePreview('snowman')?.guardianKnockback,{current:'13–26',next:'16–28'});
  assert.ok(spellKnockback(80,'snowman')>spellKnockback(60,'snowman'));
  const field=newBattle('active');
  Object.assign(field.enemies[0],{element:'Neutral',x:CONTACT_X+25,hp:1000});
@@ -226,18 +225,19 @@ test('snowball knockback grows mildly with quality and preserves a stronger acti
  assert.strictEqual(impact.enemies[0].push,stronger.enemies[0].push);
 });
 
-test('Snowman gets 50% more base health before its upgrade',()=>{
+test('Snowman and Snowman+ get exactly five extra health at every successful quality',()=>{
  const samples=[
   [44.99,0,0],[45,55,9],[49.99,60,9],[50,60,10],[50.01,65,10],
   [59,75,11],[60,75,12],[69,85,13],[70,85,14],[75,90,15],
   [79,95,15],[80,100,16],[100,120,20],
  ];
  for(const [quality,hp,baseDamage] of samples){
-  assert.deepEqual(guardianStats('snowman',quality),{hp:hp*3/2,baseDamage});
-  assert.equal(guardianStats('snowman',quality,1).hp,hp*3/2*6/5);
+  const flatHealth=hp>0?5:0;
+  assert.deepEqual(guardianStats('snowman',quality),{hp:hp*3/2+flatHealth,baseDamage});
+  assert.equal(guardianStats('snowman',quality,1).hp,hp*3/2*6/5+flatHealth);
   assert.equal(spellDamage({element:'Neutral'},quality,'snowman',1,1),baseDamage*11/10);
  }
- assert.deepEqual(spellUpgradePreview('snowman')?.guardianHealth,{current:112.5,next:135});
+ assert.deepEqual(spellUpgradePreview('snowman')?.guardianHealth,{current:117.5,next:140});
 });
 
 test('Snowman inherits half the combined cast-time damage bonus, including Fury and relics',()=>{
@@ -252,7 +252,7 @@ test('Snowman inherits half the combined cast-time damage bonus, including Fury 
   assert.equal(ready.furyReady,true);
   const cast=summon(ready);
   assert.equal(cast.furyReady,false);
-  assert.equal(cast.snowman?.hp,upgrade?180:150);
+  assert.equal(cast.snowman?.hp,upgrade?185:155);
   const hit=advance(cast,.29);
   assert.ok(Math.abs(100-hit.enemies[0].hp-damage)<1e-8);
  }
