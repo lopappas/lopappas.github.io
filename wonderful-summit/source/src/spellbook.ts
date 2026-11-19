@@ -1,5 +1,6 @@
 import {SPELLS,damageUpgradeBonus,isUpgradableSpell,type Element,type SpellId} from './magic.ts';
 import {firestormBaseDamage} from './firestorm.ts';
+import {constellationBonus} from './constellation.ts';
 import {MIN_CAST_QUALITY} from './quality.ts';
 import {guardianAttackInterval,guardianAttackRange,guardianBoostMultiplier,guardianKnockback,guardianStats,isGuardianSpell} from './guardian.ts';
 import {thistleStats} from './nearSpells.ts';
@@ -24,5 +25,6 @@ export function spellUpgradePreview(spellId:SpellId,level=0,damageBonus=1){
  const shotInterval=spellId==='scorchy'?{current:guardianAttackInterval(spellId,level),next:guardianAttackInterval(spellId,level+1)}:null;
  const damageBonusPercent=Math.round(damageUpgradeBonus(spellId)*1000)/10;
  const previewDamageBonus=guardianHealth?guardianBoostMultiplier(damageBonus):damageBonus;
- return{guardianHealth,guardianRange,guardianKnockback:guardianPush,shotInterval,alchemy:spellId==='alchemize',leaf:spellId==='leaf',currentThreshold:thistleStats(60,level).budget,nextThreshold:thistleStats(60,level+1).budget,knockback,currentKnockback:spellKnockback(60,spellId,1,'Neutral',false,null,0,level),nextKnockback:spellKnockback(60,spellId,1,'Neutral',false,null,0,level+1),thistle:spellId==='thistleBush',bog:spellId==='bog',firestorm:spellId==='firestorm',currentTick:firestormBaseDamage(level),nextTick:firestormBaseDamage(level+1),duration,currentName:spellName(spellId,level),nextName:spellName(spellId,level+1),currentBonus:level*(knockback?20:duration?12:damageBonusPercent),nextBonus:(level+1)*(knockback?20:duration?12:damageBonusPercent),currentDamage:spellDamage({element:'Neutral'},60,spellId,previewDamageBonus,level),nextDamage:spellDamage({element:'Neutral'},60,spellId,previewDamageBonus,level+1)};
+ const constellation=spellId==='constellation'?{current:constellationBonus(60,level),next:constellationBonus(60,level+1)}:null;
+ return{constellation,guardianHealth,guardianRange,guardianKnockback:guardianPush,shotInterval,alchemy:spellId==='alchemize',leaf:spellId==='leaf',currentThreshold:thistleStats(60,level).budget,nextThreshold:thistleStats(60,level+1).budget,knockback,currentKnockback:spellKnockback(60,spellId,1,'Neutral',false,null,0,level),nextKnockback:spellKnockback(60,spellId,1,'Neutral',false,null,0,level+1),thistle:spellId==='thistleBush',bog:spellId==='bog',firestorm:spellId==='firestorm',currentTick:firestormBaseDamage(level),nextTick:firestormBaseDamage(level+1),duration,currentName:spellName(spellId,level),nextName:spellName(spellId,level+1),currentBonus:level*(knockback?20:duration?12:damageBonusPercent),nextBonus:(level+1)*(knockback?20:duration?12:damageBonusPercent),currentDamage:spellDamage({element:'Neutral'},60,spellId,previewDamageBonus,level),nextDamage:spellDamage({element:'Neutral'},60,spellId,previewDamageBonus,level+1)};
 }

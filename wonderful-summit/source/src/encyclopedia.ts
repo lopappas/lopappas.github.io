@@ -15,6 +15,7 @@ export const CASTING_TIPS:Record<SpellId,string>={
  snowman:'Close both circles and let them touch. Draw two short lines up and out from the upper sides of the larger circle.',
  torrent:'Start at the left tip and draw one continuous stroke down to the shared bottom point, then up the matching right arc. Keep the middle open.',
  sneakyVine:'Draw a simple candy cane in one stroke: a long straight stem on the right, a rounded hook over the top toward the left, and a short downward tip. Leave both ends open.',
+ constellation:'Start at the top and sweep down. Loop left, cross the stem, then sweep right to finish.',
  alchemize:'Draw a round bottle with a narrow rectangular neck, then close a small cork across its top.',
  water:'Close the teardrop outline. Keep the tip pointed and the base rounded.',
  fire:'Draw a closed triangle with a centered peak and a level base.',

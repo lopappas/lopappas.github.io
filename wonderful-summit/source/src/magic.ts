@@ -4,7 +4,7 @@ import type {SpellRarity} from './rarity.ts';
 export type Point = {x:number;y:number};
 export type Strokes = Point[][];
 export type Element = 'Water'|'Fire'|'Nature'|'Ancient';
-export type SpellId = GuardianSpell|'torrent'|'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize'|'sneakyVine';
+export type SpellId = GuardianSpell|'torrent'|'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize'|'sneakyVine'|'constellation';
 export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;color:string;description:string;path:string;strokes:Strokes;developerOnly?:boolean;upgradable?:boolean};
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
@@ -31,6 +31,8 @@ const scorchyMouth:Point[]=[{x:26,y:57},...Array.from({length:49},(_,i)=>{
 const scorchyStrokes:Strokes=[circleStroke(50,50,43),scorchyEye(37),scorchyEye(63),scorchyMouth];
 const scorchyPath='M50 7 A43 43 0 1 1 50 93 A43 43 0 1 1 50 7 Z M37 29 L48 45 L26 45 Z M63 29 L74 45 L52 45 Z M26 57 H74 A24 19 0 0 1 26 57 Z';
 
+const constellationSegments=[[47,29,50,56,43,74],[39,84,30,90,23,86],[16,82,17,71,25,72],[32,71,40,77,49,82],[62,90,76,91,84,82]];
+
 export const SPELLS:Spell[]=[
 
  {id:'water',rarity:'Common',name:'Dewdrop',element:'Water',color:'#69c2d6',description:'A sturdy splash of water magic. Close the outline and keep the rounded base.',path:'M50 8 C54 23 82 49 80 64 C78 94 22 94 20 64 C18 49 46 23 50 8 Z',strokes:[shape([50,8],[[54,23,82,49,80,64],[78,94,22,94,20,64],[18,49,46,23,50,8]])]},
@@ -52,6 +54,7 @@ export const SPELLS:Spell[]=[
  {id:'torrent',rarity:'Uncommon',name:'Torrent',element:'Water',color:'#69c2d6',description:'Rain large water orbs onto random enemy-accessible ground. Each splash deals Steady Dewdrop damage and knockback to nearby foes. Faint: 5 seconds. Steady: 8 seconds. Beautiful: 11 seconds. Wonderful: 14 seconds. One orb per second. Cooldown: 10 seconds.',path:'M50 90 C39 40 23 32 10 48 M50 90 C61 40 77 32 90 48',strokes:[shape([50,90],[[39,40,23,32,10,48]]),shape([50,90],[[61,40,77,32,90,48]])]},
  {id:'snowman',rarity:'Legendary',name:'Snowman',element:'Water',color:'#69c2d6',description:'Summon a guardian that marches up to 250 units ahead. It throws a snowball as soon as an enemy comes within 50 units, then every 2 seconds while a target is in range. Enemies hit it immediately on contact for 50% extra damage and can hit it again after 1.5 seconds. Snowballs deal 13–26 base knockback, with a stronger push at higher quality. Hits leave Snowman in place. An 80% cast gives 155 HP and 16 base damage per snowball. Snowballs inherit half your spell damage bonuses. Snowmen of any cast quality last until defeated, replaced, or the battle ends. Cooldown is 30 seconds. Upgrade raises range to 60 units and base knockback to 16–28, and adds 10% damage. Upgraded Snowman has 185 HP at 80% cast quality.',path:snowmanPath,strokes:snowmanStrokes},
  {id:'scorchy',rarity:'Legendary',name:'Scorchy',element:'Fire',color:'#f0a068',description:'Summon a floating jack-o’-lantern that advances up to 250 units. It spits fire at the nearest enemy within 40 units, then again every 1.4 seconds while a target is in range. Fireballs ignite wooden shields, deal 2–3 base knockback depending on cast quality, and inherit half your spell damage bonuses. An 80% cast gives 100 HP and 18 base damage per fireball. Scorchy lasts until defeated, replaced, or the battle ends at every cast quality. Cooldown: 30 seconds. The upgrade raises range to 50 units, adds 20% health, and fires every 1.2 seconds. At 80% cast quality its fireballs deal 20 base damage.',path:scorchyPath,strokes:scorchyStrokes},
+ {id:'constellation',rarity:'Legendary',name:'Constellation',element:'Ancient',color:'#8b9099',description:'Send a purple and gold firework into the sky once per battle. Gain armor that absorbs damage first, plus spell damage and knockback for the battle. Faint grants 5 armor, +8% damage, and +5% knockback. At 80% quality, gain 30 armor, +30% damage, and +20% knockback. The upgrade adds 5 armor, 5 percentage points of damage, and 3 points of knockback.',path:`M46 10 ${constellationSegments.map(segment=>`C${segment.join(' ')}`).join(' ')}`,strokes:[shape([46,10],constellationSegments)]},
 ];
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function damageUpgradeBonus(id:SpellId){return isGuardianSpell(id)?guardianUpgradeDamageBonus(id):id==='bolt'?.2:id==='tidalcrest'||id==='flameBlade'?.15:.25;}
@@ -141,6 +144,7 @@ function accuracyStrength(quality:number){
 }
 export function power(quality:number){return accuracyStrength(quality).damage;}
 export function spellPower(id:SpellId,quality:number){
+ if(id==='constellation')return 0;
  if(isGuardianSpell(id))return guardianStats(id,quality).baseDamage;
  if(id==='sneakyVine'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;const q=balanceQuality(quality),[lo,hi,min,max]=q<60?[48,59,12,20]:q<70?[60,69,27,36]:q<80?[70,79,43,58]:[80,100,67,95];return min+(max-min)*(q-lo)/(hi-lo);}
  if(!['water','fire','nature'].includes(id))return power(quality);

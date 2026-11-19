@@ -14,6 +14,7 @@ export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
  bolt:'Draw it from the top to bottom.',leaf:'Draw it from the left-most corner, and go clockwise.',chronos:'From the top of the circle, draw counter-clockwise. When the circle is completed, draw down.',
  tidalcrest:'Start the draw from the bottom left then draw it clockwise.',firestorm:'Draw the horizontal line from left to right. Then draw the left triangle from top left clockwise. Repeat for the right triangle.',
  bog:'From the top, draw a circle counterclockwise. Draw a bramble leaf in the center from the left corner clockwise.',
+ constellation:'Draw one continuous stroke from the top down. Loop left, cross the stem, then sweep out to the right.',
  alchemize:'Draw the bottle from the top left counterclockwise. For the cork, start at the bottom left, draw up the left side, across the top, then down the right side. Do not draw the bottom.',
  puddleGuard:'Draw it from left to right.',flameBlade:'Draw the horizontal line, then the vertical. Finally, draw the blade from the bottom left corner, going clockwise, stopping at the bottom right. Do not redraw the horizontal blade base.',
  thistleBush:'Draw it from left to right.',sneakyVine:'Start at the bottom right of the shape and finish drawing it.',

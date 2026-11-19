@@ -14,6 +14,7 @@ import {playUISound} from './sound';
 import {BogArt} from './BogArt';
 import {TidalcrestArt} from './TidalcrestArt';
 import {FirestormArt} from './FirestormArt';
+import {ConstellationArt} from './ConstellationArt';
 import React,{useEffect,useRef,useState} from 'react';
 import {TargetCaret} from './TargetCaret';
 import {PaletteGroup} from './PaletteGroup';
@@ -82,6 +83,7 @@ function colorForEnemy(e:Battle["enemies"][number]){
 }
 return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTTOM_Y-viewHeight} 720 ${viewHeight}`} preserveAspectRatio="xMidYMax slice" aria-label={practice?"Fila practices spells with a golden slime":"Fila faces the enemies, paintbrush in hand"} role="img">
 <StaticScenery gray={0}/>
+{battle.constellation&&<ConstellationArt castAt={battle.constellation.castAt} time={battle.time} skyY={BATTLEFIELD_BOTTOM_Y-viewHeight+106}/>}
 <TorrentArt torrent={battle.torrent} time={battle.time} gray={0}/>
 <FirestormArt storm={battle.firestorm} time={battle.time} gray={0} cloudY={cloudY}/>
 <BogArt bog={battle.bog} time={battle.time} gray={0}/><TidalcrestArt battle={battle} gray={0}/>

@@ -91,6 +91,12 @@ Existing review links remain supported and start fresh sessions:
 
 Milestone 6's full-sequence coverage and user-confirmed browser/device verification are recorded in `docs/tutorial2-verification.md`. Milestone 7 removes the retired implementation while preserving the verified Tutorial 2.0 sequence.
 
+## Constellation
+
+Draw a single cursive L with a descending stem, a low left loop and a rightward tail. This Legendary Ancient spell can be activated once per battle, including through a spell bottle. It grants armor and adds percentage points to battle damage and knockback. Armor absorbs damage before health and is spent first on each contact. Constellation+ adds 5 armor, 5 damage percentage points and 3 knockback percentage points.
+
+Faint casts grant 5 armor, +8% damage and +5% knockback. At 60%, the values are 12, +14% and +10%. They rise at 80% to 30, +30% and +20%, and at 100% to 40, +40% and +25%. Values between those anchors are interpolated and rounded to whole points. The firework spirals upward before forming a purple and gold witch hat that fades over three seconds.
+
 ## Snowman
 
 Draw a small closed circle touching a larger circle below it, then add two short lines up and out from the upper sides of the larger circle. Snowman is a Legendary Water summon with a 30-second cooldown. It moves 15.5 world units per second from the player's contact line, up to 250 units ahead. It stops when an enemy is within 50 units, throws immediately at the nearest target, and waits two seconds between throws. Enemies hit Snowman immediately on contact for 1.5 times their usual damage, then wait 1.5 seconds before they can hit it again. Snowman stays in place when hit, and enemies can still be knocked back by other effects. Snowballs give a push that scales from 13 to 26 world units across successful cast qualities, before knockback bonuses and enemy defenses. Snowball damage uses the standard Water matchups. A health bar floats above the guardian.
