@@ -1,4 +1,4 @@
-import {COMBAT_LANE_Y,FILA_FOOT_Y,LANE_FOLLOW_GAP,combatLane,enemyFootOffset,laneQueues,placeLaneArrivals,staggeredWalkX,type CombatLane} from './combatLanes.ts';
+import {COMBAT_LANE_Y,FILA_FOOT_Y,combatLane,enemyFootOffset,laneContactReach,placeLaneArrivals,spaceLaneEnemies,type CombatLane} from './combatLanes.ts';
 import {
  SNOWBALL_FLIGHT_SECONDS,SNOWMAN_ATTACK_INTERVAL,SNOWMAN_CONTACT_DISTANCE,SNOWMAN_COOLDOWN,
  SNOWMAN_DAMAGE_TAKEN,SNOWMAN_ENEMY_COOLDOWN,SNOWMAN_ENEMY_WINDUP,SNOWMAN_FAINT_LIFETIME,
@@ -177,7 +177,7 @@ function enemyKnockback(state:Battle,enemy:Enemy,distance:number,duration=PUSH_D
 }
 
 function inSnowmanContact(snowman:Snowman,enemy:Enemy){
- return enemy.x>=snowman.x&&enemy.x<=snowman.x+SNOWMAN_CONTACT_DISTANCE+1e-9;
+ return enemy.x>=snowman.x&&enemy.x<=snowman.x+SNOWMAN_STRIKE_RANGE+1e-9;
 }
 
 export function fizzleSpell(state:Battle):Battle{
@@ -358,7 +358,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
  const dt=Math.min(delta,.1),time=state.time+dt;
  let next=resolveMother({...state,time,vineGrab:state.vineGrab&&time-state.vineGrab.started<1.1?state.vineGrab:null});
  if(next.phase==='victory')return next;
- next.enemies=placeLaneArrivals(next.enemies,next.encounter,time,ENEMY_BACK_X);
+ next.enemies=placeLaneArrivals(next.enemies,next.encounter,time);
  const potionFlights=state.potionFlights.map(f=>{if(!f.applied&&time-f.started>=POTION_FLIGHT_SECONDS){if(f.potion==='miasma'){
  const ids=new Set(presentEnemies(next).map(e=>e.id));
  next.enemies=next.enemies.map(e=>ids.has(e.id)?{...e,potionCurseTick:e.potionCurseTick??time+1,potionCurseUntil:time+12}:e);
@@ -369,16 +369,10 @@ export function stepBattle(state:Battle,delta:number):Battle{
  const frozen=state.time<next.freezeUntil;
  const live=presentEnemies(next);
  const groupSpeed=live.length>=2?.8:1;
- const queues=laneQueues(live,next.encounter,ENEMY_BACK_X);
- const advanced=queues&&new Map<number,Enemy>();
- const walkers=live.length>1?live.filter(e=>!e.push&&e.attackAt===null&&(!next.snowman||!inSnowmanContact(next.snowman,e))&&Math.max(e.spawnAt,e.readyAt,e.rootUntil,e.stunUntil,e.shield?.burnUntil??0)<=state.time):[];
+ const marchOrder=live.length>1?live.sort((a,b)=>a.x-b.x||a.id-b.id):[];
  next.chronosFields=(next.chronosFields??[]).filter(f=>f.until>time);
  function advanceEnemy(original:Enemy):Enemy{
   let old=original;
-  const queue=queues?.get(old.id);
-  const ahead=queue?.ahead;
-  const queueMinX=ahead?(advanced?.get(ahead.id)??ahead).x+LANE_FOLLOW_GAP:CONTACT_X;
-  const constrainX=(x:number)=>queue?Math.min(queue.maxX,Math.max(queueMinX,x)):x;
   if(old.spawnAt>state.time&&old.spawnAt<=time+1e-9)for(const field of state.chronosFields??[])if(field.until>old.spawnAt)old=applyChronos(old,field,old.spawnAt);
   if(old.hp<=0){if(old.kind==='mother'&&old.push){const p=old.push,t=Math.max(0,Math.min(1,(time-p.started)/(p.ends-p.started)));return {...old,x:p.from+(p.to-p.from)*(1-(1-t)**3),push:t>=1?null:p};}return old;}
   if(old.spawnAt>time+1e-9)return old;
@@ -393,7 +387,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
   const dialogueEnd=e.goblinKing&&e.kingEnragedAt!==undefined?e.kingEnragedAt+GOBLIN_KING_DIALOGUE_MS/1000:0;
   const dialogueHold=Math.max(0,Math.min(time,dialogueEnd)-state.time);
   if(e.push&&dialogueHold>0)e.push={...e.push,started:e.push.started+dialogueHold,ends:e.push.ends+dialogueHold};
-  if(time<dialogueEnd)return {...e,x:constrainX(e.x)};
+  if(time<dialogueEnd)return e;
   const guardian=next.snowman;
   if(guardian&&e.snowmanAttackAt!==undefined&&inSnowmanContact(guardian,e)){
    e.push=null;
@@ -406,18 +400,22 @@ export function stepBattle(state:Battle,delta:number):Battle{
    return e;
   }
   if(e.snowmanAttackAt!==undefined)e.snowmanAttackAt=undefined;
-  if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=constrainX(p.from+(p.to-p.from)*(1-(1-t)**3));e.attackAt=null;if(t>=1)e.push=null;return e;}
-  if(frozen||actionDelta<=1e-9)return {...e,x:constrainX(e.x)};
+  if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=Math.max(e.x,p.from+(p.to-p.from)*(1-(1-t)**3));e.attackAt=null;if(t>=1)e.push=null;return e;}
+  if(frozen||actionDelta<=1e-9)return e;
   const rush=eliteRush(e);const speed=e.goblinKing?SLIME_SPEED*.9*(kingHasCrown(e)?1:1.8):e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.kind==='spider'?2:e.rocky?.9:1);
-  const stopX=guardian&&e.x>=guardian.x?Math.min(e.x,guardian.x+SNOWMAN_CONTACT_DISTANCE):CONTACT_X;
-  const walkX=Math.max(stopX,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows},state.time))*actionDelta);
-  e.x=constrainX(staggeredWalkX(e,walkX,stopX,walkers,next.encounter));
-  if(!ahead&&guardian&&inSnowmanContact(guardian,e)){
+  const targetsSnowman=guardian&&e.x>=guardian.x;
+  const frontX=targetsSnowman?guardian.x:CONTACT_X;
+  const contactX=targetsSnowman?guardian.x+SNOWMAN_CONTACT_DISTANCE:CONTACT_X;
+  const furthestX=targetsSnowman?guardian.x+SNOWMAN_STRIKE_RANGE:Infinity;
+  const reach=Math.min(furthestX,laneContactReach(e,marchOrder,next.encounter,frontX,contactX));
+  const stopX=Math.max(CONTACT_X,Math.min(e.x,reach));
+  e.x=Math.max(stopX,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows},state.time))*actionDelta);
+  if(targetsSnowman&&e.x<=reach+1e-9){
    e.attackAt=null;
    if(e.clock+1e-9>=(e.nextSnowmanAttackAt??0))e.snowmanAttackAt=e.clock+SNOWMAN_ENEMY_WINDUP;
    return e;
   }
-  if(ahead||e.x>CONTACT_X){e.attackAt=null;return e;}
+  if(e.x>reach+1e-9){e.attackAt=null;return e;}
   if(e.attackAt===null){
    if(e.clock>=e.nextAttackAt)e.attackAt=e.clock+(e.kind==='goblin'?.65:ATTACK_WINDUP);
   }else if(e.clock>=e.attackAt){
@@ -439,11 +437,8 @@ export function stepBattle(state:Battle,delta:number):Battle{
   }
   return e;
  }
- if(advanced){
-  // Move each lane from front to back so knockback can move the whole queue.
-  for(const e of [...next.enemies].sort((a,b)=>a.x-b.x||a.id-b.id))advanced.set(e.id,advanceEnemy(e));
-  next.enemies=next.enemies.map(e=>advanced.get(e.id)!);
- }else next.enemies=next.enemies.map(advanceEnemy);
+ const moved=next.enemies.map(advanceEnemy);
+ next.enemies=spaceLaneEnemies(next.enemies,moved,next.encounter,time,CONTACT_X,ENEMY_BACK_X);
  next=resolveMother(next);
  if(next.phase==='victory')return next;
  if(next.playerHP===0){next.phase='defeat';next.projectile=null;next.tidalWaves=[];next.torrent=null;next.snowman=null;return next;}

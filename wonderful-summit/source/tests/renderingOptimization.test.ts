@@ -11,20 +11,30 @@ const art=(name:string)=>loadArt(fileURLToPath(new URL('../src/'+name+'.tsx',imp
 const ui=art('EnemyUI'),fire=art('FirestormArt'),bog=art('BogArt'),burn=art('EnemyEffects'),torrent=art('TorrentArt');
 const markup=(component:any,props:any)=>renderToStaticMarkup(React.createElement(component,props));
 const equalProps=(a:any,b:any)=>Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(k=>Object.is(a[k],b[k]));
-test('cached enemy labels and indicators exactly preserve prior SVG across enemy types, health, status and crown loss',()=>{
+test('enemy labels with Spell Details preserve prior SVG across enemy types, health, status and crown loss',()=>{
  const fixtures=JSON.parse(readFileSync(new URL('./fixtures/enemy-ui-0.2.93.json',import.meta.url),'utf8'));
  for(const {props,markup:expected} of fixtures){const {e,color,kingUIOffset,enemyEntrance,status}=props;
-  const labels=markup(ui.EnemyNameplate,{kind:e.kind,element:e.element,goblinKing:e.goblinKing,rocky:e.rocky,hp:e.hp,maxHP:e.maxHP,color,kingUIOffset,enemyEntrance});
+  const labels=markup(ui.EnemyNameplate,{kind:e.kind,element:e.element,goblinKing:e.goblinKing,rocky:e.rocky,hp:e.hp,maxHP:e.maxHP,color,kingUIOffset,enemyEntrance,showDetails:true});
   const indicators=markup(ui.EnemyIndicators,{attacking:e.attackAt!==null,status,statusY:e.goblinKing?-195+kingUIOffset:e.kind==='mother'?-145:-97});
   assert.equal(labels+indicators,expected);
  }
  for(const component of [ui.EnemyNameplate,ui.EnemyIndicators,TargetCaret])assert.equal(component.$$typeof,Symbol.for('react.memo'));
 });
 test('cached labels still reflect actual health, element, status and target changes',()=>{
- const props={kind:'mother',element:'Fire',hp:40,maxHP:100,color:'#abc',kingUIOffset:0};
+ const props={kind:'mother',element:'Fire',hp:40,maxHP:100,color:'#abc',kingUIOffset:0,showDetails:true};
  for(const change of [{hp:39.9},{element:'Water'},{color:'#def'},{kingUIOffset:48}])assert.notEqual(markup(ui.EnemyNameplate,props),markup(ui.EnemyNameplate,{...props,...change}));
  assert.notEqual(markup(ui.EnemyIndicators,{attacking:false,status:null,statusY:-97}),markup(ui.EnemyIndicators,{attacking:true,status:'Burn',statusY:-97}));
  assert.notEqual(markup(TargetCaret,{element:'Fire'}),markup(TargetCaret,{element:'Water'}));
+});
+test('health bars and attack cues are visible with Spell Details off',()=>{
+ const props={kind:'spider',element:'Neutral',hp:62,maxHP:100,color:'#abc',kingUIOffset:0,attacking:true};
+ for(const grouped of [false,true]){
+  const hidden=markup(ui.EnemyNameplate,{...props,grouped});
+  assert.doesNotMatch(hidden,/Spider 62/);
+  assert.match(hidden,/fill="#d68c88"/);
+  assert.match(markup(ui.EnemyNameplate,{...props,grouped,showDetails:true}),/Spider 62/);
+  if(grouped)assert.match(hidden,/>!</);
+ }
 });
 test('prepared storm, bog and burn geometry matches pre-change snapshots at sampled timestamps',()=>{
  const fixtures=JSON.parse(readFileSync(new URL('./fixtures/spell-art-0.2.93.json',import.meta.url),'utf8'));

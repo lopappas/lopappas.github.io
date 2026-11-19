@@ -22,7 +22,7 @@ import {enemyStatusLabel} from './timeVisuals';
 import {EnemyEffects} from './EnemyEffects';
 import {BATTLEFIELD_BOTTOM_Y,FILA_ART_SCALE,FILA_ART_Y,MOTHER_ART_SCALE,SLIME_FOOT_OFFSET,enemyFootOffset} from './combatLanes';
 import {enemyAttackingSnowman,enemyElementColor,presentEnemies,projectilePosition,enemyArtY,enemyY,targetedEnemy,potionPosition,POTION_FLIGHT_SECONDS,POTION_BREAK_SECONDS,type Battle} from './battle';
-export function World({burst,color,battle,hasRelics=false,purseExpanded=false,practice=false,companion=true,companionPaused=false,enemyEntrance}:{burst:number;color:string;battle:Battle;hasRelics?:boolean;purseExpanded?:boolean;practice?:boolean;companion?:boolean;companionPaused?:boolean;enemyEntrance?:'slide'|'fade'}){
+export function World({burst,color,battle,hasRelics=false,purseExpanded=false,practice=false,companion=true,companionPaused=false,enemyEntrance,showSpellDetails=false}:{burst:number;color:string;battle:Battle;hasRelics?:boolean;purseExpanded?:boolean;practice?:boolean;companion?:boolean;companionPaused?:boolean;enemyEntrance?:'slide'|'fade';showSpellDetails?:boolean}){
 const [sad,setSad]=useState(false),[viewHeight,setViewHeight]=useState(410),[cloudY,setCloudY]=useState(210);
 const worldRef=useRef<HTMLDivElement>(null);
 const [flashBurst,setFlashBurst]=useState<Battle['blackFlashBurst']>(null);
@@ -60,6 +60,22 @@ useEffect(()=>{if(!battle.playerHits){setSad(false);return;}setSad(true);const t
 const orb=projectilePosition(battle),target=targetedEnemy(battle);
 const enemies=presentEnemies(battle).sort((a,b)=>enemyY(a.id,battle.encounter,a.lane)-enemyY(b.id,battle.encounter,b.lane)||b.x-a.x||a.id-b.id);
 const grouped=battle.enemies.length>1&&!practice;
+const barOffsets=new Map<number,number>();
+if(grouped){
+ const footprint=showSpellDetails?102:78;
+ const rowHeight=showSpellDetails?26:8;
+ for(let i=enemies.length-1;i>=0;i--){
+  const e=enemies[i],lane=enemyY(e.id,battle.encounter,e.lane);
+  let offset=0;
+  for(let j=enemies.length-1;j>i;j--){
+   const front=enemies[j];
+   if(enemyY(front.id,battle.encounter,front.lane)===lane&&Math.abs(front.x-e.x)<footprint){
+    offset=Math.max(offset,(barOffsets.get(front.id)??0)+rowHeight);
+   }
+  }
+  barOffsets.set(e.id,offset);
+ }
+}
 function colorForEnemy(e:Battle["enemies"][number]){
  return practice?'#e6b844':e.rocky?'#a5aaa4':e.element==='Fire'?'#ef9c70':e.element==='Water'?'#7ccbd6':e.element==='Nature'?'#99bf76':'#bcc3a2';
 }
@@ -79,7 +95,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
 <FilaBody/>
 </g></g>
 {companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
-{enemies.map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=grouped?null:enemyStatusLabel(e,battle),color=colorForEnemy(e),snowmanAttack=enemyAttackingSnowman(battle,e),snowmanAttackAge=SNOWMAN_ENEMY_WINDUP+e.clock-(e.snowmanAttackAt??Infinity);return <g key={e.id} transform={`translate(${e.x} ${enemyArtY(e,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
+{enemies.map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=grouped?null:enemyStatusLabel(e,battle),color=colorForEnemy(e),snowmanAttack=enemyAttackingSnowman(battle,e),snowmanAttackAge=SNOWMAN_ENEMY_WINDUP+e.clock-(e.snowmanAttackAt??Infinity);return <g key={e.id} transform={`translate(${e.x} ${enemyArtY(e,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':!showSpellDetails?'Enemy':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
 <ellipse cy={enemyFootOffset(e)} rx={e.kind==='mother'?72:e.goblinKing?59.8:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<g transform={e.goblinKing?`translate(0 ${-24+kingUIOffset})`:undefined}><TargetCaret element={e.element} mother={e.kind==='mother'||!!e.goblinKing}/></g>}
 <g transform={e.kind==='mother'?`scale(${MOTHER_ART_SCALE})`:e.goblinKing?`scale(${GOBLIN_KING_SCALE})`:undefined}><g className={`${e.kind==='spider'?'spider':e.kind==='goblin'?'goblin':'slime'}${e.stunUntil>battle.time?' stunned':''}${(e.shield?.burnUntil??0)>battle.time?' shield-burning':''}${e.hurtUntil>battle.time?' slime-hit':''}${e.attackAt!==null?' slime-attacking':''}${snowmanAttack?' snowman-contact-attack':''}`} style={{filter:frozen?'hue-rotate(100deg) brightness(1.2)':undefined,animationDuration:snowmanAttack?`${SNOWMAN_ENEMY_WINDUP/2}s`:undefined,animationDelay:snowmanAttack?`-${snowmanAttackAge}s`:undefined}}>
@@ -87,7 +103,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
 </g></g>
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>
-{!practice&&!grouped&&<EnemyNameplate kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={color} kingUIOffset={kingUIOffset} enemyEntrance={enemyEntrance}/>}
+{!practice&&!grouped&&<EnemyNameplate showDetails={showSpellDetails} kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={color} kingUIOffset={kingUIOffset} enemyEntrance={enemyEntrance}/>}
 {!grouped&&<EnemyIndicators attacking={e.attackAt!==null||snowmanAttack} status={status} statusY={e.goblinKing?-195+kingUIOffset:e.kind==='mother'?-145:-97}/>}
 {kingDialogueVisible(e,battle.time)&&<g role="status" aria-label="Goblin King says: My crown! You’ll pay for this!" transform={`translate(${Math.max(134,Math.min(586,e.x))-e.x} -282)`} pointerEvents="none">
  <path d="M-8 73 0 87 8 73" fill="#354d29" stroke="#25381d" strokeWidth="2"/>
@@ -95,8 +111,8 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
  <text textAnchor="middle" fontFamily="Fredoka" fontSize="21" fontWeight="500" fill="#ffd700" stroke="#283519" strokeWidth="1.4" paintOrder="stroke" aria-hidden="true"><tspan x="0" y="30">My crown!</tspan><tspan x="0" y="58">You’ll pay for this!</tspan></text>
 </g>}
 </g></g>;})}
-{grouped&&enemies.map(e=><g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter,e.lane)-SLIME_FOOT_OFFSET})`}>
- <EnemyNameplate kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={colorForEnemy(e)} kingUIOffset={0} enemyEntrance={enemyEntrance} grouped attacking={e.attackAt!==null||enemyAttackingSnowman(battle,e)} status={enemyStatusLabel(e,battle)}/>
+{grouped&&enemies.map(e=><g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter,e.lane)-SLIME_FOOT_OFFSET-(barOffsets.get(e.id)??0)})`}>
+ <EnemyNameplate showDetails={showSpellDetails} kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={colorForEnemy(e)} kingUIOffset={0} enemyEntrance={enemyEntrance} grouped attacking={e.attackAt!==null||enemyAttackingSnowman(battle,e)} status={enemyStatusLabel(e,battle)}/>
 </g>)}
 {battle.motherSplit&&battle.time-battle.motherSplit.at<2.6&&(()=>{
  const split=battle.motherSplit,age=battle.time-split.at,scale=MOTHER_ART_SCALE+age*.12,c=split.element==='Fire'?'#ef9c70':split.element==='Water'?'#7ccbd6':'#99bf76';

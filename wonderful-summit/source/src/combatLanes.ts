@@ -34,14 +34,14 @@ export function combatLane(id:number,encounter:Encounter,lane?:CombatLane):Comba
  return lane??ENCOUNTER_LANES[encounter]?.[id-1]??DEFAULT[(id-1)%3]??CENTER_LANE;
 }
 
-export const LANE_FOLLOW_GAP=104;
+export const LANE_MIN_GAP=10;
 
 function sharesEntryLane(enemy:Enemy,encounter:Encounter){
  return (encounter==='rockWebNest'||encounter==='spiderGoblinElite')&&enemy.id>=4;
 }
 
-/** Keep later arrivals behind the rear enemy, even when their preferred track is busy. */
-export function placeLaneArrivals(enemies:Enemy[],encounter:Encounter,time:number,backX:number){
+/** Choose an entrance lane without delaying the scheduled arrival. */
+export function placeLaneArrivals(enemies:Enemy[],encounter:Encounter,time:number){
  if(encounter!=='rockWebNest'&&encounter!=='spiderGoblinElite')return enemies;
  const arrivals=enemies.filter(e=>e.hp>0&&sharesEntryLane(e,encounter)&&e.lane===undefined&&e.spawnAt<=time+1e-9);
  if(!arrivals.length)return enemies;
@@ -54,47 +54,58 @@ export function placeLaneArrivals(enemies:Enemy[],encounter:Encounter,time:numbe
  const replacements=new Map<number,Enemy>();
  for(const e of arrivals){
   const preferred=combatLane(e.id,encounter);
-  const options=THREE.map(lane=>{
-   const rear=tails.get(lane);
-   return {lane,clearance:rear?e.x-rear.x-LANE_FOLLOW_GAP:Infinity,x:rear?Math.max(e.x,rear.x+LANE_FOLLOW_GAP):e.x};
-  }).filter(option=>option.x<=backX).sort((a,b)=>Number(b.clearance>a.clearance)-Number(a.clearance>b.clearance)||Number(b.lane===preferred)-Number(a.lane===preferred));
-  const slot=options[0];
-  const placed=slot?{...e,lane:slot.lane,x:slot.x}:{...e,spawnAt:time+.1};
+  const options=THREE.map(lane=>({lane,clearance:e.x-(tails.get(lane)?.x??-Infinity)}))
+   .sort((a,b)=>Number(b.clearance>a.clearance)-Number(a.clearance>b.clearance)||Number(b.lane===preferred)-Number(a.lane===preferred));
+  const placed={...e,lane:options[0].lane};
   replacements.set(e.id,placed);
-  if(slot)remember(placed);
+  remember(placed);
  }
  return enemies.map(e=>replacements.get(e.id)??e);
 }
 
-export type LaneQueueSlot={ahead?:Enemy;maxX:number};
-
-export function laneQueues(enemies:Enemy[],encounter:Encounter,backX:number){
- if(enemies.length<2||enemies.length<=3&&new Set(enemies.map(e=>combatLane(e.id,encounter,e.lane))).size===enemies.length)return null;
- const result=new Map<number,LaneQueueSlot>();
- for(const lane of THREE){
-  const row=enemies.filter(e=>combatLane(e.id,encounter,e.lane)===lane).sort((a,b)=>a.x-b.x||a.id-b.id);
-  if(row.length<2)continue;
-  let maxX=backX;
-  for(let i=row.length-1;i>=0;i--){
-   const e=row[i];
-   result.set(e.id,{ahead:row[i-1],maxX});
-   maxX-=LANE_FOLLOW_GAP;
+/** A compact row can reach its target without waiting for its front enemy to move. */
+export function laneContactReach(enemy:Enemy,ordered:Enemy[],encounter:Encounter,frontX:number,contactX:number){
+ const lane=combatLane(enemy.id,encounter,enemy.lane);
+ let reach=contactX;
+ for(const other of ordered){
+  if(other.x>reach+1e-9)break;
+  if(other.id!==enemy.id&&!other.push&&other.x>=frontX&&other.x<enemy.x&&combatLane(other.id,encounter,other.lane)===lane){
+   reach=Math.max(reach,other.x+LANE_MIN_GAP);
   }
  }
- return result;
+ return reach;
 }
 
-const STAGGER_GAP=34;
-
-/** Offset neighboring tracks during the approach. The offset tapers at contact. */
-export function staggeredWalkX(enemy:Enemy,x:number,contactX:number,walkers:Enemy[],encounter:Encounter){
- if(x>=enemy.x)return x;
- const lane=combatLane(enemy.id,encounter,enemy.lane);
- for(const other of walkers){
-  if(other.x>enemy.x||other.x===enemy.x&&other.id>=enemy.id)continue;
-  if(Math.abs(combatLane(other.id,encounter,other.lane)-lane)!==1)continue;
-  const gap=Math.min(STAGGER_GAP,Math.max(0,other.x-contactX-STAGGER_GAP));
-  if(gap>0)x=Math.max(x,Math.min(enemy.x,other.x+gap));
+/** Resolve tight gaps after independent movement. Knockback yields to other enemies' positions. */
+export function spaceLaneEnemies(previous:Enemy[],enemies:Enemy[],encounter:Encounter,time:number,startX:number,endX:number){
+ const present=enemies.filter(e=>e.hp>0&&e.spawnAt<=time+1e-9);
+ if(present.length<2)return enemies;
+ const earlier=new Map(previous.map(e=>[e.id,e]));
+ const positions=new Map<number,number>();
+ for(const lane of THREE){
+  const row=present.filter(e=>combatLane(e.id,encounter,e.lane)===lane);
+  if(row.length<2)continue;
+  const occupied:number[]=[];
+  const position=(enemy:Enemy,direction:1|-1)=>{
+   let x=enemy.x;
+   for(let i=0;i<occupied.length;i++){
+    const other=occupied[direction===1?i:occupied.length-1-i];
+    if(Math.abs(x-other)<LANE_MIN_GAP-1e-9)x=other+direction*LANE_MIN_GAP;
+   }
+   return x>=startX&&x<=endX?x:undefined;
+  };
+  const moves=row.map(e=>{
+   const old=earlier.get(e.id)??e;
+   const priority=old.push&&e.snowmanAttackAt===undefined?2:old.x===e.x?0:1;
+   return {e,old,priority};
+  }).sort((a,b)=>a.priority-b.priority||(a.priority===2?b.old.x-a.old.x:a.old.x-b.old.x)||a.e.id-b.e.id);
+  for(const {e,priority} of moves){
+   const preference=priority===2?1:-1;
+   const x=position(e,preference)??position(e,preference===1?-1:1)??e.x;
+   occupied.push(x);
+   occupied.sort((a,b)=>a-b);
+   if(x!==e.x)positions.set(e.id,x);
+  }
  }
- return x;
+ return positions.size?enemies.map(e=>positions.has(e.id)?{...e,x:positions.get(e.id)!}:e):enemies;
 }
