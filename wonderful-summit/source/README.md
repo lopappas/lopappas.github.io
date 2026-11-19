@@ -42,7 +42,7 @@ The home menu opens a single-page field journal with Spells, Relics, and Potions
 
 ## Apprentice traces
 
-When its spell comes off cooldown, the selected Apprentice trace ramps up to 150% saturation and back over 0.8 seconds.
+When its spell comes off cooldown, the selected Apprentice trace glows and ramps up to 150% saturation, then eases back to normal over 0.8 seconds.
 
 ## Practice
 
@@ -101,7 +101,7 @@ To get Snowman's base HP, multiply cast quality by 1.2, round up to a multiple o
 
 Draw a circle, two upward triangles, and a wide D turned clockwise so its flat edge sits on top. The outer eye corners line up with the ends of the grin. Scorchy is a Legendary Fire summon that hovers and bobs. A small ember stays in its mouth until it spits a fireball.
 
-Scorchy shares Snowman's movement, contact rules and cast-time damage bonuses. Its attack range is 40 units, or 50 with the upgrade. The upgrade also adds 10% damage and 20% HP and fires 15% more often. Its base HP is 1.2 times cast quality, rounded up to a multiple of 5. It fires immediately in range, then every 1.5 seconds, or about 1.30 seconds when upgraded. At 80% quality Scorchy has 100 HP and 21.12 base Fire damage per shot, or 120 HP and 23.232 base damage when upgraded. Fireballs deal 3–5 base knockback, or 4–8 when upgraded, depending on cast quality. Fireballs ignite wooden shields. A shield keeps protecting its bearer while it burns and breaks after two seconds. Its 30-second cooldown is independent, and both summons can be active together. Faint Scorchy fades over its last three seconds.
+Scorchy shares Snowman's movement, contact rules and cast-time damage bonuses. Its attack range is 40 units, or 50 with the upgrade. The upgrade also adds 10% damage and 20% HP and fires 15% more often. Its base HP is 1.2 times cast quality, rounded up to a multiple of 5. It fires immediately in range, then every 1.5 seconds, or about 1.30 seconds when upgraded. At 80% quality Scorchy has 100 HP and 21.12 base Fire damage per shot, or 120 HP and 23.232 base damage when upgraded. Both versions deal 3–5 base knockback depending on cast quality. Fireballs ignite wooden shields. A shield keeps protecting its bearer while it burns and breaks after two seconds. Its 30-second cooldown is independent, and both summons can be active together. Faint Scorchy fades over its last three seconds.
 
 ## Flame Blade
 

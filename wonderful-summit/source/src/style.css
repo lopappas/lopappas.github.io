@@ -460,8 +460,13 @@
 .combat-spells p{flex-shrink:0;font-size:10px;line-height:1.2;text-align:center;margin:4px 0 0}
 .journey-combat .perfect-guide{animation:none!important;filter:none}
 .journey-combat .perfect-guide svg{filter:none}
-.combat-trace-ready-pulse{animation:combatTraceReady 800ms ease-in-out both}
-@keyframes combatTraceReady{0%,100%{filter:saturate(1)}50%{filter:saturate(1.5)}}
+.combat-trace-art svg{overflow:visible}
+.combat-trace-art path{--trace-base-opacity:.24;opacity:var(--trace-base-opacity)}
+.combat-trace-ready-pulse{animation:combatTraceReady 800ms ease-in-out}
+@keyframes combatTraceReady{
+ 0%,100%{opacity:var(--trace-base-opacity);filter:saturate(1) drop-shadow(0 0 2px transparent) drop-shadow(0 0 5px transparent)}
+ 50%{opacity:.44;filter:saturate(1.5) drop-shadow(0 0 2px currentColor) drop-shadow(0 0 5px currentColor)}
+}
 
 .combat-spells-column{min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:6px}.combat-spells-grid[data-columns="4"]{gap:4px}.combat-spells-grid[data-columns="4"] button{font-size:10.35px}.combat-spells-grid[data-columns="4"] svg{width:32px;height:32px}
 

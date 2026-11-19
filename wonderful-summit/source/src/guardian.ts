@@ -61,7 +61,7 @@ export function guardianKnockback(spell: GuardianSpell, quality: number, upgrade
  if (!Number.isFinite(quality) || quality < MIN_CAST_QUALITY) return 0;
  const progress = (Math.min(100, quality) - MIN_CAST_QUALITY) / (100 - MIN_CAST_QUALITY);
  if (spell === 'snowman') return upgrade >= 1 ? 16 + progress * 20 : 12 + progress * 18;
- return upgrade >= 1 ? 4 + progress * 4 : 3 + progress * 2;
+ return 3 + progress * 2;
 }
 
 export function guardianBoostMultiplier(playerMultiplier: number) {

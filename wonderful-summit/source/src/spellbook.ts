@@ -17,7 +17,7 @@ export function spellUpgradePreview(spellId:SpellId,level=0,damageBonus=1){
  const knockback=spellId==='puddleGuard';
  const guardianHealth=isGuardianSpell(spellId)?{current:guardianStats(spellId,60,level).hp,next:guardianStats(spellId,60,level+1).hp}:null;
  const guardianRange=isGuardianSpell(spellId)?{current:guardianAttackRange(spellId,level),next:guardianAttackRange(spellId,level+1)}:null;
- const guardianPush=isGuardianSpell(spellId)?{
+ const guardianPush=spellId==='snowman'?{
   current:[guardianKnockback(spellId,MIN_CAST_QUALITY,level),guardianKnockback(spellId,100,level)].join('–'),
   next:[guardianKnockback(spellId,MIN_CAST_QUALITY,level+1),guardianKnockback(spellId,100,level+1)].join('–'),
  }:null;

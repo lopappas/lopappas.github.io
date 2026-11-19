@@ -16,7 +16,7 @@ export function CombatTraceArt({spell,readyPulse,paused=false}:{spell:Spell|null
  if(!shown)return null;
  const scale=combatTraceScale(shown.id);
  const pulse=visible&&shown.id===spell?.id&&readyPulse!==undefined;
- return <div className="perfect-guide combat-trace-art" role="img" aria-label={`${shown.name} spell trace`} style={{color:shown.color,opacity:visible?.24:0,transition:`opacity ${TRACE_FADE_MS}ms ease`}}>
+ return <div className="perfect-guide combat-trace-art" role="img" aria-label={`${shown.name} spell trace`} style={{color:shown.color,opacity:visible?1:0,transition:`opacity ${TRACE_FADE_MS}ms ease`}}>
   <svg viewBox={traceViewBox(shown.strokes)} aria-hidden="true" style={traceSize(scale)}>
    <path key={pulse?readyPulse:undefined} className={pulse?'combat-trace-ready-pulse':undefined} d={shown.path}
     fill="none" stroke="currentColor" strokeWidth={traceStrokeWidth(shown.id)} strokeLinecap="round" strokeLinejoin="round"

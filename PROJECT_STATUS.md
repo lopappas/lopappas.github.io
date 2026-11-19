@@ -13,7 +13,7 @@ Updated: 2026-11-19
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.55): Scorchy and Scorchy+ deal 10% more damage. Their base knockback ranges are 3–5 and 4–8 units depending on cast quality, and Scorchy+ fires 15% more often. The selected Apprentice trace eases up to 150% saturation and back over 0.8 seconds when its spell cooldown ends. All 694 tests and the production build passed. Rendered checks confirmed the single trace path and saturation animation. iPhone appearance is unverified.
+Latest update (version 0.3.56): Scorchy and Scorchy+ share 3–5 units of base knockback depending on cast quality. The selected Apprentice trace glows as it eases up to 150% saturation and back to its resting appearance over 0.8 seconds. All 694 tests and the production build passed. Rendered checks confirmed the shared glow and saturation timing. iPhone appearance is unverified.
 
 Snowman and Scorchy hold their positions until Slime Mother's offspring appear, including Scorchy's hover height. Guardian projectiles leave Black Flash and its chain intact.
 

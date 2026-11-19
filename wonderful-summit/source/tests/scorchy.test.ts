@@ -55,18 +55,16 @@ test('Scorchy fires at 40 units every 1.5 seconds with stronger Fire damage and 
  }
 });
 
-test('Scorchy knockback scales with cast quality and Scorchy+ attacks 15% more often',()=>{
+test('Scorchy and Scorchy+ share quality-scaled knockback and Scorchy+ attacks 15% more often',()=>{
  const knockback=(quality:number,upgrade=0)=>spellKnockback(quality,'scorchy',1,'Neutral',false,null,0,upgrade);
  assert.equal(knockback(44),0);
  assert.equal(knockback(45),3);
  assert.equal(knockback(100),5);
- assert.equal(knockback(45,1),4);
- assert.equal(knockback(100,1),8);
  assert.ok(knockback(80)>knockback(60));
- assert.ok(knockback(80,1)>knockback(60,1));
+ for(const quality of [45,60,80,100])assert.equal(knockback(quality,1),knockback(quality));
  const expectedInterval=1.5/1.15;
  const preview=spellUpgradePreview('scorchy');
- assert.deepEqual(preview?.guardianKnockback,{current:'3–5',next:'4–8'});
+ assert.equal(preview?.guardianKnockback,null);
  assert.deepEqual(preview?.shotInterval,{current:1.5,next:expectedInterval});
 
  const field=newBattle('active');
