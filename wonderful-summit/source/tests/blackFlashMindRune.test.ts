@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {newBattle,hitWithSpell,launchSpell,stepBattle,rollBlackFlash,fizzleSpell,drinkPotion} from '../src/battle.ts';
+import {newBattle,hitWithSpell,launchSpell,stepBattle,rollBlackFlash,fizzleSpell,drinkPotion,CONTACT_X} from '../src/battle.ts';
 import {newRun,battleForRun,RELICS,acquireRelic} from '../src/run.ts';
 import {castHoldMs,chargeComplete} from '../src/magic.ts';
 
@@ -24,11 +24,24 @@ test('Black Flash uses strict 1/10 odds then chains at strict 1/3 odds until a m
 });
 test('only direct damage plus knockback spells roll; other spells and fizzles preserve a chain',()=>{
  const b={...field(),blackFlash:{enabled:true,chain:true}};
- for(const id of ['bog','firestorm','thistleBush','puddleGuard','chronos','alchemize','ender'] as const){const result=rollBlackFlash(b,id,80,()=>{throw Error('ineligible spell rolled');});assert.equal(result.state,b);assert.equal(result.multiplier,1);}
+ for(const id of ['bog','firestorm','thistleBush','puddleGuard','chronos','alchemize','ender','snowman','scorchy'] as const){const result=rollBlackFlash(b,id,80,()=>{throw Error('ineligible spell rolled');});assert.equal(result.state,b);assert.equal(result.multiplier,1);}
  assert.equal(rollBlackFlash(b,'water',47,()=>{throw Error('fizzle rolled');}).state,b);
  assert.equal(fizzleSpell(b).blackFlash.chain,true);
  const disabled={...b,blackFlash:{enabled:false,chain:false}};assert.equal(rollBlackFlash(disabled,'water',80,()=>{throw Error('unowned relic rolled');}).state,disabled);
 });
+test('guardian casts and projectile hits leave Black Flash and its existing chain intact',()=>{
+ const initial=field();
+ initial.enemies[0].x=CONTACT_X+20;
+ const blackFlash={enabled:true,chain:true},blackFlashBurst={serial:3,x:420};
+ const ready={...initial,blackFlash,blackFlashBurst};
+ const never=()=>{throw new Error('guardian cast rolled Black Flash');};
+ const summoned=launchSpell(launchSpell(ready,80,'#fff','snowman',0,never),80,'#fff','scorchy',0,never);
+ const impact=advance(summoned,.35);
+ assert.equal(impact.enemies[0].hp,1000-16-19.2);
+ assert.deepEqual(impact.blackFlash,blackFlash);
+ assert.deepEqual(impact.blackFlashBurst,blackFlashBurst);
+});
+
 test('Black Flash doubles direct damage and push, while intrinsic and amulet burn stay unchanged',()=>{
  for(const id of ['water','fire','nature','wave','bolt','leaf','tidalcrest','flameBlade'] as const){
   const b=field();b.damageBonus=1.07;b.amulets.sun=true;b.amulets.twilight=false;

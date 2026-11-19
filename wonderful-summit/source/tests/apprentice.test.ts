@@ -28,6 +28,26 @@ test('a successful long-cooldown cast hides only its own indefinite trace',()=>{
  assert.equal(trace.spellId,'snowman');
  assert.equal(trace.advance(2),true);
 });
+test('only the visible Apprentice trace signals an actual spell cooldown expiry',()=>{
+ const trace=new CombatTrace();
+ const known=['flameBlade','snowman'] as const;
+ const before={...newBattle('active'),time:7.99,cooldowns:{flameBlade:8,snowman:30}};
+ const ready={...before,time:8};
+ trace.select('flameBlade',[...known],'apprentice',before.time);
+ assert.equal(trace.cooledSpell(before,{...before,time:7.999}),null);
+ assert.equal(trace.cooledSpell(before,ready),'flameBlade');
+ assert.equal(trace.cooledSpell(ready,{...ready,time:8.05}),null);
+ assert.equal(trace.cooledSpell(before,{...ready,cooldownsDisabled:true}),null);
+ assert.equal(trace.cooledSpell(before,{...ready,cooldowns:{snowman:30}}),null);
+ assert.equal(trace.cooledSpell(before,{...ready,phase:'victory'}),null);
+ trace.select('snowman',[...known],'apprentice',before.time);
+ assert.equal(trace.cooledSpell(before,ready),null);
+ trace.hide();
+ assert.equal(trace.cooledSpell(before,ready),null);
+ trace.select('flameBlade',[...known],'expert',before.time);
+ assert.equal(trace.cooledSpell(before,ready),null);
+});
+
 test('Expert traces last exactly two active seconds then impose ten active seconds of cooldown',()=>{
  const trace=new CombatTrace();assert.equal(trace.select('fire',['fire','water'],'expert',5),true);assert.equal(trace.advance(6.999),false);assert.equal(trace.canSelect('expert',6.999),false);assert.equal(trace.advance(7),true);assert.equal(trace.spellId,null);assert.equal(trace.canSelect('expert',16.999),false);assert.equal(trace.canSelect('expert',17),true);assert.equal(trace.select('water',['fire','water'],'expert',17),true);
  // Repeated reads at paused battle time neither expire a guide nor consume cooldown.

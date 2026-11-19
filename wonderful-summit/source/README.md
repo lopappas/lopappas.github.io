@@ -40,6 +40,10 @@ The home menu opens a single-page field journal with Spells, Relics, and Potions
 
 `ENCYCLOPEDIA_PREVIEW` in `src/encyclopedia.ts` currently reveals every entry because journey saving is not implemented. Session discovery tracking stays separate from inventory, so spending a potion or starting a new run does not erase a discovery. Once durable discovery storage exists, disable the preview flag to show question marks until collection. No encyclopedia data is persisted yet.
 
+## Apprentice traces
+
+A selected Apprentice trace glows briefly when its spell comes off cooldown.
+
 ## Practice
 
 Practice opens above Encyclopedia on the home menu. All spells (including Ender) are temporarily available. Infinite ink defaults to on; turn it off to use normal ink and refill rules. The neutral golden slime absorbs repeated casts without attacking. Movement is off by default; switching it on enables a safe patrol affected by normal slows, roots, stops, and knockback. Upgrade all toggles the standard maximum upgrade on eligible spells. Existing ongoing effects retain their normal combat behavior. Reset restores ink and clears casts, effects, and damage totals while retaining the movement, upgrade, and ink switches. Practice does not modify run progress. Damage totals include direct hits and damage over time.
@@ -58,7 +62,7 @@ Drawn casts track an encounter-local spell streak. The fourth and later consecut
 
 Chronos Denalis freezes at every successful quality, including Faint against rocky enemies, retaining all prior duration endpoints and upgrade scaling. Its 20-second cooldown starts at launch and advances only with combat time. A blocked attempt preserves the drawing and all cast bonuses; the canvas displays an italic cooldown message. Active spell cooldowns appear beneath player health. Bottled Chronos ignores and does not change the cooldown.
 
-Slime Mother retains the killing spell’s knockback during her death animation. The split and offspring location follow her final pushed position.
+Slime Mother retains the killing spell’s knockback during her death animation. The split and offspring location follow her final pushed position. Snowman and Scorchy stay in place until the offspring appear.
 
 Theodora’s Coinpurse is a keepsake granting 80 gold once upon collection. Untouched Box grants two unowned normal relics, with existing rarity weights and normal duplicate and starter restrictions; an Artisan robes gift performs its normal takeover. Madora’s Earring grants 5% spell damage. The ink keepsake is now named Giant Inkwell. Stale drawn casts briefly gray only their casting paper and show a fading stale label. Cooldown labels use the spell sigil, the word cooldown, and remaining seconds. Calculus gold and green segments share a flush edge within the quality track.
 

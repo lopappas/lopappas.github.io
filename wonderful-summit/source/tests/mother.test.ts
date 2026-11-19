@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {newBattle,hitWithSpell,stepBattle,spellKnockback,presentEnemies,CONTACT_X,nearestEnemy} from '../src/battle.ts';
+import {newBattle,hitWithSpell,launchSpell,stepBattle,spellKnockback,presentEnemies,CONTACT_X,nearestEnemy} from '../src/battle.ts';
 import {ROUTE,newRun,battleForRun,finishBattle} from '../src/run.ts';
 function advance(b:ReturnType<typeof newBattle>,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 function slain(){let b=newBattle('active','mother',()=>0);b.time=7;b.enemies[0]={...b.enemies[0],hp:1,x:401};return hitWithSpell(b,100,'water');}
@@ -25,6 +25,26 @@ test('Mother waits two seconds after direct death, splits once at her final knoc
  b=advance(b,.03);assert.ok(presentEnemies(b).every(e=>e.x<493+(e.id-2)*36));assert.equal(b.enemies.length,4);
  for(const e of b.enemies)b={...b,enemies:b.enemies.map(x=>({...x,hp:x.id===e.id?0:x.hp}))};b=stepBattle(b,.01);assert.equal(b.phase,'victory');
 });
+test('both guardians hold their positions from the Mother defeat until her offspring arrive',()=>{
+ const field=newBattle('active','mother',()=>0);
+ field.enemies[0].x=500;
+ const snowman=launchSpell(field,80,'#69c2d6','snowman');
+ const both=advance(launchSpell(advance(snowman,.2),80,'#f0a068','scorchy'),.3);
+ both.enemies[0].hp=1;
+ const defeated=hitWithSpell(both,100,'water');
+ const snowmanX=defeated.snowman!.x,scorchyX=defeated.scorchy!.x;
+ assert.notEqual(snowmanX,scorchyX);
+ assert.equal(defeated.motherSplit?.spawned,false);
+ const waiting=advance(defeated,1.99);
+ assert.equal(waiting.snowman?.x,snowmanX);
+ assert.equal(waiting.scorchy?.x,scorchyX);
+ assert.equal(presentEnemies(waiting).length,0);
+ const resumed=advance(waiting,.1);
+ assert.equal(presentEnemies(resumed).length,3);
+ assert.ok(resumed.snowman!.x>snowmanX);
+ assert.ok(resumed.scorchy!.x>scorchyX);
+});
+
 test('offspring at contact cannot attack before their four-second pause ends',()=>{
  let b=slain();b={...b,enemies:b.enemies.map(e=>({...e,x:CONTACT_X,push:null})),motherSplit:{...b.motherSplit!,x:CONTACT_X}};b=advance(b,5.99);assert.equal(b.playerHP,100);assert.ok(presentEnemies(b).every(e=>e.attackAt===null));b=advance(b,.5);assert.ok(b.playerHP<100);
 });

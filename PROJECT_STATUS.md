@@ -13,7 +13,9 @@ Updated: 2026-11-19
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.53): Snowman fires from 50 units with 12–30 base knockback. Snowman+ fires from 60 units with 16–36 base knockback. Scorchy fires from 40 units, or 50 when upgraded, and its fireballs ignite wooden shields. Flame Blade deals 20% less damage and applies 30% of the standard knockback curve. Each eligible Flame Blade swing shares one Black Flash roll across its targets. All 690 tests and the production build passed. Browser and device playtesting are outstanding.
+Latest update (version 0.3.54): The selected Apprentice trace briefly glows when its spell cooldown ends. Snowman and Scorchy hold their positions until Slime Mother's offspring appear, including Scorchy's hover height. Guardian projectiles leave Black Flash and its chain intact. All 693 tests and the production build passed. Rendered checks covered the trace pulse and stationary hover. Interactive browser and device playtesting are outstanding.
+
+Snowman fires from 50 units with 12–30 base knockback. Snowman+ fires from 60 units with 16–36 base knockback. Scorchy fires from 40 units, or 50 when upgraded, and its fireballs ignite wooden shields. Flame Blade applies 30% of the standard knockback curve. Each eligible Flame Blade swing shares one Black Flash roll across its targets.
 
 Scorchy is a Legendary Fire spell with the approved A1 pixel pumpkin and aligned S1 sigil. It floats and bobs, shows a health bar and a quiet mouth ember, and spits fire only while attacking. It can fight alongside Snowman with its own cooldown. The spell is available through the normal spell pool and has a Practice lesson and campsite upgrade.
 

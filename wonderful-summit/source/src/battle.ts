@@ -19,6 +19,7 @@ export const PLAYER_MAX_HP=100,SLIME_MAX_HP=100;
 export const CONTACT_X=325,SLIME_START_X=580,SLIME_SPEED=18;
 export const CONTACT_DAMAGE=12,ATTACK_COOLDOWN=1.5,ATTACK_WINDUP=.45,PUSH_DURATION=.28;
 export const ENEMY_BACK_X=640;
+export const MOTHER_SPLIT_SECONDS=2;
 export const ENEMY_RUNWAY_SIZE=ENEMY_BACK_X-CONTACT_X;
 export const PLAYER_HIT_PUSH=ENEMY_RUNWAY_SIZE/3;
 export const ENEMY_APPROACH_DELAY=5;
@@ -47,7 +48,7 @@ export type Projectile={knockbackMultiplier?:number;inkUsed:number;damageMultipl
 export type TidalWave={blackFlashMultiplier?:number;id:number;started:number;duration:number;quality:number;damageMultiplier:number;inkUsed:number;hitIds:number[];bonuses:{damageBonus:number;pushBonus:number;upgrade:number;midnightStone:boolean;moon:boolean}};
 export const TIDAL_TRAVEL_SECONDS=.9,TIDAL_START_X=300;
 type NearCast={quality:number;multiplier:number;inkUsed:number;knockbackMultiplier:number;bonuses:TidalWave['bonuses'];amulets:Battle['amulets']};
-export type Battle={snowman:Guardian|null;scorchy:Guardian|null;maxHealth?:number;contactPushMultiplier?:number;torrent:Torrent|null;fireFriend:boolean;snaily:boolean;cooldownsDisabled?:boolean;repeatAlchemize?:boolean;vineGrab:{targetId:number;x:number;y:number;started:number}|null;blackFlashBurst:{serial:number;x:number}|null;blackFlash:{enabled:boolean;chain:boolean};alchemizeUsed:boolean;alchemizedPotions?:Potion[];potionFullSerial?:number;alchemizedPotion:Potion|null;alchemizeAt:number;potionCapacity:number;hazardousVials:boolean;flameSwing:{started:number}|null;puddle:{x:number;cast:NearCast}|null;puddleBurst:{x:number;started:number}|null;thistle:{started:number;range:number;budget:number;spent:number;nextTick:number;cast:NearCast}|null;stale:{spellId:SpellId|null;count:number};cooldowns:Partial<Record<SpellId,number>>;stellarReady:boolean;robes:{enabled:boolean;artisan:boolean;spells:SpellId[]};sphereShatteredAt:number|null;castingRelics:{sphere:boolean;calculus:boolean;stardust:boolean;clover:boolean;stardustUsed:boolean;steadyCasts:number};bog:Bog|null;tidalWaves:TidalWave[];tidalSerial:number;firestorm:Firestorm|null;bestDrawing:PlayerDrawing|null;worstDrawing:PlayerDrawing|null;lotus:boolean;lotusReady:boolean;colorful:boolean;lastElement:Element|null;shaleActive:boolean;shaleContacts:number;offspringOrder:Element[];phase:BattlePhase;encounter:Encounter;time:number;approachAt:number;playerHP:number;enemies:Enemy[];playerHurtUntil:number;playerHits:number;casts:number;projectile:Projectile|null;potions:PotionCounts;bottledSpells:BottledSpell[];rejectionUntil:number;furyReady:boolean;freezeUntil:number;unlimitedUntil:number;potionFlights:PotionFlight[];potionSerial:number;upgrades:Partial<Record<SpellId,number>>;midnightStone:boolean;damageBonus:number;pushBonus:number;firstHitPush:number;difficulty:number;motherSplit:{at:number;x:number;element:Enemy['element'];spawned:boolean}|null;chronosFields:{quality:number;kind:'slow'|'stun';started:number;until:number}[];chronosPulse:{started:number;strong:boolean}|null;amulets:{sun:boolean;moon:boolean;twilight:boolean}};
+export type Battle={snowman:Guardian|null;scorchy:Guardian|null;maxHealth?:number;contactPushMultiplier?:number;torrent:Torrent|null;fireFriend:boolean;snaily:boolean;cooldownsDisabled?:boolean;repeatAlchemize?:boolean;vineGrab:{targetId:number;x:number;y:number;started:number}|null;blackFlashBurst:{serial:number;x:number}|null;blackFlash:{enabled:boolean;chain:boolean};alchemizeUsed:boolean;alchemizedPotions?:Potion[];potionFullSerial?:number;alchemizedPotion:Potion|null;alchemizeAt:number;potionCapacity:number;hazardousVials:boolean;flameSwing:{started:number}|null;puddle:{x:number;cast:NearCast}|null;puddleBurst:{x:number;started:number}|null;thistle:{started:number;range:number;budget:number;spent:number;nextTick:number;cast:NearCast}|null;stale:{spellId:SpellId|null;count:number};cooldowns:Partial<Record<SpellId,number>>;stellarReady:boolean;robes:{enabled:boolean;artisan:boolean;spells:SpellId[]};sphereShatteredAt:number|null;castingRelics:{sphere:boolean;calculus:boolean;stardust:boolean;clover:boolean;stardustUsed:boolean;steadyCasts:number};bog:Bog|null;tidalWaves:TidalWave[];tidalSerial:number;firestorm:Firestorm|null;bestDrawing:PlayerDrawing|null;worstDrawing:PlayerDrawing|null;lotus:boolean;lotusReady:boolean;colorful:boolean;lastElement:Element|null;shaleActive:boolean;shaleContacts:number;offspringOrder:Element[];phase:BattlePhase;encounter:Encounter;time:number;approachAt:number;playerHP:number;enemies:Enemy[];playerHurtUntil:number;playerHits:number;casts:number;projectile:Projectile|null;potions:PotionCounts;bottledSpells:BottledSpell[];rejectionUntil:number;furyReady:boolean;freezeUntil:number;unlimitedUntil:number;potionFlights:PotionFlight[];potionSerial:number;upgrades:Partial<Record<SpellId,number>>;midnightStone:boolean;damageBonus:number;pushBonus:number;firstHitPush:number;difficulty:number;motherSplit:{at:number;x:number;element:Enemy['element'];spawned:boolean;snowmanX:number|null}|null;chronosFields:{quality:number;kind:'slow'|'stun';started:number;until:number}[];chronosPulse:{started:number;strong:boolean}|null;amulets:{sun:boolean;moon:boolean;twilight:boolean}};
 function enemy(id:number,element:Enemy['element'],x:number,kind:Enemy['kind']='slime',rocky=false):Enemy{return{id,offspring:false,potionCurseTick:null,potionCurseUntil:0,curseTick:null,kind,initialElement:element,readyAt:0,rocky,shield:null,chronosStartedAt:0,stunStartedAt:0,spawnAt:0,element,hp:rocky?150:kind==='goblin'?200:kind==='mother'?300:SLIME_MAX_HP,maxHP:rocky?150:kind==='goblin'?200:kind==='mother'?300:SLIME_MAX_HP,x,clock:0,attackAt:null,nextAttackAt:0,hurtUntil:0,push:null,leafSlows:[],slowUntil:0,rootUntil:0,chronosSlowUntil:0,stunUntil:0,burn:null};}
 export function createGoblinKing():Enemy{return{...enemy(1,'Neutral',580,'goblin'),goblinKing:true,hp:1000,maxHP:1000};}
 export function kingDamageMultiplier(target:KingState,quality:number){return kingHasCrown(target)?kingSpellMultiplier(quality):1;}
@@ -246,12 +247,12 @@ function resolveMother(state:Battle):Battle{
  let next={...state,enemies:state.enemies.map(e=>e.goblinKing&&e.kingEnragedAt===undefined&&e.hp<=e.maxHP/2?{...e,kingEnragedAt:state.time}:e)};
  const mother=state.enemies.find(e=>e.kind==='mother');
  if(mother&&mother.hp<=0&&!state.motherSplit){
-  next={...state,motherSplit:{at:state.time,x:mother.x,element:mother.element,spawned:false},enemies:state.enemies.map(e=>e.id===mother.id?{...e,attackAt:null,burn:null}:e),projectile:null};
+  next={...state,motherSplit:{at:state.time,x:mother.x,element:mother.element,spawned:false,snowmanX:state.snowman?.x??null},enemies:state.enemies.map(e=>e.id===mother.id?{...e,attackAt:null,burn:null}:e),projectile:null};
  }
  if(next.motherSplit&&!next.motherSplit.spawned&&mother&&next.motherSplit.x!==mother.x)next={...next,motherSplit:{...next.motherSplit,x:mother.x}};
  const split=next.motherSplit;
- if(split&&!split.spawned&&next.time+1e-9>=split.at+2){
-  const spawnAt=split.at+2;
+ if(split&&!split.spawned&&next.time+1e-9>=split.at+MOTHER_SPLIT_SECONDS){
+  const spawnAt=split.at+MOTHER_SPLIT_SECONDS;
   const children=next.offspringOrder.map((element,i)=>{
    let child={...enemy(i+2,element,Math.max(CONTACT_X,Math.min(ENEMY_BACK_X-72,split.x-36))+i*36),spawnAt,readyAt:spawnAt+4,offspring:true};
    for(const field of next.chronosFields??[])if(field.until>spawnAt)child=applyChronos(child,field,spawnAt);
@@ -544,6 +545,7 @@ function beginGuardian(state:Battle,spellId:GuardianSpell,quality:number,damageB
 function moveGuardian(state:Battle,spellId:GuardianSpell,delta:number):Guardian|null{
  const guardian=state[spellId];
  if(!guardian||(guardian.expiresAt!==null&&guardian.expiresAt<=state.time+1e-9))return null;
+ if(state.motherSplit&&!state.motherSplit.spawned)return guardian;
  const range=guardianAttackRange(spellId,guardian.upgrade);
  let limit=CONTACT_X+GUARDIAN_MAX_DISTANCE;
  for(const e of state.enemies){

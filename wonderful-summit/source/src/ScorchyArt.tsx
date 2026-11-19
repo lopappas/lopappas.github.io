@@ -1,5 +1,5 @@
 import React,{memo} from 'react';
-import {enemyArtY,type Battle} from './battle';
+import {enemyArtY,MOTHER_SPLIT_SECONDS,type Battle} from './battle';
 import {CENTER_LANE,COMBAT_LANE_Y} from './combatLanes';
 import {GUARDIAN_FADE_SECONDS,GUARDIAN_SHOT_FLIGHT_SECONDS,guardianStats} from './guardian';
 
@@ -8,7 +8,10 @@ const BODY_SCALE=3.5;
 const STEM_TOP=-22;
 const MOUTH={x:7,y:-6};
 const SPIT_SECONDS=.12;
-const bob=(time:number)=>Math.sin(time*2*Math.PI/1.45)*3;
+function bob(time:number,split:Battle['motherSplit']){
+ const bobTime=split&&time>split.at?Math.max(split.at,time-MOTHER_SPLIT_SECONDS):time;
+ return Math.sin(bobTime*2*Math.PI/1.45)*3;
+}
 
 const ScorchyBody=memo(function ScorchyBody({spitting}:{spitting:boolean}){
  return <g shapeRendering="crispEdges">
@@ -27,16 +30,17 @@ const ScorchyBody=memo(function ScorchyBody({spitting}:{spitting:boolean}){
 export function ScorchyArt({battle}:{battle:Battle}){
  const guardian=battle.scorchy;
  if(!guardian)return null;
- const {time,encounter}=battle;
+ const {time,encounter,motherSplit}=battle;
  const shot=guardian.shot;
  const target=shot&&battle.enemies.find(enemy=>enemy.id===shot.targetId&&enemy.hp>0);
  const age=shot?time-shot.started:Infinity;
  const spitting=!!target&&age<SPIT_SECONDS;
- const separation=battle.snowman?Math.max(0,1-Math.abs(guardian.x-battle.snowman.x)/75):0;
+ const snowmanX=motherSplit&&!motherSplit.spawned?motherSplit.snowmanX:battle.snowman?.x;
+ const separation=snowmanX==null?0:Math.max(0,1-Math.abs(guardian.x-snowmanX)/75);
  // Give Scorchy room to hover beside Snowman when both reach the same line.
  const offsetX=-59+36*separation;
  const hoverY=GROUND_Y-17-55*separation;
- const bodyX=guardian.x+offsetX,bodyY=hoverY+bob(time);
+ const bodyX=guardian.x+offsetX,bodyY=hoverY+bob(time,motherSplit);
  const facing=target&&target.x<bodyX?-1:1;
  const opacity=guardian.expiresAt===null?1:Math.max(0,Math.min(1,(guardian.expiresAt-time)/GUARDIAN_FADE_SECONDS));
  const maxHP=guardianStats('scorchy',guardian.quality,guardian.upgrade).hp;
@@ -56,7 +60,7 @@ export function ScorchyArt({battle}:{battle:Battle}){
   {shot&&target&&(()=>{
    const progress=Math.max(0,Math.min(1,age/GUARDIAN_SHOT_FLIGHT_SECONDS));
    const fromX=shot.x+offsetX+MOUTH.x*BODY_SCALE*facing;
-   const fromY=hoverY+bob(shot.started)+MOUTH.y*BODY_SCALE;
+   const fromY=hoverY+bob(shot.started,motherSplit)+MOUTH.y*BODY_SCALE;
    const x=fromX+(target.x-fromX)*progress;
    const y=fromY+(enemyArtY(target,encounter)-18-fromY)*progress-24*progress*(1-progress);
    return <g transform={`translate(${x} ${y}) scale(${facing*2} 2)`} shapeRendering="crispEdges" aria-label="Scorchy fireball">

@@ -460,6 +460,8 @@
 .combat-spells p{flex-shrink:0;font-size:10px;line-height:1.2;text-align:center;margin:4px 0 0}
 .journey-combat .perfect-guide{animation:none!important;filter:none}
 .journey-combat .perfect-guide svg{filter:none}
+.combat-trace-ready-glow{opacity:0;filter:drop-shadow(0 0 2px currentColor);animation:combatTraceReady 520ms ease-out both}
+@keyframes combatTraceReady{0%,100%{opacity:0}25%{opacity:.6}}
 
 .combat-spells-column{min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:6px}.combat-spells-grid[data-columns="4"]{gap:4px}.combat-spells-grid[data-columns="4"] button{font-size:10.35px}.combat-spells-grid[data-columns="4"] svg{width:32px;height:32px}
 
