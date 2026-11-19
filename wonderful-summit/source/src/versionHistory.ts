@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.52',publishedAt:'2026-11-19T12:18:47Z',changes:['Snowman has 150 HP at 80% quality and deals 10–24 base knockback depending on cast quality.','Scorchy fireballs can ignite wooden shields.']},
  {version:'0.3.51',publishedAt:'2026-11-19T12:03:15Z',changes:['Scorchy attacks every 1.5 seconds and deals 20% more damage.','Snowman has 30% more health and its snowballs push enemies back slightly. Higher cast quality increases the push.']},
  {version:'0.3.50',publishedAt:'2026-11-19T11:34:14Z',changes:['Added Scorchy, a Legendary Fire spell. Draw a round jack-o’-lantern face to summon a floating pumpkin that spits fire.','Scorchy has its own cooldown and can fight alongside Snowman.']},
  {version:'0.3.41',publishedAt:'2026-11-19T07:16:07Z',changes:['Snowman has a floating health bar and throws stronger snowballs every two seconds within 40 units.','Enemies hit Snowman on contact and can still be knocked back.','Successfully casting a spell with a cooldown above 10 seconds hides its Apprentice trace.']},

@@ -4,6 +4,7 @@ import {CONTACT_X,hitWithSpell,launchSpell,newBattle,spellCooldownRemaining,spel
 import {PLAYER_SPELLS,recognize} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
+import {SHIELD_BURN_SECONDS,woodenShield} from '../src/shields.ts';
 
 function advance(battle:Battle,seconds:number){
  for(let i=0;i<Math.round(seconds*100);i++)battle=stepBattle(battle,.01);
@@ -65,7 +66,7 @@ test('Snowman and Scorchy can coexist and the leading guardian takes the contact
  const struck=advance(summoned,.01);
  assert.equal(struck.scorchy?.hp,82);
  assert.equal(struck.scorchy?.x,CONTACT_X+60);
- assert.equal(struck.snowman?.hp,130);
+ assert.equal(struck.snowman?.hp,150);
  assert.ok(struck.scorchy?.shot&&struck.snowman?.shot);
  const push=hitWithSpell(struck,80,'water');
  assert.ok(push.enemies[0].push);
@@ -85,4 +86,30 @@ test('Scorchy inherits half of the Fire-specific amulet bonus and upgrades like 
  assert.equal(battle.scorchy?.hp,120);
  assert.equal(battle.enemies[0].hp,100-22.704);
  assert.deepEqual(spellUpgradePreview('scorchy')?.guardianHealth,{current:75,next:90});
+});
+
+
+test('Scorchy fireballs ignite wooden shields on impact and leave armor active until it breaks',()=>{
+ const field=newBattle('active');
+ field.approachAt=0;
+ Object.assign(field.enemies[0],{element:'Fire',x:CONTACT_X+8,shield:woodenShield()});
+ const flying=advance(summon(field),.28);
+ assert.equal(flying.enemies[0].shield?.burnUntil,null);
+
+ const impact=advance(flying,.01);
+ const burning=impact.enemies[0];
+ assert.equal(burning.hp,100-4.8);
+ assert.equal(burning.shield?.burnUntil,impact.time+SHIELD_BURN_SECONDS);
+ assert.equal(burning.burn,null);
+ assert.equal(burning.push,null);
+
+ const next=advance(impact,1.5);
+ assert.equal(next.enemies[0].shield?.burnUntil,burning.shield?.burnUntil);
+ assert.ok(Math.abs(next.enemies[0].hp-(100-9.6))<1e-8);
+ assert.equal(next.enemies[0].clock,burning.clock);
+ assert.equal(advance(next,.5).enemies[0].shield,null);
+
+ const unarmored=advance(next,1.5);
+ assert.equal(unarmored.enemies[0].shield,null);
+ assert.ok(Math.abs(unarmored.enemies[0].hp-(100-19.2))<1e-8);
 });

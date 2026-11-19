@@ -43,7 +43,7 @@ export type Guardian = {
 export function guardianStats(spell: GuardianSpell, quality: number, upgrade = 0) {
  const normalizedQuality = Number.isFinite(quality) && quality >= MIN_CAST_QUALITY ? Math.min(100, quality) : 0;
  const baseHP = Math.ceil(normalizedQuality * 6 / 25) * 5;
- const hp = spell === 'snowman' ? baseHP * 13 / 10 : baseHP;
+ const hp = spell === 'snowman' ? baseHP * 3 / 2 : baseHP;
  const damage = Math.floor(normalizedQuality / 5);
  return {
   hp: hp + (upgrade >= 1 ? hp * GUARDIAN_UPGRADE_HEALTH_BONUS : 0),
@@ -54,7 +54,7 @@ export function guardianStats(spell: GuardianSpell, quality: number, upgrade = 0
 export function snowballKnockback(quality: number) {
  if (!Number.isFinite(quality) || quality < MIN_CAST_QUALITY) return 0;
  const progress = (Math.min(100, quality) - MIN_CAST_QUALITY) / (100 - MIN_CAST_QUALITY);
- return 6 + progress * 6;
+ return 10 + progress * 14;
 }
 
 export function guardianBoostMultiplier(playerMultiplier: number) {

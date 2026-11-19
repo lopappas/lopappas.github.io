@@ -552,10 +552,12 @@ function advanceGuardian(state:Battle,spellId:GuardianSpell):Battle{
    const damage=spellDamage(e,guardian.quality,spellId,guardian.damageBonus,guardian.upgrade,time);
    if(damage<=0)return e;
    const hp=Math.max(0,e.hp-damage);
+   const shield=spellId==='scorchy'?igniteShield(e.shield,'Fire',guardian.quality,time):e.shield;
+   const ignited=shield!==e.shield;
    const distance=spellKnockback(guardian.quality,spellId,state.pushBonus,e.element,e.rocky,e.shield,time,guardian.upgrade,kingHasCrown(e));
    const knockback=distance>0?enemyKnockback(state,e,distance):null;
    const push=knockback&&knockback.to>(e.push?.to??e.x)?knockback:e.push;
-   return {...e,hp,hurtUntil:time+.25,push:hp===0?null:push,attackAt:hp===0?null:e.attackAt};
+   return {...e,hp,shield,hurtUntil:time+.25,push:hp===0||ignited?null:push,attackAt:hp===0||ignited?null:e.attackAt};
   });
   return resolveMother({...state,enemies,[spellId]:{...guardian,shot:null}});
  }
