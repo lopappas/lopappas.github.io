@@ -27,13 +27,12 @@ test('the Snowman lesson casts the new spell against the full recognition roster
  assert.ok(match.quality>=80);
 });
 
-test('Snowman walks slowly, stops 250 units ahead and lasts indefinitely at Steady or better',()=>{
+test('Snowman advances at 15.5 units per second and stops 250 units ahead',()=>{
  for(const [quality,hp] of [[60,117.5],[70,132.5],[80,155],[100,185]]){
   const field=newBattle('active');field.enemies[0].spawnAt=100;
   let battle=summon(field,quality);
   assert.equal(battle.snowman?.hp,hp);
-  assert.equal(battle.snowman?.expiresAt,null);
-  assert.ok(Math.abs(advance(battle,1).snowman!.x-CONTACT_X-14)<1e-8);
+  assert.ok(Math.abs(advance(battle,1).snowman!.x-CONTACT_X-15.5)<1e-8);
   battle=advance(battle,65);
   assert.equal(battle.snowman?.x,CONTACT_X+250);
   assert.equal(battle.snowman?.shot,null);
@@ -43,7 +42,6 @@ test('Snowman walks slowly, stops 250 units ahead and lasts indefinitely at Stea
 test('Faint Snowman stays indefinitely and a recast replaces the existing summon',()=>{
  const field=newBattle('active');field.enemies[0].spawnAt=100;
  const faint=summon(field,59);
- assert.equal(faint.snowman?.expiresAt,null);
  const first=advance(faint,30);
  assert.equal(first.snowman?.hp,117.5);
 

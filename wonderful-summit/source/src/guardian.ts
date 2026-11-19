@@ -8,14 +8,12 @@ export function isGuardianSpell(id:string):id is GuardianSpell {
 
 export const GUARDIAN_COOLDOWN = 30;
 export const GUARDIAN_MAX_DISTANCE = 250;
-export const GUARDIAN_SPEED = 14;
+export const GUARDIAN_SPEED = 15.5;
 export const GUARDIAN_CONTACT_DISTANCE = 8;
 export const GUARDIAN_CONTACT_ANIMATION_SECONDS = .18;
 export const GUARDIAN_ENEMY_COOLDOWN = 1.5;
 export const GUARDIAN_MAX_CONTACT_REACH = 30;
 export const GUARDIAN_DAMAGE_TAKEN = 1.5;
-export const SCORCHY_FAINT_LIFETIME = 20;
-export const SCORCHY_FADE_SECONDS = 3;
 export const GUARDIAN_SHOT_FLIGHT_SECONDS = .28;
 export const GUARDIAN_UPGRADE_HEALTH_BONUS = .2;
 
@@ -31,7 +29,6 @@ export type Guardian = {
  quality: number;
  damageBonus: number;
  upgrade: number;
- expiresAt: number | null;
  nextShotAt: number;
  hurtUntil: number;
  shot: GuardianShot | null;
@@ -59,14 +56,14 @@ export function guardianAttackRange(spell: GuardianSpell, upgrade = 0) {
 }
 
 export function guardianAttackInterval(spell: GuardianSpell, upgrade = 0) {
- return spell === 'snowman' ? 2 : upgrade >= 1 ? 1 : 1.2;
+ return spell === 'snowman' ? 2 : upgrade >= 1 ? 1.2 : 1.4;
 }
 
 export function guardianKnockback(spell: GuardianSpell, quality: number, upgrade = 0) {
  if (!Number.isFinite(quality) || quality < MIN_CAST_QUALITY) return 0;
  const progress = (Math.min(100, quality) - MIN_CAST_QUALITY) / (100 - MIN_CAST_QUALITY);
  if (spell === 'snowman') return upgrade >= 1 ? 16 + progress * 12 : 13 + progress * 13;
- return 2 + progress * 2;
+ return 2 + progress;
 }
 
 export function guardianBoostMultiplier(playerMultiplier: number) {

@@ -1,7 +1,7 @@
 import {COMBAT_LANE_Y,FILA_FOOT_Y,combatLane,enemyFootOffset,laneContactReach,placeLaneArrivals,spaceLaneEnemies,type CombatLane} from './combatLanes.ts';
 import {
  GUARDIAN_SHOT_FLIGHT_SECONDS,GUARDIAN_CONTACT_DISTANCE,GUARDIAN_COOLDOWN,
- GUARDIAN_DAMAGE_TAKEN,GUARDIAN_ENEMY_COOLDOWN,SCORCHY_FAINT_LIFETIME,GUARDIAN_MAX_CONTACT_REACH,
+ GUARDIAN_DAMAGE_TAKEN,GUARDIAN_ENEMY_COOLDOWN,GUARDIAN_MAX_CONTACT_REACH,
  GUARDIAN_MAX_DISTANCE,GUARDIAN_SPEED,guardianAttackInterval,guardianAttackRange,guardianBoostMultiplier,guardianKnockback,guardianStats,isGuardianSpell,type Guardian,type GuardianSpell,
 } from './guardian.ts';
 import {playerMaxHealth} from './playerHealth.ts';
@@ -536,7 +536,6 @@ function beginGuardian(state:Battle,spellId:GuardianSpell,quality:number,damageB
  if(!hp)return state;
  const guardian:Guardian={
   x:CONTACT_X,hp,quality,damageBonus,upgrade,
-  expiresAt:spellId==='scorchy'&&quality<60?state.time+SCORCHY_FAINT_LIFETIME:null,
   nextShotAt:state.time,hurtUntil:0,shot:null,
  };
  return {...state,[spellId]:guardian,casts:state.casts+1};
@@ -544,7 +543,7 @@ function beginGuardian(state:Battle,spellId:GuardianSpell,quality:number,damageB
 
 function moveGuardian(state:Battle,spellId:GuardianSpell,delta:number):Guardian|null{
  const guardian=state[spellId];
- if(!guardian||(guardian.expiresAt!==null&&guardian.expiresAt<=state.time+1e-9))return null;
+ if(!guardian)return null;
  if(state.motherSplit&&!state.motherSplit.spawned)return guardian;
  const range=guardianAttackRange(spellId,guardian.upgrade);
  let limit=CONTACT_X+GUARDIAN_MAX_DISTANCE;

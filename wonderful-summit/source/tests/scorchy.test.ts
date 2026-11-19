@@ -33,7 +33,7 @@ test('the S1 lesson keeps the eye corners aligned to the grin and recognizes Sco
  assert.ok(result.quality>=80);
 });
 
-test('Scorchy fires at 40 units every 1.2 seconds with Fire damage and a small push',()=>{
+test('Scorchy fires at 40 units every 1.4 seconds with Fire damage and a small push',()=>{
  for(const [element,damage] of [['Nature',27],['Fire',9],['Water',13.5]] as const){
   const field=newBattle('active');
   field.enemies[0].element=element;
@@ -49,23 +49,23 @@ test('Scorchy fires at 40 units every 1.2 seconds with Fire damage and a small p
   assert.equal(battle.enemies[0].hp,100-damage);
   const push=battle.enemies[0].push!;
   assert.ok(Math.abs(push.to-push.from-spellKnockback(80,'scorchy',1,element))<1e-8);
-  battle=advance(battle,.91);
+  battle=advance(battle,1.11);
   assert.equal(battle.scorchy?.shot,null);
   assert.ok(advance(battle,.01).scorchy?.shot);
  }
 });
 
-test('Scorchy and Scorchy+ share 2–4 knockback and Scorchy+ fires every second',()=>{
+test('Scorchy and Scorchy+ share 2–3 knockback and Scorchy+ fires every 1.2 seconds',()=>{
  const knockback=(quality:number,upgrade=0)=>spellKnockback(quality,'scorchy',1,'Neutral',false,null,0,upgrade);
  assert.equal(knockback(44),0);
  assert.equal(knockback(45),2);
- assert.equal(knockback(100),4);
+ assert.equal(knockback(100),3);
  assert.ok(knockback(80)>knockback(60));
  for(const quality of [45,60,80,100])assert.equal(knockback(quality,1),knockback(quality));
- const expectedInterval=1;
+ const expectedInterval=1.2;
  const preview=spellUpgradePreview('scorchy');
  assert.equal(preview?.guardianKnockback,null);
- assert.deepEqual(preview?.shotInterval,{current:1.2,next:expectedInterval});
+ assert.deepEqual(preview?.shotInterval,{current:1.4,next:expectedInterval});
 
  const field=newBattle('active');
  field.upgrades.scorchy=1;
@@ -76,7 +76,7 @@ test('Scorchy and Scorchy+ share 2–4 knockback and Scorchy+ fires every second
  assert.equal(hit.enemies[0].hp,100-20);
  const push=hit.enemies[0].push!;
  assert.ok(Math.abs(push.to-push.from-knockback(80,1))<1e-8);
- const before=advance(hit,.71);
+ const before=advance(hit,.91);
  assert.equal(before.scorchy?.shot,null);
  assert.ok(advance(before,.01).scorchy?.shot);
 });
@@ -88,13 +88,14 @@ test('Scorchy and Scorchy+ scale to 18 and 20 damage at 80% quality',()=>{
  }
 });
 
-test('Faint Scorchy keeps its 20-second lifetime',()=>{
+test('Faint Scorchy advances at 15.5 units per second and survives past its old deadline',()=>{
  const field=newBattle('active');
  field.enemies[0].spawnAt=100;
  const faint=summon(field,59);
- assert.equal(faint.scorchy?.expiresAt,20);
- assert.ok(advance(faint,19.99).scorchy);
- assert.equal(advance(faint,20).scorchy,null);
+ assert.ok(Math.abs(advance(faint,1).scorchy!.x-CONTACT_X-15.5)<1e-8);
+ const late=advance(faint,30);
+ assert.equal(late.scorchy?.x,CONTACT_X+250);
+ assert.equal(late.scorchy?.hp,75);
 });
 
 test('guardian upgrades extend the exact firing boundary by ten units',()=>{
@@ -165,13 +166,13 @@ test('Scorchy fireballs ignite wooden shields on impact and leave armor active u
  const push=burning.push!;
  assert.ok(Math.abs(push.to-push.from-spellKnockback(80,'scorchy',1,'Fire',false,burning.shield,impact.time))<1e-8);
 
- const next=advance(impact,1.2);
+ const next=advance(impact,1.4);
  assert.equal(next.enemies[0].shield?.burnUntil,burning.shield?.burnUntil);
  assert.ok(Math.abs(next.enemies[0].hp-(100-9))<1e-8);
  assert.equal(next.enemies[0].clock,burning.clock);
- assert.equal(advance(next,.8).enemies[0].shield,null);
+ assert.equal(advance(next,.6).enemies[0].shield,null);
 
- const unarmored=advance(next,1.2);
+ const unarmored=advance(next,1.4);
  assert.equal(unarmored.enemies[0].shield,null);
  assert.ok(Math.abs(unarmored.enemies[0].hp-(100-18))<1e-8);
 });

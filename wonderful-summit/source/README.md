@@ -42,7 +42,7 @@ The home menu opens a single-page field journal with Spells, Relics, and Potions
 
 ## Apprentice traces
 
-When its spell comes off cooldown, the selected Apprentice trace glows and ramps up to 150% saturation, then eases back to normal over 0.8 seconds.
+When its spell comes off cooldown, the selected Apprentice trace brightens and glows as it reaches 150% saturation, then eases back to normal over one second.
 
 ## Practice
 
@@ -93,7 +93,7 @@ Milestone 6's full-sequence coverage and user-confirmed browser/device verificat
 
 ## Snowman
 
-Draw a small closed circle touching a larger circle below it, then add two short lines up and out from the upper sides of the larger circle. Snowman is a Legendary Water summon with a 30-second cooldown. It moves 14 world units per second from the player's contact line, up to 250 units ahead. It stops when an enemy is within 50 units, throws immediately at the nearest target, and waits two seconds between throws. Enemies hit Snowman immediately on contact for 1.5 times their usual damage, then wait 1.5 seconds before they can hit it again. Snowman stays in place when hit, and enemies can still be knocked back by other effects. Snowballs give a push that scales from 13 to 26 world units across successful cast qualities, before knockback bonuses and enemy defenses. Snowball damage uses the standard Water matchups. A health bar floats above the guardian.
+Draw a small closed circle touching a larger circle below it, then add two short lines up and out from the upper sides of the larger circle. Snowman is a Legendary Water summon with a 30-second cooldown. It moves 15.5 world units per second from the player's contact line, up to 250 units ahead. It stops when an enemy is within 50 units, throws immediately at the nearest target, and waits two seconds between throws. Enemies hit Snowman immediately on contact for 1.5 times their usual damage, then wait 1.5 seconds before they can hit it again. Snowman stays in place when hit, and enemies can still be knocked back by other effects. Snowballs give a push that scales from 13 to 26 world units across successful cast qualities, before knockback bonuses and enemy defenses. Snowball damage uses the standard Water matchups. A health bar floats above the guardian.
 
 To get Snowman's base HP, multiply cast quality by 1.2, round up to a multiple of 5, then add 50%. Apply the normal 20% HP upgrade to that result when upgraded, then add a flat 5 HP to either version. Each snowball deals one fifth of cast quality, rounded down. An 80% cast gives 155 HP and 16 base damage, or 185 HP and 17.6 base damage when upgraded. Snowman inherits half of the player's combined spell damage boost at summon time, so +120% becomes +60%. The upgrade raises attack range to 60 units and base knockback to 16–28 units. Snowman lasts for the rest of the battle at every successful cast quality unless defeated or replaced by a recast.
 
@@ -101,7 +101,7 @@ To get Snowman's base HP, multiply cast quality by 1.2, round up to a multiple o
 
 Draw a circle, two upward triangles, and a wide D turned clockwise so its flat edge sits on top. The outer eye corners line up with the ends of the grin. Scorchy is a Legendary Fire summon that hovers and bobs. A small ember stays in its mouth until it spits a fireball.
 
-Scorchy shares Snowman's movement, contact rules and cast-time damage bonuses. Its attack range is 40 units, or 50 with the upgrade. The upgrade also adds 20% HP and raises damage from 18 to 20 at 80% cast quality. Its base HP is 1.2 times cast quality, rounded up to a multiple of 5. It fires immediately in range, then every 1.2 seconds, or every second when upgraded. At 80% quality Scorchy has 100 HP and 18 base Fire damage per shot, or 120 HP and 20 base damage when upgraded. Both versions deal 2–4 base knockback depending on cast quality. Fireballs ignite wooden shields. A shield keeps protecting its bearer while it burns and breaks after two seconds. Its 30-second cooldown is independent, and both summons can be active together. Faint Scorchy fades over its last three seconds.
+Scorchy shares Snowman's movement, contact rules and cast-time damage bonuses. Its attack range is 40 units, or 50 with the upgrade. The upgrade also adds 20% HP and raises damage from 18 to 20 at 80% cast quality. Its base HP is 1.2 times cast quality, rounded up to a multiple of 5. It fires immediately in range, then every 1.4 seconds, or every 1.2 seconds when upgraded. At 80% quality Scorchy has 100 HP and 18 base Fire damage per shot, or 120 HP and 20 base damage when upgraded. Both versions deal 2–3 base knockback depending on cast quality. Fireballs ignite wooden shields. A shield keeps protecting its bearer while it burns and breaks after two seconds. Its 30-second cooldown is independent, and both summons can be active together. Scorchy lasts for the rest of the battle at every successful cast quality unless defeated or replaced by a recast.
 
 ## Flame Blade
 

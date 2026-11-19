@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.58',publishedAt:'2026-11-19T18:02:34Z',changes:['Snowman and Scorchy move a little faster. Scorchy stays in battle at Faint quality and has a thinner trace.','Scorchy fires every 1.4 seconds, or every 1.2 seconds when upgraded. Both have 2–3 base knockback.','The Apprentice cooldown cue lasts one second and glows more brightly.']},
  {version:'0.3.57',publishedAt:'2026-11-19T17:37:20Z',changes:['Snowman gains 5 HP at all cast qualities and stays in battle at Faint quality. Snowman and Snowman+ have new knockback ranges.','Scorchy fires every 1.2 seconds and Scorchy+ fires every second. At 80% cast quality, their fireballs deal 18 and 20 damage respectively. Both have 2–4 base knockback.']},
  {version:'0.3.56',publishedAt:'2026-11-19T13:34:04Z',changes:['Scorchy and Scorchy+ now share the same 3–5 base knockback.','The Apprentice trace glows in sync with the saturation pulse when the selected spell comes off cooldown.']},
  {version:'0.3.55',publishedAt:'2026-11-19T13:13:34Z',changes:['Scorchy and Scorchy+ deal 10% more damage. Their fireballs push enemies back, and Scorchy+ fires 15% more often.','The Apprentice trace becomes more saturated for 0.8 seconds as its spell comes off cooldown.']},

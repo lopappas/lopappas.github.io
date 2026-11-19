@@ -8,7 +8,7 @@ export function traceSize(scale:number){
 }
 export const TRACE_STROKE_WIDTH=4.4,TRACE_FADE_MS=180;
 
-const TRACE_THICKNESS:Partial<Record<SpellId,number>>={firestorm:.88,puddleGuard:.85,flameBlade:.90,thistleBush:.88,torrent:.90};
+const TRACE_THICKNESS:Partial<Record<SpellId,number>>={firestorm:.88,puddleGuard:.85,flameBlade:.90,thistleBush:.88,torrent:.90,scorchy:.81};
 export function traceStrokeWidth(id:SpellId,base=TRACE_STROKE_WIDTH){
  return Number((base*(TRACE_THICKNESS[id]??1)).toFixed(4));
 }

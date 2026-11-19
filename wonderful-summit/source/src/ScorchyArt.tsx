@@ -1,7 +1,7 @@
 import React,{memo} from 'react';
 import {enemyArtY,MOTHER_SPLIT_SECONDS,type Battle} from './battle';
 import {CENTER_LANE,COMBAT_LANE_Y} from './combatLanes';
-import {SCORCHY_FADE_SECONDS,GUARDIAN_SHOT_FLIGHT_SECONDS,guardianStats} from './guardian';
+import {GUARDIAN_SHOT_FLIGHT_SECONDS,guardianStats} from './guardian';
 
 const GROUND_Y=COMBAT_LANE_Y[CENTER_LANE];
 const BODY_SCALE=3.5;
@@ -42,13 +42,12 @@ export function ScorchyArt({battle}:{battle:Battle}){
  const hoverY=GROUND_Y-17-55*separation;
  const bodyX=guardian.x+offsetX,bodyY=hoverY+bob(time,motherSplit);
  const facing=target&&target.x<bodyX?-1:1;
- const opacity=guardian.expiresAt===null?1:Math.max(0,Math.min(1,(guardian.expiresAt-time)/SCORCHY_FADE_SECONDS));
  const maxHP=guardianStats('scorchy',guardian.quality,guardian.upgrade).hp;
  const hpFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
 
  return <g pointerEvents="none" aria-label="Scorchy guardian">
-  <ellipse cx={bodyX} cy={GROUND_Y-1} rx="25" ry="4" fill="#203d32" opacity={.30*opacity}/>
-  <g transform={`translate(${bodyX} ${bodyY})`} opacity={opacity}>
+  <ellipse cx={bodyX} cy={GROUND_Y-1} rx="25" ry="4" fill="#203d32" opacity=".30"/>
+  <g transform={`translate(${bodyX} ${bodyY})`}>
    <g transform={`scale(${facing*BODY_SCALE} ${BODY_SCALE})`} opacity={guardian.hurtUntil>time?.78:1}>
     <ScorchyBody spitting={spitting}/>
    </g>
