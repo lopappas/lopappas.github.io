@@ -3,8 +3,8 @@ import {FilaBody,SlimeBody,GoblinBody,CrownBody,GoblinHelmet} from './CharacterB
 import {chronosClockFrame} from './chronosClock';
 import {ChronosClock} from './ChronosClockArt';
 import {StaticScenery} from './StaticScenery';
-import {SnowmanArt} from './SnowmanArt';
-import {ScorchyArt} from './ScorchyArt';
+import {SnowballArt,SnowmanArt} from './SnowmanArt';
+import {ScorchyArt,ScorchyFireballArt} from './ScorchyArt';
 import {GUARDIAN_CONTACT_ANIMATION_SECONDS} from './guardian';
 import {TorrentArt} from './TorrentArt';
 import {GOBLIN_KING_SCALE,kingCrownFrame,kingDialogueVisible,kingHasCrown} from './goblinKing';
@@ -138,6 +138,8 @@ const t=Math.min(1,age/POTION_BREAK_SECONDS);return <g key={f.id} opacity={1-t} 
 <PaletteGroup className="chronos-environment" amount={0} fill="#2a4939"><path d="M0 600V550q42-22 73 5l34 45zM720 600V520q-69-5-119 80z"/></PaletteGroup>
 {battle.vineGrab&&<g key={`vine-${battle.vineGrab.started}`} className="sneaky-vine-grab" pointerEvents="none" aria-label="Sneaky Vine grabs the furthest enemy from behind and drags them backwards">{(()=>{const grab=battle.vineGrab,x=battle.enemies.find(e=>e.id===grab.targetId)?.x??grab.x,y=grab.y;return <><path d={`M760 ${y-16} C700 ${y-50} ${x+75} ${y+24} ${x+18} ${y}`} fill="none" stroke="#263e28" strokeWidth="12"/><path d={`M760 ${y-16} C700 ${y-50} ${x+75} ${y+24} ${x+18} ${y}`} fill="none" stroke="#88ad58" strokeWidth="6"/><ellipse cx={x} cy={y} rx="36" ry="20" fill="none" stroke="#263e28" strokeWidth="11"/><ellipse cx={x} cy={y} rx="36" ry="20" fill="none" stroke="#88ad58" strokeWidth="5"/><path d={`M${x+48} ${y-4}q-9-34 18-28q4 20-18 28M${x+83} ${y}q8 29 28 15q-3-18-28-15`} fill="#9bbe72" stroke="#365a37" strokeWidth="2"/></>;})()}</g>}
 {flashBurst&&<g key={flashBurst.serial} transform={`translate(${flashBurst.x} 410) scale(0.75)`} pointerEvents="none" aria-label="Black Flash explosion"><g className="black-flash-explosion"><circle r="78" fill="#09070c"/><path d="M0-112 18-62 62-85 50-38 116-22 66 4 104 63 45 48 22 110 0 65-43 99-39 42-109 52-64 6-112-35-51-37-60-96-18-61Z" fill="#e11c38" stroke="#10070d" strokeWidth="8"/><circle r="39" fill="#08060a"/><path d="m-16-58 28 40-23 9 30 59M-71-14l38 15-10 20 32 7M32-37l-6 25 31 4 22 24" fill="none" stroke="#ff5470" strokeWidth="7"/></g></g>}
+<SnowballArt battle={battle}/>
+<ScorchyFireballArt battle={battle}/>
 <ChronosClock frame={chronosClockFrame(battle)} y={BATTLEFIELD_BOTTOM_Y-viewHeight+140}/>
 </svg></div>;
 }

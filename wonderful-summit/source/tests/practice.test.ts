@@ -6,6 +6,8 @@ import {newPracticeBattle,practiceJourney,restoreScarecrow,stepPracticeBattle,pr
 
 test('practice grants every spell and toggles only valid upgrades without altering the journey',()=>{
  const base=practiceJourney(),upgraded=practiceJourney(true);
+ assert.equal(base.playMode,'apprentice');
+ assert.equal(upgraded.playMode,'apprentice');
  assert.deepEqual(base.spells,SPELLS.map(s=>s.id));
  assert.deepEqual(base.upgrades,{});
  for(const spell of SPELLS)assert.equal(upgraded.upgrades[spell.id],isUpgradableSpell(spell.id)?1:undefined);

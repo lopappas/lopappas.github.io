@@ -5,6 +5,7 @@ import {grayPaint} from './PaletteGroup';
 
 const RAIN=Array.from({length:41},(_,i)=>{const cycle=.65+(i%5)*.09;return{i,cycle,offset:(i*.197)%cycle,x:342+(i*67)%353};});
 const CLOUDS=[0,1,2];
+const FIRE_RAIN_FPS=60;
 // Full-rate state controls presence and rain onset; only decorative motion is sampled.
 export function FirestormArt({storm,time,gray=0,cloudY=210}:{storm:Firestorm|null;time:number;gray?:number;cloudY?:number}){
  if(!storm)return null;
@@ -14,7 +15,7 @@ export const FirestormFrame=memo(function FirestormFrame({started,rainAt,end,rai
  const age=time-started,arrival=Math.min(1,Math.max(0,age/2)),ease=1-(1-arrival)**3;
  const opacity=Math.min(1,age/.3,Math.max(0,(end-time)/.3));
  return <g pointerEvents="none" opacity={opacity} aria-label={raining?'Firestorm raining fire across the enemy field':'Dark red storm clouds rolling in'}>
-  <FirestormRain raining={raining} rainAt={rainAt} time={Math.max(started,decorativeTime(time))} gray={gray} cloudY={cloudY}/>
+  <FirestormRain raining={raining} rainAt={rainAt} time={Math.max(rainAt,decorativeTime(time,FIRE_RAIN_FPS))} gray={gray} cloudY={cloudY}/>
   <g transform={`translate(${(1-ease)*420} 0)`} shapeRendering="crispEdges">
    {CLOUDS.map(i=><g key={i} transform={`translate(${390+i*119} ${cloudY+(i%2)*-13+Math.sin(age*1.4+i)*3})`}>
     <StormCloud gray={gray}/>
@@ -30,7 +31,7 @@ const StormCloud=memo(function StormCloud({gray}:{gray:number}){const paint=(c:s
     <path d="M-35-14h21v-5h16v6h-12v6h-25z" fill={paint('#76616a')} opacity=".5"/>
 </>;});
 
-/** Rain alone uses sampled battle time; cloud arrival, drift and overall fade remain full rate. */
+/** Rain samples the battle clock at 60 Hz. */
 export const FirestormRain=memo(function FirestormRain({raining,rainAt,time,gray,cloudY}:{raining:boolean;rainAt:number;time:number;gray:number;cloudY:number}){
  const rainShapes=useMemo(()=>RAIN.map(({i})=><>
   <path d="M0-7v12" stroke={grayPaint(i%3?'#ef8c58':'#ffb365',gray) as string} strokeWidth="2.5" strokeLinecap="round"/>

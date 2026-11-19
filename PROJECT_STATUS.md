@@ -13,7 +13,9 @@ Updated: 2026-11-19
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.62): Constellation's new 45–49% and 50–59% tiers grant 3/5 armor, +5/+8% spell damage, and +5/+7% knockback. At 80%, it grants 11 armor, +22% spell damage, and +15% knockback. Constellation+ adds 3 armor, 5 spell damage points, and 3 knockback points. The pixel witch hat settles at 20% opacity four seconds after the burst and stays in the sky. The popup displays damage and knockback. All 704 tests and the production build passed. Rendered checks confirmed the hat's persistent opacity.
+Latest update (version 0.3.63): Guardian projectiles render over enemies, Firestorm rain samples battle time at 60 Hz, and the Spells picker hides drawn ink until it closes. Practice uses the same picker with Apprentice traces and offers drawing lessons from a selected trace. Version History displays model and reasoning effort beside release dates. The available Git history had no historical model or effort records. Automated tests and the production build passed. Interactive browser verification remains outstanding.
+
+Constellation's 45–49% and 50–59% tiers grant 3/5 armor, +5/+8% spell damage, and +5/+7% knockback. At 80%, it grants 11 armor, +22% spell damage, and +15% knockback. Constellation+ adds 3 armor, 5 spell damage points, and 3 knockback points. The pixel witch hat settles at 20% opacity four seconds after the burst and stays in the sky. The popup displays damage and knockback.
 
 Constellation is a once-per-battle Legendary Ancient spell with a single-stroke cursive L. Armor extends the player's health bar and absorbs damage first. Damage and knockback bonuses stack additively. Drawn and bottled casts share the same limit. Successful Constellation and Alchemize casts dismiss their selected traces. Snowman and Scorchy render in front of Filadora.
 
@@ -135,7 +137,7 @@ Paths below are relative to wonderful-summit/source/:
 - Recording/license: src/audio/frostnox_quick-pencil-writing.ogg and src/audio/ATTRIBUTION.txt.
 
 ## Remaining work
-- Tutorial 2.0 is complete. Performance milestones 1–7 are implemented. Battery Saver remains removed. Rendering follow-ups 1–3 are also implemented. Compare 0.2.94 ordinary combat and persistent-spell-heavy rendering/heat against the saved 0.2.93 baseline. Restored casting glow, full-rate clouds and decorative 30 Hz rain need phone review. Scenery layer separation and selective first-use sound preparation remain optional profiling-led suggestions, not scheduled changes.
+- Tutorial 2.0 is complete. Performance milestones 1–7 are implemented. Battery Saver remains removed. Rendering follow-ups 1–3 are also implemented. Compare 0.2.94 ordinary combat and persistent-spell-heavy rendering/heat against the saved 0.2.93 baseline. Restored casting glow, full-rate clouds and 60 Hz rain need phone review. Scenery layer separation and selective first-use sound preparation remain optional profiling-led suggestions, not scheduled changes.
 - Historical Pages timeouts/queued retries are not evidence of a current outage. Check current status only when relevant, following AGENTS.md.
 - Historical generated bundles remain in the published assets folder; cleanup has not been requested.
 

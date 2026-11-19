@@ -43,14 +43,13 @@ const SnowmanBody=memo(function SnowmanBody({pose}:{pose:keyof typeof RIGHT_TWIG
 export function SnowmanArt({battle}:{battle:Battle}){
  const guardian=battle.snowman;
  if(!guardian)return null;
- const {time,encounter}=battle;
+ const {time}=battle;
  const maxHP=guardianStats('snowman',guardian.quality,guardian.upgrade).hp;
  const healthFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
  const hatY=(HAT_TOP_Y-FOOT_Y)*BODY_SCALE;
  const shot=guardian.shot;
  const shotAge=shot?time-shot.started:Infinity;
  const pose=shotAge<.08?'flick':shotAge<.18?'followThrough':'idle';
- const target=shot&&battle.enemies.find(e=>e.id===shot.targetId&&e.hp>0);
  return <g pointerEvents="none" aria-label="Snowman guardian">
   <g transform={`translate(${guardian.x+BODY_OFFSET_X} ${GROUND_Y})`}>
    <ellipse rx="30" ry="4" fill="#8ebdd8" opacity=".28"/>
@@ -61,16 +60,23 @@ export function SnowmanArt({battle}:{battle:Battle}){
     <rect x="-21" y="2" width={42*healthFraction} height="3" rx="1" fill="#8be1f3"/>
    </g>
   </g>
-  {shot&&target&&(()=>{
-   const t=Math.max(0,Math.min(1,shotAge/GUARDIAN_SHOT_FLIGHT_SECONDS));
-   const fromX=shot.x+BODY_OFFSET_X+RELEASE_TIP.x*BODY_SCALE;
-   const fromY=GROUND_Y+(RELEASE_TIP.y-FOOT_Y)*BODY_SCALE;
-   const x=fromX+(target.x-fromX)*t;
-   const y=fromY+(enemyArtY(target,encounter)-18-fromY)*t-90*t*(1-t);
-   return <g transform={`translate(${x} ${y}) scale(2)`} shapeRendering="crispEdges" aria-label="Snowball">
-    <path d="M-6-4h2v-2h8v2h2v8H4v2h-8V4h-2z" fill="#516c90"/>
-    <path d="M-3-4h6v2h2v5h-8v-2h-2v-3h2z" fill="#f1f9ff"/>
-   </g>;
-  })()}
+ </g>;
+}
+
+export function SnowballArt({battle}:{battle:Battle}){
+ const shot=battle.snowman?.shot;
+ if(!shot)return null;
+ const target=battle.enemies.find(e=>e.id===shot.targetId&&e.hp>0);
+ if(!target)return null;
+ const {time,encounter}=battle;
+ const shotAge=time-shot.started;
+ const t=Math.max(0,Math.min(1,shotAge/GUARDIAN_SHOT_FLIGHT_SECONDS));
+ const fromX=shot.x+BODY_OFFSET_X+RELEASE_TIP.x*BODY_SCALE;
+ const fromY=GROUND_Y+(RELEASE_TIP.y-FOOT_Y)*BODY_SCALE;
+ const x=fromX+(target.x-fromX)*t;
+ const y=fromY+(enemyArtY(target,encounter)-18-fromY)*t-90*t*(1-t);
+ return <g transform={`translate(${x} ${y}) scale(2)`} pointerEvents="none" shapeRendering="crispEdges" aria-label="Snowball">
+  <path d="M-6-4h2v-2h8v2h2v8H4v2h-8V4h-2z" fill="#516c90"/>
+  <path d="M-3-4h6v2h2v5h-8v-2h-2v-3h2z" fill="#f1f9ff"/>
  </g>;
 }

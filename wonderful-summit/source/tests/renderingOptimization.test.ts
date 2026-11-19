@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {loadArt} from './helpers/loadArt.ts';
 import {decorativeTime} from '../src/visualCadence.ts';
+import {launchSpell,newBattle} from '../src/battle.ts';
 import {TargetCaret} from '../src/TargetCaret.ts';
 const art=(name:string)=>loadArt(fileURLToPath(new URL('../src/'+name+'.tsx',import.meta.url)));
 const ui=art('EnemyUI'),fire=art('FirestormArt'),bog=art('BogArt'),burn=art('EnemyEffects'),torrent=art('TorrentArt');
@@ -40,11 +41,11 @@ test('prepared storm, bog and burn geometry matches pre-change snapshots at samp
  const fixtures=JSON.parse(readFileSync(new URL('./fixtures/spell-art-0.2.93.json',import.meta.url),'utf8'));
  for(const fixture of fixtures)assert.equal(markup(fixture.name==='FirestormArt'?fire.FirestormArt:fixture.name==='BogArt'?bog.BogArt:burn.EnemyEffects,fixture.props),fixture.markup);
 });
-test('decorative views reuse props on alternating 60 Hz updates, even when simulation objects change',()=>{
+test('fire rain updates at 60 Hz while other sampled effects reuse alternating frames',()=>{
  const count=(frame:(time:number)=>any)=>{let changes=0,previous:any;for(let i=0;i<120;i++){const next=frame(3+i/60);assert.equal(next.type.$$typeof,Symbol.for('react.memo'));if(!previous||!equalProps(previous,next.props))changes++;previous=next.props;}return changes;};
  const storm={started:0,rainAt:2,portions:[{until:20}]};
  assert.equal(count(time=>fire.FirestormArt({storm,time,gray:0})),120);
- assert.equal(count(time=>fire.FirestormFrame.type(fire.FirestormArt({storm,time,gray:0}).props).props.children[0]),60);
+ assert.equal(count(time=>fire.FirestormFrame.type(fire.FirestormArt({storm,time,gray:0}).props).props.children[0]),120);
  assert.equal(count(time=>bog.BogArt({bog:{started:0,portions:[{until:20,hitIds:[]}]},time,gray:0})),60);
  assert.equal(count(time=>burn.EnemyEffects({enemy:{rootUntil:0,curseTick:null,burn:{ticks:3}},time})),60);
  assert.equal(count(time=>burn.EnemyEffects({enemy:{rootUntil:0,curseTick:5,burn:null},time})),1);
@@ -69,4 +70,23 @@ test('Torrent falling orbs retain full-rate motion, splash sampling preserves im
  const a=child(2.99),b=child(3.005);assert.equal(a.props.time,2.99);assert.equal(b.props.time,3.005);assert.equal(a.props.falling,true);
  const impact=child(landsAt);assert.equal(impact.props.falling,false);assert.equal(impact.props.time,landsAt);
  assert.equal(child(3.012).props.time,landsAt);assert.equal(child(landsAt+1),null);assert.equal(torrent.TorrentArt({torrent:null,time:4}),null);
+});
+
+test('guardian shots paint over enemies while guardian bodies keep their layer',()=>{
+ let battle=newBattle('active');
+ battle=launchSpell(battle,80,'#fff','snowman');
+ battle=launchSpell(battle,80,'#fff','scorchy');
+ for(const guardian of [battle.snowman!,battle.scorchy!]){
+  guardian.shot={x:guardian.x,targetId:battle.enemies[0].id,started:0};
+ }
+ const rendered=markup(art('World').World,{battle,color:'#fff',burst:0});
+ const enemy=rendered.indexOf('aria-label="Enemy"');
+ assert.ok(enemy>=0);
+ for(const name of ['Snowman guardian','Scorchy guardian']){
+  const position=rendered.indexOf(`aria-label="${name}"`);
+  assert.ok(position>=0&&position<enemy);
+ }
+ for(const name of ['Snowball','Scorchy fireball']){
+  assert.ok(rendered.indexOf(`aria-label="${name}"`)>enemy);
+ }
 });

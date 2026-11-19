@@ -27,14 +27,10 @@ const ScorchyBody=memo(function ScorchyBody({spitting}:{spitting:boolean}){
  </g>;
 });
 
-export function ScorchyArt({battle}:{battle:Battle}){
- const guardian=battle.scorchy;
- if(!guardian)return null;
- const {time,encounter,motherSplit}=battle;
+function scorchyLayout(battle:Battle,guardian:NonNullable<Battle['scorchy']>){
+ const {time,motherSplit}=battle;
  const shot=guardian.shot;
  const target=shot&&battle.enemies.find(enemy=>enemy.id===shot.targetId&&enemy.hp>0);
- const age=shot?time-shot.started:Infinity;
- const spitting=!!target&&age<SPIT_SECONDS;
  const snowmanX=motherSplit&&!motherSplit.spawned?motherSplit.snowmanX:battle.snowman?.x;
  const separation=snowmanX==null?0:Math.max(0,1-Math.abs(guardian.x-snowmanX)/75);
  // Give Scorchy room to hover beside Snowman when both reach the same line.
@@ -42,6 +38,15 @@ export function ScorchyArt({battle}:{battle:Battle}){
  const hoverY=GROUND_Y-17-55*separation;
  const bodyX=guardian.x+offsetX,bodyY=hoverY+bob(time,motherSplit);
  const facing=target&&target.x<bodyX?-1:1;
+ return {target,offsetX,hoverY,bodyX,bodyY,facing};
+}
+
+export function ScorchyArt({battle}:{battle:Battle}){
+ const guardian=battle.scorchy;
+ if(!guardian)return null;
+ const {time}=battle;
+ const {target,bodyX,bodyY,facing}=scorchyLayout(battle,guardian);
+ const spitting=!!target&&!!guardian.shot&&time-guardian.shot.started<SPIT_SECONDS;
  const maxHP=guardianStats('scorchy',guardian.quality,guardian.upgrade).hp;
  const hpFraction=Math.max(0,Math.min(1,guardian.hp/maxHP));
 
@@ -56,17 +61,24 @@ export function ScorchyArt({battle}:{battle:Battle}){
     <rect x="-21" y="2" width={42*hpFraction} height="3" rx="1" fill="#ff9f47"/>
    </g>
   </g>
-  {shot&&target&&(()=>{
-   const progress=Math.max(0,Math.min(1,age/GUARDIAN_SHOT_FLIGHT_SECONDS));
-   const fromX=shot.x+offsetX+MOUTH.x*BODY_SCALE*facing;
-   const fromY=hoverY+bob(shot.started,motherSplit)+MOUTH.y*BODY_SCALE;
-   const x=fromX+(target.x-fromX)*progress;
-   const y=fromY+(enemyArtY(target,encounter)-18-fromY)*progress-24*progress*(1-progress);
-   return <g transform={`translate(${x} ${y}) scale(${facing*2} 2)`} shapeRendering="crispEdges" aria-label="Scorchy fireball">
-    <path d="M-10 2h4v-2h-6v-2h7v-2h3v-2h7v2h3v3h2v4H8v2H4v1h-8V4h-6z" fill="#b94a24"/>
-    <path d="M-7 0h5v-2h3v-2h4v2h3v4H6v2H0V2h-7z" fill="#ff9e21"/>
-    <path d="M-2 0h3v-2h4v2h2v2H2V1h-4z" fill="#ffeb82"/>
-   </g>;
-  })()}
+ </g>;
+}
+
+export function ScorchyFireballArt({battle}:{battle:Battle}){
+ const guardian=battle.scorchy,shot=guardian?.shot;
+ if(!guardian||!shot)return null;
+ const {target,offsetX,hoverY,facing}=scorchyLayout(battle,guardian);
+ if(!target)return null;
+ const {time,encounter,motherSplit}=battle;
+ const age=time-shot.started;
+ const progress=Math.max(0,Math.min(1,age/GUARDIAN_SHOT_FLIGHT_SECONDS));
+ const fromX=shot.x+offsetX+MOUTH.x*BODY_SCALE*facing;
+ const fromY=hoverY+bob(shot.started,motherSplit)+MOUTH.y*BODY_SCALE;
+ const x=fromX+(target.x-fromX)*progress;
+ const y=fromY+(enemyArtY(target,encounter)-18-fromY)*progress-24*progress*(1-progress);
+ return <g transform={`translate(${x} ${y}) scale(${facing*2} 2)`} pointerEvents="none" shapeRendering="crispEdges" aria-label="Scorchy fireball">
+  <path d="M-10 2h4v-2h-6v-2h7v-2h3v-2h7v2h3v3h2v4H8v2H4v1h-8V4h-6z" fill="#b94a24"/>
+  <path d="M-7 0h5v-2h3v-2h4v2h3v4H6v2H0V2h-7z" fill="#ff9e21"/>
+  <path d="M-2 0h3v-2h4v2h2v2H2V1h-4z" fill="#ffeb82"/>
  </g>;
 }

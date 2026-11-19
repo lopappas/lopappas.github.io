@@ -3,7 +3,7 @@ import {newBattle,stepBattle,spellSlow,type Battle} from './battle.ts';
 import {newRun,type Run} from './run.ts';
 
 export const SCARECROW_HEALTH=1_000_000;
-export function practiceJourney(upgraded=false):Run{return {...newRun(),screen:'battle',spells:SPELLS.map(s=>s.id),potions:{heal:0,freeze:0,ink:0},upgrades:upgraded?Object.fromEntries(SPELLS.filter(s=>isUpgradableSpell(s.id)).map(s=>[s.id,1])):{}};}
+export function practiceJourney(upgraded=false):Run{return {...newRun(),screen:'battle',playMode:'apprentice',spells:SPELLS.map(s=>s.id),potions:{heal:0,freeze:0,ink:0},upgrades:upgraded?Object.fromEntries(SPELLS.filter(s=>isUpgradableSpell(s.id)).map(s=>[s.id,1])):{}};}
 export function newPracticeBattle(journey:Run):Battle{
  const battle=newBattle('active','slime',()=>0);
  return {...battle,cooldownsDisabled:true,repeatAlchemize:true,robes:{enabled:journey.relics.includes('filadoraRobes')||journey.relics.includes('artisanRobes'),artisan:journey.relics.includes('artisanRobes'),spells:[...journey.wonderfulSpells]},approachAt:0,potions:{heal:0,freeze:0,ink:0},upgrades:{...journey.upgrades},enemies:[{...battle.enemies[0],element:'Neutral',initialElement:'Neutral',hp:SCARECROW_HEALTH,maxHP:SCARECROW_HEALTH,x:560}]};

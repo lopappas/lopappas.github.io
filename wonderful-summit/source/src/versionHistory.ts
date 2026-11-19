@@ -1,5 +1,14 @@
-// Keep newest first. Add a short entry for every published version.
-export const VERSION_HISTORY=[
+type Release={
+ version:string;
+ publishedAt:string|null;
+ changes:string[];
+ model?:string;
+ reasoningEffort?:string;
+};
+
+// Keep newest first. Record the model and reasoning effort when available.
+export const VERSION_HISTORY:Release[]=[
+ {version:'0.3.63',publishedAt:'2026-11-19T20:01:48Z',model:'GPT-6',changes:['Snowman snowballs and Scorchy fireballs appear in front of enemies. Firestorm rain animates at 60 FPS.','Opening Spells hides the drawing until the picker closes. Practice uses the Spells picker with Apprentice traces.','Version History shows the recorded model and reasoning effort.']},
  {version:'0.3.62',publishedAt:'2026-11-19T19:21:56Z',changes:['Rebalanced Constellation at every cast quality. Constellation+ adds 3 armor.','The pixel witch hat settles at 20% opacity and stays in the sky. The popup shows damage and knockback bonuses.']},
  {version:'0.3.61',publishedAt:'2026-11-19T18:47:41Z',changes:['Constellation stars form a pixel witch hat that reappears every 16 seconds. Its boost popup fades after eight seconds.','Constellation gains a stronger 50–59% tier and a thicker trace. Successful Constellation and Alchemize casts dismiss their traces.','Snowman and Scorchy appear in front of Filadora, and the Snowman trace is thinner.']},
  {version:'0.3.60',publishedAt:'2026-11-19T18:23:13Z',changes:['Added Constellation, a Legendary Ancient spell that grants armor, spell damage, and knockback once per battle.','Draw a cursive L to launch a purple and gold witch hat firework.']},
