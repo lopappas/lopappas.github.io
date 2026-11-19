@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.36',publishedAt:'2026-11-19T06:13:40Z',changes:['Snowman throws half-strength snowballs once per second at enemies within 30 units.','Enemies wind up for one second and recover for one second when attacking Snowman. They resist knockback during wind-up, and their hits leave Snowman in place.']},
  {version:'0.3.35',publishedAt:'2026-11-19T00:04:56Z',changes:['Enemies hold their position while attacking Snowman. Knockback beyond 30 units interrupts the hold.']},
  {version:'0.3.34',publishedAt:'2026-11-18T23:54:02Z',changes:['Snowman holds its ground within snowball range. Enemy contact attacks animate twice as fast and push it back up to 30 units.','Snowman has a shorter hat and a 15% larger tracing guide.']},
  {version:'0.3.33',publishedAt:'2026-11-18T23:34:09Z',changes:['The Snowman sigil has two raised arms.','Snowman throws at enemies within 20 units. Enemies now hit Snowman as they walk into it, pushing it back 10 units on impact.']},
