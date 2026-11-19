@@ -13,7 +13,7 @@ Updated: 2026-11-19
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.71): Heart Rock waits for Ready before enabling its canvas and showing the 1.25-second heart trace. The trace is 12% thicker and the canvas has no clear button. The Developer Panel lists the event chosen at the start of the run. Normal entry and developer travel both use that selection.
+Latest update (version 0.3.72-alpha): Heart Rock centers Ready on its canvas, then shows a 25% larger and 18% thicker heart trace for 1.5 seconds. The Developer Panel defaults to the current act's encounters and supports switching between Acts 1 and 2. The run's event icon appears on the random event button. The alpha suffix is preserved by the release scripts. Versions 0.3.70, 0.3.71 and 0.3.72-alpha are tagged GPT-6.2 Sol. All 709 tests and the production build passed.
 
 Heart Rock and Forgotten Campsite each have a 50% chance in the Act 1 random event slot. Heart Rock gives one completed casting attempt. Quality below 50% gives no reward. Each 10-point band from 50% to 100% grants 5, 10, 15, 20, or 25 max HP and the same current HP. Version History shows confirmed model names, including GPT-6.2 Sol for 0.3.63.
 

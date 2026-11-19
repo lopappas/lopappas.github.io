@@ -7,11 +7,13 @@ import {createPortal} from 'react-dom';
 import {SPELLS} from './magic';
 import {combatSpellColumns} from './combatTracePresentation';
 import {POTIONS,POTION_IDS} from './battle';
-import {RELICS,ROUTE} from './run';
+import {RELICS} from './run';
+import {actEncounters,trailAct,TRAIL_ACTS} from './trailActs';
 import {TRAIL_EVENTS,type TrailEventId} from './events';
 import {LessonText} from './LessonText';
 import {parseDeveloperCommand,type DeveloperCommand} from './developerCommands';
-type DeveloperTarget={execute:(command:DeveloperCommand)=>string|void;onOpen:()=>void;canTravel:()=>boolean;trailEvent:()=>TrailEventId|undefined};
+type DeveloperTrail={onOpen:()=>void;canTravel:boolean;node:number;eventId?:TrailEventId};
+type DeveloperTarget={execute:(command:DeveloperCommand)=>string|void;trail:()=>DeveloperTrail|undefined};
 const spellGroups=combatSpellColumns(SPELLS.map(spell=>spell.id));
 const quickActions=[
  {type:'gold',label:'+1000 gold',emoji:'🪙'},
@@ -26,17 +28,18 @@ const Context=createContext<{allowed:boolean;open:()=>void;targets:Map<number,De
 export function DeveloperProvider({children}:{children:ReactNode}){
  const allowed=true;
  const [spellDetailsEnabled,setSpellDetailsEnabled]=useState(false);
- const [open,setOpen]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[trailAvailable,setTrailAvailable]=useState(false);
- const [runEvent,setRunEvent]=useState<TrailEventId>();
+ const [open,setOpen]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
+ const [trail,setTrail]=useState<{act:(typeof TRAIL_ACTS)[number]['number'];eventId?:TrailEventId}|null>(null);
  const targets=useRef(new Map<number,DeveloperTarget>()),dialog=useRef<HTMLElement>(null);
  useEffect(()=>{if(!open)return;const previous=document.activeElement as HTMLElement|null;dialog.current?.querySelector<HTMLButtonElement>('button')?.focus({preventScroll:true});const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();setOpen(false);}if(e.key==='Tab'){const items=Array.from(dialog.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')??[]),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus({preventScroll:true});};},[open]);
  async function grant(command:DeveloperCommand){if(busy)return;setBusy(true);setMessage('');try{const verified=parseDeveloperCommand(command);if(!verified)throw new Error('Invalid command.');const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];if(!target)throw new Error('No active game.');const response=target.execute(verified);if(verified.type==='travel'&&!response)setOpen(false);setMessage(response??successMessages[verified.type]);}catch(error){setMessage(error instanceof Error?error.message:'Please try again.');}finally{setBusy(false);}}
  function show(){
-  const activeTargets=[...targets.current.entries()].sort((a,b)=>b[0]-a[0]).map(([,target])=>target);
-  const target=activeTargets[0],travel=!!target?.canTravel();
-  if(travel)target?.onOpen();
-  setTrailAvailable(travel);
-  setRunEvent(activeTargets.map(target=>target.trailEvent()).find(Boolean));
+  const target=[...targets.current.entries()].sort((a,b)=>b[0]-a[0])[0]?.[1];
+  const navigation=target?.trail();
+  if(navigation?.canTravel){
+   navigation.onOpen();
+   setTrail({act:trailAct(navigation.node).number,eventId:navigation.eventId});
+  }else setTrail(null);
   setMessage('');
   setOpen(true);
  }
@@ -54,9 +57,19 @@ export function DeveloperProvider({children}:{children:ReactNode}){
       <button type="button" className="primary-small" disabled={busy} onClick={()=>void grant({type:'grantAllSpells'})}>Grant all spells</button>
       <button type="button" className="primary-small" aria-pressed={spellDetailsEnabled} onClick={()=>setSpellDetailsEnabled(enabled=>!enabled)}>Spell details</button>
      </div>
-     {runEvent&&<p className="developer-run-event">Run event <span aria-hidden="true">{TRAIL_EVENTS[runEvent].emoji}</span> <strong>{TRAIL_EVENTS[runEvent].name}</strong></p>}
      <p className="developer-status" role="status">{message}</p>
-     {trailAvailable&&<><h3>Trail encounters</h3><div className="developer-options">{ROUTE.map((node,index)=><button key={index} disabled={busy} onClick={()=>void grant({type:'travel',node:index})}>{index+1}. {node.name}</button>)}</div></>}
+     {trail&&<>
+      <h3>Trail encounters</h3>
+      <div className="developer-options">{actEncounters(TRAIL_ACTS[trail.act-1].start).map(({encounter,index})=>{
+       const event=encounter.kind==='event'&&trail.eventId?TRAIL_EVENTS[trail.eventId]:null;
+       return <button key={index} disabled={busy} onClick={()=>void grant({type:'travel',node:index})}>
+        {index+1}. {encounter.name}{event&&<> <span role="img" aria-label={event.name}>{event.emoji}</span></>}
+       </button>;
+      })}</div>
+      <div className="developer-options developer-trail-acts" role="group" aria-label="Trail act">
+       {TRAIL_ACTS.map(({number})=><button type="button" key={number} aria-pressed={trail.act===number} onClick={()=>setTrail({...trail,act:number})}>Act {number}</button>)}
+      </div>
+     </>}
      <h3>Spells</h3>
      {spellGroups.map(({element,spells})=><section key={element} aria-labelledby={`developer-spells-${element}`}>
       <h4 id={`developer-spells-${element}`}>{element}</h4>
@@ -70,7 +83,7 @@ export function DeveloperProvider({children}:{children:ReactNode}){
  </Context.Provider>;
 }
 export function useSpellDetailsEnabled(){return useContext(Context)?.spellDetailsEnabled??false;}
-export function useDeveloperTarget(handler:(command:DeveloperCommand)=>string|void,priority=0,options?:{onOpen:()=>void;canTravel:boolean;trailEventId?:TrailEventId}){const context=useContext(Context),ref=useRef(handler),optionsRef=useRef(options);ref.current=handler;optionsRef.current=options;const targets=context?.targets;useEffect(()=>{if(!targets)return;const target:DeveloperTarget={execute:c=>ref.current(c),onOpen:()=>optionsRef.current?.onOpen(),canTravel:()=>!!optionsRef.current?.canTravel,trailEvent:()=>optionsRef.current?.trailEventId};targets.set(priority,target);return()=>{if(targets.get(priority)===target)targets.delete(priority);};},[targets,priority]);}
+export function useDeveloperTarget(handler:(command:DeveloperCommand)=>string|void,priority=0,options?:DeveloperTrail){const context=useContext(Context),ref=useRef(handler),optionsRef=useRef(options);ref.current=handler;optionsRef.current=options;const targets=context?.targets;useEffect(()=>{if(!targets)return;const target:DeveloperTarget={execute:c=>ref.current(c),trail:()=>optionsRef.current};targets.set(priority,target);return()=>{if(targets.get(priority)===target)targets.delete(priority);};},[targets,priority]);}
 export function useDeveloperHold(onClick:()=>void){
  const context=useContext(Context),hold=useRef(new HoldGesture()),start=useRef({x:0,y:0});
  const cancel=()=>hold.current.cancel();

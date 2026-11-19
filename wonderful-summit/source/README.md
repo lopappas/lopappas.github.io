@@ -17,13 +17,13 @@ The static build is written to `dist-pages/`. Copy its contents into the parent 
 
 ## Game versions and history
 
-The home page displays `version 0.2.00` below its header. `package.json` is the version source; display labels pad the last segment to two digits (0.1.03). Package files retain numeric segments so npm remains compatible.
+The home page reads its version from `package.json`. Display labels pad the last numeric segment to two digits and preserve the `-alpha` suffix starting with 0.3.72-alpha.
 
 Small changes increase the last segment by one: 0.1.40 → 0.1.41. Bigger changes (a new encounter, spell or feature) advance to the next ten: 0.1.40 or 0.1.44 → 0.1.50. Only change the middle segment when the user explicitly requests it. Do not automatically roll over after 99; ask the user for the next middle number.
 
-Run `npm run version:small` or `npm run version:feature` to update both package files. For an explicit user-specified release, use `npm version 0.1.40 --no-git-tag-version` with the requested numeric version. Bump once per published release.
+Run `npm run version:small` or `npm run version:feature` to update both package files. For an explicit user-specified release, use `npm version 0.3.72-alpha --no-git-tag-version` with the requested version. Bump once per published release.
 
-Add every release to the top of `src/versionHistory.ts`, with a few brief player-facing bullet points. “Bug fix” is enough for a small fix. Keep earlier entries unchanged. Settings → Version History shows them newest first, using the credits-style summit background and tap-anywhere return. Versions 0.1.00–0.1.03 are the earlier numbered releases displayed with two digits; unnumbered development predates this history. The history test checks ordering, duplicates, nonempty notes and agreement with the current package version. Build and publish the source and matching output together.
+Add every release to the top of `src/versionHistory.ts`, with a few brief player-facing bullet points and the exact model name. “Bug fix” is enough for a small fix. Keep existing release labels. Settings → Version History shows them newest first, using the credits-style summit background and tap-anywhere return. Versions 0.1.00–0.1.03 are the earlier numbered releases displayed with two digits; unnumbered development predates this history. The history test checks ordering, duplicates, nonempty notes and agreement with the current package version. Build and publish the source and matching output together.
 
 ## Rarity balance
 

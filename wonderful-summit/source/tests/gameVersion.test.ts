@@ -12,6 +12,8 @@ test('release labels always show two release digits, including earlier versions'
  assert.equal(formatGameVersion('0.2.0'),'0.2.00');
  assert.equal(formatGameVersion('0.1.3'),'0.1.03');
  assert.equal(formatGameVersion('0.1.40'),'0.1.40');
+ assert.equal(formatGameVersion('0.3.2-alpha'),'0.3.02-alpha');
+ assert.equal(formatGameVersion('0.3.72-alpha'),'0.3.72-alpha');
 });
 test('small releases increment by one; features move to the next ten without changing the middle number',()=>{
  assert.equal(nextGameVersion('0.1.40','small'),'0.1.41');
@@ -19,6 +21,8 @@ test('small releases increment by one; features move to the next ten without cha
  assert.equal(nextGameVersion('0.1.40','feature'),'0.1.50');
  assert.equal(nextGameVersion('0.1.44','feature'),'0.1.50');
  assert.equal(nextGameVersion('0.1.49','small'),'0.1.50');
+ assert.equal(nextGameVersion('0.3.72-alpha','small'),'0.3.73-alpha');
+ assert.equal(nextGameVersion('0.3.72-alpha','feature'),'0.3.80-alpha');
  assert.throws(()=>nextGameVersion('0.1.99','small'),/ask the user/);
  assert.throws(()=>nextGameVersion('0.1.90','feature'),/ask the user/);
 });
@@ -27,9 +31,10 @@ test('release history matches the current package and stays unique, chronologica
  const lock=JSON.parse(readFileSync(new URL('../package-lock.json',import.meta.url),'utf8'));
  assert.equal(VERSION_HISTORY[0].version,pkg.version);
  assert.equal(lock.version,pkg.version);assert.equal(lock.packages[''].version,pkg.version);
- const numbers=VERSION_HISTORY.map(release=>release.version.split('.').map(Number));
+ const numbers=VERSION_HISTORY.map(release=>release.version.split('-')[0].split('.').map(Number));
  assert.equal(new Set(VERSION_HISTORY.map(r=>r.version)).size,VERSION_HISTORY.length);
  VERSION_HISTORY.forEach((release,i)=>{
+  if(release.version.endsWith('-alpha'))assert.ok(release.model?.trim());
   assert.ok(release.changes.length>0&&release.changes.every(c=>c.trim().length>0));
   if(i){const a=numbers[i-1],b=numbers[i];const first=a.findIndex((n,j)=>n!==b[j]);assert.ok(first>=0&&a[first]>b[first]);}
  });
@@ -40,15 +45,15 @@ test('release commands update package and lock together and reject invalid reque
  const script=fileURLToPath(new URL('../scripts/bump-version.mjs',import.meta.url));
  const read=(path:string)=>JSON.parse(readFileSync(join(dir,path),'utf8'));
  try{
-  writeFileSync(join(dir,'package.json'),JSON.stringify({version:'0.1.40'}));
-  writeFileSync(join(dir,'package-lock.json'),JSON.stringify({version:'0.1.40',packages:{'':{version:'0.1.40'}}}));
-  for(const [kind,expected] of [['small','0.1.41'],['feature','0.1.50']]){
+  writeFileSync(join(dir,'package.json'),JSON.stringify({version:'0.1.40-alpha'}));
+  writeFileSync(join(dir,'package-lock.json'),JSON.stringify({version:'0.1.40-alpha',packages:{'':{version:'0.1.40-alpha'}}}));
+  for(const [kind,expected] of [['small','0.1.41-alpha'],['feature','0.1.50-alpha']]){
    execFileSync(process.execPath,['--experimental-strip-types',script,kind],{cwd:dir,stdio:'pipe'});
    assert.equal(read('package.json').version,expected);
    assert.equal(read('package-lock.json').version,expected);
    assert.equal(read('package-lock.json').packages[''].version,expected);
   }
   assert.throws(()=>execFileSync(process.execPath,['--experimental-strip-types',script,'minor'],{cwd:dir,stdio:'pipe'}));
-  assert.equal(read('package.json').version,'0.1.50');
+  assert.equal(read('package.json').version,'0.1.50-alpha');
  }finally{rmSync(dir,{recursive:true,force:true});}
 });

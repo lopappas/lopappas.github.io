@@ -57,5 +57,58 @@ export function EventCanvas(props:EventCanvasProps){
   hold.current.frame=requestAnimationFrame(tick);
  }
  function pos(e:React.PointerEvent){const r=canvas.current!.getBoundingClientRect();return{x:Math.max(0,Math.min(r.width,e.clientX-r.left)),y:Math.max(0,Math.min(r.height,e.clientY-r.top))};}
- return <div className="event-studio"><section className={`event-paper bottle-paper${heart?' heart-rock-paper':''}`} aria-label="Event spell canvas" style={{'--charge-color':chargeColor(charge,color)} as React.CSSProperties}><canvas ref={canvas} aria-label={heart?'Draw a heart for Heart Rock':'Draw one spell for the forgotten campsite'} aria-disabled={!ready} onPointerDown={e=>{if(!ready||committed.current||hold.current||pointer.current!==null||!e.isPrimary||e.button!==0)return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);pointer.current=e.pointerId;strokes.current.push([pos(e)]);paint();}} onPointerMove={e=>{if(pointer.current!==e.pointerId)return;e.preventDefault();strokes.current.at(-1)!.push(pos(e));setHasDrawing(true);paint();}} onPointerUp={e=>{if(pointer.current!==e.pointerId)return;strokes.current.at(-1)!.push(pos(e));pointer.current=null;setHasDrawing(true);paint();}} onPointerCancel={()=>{pointer.current=null;}} onLostPointerCapture={()=>{pointer.current=null;}}/>{heart&&ready&&<svg className="heart-rock-trace" viewBox="0 0 100 100" aria-hidden="true"><path d={HEART_TRACE_PATH} fill="none" stroke={HEART_INK} strokeWidth="4.48" strokeLinecap="round" strokeLinejoin="round"/></svg>}{!heart&&<button className="event-clear" aria-label="Clear drawing" disabled={!!charge} onClick={()=>{if(committed.current||hold.current||pointer.current!==null)return;strokes.current=[];setHasDrawing(false);paint();}}>↺</button>}<div className="bottle-charge" style={{opacity:charge?1:0,borderColor:chargeColor(charge,color)}} aria-hidden="true"/></section><div className="event-cast-row"><small>One casting attempt</small>{ready?<button className="cast-button" disabled={!hasDrawing} onPointerDown={e=>{if(!e.isPrimary||e.button!==0)return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);start();}} onPointerUp={cancel} onPointerCancel={cancel} onLostPointerCapture={cancel} onKeyDown={e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){e.preventDefault();start();}}} onKeyUp={e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();cancel();}}} onBlur={cancel}>Cast!</button>:<button type="button" className="cast-button" onClick={()=>setReady(true)}>Ready</button>}</div></div>;
+ return <div className="event-studio">
+  <section className={`event-paper bottle-paper${heart?' heart-rock-paper':''}`} aria-label="Event spell canvas" style={{'--charge-color':chargeColor(charge,color)} as React.CSSProperties}>
+   <canvas ref={canvas} aria-label={heart?'Draw a heart for Heart Rock':'Draw one spell for the forgotten campsite'} aria-disabled={!ready}
+    onPointerDown={e=>{
+     if(!ready||committed.current||hold.current||pointer.current!==null||!e.isPrimary||e.button!==0)return;
+     e.preventDefault();
+     e.currentTarget.setPointerCapture(e.pointerId);
+     pointer.current=e.pointerId;
+     strokes.current.push([pos(e)]);
+     paint();
+    }}
+    onPointerMove={e=>{
+     if(pointer.current!==e.pointerId)return;
+     e.preventDefault();
+     strokes.current.at(-1)!.push(pos(e));
+     setHasDrawing(true);
+     paint();
+    }}
+    onPointerUp={e=>{
+     if(pointer.current!==e.pointerId)return;
+     strokes.current.at(-1)!.push(pos(e));
+     pointer.current=null;
+     setHasDrawing(true);
+     paint();
+    }}
+    onPointerCancel={()=>{pointer.current=null;}} onLostPointerCapture={()=>{pointer.current=null;}}
+   />
+   {heart&&!ready&&<button type="button" className="cast-button heart-rock-ready" onClick={()=>setReady(true)}>Ready</button>}
+   {heart&&ready&&<svg className="heart-rock-trace" viewBox="0 0 100 100" aria-hidden="true">
+    <path d={HEART_TRACE_PATH} fill="none" stroke={HEART_INK} strokeWidth="5.2864" strokeLinecap="round" strokeLinejoin="round"/>
+   </svg>}
+   {!heart&&<button className="event-clear" aria-label="Clear drawing" disabled={!!charge} onClick={()=>{
+    if(committed.current||hold.current||pointer.current!==null)return;
+    strokes.current=[];
+    setHasDrawing(false);
+    paint();
+   }}>↺</button>}
+   <div className="bottle-charge" style={{opacity:charge?1:0,borderColor:chargeColor(charge,color)}} aria-hidden="true"/>
+  </section>
+  <div className="event-cast-row">
+   <small>One casting attempt</small>
+   <button type="button" className={`cast-button${ready?'':' awaiting-ready'}`} disabled={!ready||!hasDrawing}
+    onPointerDown={e=>{
+     if(!e.isPrimary||e.button!==0)return;
+     e.preventDefault();
+     e.currentTarget.setPointerCapture(e.pointerId);
+     start();
+    }}
+    onPointerUp={cancel} onPointerCancel={cancel} onLostPointerCapture={cancel}
+    onKeyDown={e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){e.preventDefault();start();}}}
+    onKeyUp={e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();cancel();}}}
+    onBlur={cancel}>Cast!</button>
+  </div>
+ </div>;
 }
