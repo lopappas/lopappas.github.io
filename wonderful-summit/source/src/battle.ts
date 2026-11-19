@@ -2,7 +2,7 @@ import {COMBAT_LANE_Y,FILA_FOOT_Y,combatLane,enemyFootOffset,laneContactReach,pl
 import {
  GUARDIAN_SHOT_FLIGHT_SECONDS,GUARDIAN_ATTACK_INTERVAL,GUARDIAN_CONTACT_DISTANCE,GUARDIAN_COOLDOWN,
  GUARDIAN_DAMAGE_TAKEN,GUARDIAN_ENEMY_COOLDOWN,GUARDIAN_FAINT_LIFETIME,GUARDIAN_MAX_CONTACT_REACH,
- GUARDIAN_MAX_DISTANCE,GUARDIAN_SPEED,GUARDIAN_STRIKE_RANGE,guardianBoostMultiplier,guardianStats,isGuardianSpell,snowballKnockback,type Guardian,type GuardianSpell,
+ GUARDIAN_MAX_DISTANCE,GUARDIAN_SPEED,guardianAttackRange,guardianBoostMultiplier,guardianStats,isGuardianSpell,snowballKnockback,type Guardian,type GuardianSpell,
 } from './guardian.ts';
 import {playerMaxHealth} from './playerHealth.ts';
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
@@ -74,7 +74,7 @@ export function elementalMatchup(element:Element,target:Enemy['element']){
 }
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
 export function spellDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellDamage({...target,rocky:false,shield:null,goblinKing:false},60,'water',damageBonus,upgrade,time)*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time)*kingDamageMultiplier(target,quality);}if(spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?(1.265*.95):spellId==='wave'?.9:spellId==='leaf'?.75:1;const precision=isGuardianSpell(spellId)||['thistleBush','water','fire','nature'].includes(spellId)?1e6:1;return Math.round(precision*(isNearSpell(spellId)?nearDamage(spellId,quality,upgrade):spellId==='ender'?(Number.isFinite(quality)&&quality>=MIN_CAST_QUALITY?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)&&spellId!=='thistleBush'?Math.max(0,Math.min(1,upgrade)):0)*damageUpgradeBonus(spellId))*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*(spellId==='sneakyVine'?1:shieldProtection(target.shield,time))*kingDamageMultiplier(target,quality))/precision;}
-export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,false)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time)*(goblinKing?kingSpellMultiplier(quality):1);}if(spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm'||spellId==='scorchy')return 0;const base=spellId==='snowman'?snowballKnockback(quality):isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=MIN_CAST_QUALITY&&quality<60?40+14*(quality-45)/14:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?kingSpellMultiplier(quality):1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
+export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,false)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time)*(goblinKing?kingSpellMultiplier(quality):1);}if(spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm'||spellId==='scorchy')return 0;const base=spellId==='snowman'?snowballKnockback(quality,upgrade):isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=MIN_CAST_QUALITY&&quality<60?40+14*(quality-45)/14:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?kingSpellMultiplier(quality):1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 // Rain retains fractional damage so small elemental/rock/shield reductions remain meaningful.
 export function amuletDamageMultiplier(quality:number,id:SpellId,amulets:Battle['amulets']){
  if(!Number.isFinite(quality)||quality<60)return 1;
@@ -171,6 +171,11 @@ function enemyKnockback(state:Battle,enemy:Enemy,distance:number,duration=PUSH_D
  return {from:enemy.x,to:Math.min(ENEMY_BACK_X,enemy.x+distance),started:state.time,ends:state.time+duration};
 }
 
+function extendEnemyKnockback(state:Battle,enemy:Enemy,distance:number){
+ const push=distance>0?enemyKnockback(state,enemy,distance):null;
+ return push&&push.to>(enemy.push?.to??enemy.x)?push:enemy.push;
+}
+
 export function fizzleSpell(state:Battle):Battle{
  if(state.phase!=='active')return state;
  const shatter=state.castingRelics.sphere;
@@ -181,7 +186,7 @@ export function fizzleSpell(state:Battle):Battle{
  return resolveMother({...state,enemies,sphereShatteredAt:shatter?state.time:state.sphereShatteredAt,furyReady:false,stellarReady:false,castingRelics:{...state.castingRelics,sphere:false,stardust:state.castingRelics.stardust||shatter,steadyCasts:0,stardustUsed:state.castingRelics.stardustUsed||burst}});
 }
 export function rollBlackFlash(state:Battle,id:SpellId,quality:number,random:()=>number=Math.random,x=nearestEnemy(state)?.x??400){
- if(!state.blackFlash.enabled||!Number.isFinite(quality)||quality<60||!(['water','fire','nature','wave','bolt','leaf','tidalcrest','sneakyVine','torrent'] as SpellId[]).includes(id))return{state,multiplier:1};
+ if(!state.blackFlash.enabled||!Number.isFinite(quality)||quality<60||!(['water','fire','nature','wave','bolt','leaf','tidalcrest','sneakyVine','torrent','flameBlade'] as SpellId[]).includes(id))return{state,multiplier:1};
  const success=random()<(state.blackFlash.chain?1/3:1/10);
  return{state:{...state,blackFlashBurst:success?{serial:(state.blackFlashBurst?.serial??0)+1,x}:state.blackFlashBurst,blackFlash:{...state.blackFlash,chain:success}},multiplier:success?2:1};
 }
@@ -194,7 +199,7 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   for(const potion of kept)potions[potion]=(potions[potion]??0)+1;
   return{...state,alchemizeUsed:true,alchemizedPotion:kept[0]??null,alchemizedPotions:kept,alchemizeAt:state.time,casts:state.casts+1,potions,potionFullSerial:(state.potionFullSerial??0)+(kept.length<rolled.length?1:0)};
  }
- if(isNearSpell(spellId)&&targetId===undefined)return castNearSpell(state,quality,spellId,damageMultiplier,inkUsed,knockbackMultiplier);
+ if(isNearSpell(spellId)&&targetId===undefined)return castNearSpell(state,quality,spellId,damageMultiplier,inkUsed,knockbackMultiplier,random);
  if(state.phase!=='active'||(spellId==='bog'||spellId==='ender'||spellId==='firestorm'||spellId==='tidalcrest')&&(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY))return state;
  if(isGuardianSpell(spellId))return beginGuardian(state,spellId,quality,guardianDamageBonus(state,spellId,quality,damageMultiplier,inkUsed));
  if(spellId==='torrent')return beginTorrent(state,quality,damageMultiplier,inkUsed,knockbackMultiplier,random);
@@ -222,7 +227,17 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   const shield=igniteShield(updateShield(e.shield,state.time),element,q,state.time),shieldBurning=spellId!=='sneakyVine'&&(shield?.burnUntil??0)>state.time;
   // Sun grants Hearthspark its burn; Flare Bolt retains only its intrinsic burn.
   const burnTick=((spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier*amuletDamageMultiplier(q,spellId,state.amulets):0)+(steady&&spellId==='fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null,goblinKing:false},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0))*(state.fireFriend?1.5:1);
-  return{...e,shield,hp:Math.max(0,e.hp-damage),push:spellId==='ender'||spellId==='thistleBush'||spellId==='flameBlade'?e.push:shieldBurning?null:rockyFaint?e.push:enemyKnockback(state,e,spellKnockback(q,spellId,casting.pushBonus*knockbackMultiplier*flash.multiplier*(moon&&spellId==='water'?1.15:1),e.element,e.rocky,e.shield,state.time,level,kingHasCrown({...e,hp:Math.max(0,e.hp-damage)}))*(e.kind==='mother'?.8:1),spellId==='sneakyVine'?.9:PUSH_DURATION),attackAt:spellId==='ender'||spellId==='thistleBush'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q,level).duration,amount:brambleEffect(q,level).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q,level).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{quality:burnTick>=(e.burn?.damage??0)?q:e.burn?.quality??q,damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
+  const hp=Math.max(0,e.hp-damage);
+  let push=e.push;
+  if(spellId!=='ender'&&spellId!=='thistleBush'){
+   if(shieldBurning){
+    if(spellId!=='flameBlade')push=null;
+   }else if(!rockyFaint){
+    const distance=spellKnockback(q,spellId,casting.pushBonus*knockbackMultiplier*flash.multiplier*(moon&&spellId==='water'?1.15:1),e.element,e.rocky,e.shield,state.time,level,kingHasCrown({...e,hp}))*(e.kind==='mother'?.8:1);
+    push=spellId==='flameBlade'?extendEnemyKnockback(state,e,distance):enemyKnockback(state,e,distance,spellId==='sneakyVine'?.9:PUSH_DURATION);
+   }
+  }
+  return{...e,shield,hp,push,attackAt:spellId==='ender'||spellId==='thistleBush'||!shieldBurning&&rockyFaint?e.attackAt:null,hurtUntil:state.time+.25,leafSlows:spellId==='leaf'&&!immuneEffects?[...e.leafSlows.filter(f=>f.until>state.time),{until:state.time+brambleEffect(q,level).duration,amount:brambleEffect(q,level).amount}]:e.leafSlows,slowUntil:spellId==='leaf'&&!immuneEffects?Math.max(e.slowUntil,state.time+brambleEffect(q,level).duration):e.slowUntil,rootUntil:rooted?state.time+1.5:e.rootUntil,burn:burnTick>0?{quality:burnTick>=(e.burn?.damage??0)?q:e.burn?.quality??q,damage:Math.max(e.burn?.damage??0,burnTick),nextTick:state.time+1,ticks:3}:e.burn};
  });
  return resolveMother({...state,enemies,casts:state.casts+1,vineGrab:spellId==='sneakyVine'?{targetId:target.id,x:target.x,y:enemyArtY(target,state.encounter)-12,started:state.time}:state.vineGrab});
 }
@@ -254,17 +269,19 @@ export function releaseMultiplier(state:Battle,spellId:SpellId,source:'cast'|'bo
 export function releaseSpell(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){return{...state,stale:source==='cast'?{spellId,count:state.stale.spellId===spellId?state.stale.count+1:1}:state.stale,cooldowns:!state.cooldownsDisabled&&source==='cast'&&SPELL_COOLDOWNS[spellId]?{...state.cooldowns,[spellId]:state.time+SPELL_COOLDOWNS[spellId]!}:state.cooldowns,furyReady:source==='cast'?false:state.furyReady,lotusReady:!['chronos','puddleGuard','alchemize'].includes(spellId)?false:state.lotusReady,lastElement:SPELLS.find(s=>s.id===spellId)!.element};}
 export function launchSpell(state:Battle,quality:number,color:string,spellId:SpellId='water',inkUsed=0,random:()=>number=Math.random):Battle{if(spellId==='alchemize'&&alchemizeBlockReason(state))return state;const target=nearestEnemy(state);if(state.phase!=='active'||state.projectile||spellCooldownRemaining(state,spellId)>0)return state;if(!target&&!isGuardianSpell(spellId)&&!['torrent','alchemize','bog','firestorm','tidalcrest','flameBlade','puddleGuard','thistleBush'].includes(spellId))return fizzleSpell(state);if(!Number.isFinite(quality))return fizzleSpell(state);const rawQuality=quality;quality=effectiveAccuracy(state,quality);if(quality<MIN_CAST_QUALITY)return fizzleSpell(state);const knockbackMultiplier=staleMultiplier(state,spellId);state=prepareRelicCast(state,quality,spellId,rawQuality);const released=releaseSpell(state,spellId);if(spellId==='tidalcrest')return beginTidalWave(released,quality,releaseMultiplier(state,spellId),inkUsed,knockbackMultiplier);if(isGuardianSpell(spellId))return beginGuardian(released,spellId,quality,guardianCastDamageBonus(state,spellId,quality,inkUsed));if(spellId==='torrent'||spellId==='sneakyVine'||spellId==='alchemize'||spellId==='bog'||spellId==='firestorm'||isNearSpell(spellId))return hitWithSpell(released,quality,spellId,undefined,random,releaseMultiplier(state,spellId),inkUsed,undefined,knockbackMultiplier);if(!target)return fizzleSpell(state);return{...released,projectile:{knockbackMultiplier,inkUsed,damageMultiplier:releaseMultiplier(state,spellId),started:state.time,duration:spellId==='leaf'?.32/.7:spellId==='wave'?.32/1.25:spellId==='bolt'?.16:.32,quality,color,spellId,targetId:target.id}};}
 
-function castNearSpell(state:Battle,quality:number,id:NearSpell,multiplier:number,inkUsed:number,knockbackMultiplier:number):Battle{
+function castNearSpell(state:Battle,quality:number,id:NearSpell,multiplier:number,inkUsed:number,knockbackMultiplier:number,random:()=>number):Battle{
  if(state.phase!=='active'||!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return state;
  const cast:NearCast={quality,multiplier,inkUsed,knockbackMultiplier,amulets:{...state.amulets},bonuses:{damageBonus:state.damageBonus,pushBonus:state.pushBonus,upgrade:state.upgrades[id]??0,midnightStone:state.midnightStone,moon:state.amulets.moon}};
  if(id==='puddleGuard')return{...state,casts:state.casts+1,puddle:{x:CONTACT_X+30,cast}};
  if(id==='thistleBush'){const stats=thistleStats(quality,cast.bonuses.upgrade);return{...state,casts:state.casts+1,thistle:{...stats,started:state.time,spent:0,nextTick:state.time+.5,cast}};}
- let next:Battle={...state,flameSwing:{started:state.time}};
- for(const e of presentEnemies(state).filter(e=>e.x>=CONTACT_X&&e.x<=CONTACT_X+110))next=nearHit(next,cast,id,e.id);
+ const targets=presentEnemies(state).filter(e=>e.x>=CONTACT_X&&e.x<=CONTACT_X+110);
+ const flash=targets.length?rollBlackFlash(state,id,quality,random,targets[0].x):{state,multiplier:1};
+ let next:Battle={...flash.state,flameSwing:{started:state.time}};
+ for(const e of targets)next=nearHit(next,cast,id,e.id,flash.multiplier);
  return{...next,casts:state.casts+1};
 }
-function nearHit(state:Battle,cast:NearCast,id:NearSpell,targetId:number){
- const next=hitWithSpell({...state,amulets:cast.amulets},cast.quality,id,targetId,Math.random,cast.multiplier,cast.inkUsed,cast.bonuses,cast.knockbackMultiplier);
+function nearHit(state:Battle,cast:NearCast,id:NearSpell,targetId:number,blackFlashMultiplier?:number){
+ const next=hitWithSpell({...state,amulets:cast.amulets},cast.quality,id,targetId,Math.random,cast.multiplier,cast.inkUsed,cast.bonuses,cast.knockbackMultiplier,blackFlashMultiplier);
  return{...next,amulets:state.amulets,casts:state.casts};
 }
 function advanceNearSpells(previous:Battle,state:Battle):Battle{
@@ -356,8 +373,8 @@ export function stepBattle(state:Battle,delta:number):Battle{
  }if(f.potion==='heal'||f.potion==='theodoraHeal')next.playerHP=Math.min(playerMaxHealth(next),next.playerHP+(f.potion==='theodoraHeal'?35:30));if(f.potion==='freeze')next.freezeUntil=time+FREEZE_SECONDS;if(f.potion==='ink')next.unlimitedUntil=time+UNLIMITED_INK_SECONDS;if(f.potion==='rejection')next.rejectionUntil=time+15;if(f.potion==='fury')next.furyReady=true;if(f.potion==='stellar')next.stellarReady=true;if(f.potion==='spellBottle'&&f.spell?.spellId){const stellarReady=next.stellarReady;const drawStreak=next.castingRelics.steadyCasts;const bottleQuality=Math.min(100,f.spell.quality+(next.castingRelics.calculus?3:0));next=prepareRelicCast(next,bottleQuality,f.spell.spellId,f.spell.drawing?.quality??f.spell.quality);next={...next,stellarReady,castingRelics:{...next.castingRelics,steadyCasts:drawStreak}};const multiplier=releaseMultiplier(next,f.spell.spellId,'bottle');const released=releaseSpell(next,f.spell.spellId,'bottle');next=f.spell.spellId==='tidalcrest'?beginTidalWave(released,bottleQuality,multiplier,f.spell.inkUsed??0):hitWithSpell(released,bottleQuality,f.spell.spellId,undefined,Math.random,multiplier,f.spell.inkUsed??0);}if(next.hazardousVials){const live=new Set(presentEnemies(next).map(e=>e.id));next.enemies=next.enemies.map(e=>live.has(e.id)?{...e,hp:Math.max(0,e.hp-10),hurtUntil:time+.25,attackAt:null,push:enemyKnockback(next,e,Math.max(25,(e.push?.to??e.x)-e.x))}:e);}return{...f,applied:true};}return f;}).filter(f=>time-f.started<POTION_FLIGHT_SECONDS+POTION_BREAK_SECONDS);
  next.potionFlights=potionFlights;
  next=resolveMother(bogRain(stormRain(next,time),time));if(next.phase==='victory')return next;
- next.snowman=moveGuardian(next,next.snowman,next.snowman===state.snowman?dt:0);
- next.scorchy=moveGuardian(next,next.scorchy,next.scorchy===state.scorchy?dt:0);
+ next.snowman=moveGuardian(next,'snowman',next.snowman===state.snowman?dt:0);
+ next.scorchy=moveGuardian(next,'scorchy',next.scorchy===state.scorchy?dt:0);
  const frozen=state.time<next.freezeUntil;
  const live=presentEnemies(next);
  const groupSpeed=live.length>=2?.8:1;
@@ -524,20 +541,22 @@ function beginGuardian(state:Battle,spellId:GuardianSpell,quality:number,damageB
  return {...state,[spellId]:guardian,casts:state.casts+1};
 }
 
-function moveGuardian(state:Battle,guardian:Guardian|null,delta:number):Guardian|null{
+function moveGuardian(state:Battle,spellId:GuardianSpell,delta:number):Guardian|null{
+ const guardian=state[spellId];
  if(!guardian||(guardian.expiresAt!==null&&guardian.expiresAt<=state.time+1e-9))return null;
+ const range=guardianAttackRange(spellId,guardian.upgrade);
  let limit=CONTACT_X+GUARDIAN_MAX_DISTANCE;
  for(const e of state.enemies){
   if(e.hp<=0||e.spawnAt>state.time+1e-9)continue;
-  if(guardianInRange(guardian,e))return guardian;
-  if(e.x>guardian.x)limit=Math.min(limit,e.x-GUARDIAN_STRIKE_RANGE);
+  if(guardianInRange(guardian,e,range))return guardian;
+  if(e.x>guardian.x)limit=Math.min(limit,e.x-range);
  }
  const x=Math.max(guardian.x,Math.min(limit,guardian.x+GUARDIAN_SPEED*delta));
  return x===guardian.x?guardian:{...guardian,x};
 }
 
-function guardianInRange(guardian:Guardian,enemy:Enemy){
- return Math.abs(enemy.x-guardian.x)<=GUARDIAN_STRIKE_RANGE+1e-9;
+function guardianInRange(guardian:Guardian,enemy:Enemy,range:number){
+ return Math.abs(enemy.x-guardian.x)<=range+1e-9;
 }
 
 function advanceGuardian(state:Battle,spellId:GuardianSpell):Battle{
@@ -555,15 +574,15 @@ function advanceGuardian(state:Battle,spellId:GuardianSpell):Battle{
    const shield=spellId==='scorchy'?igniteShield(e.shield,'Fire',guardian.quality,time):e.shield;
    const ignited=shield!==e.shield;
    const distance=spellKnockback(guardian.quality,spellId,state.pushBonus,e.element,e.rocky,e.shield,time,guardian.upgrade,kingHasCrown(e));
-   const knockback=distance>0?enemyKnockback(state,e,distance):null;
-   const push=knockback&&knockback.to>(e.push?.to??e.x)?knockback:e.push;
+   const push=extendEnemyKnockback(state,e,distance);
    return {...e,hp,shield,hurtUntil:time+.25,push:hp===0||ignited?null:push,attackAt:hp===0||ignited?null:e.attackAt};
   });
   return resolveMother({...state,enemies,[spellId]:{...guardian,shot:null}});
  }
  if(time+1e-9<guardian.nextShotAt)return state;
+ const range=guardianAttackRange(spellId,guardian.upgrade);
  const target=presentEnemies(state)
-  .filter(e=>guardianInRange(guardian,e))
+  .filter(e=>guardianInRange(guardian,e,range))
   .sort((a,b)=>Math.abs(a.x-guardian.x)-Math.abs(b.x-guardian.x)||a.id-b.id)[0];
  if(!target)return state;
  const nextShot={x:guardian.x,targetId:target.id,started:time};

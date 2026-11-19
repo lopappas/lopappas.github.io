@@ -1,8 +1,8 @@
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
-import type {SpellId} from './magic';
+import {knockback,type SpellId} from './magic.ts';
 export type NearSpell='flameBlade'|'puddleGuard'|'thistleBush';
 export function isNearSpell(id:SpellId):id is NearSpell{return ['flameBlade','puddleGuard','thistleBush'].includes(id);}
 function tierValue(q:number,ranges:number[][]){if(!Number.isFinite(q)||q<MIN_CAST_QUALITY)return 0;const quality=balanceQuality(q),tier=quality<60?0:quality<70?1:quality<80?2:3,[lo,hi]=[[48,59],[60,69],[70,79],[80,100]][tier],[min,max]=ranges[tier];return min+(max-min)*(quality-lo)/(hi-lo);}
-export function nearDamage(id:NearSpell,q:number,upgrade=0){if(id==='puddleGuard'||!Number.isFinite(q)||q<MIN_CAST_QUALITY)return 0;return tierValue(q,id==='flameBlade'?[[24,34],[45,58],[70,90],[105,140]]:[[1.25,1.75],[2.25,2.75],[3.25,3.75],[4.25,5.25]])*(id==='flameBlade'?1.16*.79*.95:1)+(id==='thistleBush'?.4*Math.max(0,Math.min(1,upgrade)):0);}
-export function nearKnockback(id:NearSpell,q:number){return id==='puddleGuard'?tierValue(q,[[54.74,87.584],[98.532,142.324],[153.272,197.064],[208.012,273.7]]):0;}
+export function nearDamage(id:NearSpell,q:number,upgrade=0){if(id==='puddleGuard'||!Number.isFinite(q)||q<MIN_CAST_QUALITY)return 0;return tierValue(q,id==='flameBlade'?[[24,34],[45,58],[70,90],[105,140]]:[[1.25,1.75],[2.25,2.75],[3.25,3.75],[4.25,5.25]])*(id==='flameBlade'?1.16*.79*.95*.8:1)+(id==='thistleBush'?.4*Math.max(0,Math.min(1,upgrade)):0);}
+export function nearKnockback(id:NearSpell,q:number){if(id==='flameBlade')return knockback(q)*.3;return id==='puddleGuard'?tierValue(q,[[54.74,87.584],[98.532,142.324],[153.272,197.064],[208.012,273.7]]):0;}
 export function thistleStats(q:number,upgrade=0){return{range:tierValue(q,[[80,90],[95,110],[115,130],[135,150]]),budget:Math.round(tierValue(q,[[40,55],[70,90],[110,140],[165,205]])*(1+.15*Math.max(0,Math.min(1,upgrade)))*1e6)/1e6};}

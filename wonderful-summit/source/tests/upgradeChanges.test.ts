@@ -7,7 +7,7 @@ test('revised damage upgrades apply before rounding and match the campsite previ
  for(const q of [45,60,70,80,100]){
   assert.equal(spellDamage({element:'Neutral'},q,'bolt',1,1),Math.round(power(q)*1.3*1.2));
   assert.equal(spellDamage({element:'Neutral'},q,'tidalcrest',1,1),Math.round(power(q)*(1.265*.95)*1.15));
-  assert.equal(spellDamage({element:'Neutral'},q,'flameBlade',1,1),Math.round((q<60?24+10*(q-45)/14:q<70?45+13*(q-60)/9:q<80?70+20*(q-70)/9:105+35*(q-80)/20)*1.16*.79*.95*1.15));
+  assert.equal(spellDamage({element:'Neutral'},q,'flameBlade',1,1),Math.round((q<60?24+10*(q-45)/14:q<70?45+13*(q-60)/9:q<80?70+20*(q-70)/9:105+35*(q-80)/20)*1.16*.79*.95*.8*1.15));
  }
  for(const [id,bonus] of [['bolt',20],['tidalcrest',15],['flameBlade',15]] as const)assert.equal(spellUpgradePreview(id)!.nextBonus,bonus);
 });

@@ -8,10 +8,12 @@ import {nearKnockback} from '../src/nearSpells.ts';
 
 // Captured from release 0.3.6 before changing the Faint threshold.
 const baseline=JSON.parse(readFileSync(new URL('./fixtures/faint-balance-0.3.6.json',import.meta.url),'utf8')) as {q:number;id:SpellId;power:number;damage:number;push:number}[];
-test('wider Faint preserves both old endpoints and every 60–100 damage/knockback value',()=>{
+test('wider Faint preserves both endpoints and 60–100 values for spells with unchanged balance',()=>{
  for(const row of baseline){
   const q=row.q===48?45:row.q;
   assert.equal(spellPower(row.id,q),row.power,`${row.id} power ${q}`);
+  // Flame Blade was rebalanced after this fixture and has its own checks in nearSpells.test.ts.
+  if(row.id==='flameBlade')continue;
   assert.equal(spellDamage({element:'Neutral'},q,row.id),row.damage,`${row.id} damage ${q}`);
   assert.equal(spellKnockback(q,row.id),row.push,`${row.id} knockback ${q}`);
  }

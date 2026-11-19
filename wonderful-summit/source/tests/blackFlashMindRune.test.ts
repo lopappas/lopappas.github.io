@@ -24,13 +24,13 @@ test('Black Flash uses strict 1/10 odds then chains at strict 1/3 odds until a m
 });
 test('only direct damage plus knockback spells roll; other spells and fizzles preserve a chain',()=>{
  const b={...field(),blackFlash:{enabled:true,chain:true}};
- for(const id of ['bog','firestorm','thistleBush','puddleGuard','flameBlade','chronos','alchemize','ender'] as const){const result=rollBlackFlash(b,id,80,()=>{throw Error('ineligible spell rolled');});assert.equal(result.state,b);assert.equal(result.multiplier,1);}
+ for(const id of ['bog','firestorm','thistleBush','puddleGuard','chronos','alchemize','ender'] as const){const result=rollBlackFlash(b,id,80,()=>{throw Error('ineligible spell rolled');});assert.equal(result.state,b);assert.equal(result.multiplier,1);}
  assert.equal(rollBlackFlash(b,'water',47,()=>{throw Error('fizzle rolled');}).state,b);
  assert.equal(fizzleSpell(b).blackFlash.chain,true);
  const disabled={...b,blackFlash:{enabled:false,chain:false}};assert.equal(rollBlackFlash(disabled,'water',80,()=>{throw Error('unowned relic rolled');}).state,disabled);
 });
 test('Black Flash doubles direct damage and push, while intrinsic and amulet burn stay unchanged',()=>{
- for(const id of ['water','fire','nature','wave','bolt','leaf','tidalcrest'] as const){
+ for(const id of ['water','fire','nature','wave','bolt','leaf','tidalcrest','flameBlade'] as const){
   const b=field();b.damageBonus=1.07;b.amulets.sun=true;b.amulets.twilight=false;
   const normal=hitWithSpell(b,60,id,1,()=>.99),flash=hitWithSpell(b,60,id,1,()=>0);
   assert.ok(Math.abs((1000-flash.enemies[0].hp)-(1000-normal.enemies[0].hp)*2)<1e-6,id);

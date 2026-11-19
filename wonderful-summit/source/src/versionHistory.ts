@@ -1,5 +1,6 @@
 // Keep newest first. Add a short entry for every published version.
 export const VERSION_HISTORY=[
+ {version:'0.3.53',publishedAt:'2026-11-19T12:35:03Z',changes:['Snowman fires from 50 units and pushes enemies back 12–30 units at base strength. Snowman+ fires from 60 units with 16–36 base knockback.','Scorchy+ fires from 50 units.','Flame Blade deals 20% less damage and applies 30% of standard knockback for the cast quality.']},
  {version:'0.3.52',publishedAt:'2026-11-19T12:18:47Z',changes:['Snowman has 150 HP at 80% quality and deals 10–24 base knockback depending on cast quality.','Scorchy fireballs can ignite wooden shields.']},
  {version:'0.3.51',publishedAt:'2026-11-19T12:03:15Z',changes:['Scorchy attacks every 1.5 seconds and deals 20% more damage.','Snowman has 30% more health and its snowballs push enemies back slightly. Higher cast quality increases the push.']},
  {version:'0.3.50',publishedAt:'2026-11-19T11:34:14Z',changes:['Added Scorchy, a Legendary Fire spell. Draw a round jack-o’-lantern face to summon a floating pumpkin that spits fire.','Scorchy has its own cooldown and can fight alongside Snowman.']},

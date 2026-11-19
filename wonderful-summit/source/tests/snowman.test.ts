@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CONTACT_X,drinkPotion,enemyY,fizzleSpell,hitWithSpell,launchSpell,newBattle,spellDamage,spellKnockback,stepBattle,type Battle} from '../src/battle.ts';
+import {CONTACT_X,drinkPotion,enemyY,fizzleSpell,hitWithSpell,launchSpell,newBattle,spellDamage,spellKnockback,stepBattle,ENEMY_BACK_X,type Battle} from '../src/battle.ts';
 import {recognize} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 import {guardianStats} from '../src/guardian.ts';
@@ -55,12 +55,12 @@ test('Faint Snowman expires at 20 active seconds and a recast replaces the exist
  assert.equal(replacement.casts,2);
 });
 
-test('Snowman throws at 40 units, deals 16 neutral damage at 80% and waits two seconds between throws',()=>{
+test('Snowman throws at 50 units, deals 16 neutral damage at 80% and waits two seconds between throws',()=>{
  const field=newBattle('active');
  field.approachAt=100;
  const enemy=field.enemies[0];
  enemy.element='Neutral';
- enemy.x=CONTACT_X+291;
+ enemy.x=CONTACT_X+301;
  let battle=advance(summon(field),20);
  assert.equal(battle.snowman?.shot,null);
  battle.enemies[0].x--;
@@ -71,13 +71,13 @@ test('Snowman throws at 40 units, deals 16 neutral damage at 80% and waits two s
  battle=advance(battle,.28);
  assert.equal(battle.enemies[0].hp,84);
  const push=battle.enemies[0].push!;
- assert.equal(push.from,CONTACT_X+290);
- assert.ok(Math.abs(push.to-push.from-spellKnockback(80,'snowman'))<1e-8);
- battle=advance(battle,1.71);
+ assert.equal(push.from,CONTACT_X+300);
+ assert.equal(push.to,Math.min(ENEMY_BACK_X,push.from+spellKnockback(80,'snowman')));
+ battle=advance(battle,1.7);
  assert.equal(battle.snowman?.shot,null);
-  // It cannot fire while the first snowball has pushed this stationary enemy out of range.
- assert.equal(advance(battle,.01).snowman?.shot,null);
- battle.enemies[0].x=CONTACT_X+285;
+ battle.enemies[0].x=CONTACT_X+295;
+ battle=advance(battle,.01);
+ assert.equal(battle.snowman?.shot,null);
  battle=advance(battle,.01);
  assert.equal(battle.snowman?.shot?.targetId,enemy.id);
  assert.equal(advance(battle,.28).enemies[0].hp,68);
@@ -86,14 +86,14 @@ test('Snowman throws at 40 units, deals 16 neutral damage at 80% and waits two s
 test('Snowman stops at the range boundary and advances when its target is pushed out of range',()=>{
  const field=newBattle('active');
  field.approachAt=100;
- Object.assign(field.enemies[0],{element:'Neutral',x:CONTACT_X+45});
+ Object.assign(field.enemies[0],{element:'Neutral',x:CONTACT_X+55});
  let battle=advance(summon(field),.5);
  assert.equal(battle.snowman?.x,CONTACT_X+5);
- battle=advance(battle,1.55);
+ battle=advance(battle,1.83);
  const position=battle.snowman!.x;
  assert.ok(position>CONTACT_X+5);
- assert.ok(Math.abs(battle.enemies[0].x-position-40)<1e-8);
- assert.equal(advance(battle,.2).snowman?.x,position);
+ assert.ok(Math.abs(battle.enemies[0].x-position-50)<1e-8);
+ assert.equal(advance(battle,.02).snowman?.x,position);
 });
 
 function atContact(state:Battle=newBattle('active')){
@@ -127,7 +127,7 @@ test('enemies can attack Snowman from separate lanes and resume marching when it
  const guardianX=battle.snowman!.x;
  assert.equal(battle.snowman?.hp,114);
  assert.equal(battle.snowman?.x,guardianX);
- battle=advance(battle,7.6);
+ battle=advance(battle,8.3);
  assert.equal(battle.snowman,null);
  assert.equal(battle.playerHits,0);
  assert.ok(advance(battle,5.8).playerHits>0);
@@ -163,7 +163,8 @@ test('spell, relic and potion knockback can move enemies right after they hit Sn
 test('knockback breaks contact and an enemy cannot hit again until it reaches Snowman',()=>{
  const strike=atContact();
  const enemy=strike.enemies[0];
- const boosted={...strike,pushBonus:3};
+ // Isolate the player's push so later snowballs cannot interrupt the return.
+ const boosted={...strike,pushBonus:3,snowman:{...strike.snowman!,shot:null,nextShotAt:Infinity}};
  const pushed=hitWithSpell(boosted,80,'water',enemy.id);
  const waiting=advance({...pushed,pushBonus:strike.pushBonus},1.5);
  assert.ok(waiting.enemies[0].x>waiting.snowman!.x+8);
@@ -208,8 +209,11 @@ test('snowballs apply Water matchups and rocky defenses to damage and knockback'
 
 test('snowball knockback grows mildly with quality and preserves a stronger active push',()=>{
  assert.equal(spellKnockback(44,'snowman'),0);
- assert.equal(spellKnockback(45,'snowman'),10);
- assert.equal(spellKnockback(100,'snowman'),24);
+ assert.equal(spellKnockback(45,'snowman'),12);
+ assert.equal(spellKnockback(100,'snowman'),30);
+ assert.equal(spellKnockback(45,'snowman',1,'Neutral',false,null,0,1),16);
+ assert.equal(spellKnockback(100,'snowman',1,'Neutral',false,null,0,1),36);
+ assert.deepEqual(spellUpgradePreview('snowman')?.guardianKnockback,{current:'12–30',next:'16–36'});
  assert.ok(spellKnockback(80,'snowman')>spellKnockback(60,'snowman'));
  const field=newBattle('active');
  Object.assign(field.enemies[0],{element:'Neutral',x:CONTACT_X+25,hp:1000});

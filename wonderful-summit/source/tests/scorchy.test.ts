@@ -55,6 +55,25 @@ test('Scorchy fires at 40 units, waits 1.5 seconds, and deals 20% more Fire dama
  }
 });
 
+test('guardian upgrades extend the exact firing boundary by ten units',()=>{
+ for(const [id,baseRange] of [['snowman',50],['scorchy',40]] as const){
+  for(const upgrade of [0,1]){
+   const field=newBattle('active');
+   const edge=CONTACT_X+250+baseRange+10*upgrade;
+   field.approachAt=100;
+   field.upgrades[id]=upgrade;
+   field.enemies[0].x=edge+.01;
+   const cast=launchSpell(field,80,'#f0a068',id);
+   cast[id]!.x=CONTACT_X+250;
+   const outside=advance(cast,.01);
+   assert.equal(outside[id]?.shot,null,id);
+   outside.enemies[0].x=edge;
+   assert.ok(advance(outside,.01)[id]?.shot,id);
+  }
+  assert.deepEqual(spellUpgradePreview(id)?.guardianRange,{current:baseRange,next:baseRange+10});
+ }
+});
+
 test('Snowman and Scorchy can coexist and the leading guardian takes the contact hit',()=>{
  const field=newBattle('active');
  field.approachAt=0;

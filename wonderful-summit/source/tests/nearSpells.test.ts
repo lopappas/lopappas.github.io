@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {SPELLS,SPELL_VARIATIONS,recognize,type SpellId} from '../src/magic.ts';
+import {SPELLS,SPELL_VARIATIONS,recognize,knockback,type SpellId} from '../src/magic.ts';
 import {nearDamage,nearKnockback,thistleStats} from '../src/nearSpells.ts';
 import {newBattle,launchSpell,stepBattle,spellDamage,spellKnockback,hitWithSpell,drinkPotion,CONTACT_X,ENEMY_BACK_X,type Battle} from '../src/battle.ts';
 import {rollSpellOffers,newRun,enterNode,finishBattle,battleForRun,camp,spellPrice} from '../src/run.ts';
@@ -24,8 +24,10 @@ test('quality endpoints set the promised puddle knockback and thistle reach/budg
 test('Flame Blade hits every present enemy within 110 units exactly once, without a projectile or distant fallback',()=>{
  const b=field([325,435,436,350]);b.enemies[3].spawnAt=5;const before=structuredClone(b),n=launchSpell(b,70,'#fff','flameBlade');
  assert.deepEqual(b,before);assert.equal(n.casts,1);assert.equal(n.projectile,null);
- assert.equal(n.enemies[0].hp,10000-61);assert.equal(n.enemies[1].hp,10000-61);assert.equal(n.enemies[2].hp,10000);assert.equal(n.enemies[3].hp,10000);
- assert.equal(n.enemies[0].push,null);
+ assert.equal(n.enemies[0].hp,10000-49);assert.equal(n.enemies[1].hp,10000-49);assert.equal(n.enemies[2].hp,10000);assert.equal(n.enemies[3].hp,10000);
+ assert.ok(n.enemies[0].push&&n.enemies[1].push);
+ assert.equal(n.enemies[2].push,null);
+ assert.equal(n.enemies[3].push,null);
  const empty=launchSpell(field([500]),100,'#fff','flameBlade');assert.ok(empty.flameSwing);assert.equal(empty.enemies[0].hp,10000);assert.equal(advance(n,.4).enemies[0].hp,n.enemies[0].hp);
 });
 test('Puddle Guard persists, triggers only the first walking enemy, launches it, and then disappears',()=>{
@@ -116,12 +118,12 @@ test('extended Thistle range reaches 150 units, while enlarged Puddle art preser
  assert.ok(guard.puddle);assert.equal(guard.enemies[0].hp,10000);
 });
 
-test('damage increases apply at every quality before upgrades and resistance rounding',()=>{
+test('Flame Blade and Thistle Bush balance applies before upgrades and resistance rounding',()=>{
  for(let q=45;q<=100;q++){
   const tier=q<60?0:q<70?1:q<80?2:3,[lo,hi]=[[45,59],[60,69],[70,79],[80,100]][tier];
   const [a,b]=[[24,34],[45,58],[70,90],[105,140]][tier];
   const [c,d]=[[1,1.5],[2,2.5],[3,3.5],[4,5]][tier];
-  assert.ok(Math.abs(nearDamage('flameBlade',q)-(a+(b-a)*(q-lo)/(hi-lo))*1.16*.79*.95)<1e-8);
+  assert.ok(Math.abs(nearDamage('flameBlade',q)-(a+(b-a)*(q-lo)/(hi-lo))*1.16*.79*.95*.8)<1e-8);
   assert.ok(Math.abs(nearDamage('thistleBush',q)-(c+(d-c)*(q-lo)/(hi-lo)+.25))<1e-8);
  }
 });
@@ -167,12 +169,38 @@ test('Thistle appearance time and upgraded budget snapshot on drawn and bottled 
 });
 
 
-test('Flame Blade has no knockback at every quality and upgrade, including bottled casts and push relics',()=>{
- for(let q=45;q<=100;q++)for(const upgrade of [0,1]){
-  let b=field([350,360]);b.upgrades.flameBlade=upgrade;b.pushBonus=20;
-  assert.equal(spellKnockback(q,'flameBlade',20,'Water',false,null,0,upgrade),0);
-  const hit=launchSpell(b,q,'#fff','flameBlade');assert.ok(hit.enemies.every(e=>e.push===null));assert.ok(hit.enemies.every(e=>e.hp<10000));
-  b.potions.spellBottle=1;b.bottledSpells=[{spellId:'flameBlade',quality:q}];const bottle=advance(drinkPotion(b,'spellBottle'),.66);assert.ok(bottle.enemies.every(e=>e.push===null));
+test('Flame Blade uses 30% of normal knockback at every quality, including bottled casts',()=>{
+ for(const q of [45,59,60,70,80,100])for(const upgrade of [0,1]){
+  const fieldBattle=field([350,390]);
+  fieldBattle.upgrades.flameBlade=upgrade;
+  fieldBattle.pushBonus=1.15;
+  const expected=knockback(q)*.3*fieldBattle.pushBonus;
+  assert.ok(Math.abs(spellKnockback(q,'flameBlade',fieldBattle.pushBonus,'Neutral',false,null,0,upgrade)-expected)<1e-8);
+  const drawn=launchSpell(fieldBattle,q,'#fff','flameBlade');
+  fieldBattle.potions.spellBottle=1;
+  fieldBattle.bottledSpells=[{spellId:'flameBlade',quality:q}];
+  const bottled=advance(drinkPotion(fieldBattle,'spellBottle'),.66);
+  for(const cast of [drawn,bottled]){
+   assert.ok(cast.enemies.every(e=>e.push&&Math.abs(e.push.to-e.push.from-expected)<1e-8));
+   assert.ok(cast.enemies.every(e=>e.hp<10000));
+  }
  }
- const b=field([350]);b.enemies[0].push={from:350,to:500,started:0,ends:.28};const hit=launchSpell(b,100,'#fff','flameBlade');assert.deepEqual(hit.enemies[0].push,b.enemies[0].push);
+ const b=field([350]);
+ b.enemies[0].push={from:350,to:500,started:0,ends:.28};
+ assert.strictEqual(launchSpell(b,100,'#fff','flameBlade').enemies[0].push,b.enemies[0].push);
+});
+
+test('each Flame Blade swing shares one Black Flash roll across enemies in range',()=>{
+ const b={...field([350,390,500]),blackFlash:{enabled:true,chain:false}};
+ const normal=launchSpell(b,80,'#fff','flameBlade',0,()=>.99);
+ let rolls=0;
+ const flash=launchSpell(b,80,'#fff','flameBlade',0,()=>{rolls++;return 0;});
+ assert.equal(rolls,1);
+ assert.equal(flash.blackFlashBurst?.serial,1);
+ for(let i=0;i<2;i++){
+  assert.equal(10000-flash.enemies[i].hp,2*(10000-normal.enemies[i].hp));
+  assert.ok(Math.abs((flash.enemies[i].push!.to-flash.enemies[i].x)-2*(normal.enemies[i].push!.to-normal.enemies[i].x))<1e-8);
+ }
+ assert.equal(flash.enemies[2].hp,10000);
+ assert.equal(flash.enemies[2].push,null);
 });
