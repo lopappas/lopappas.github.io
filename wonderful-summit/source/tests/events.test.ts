@@ -1,15 +1,17 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {ACT_ONE_EVENTS,forgottenCampsiteOutcome,trailEventDescription} from '../src/events.ts';
-import {ROUTE,newRun,enterNode,castTrailEvent,camp,leaveNode,battleForRun,type Run} from '../src/run.ts';
-import {SPELLS,recognize} from '../src/magic.ts';
+import {ACT_ONE_EVENTS,forgottenCampsiteOutcome,HEART_TRACE_PATH,heartRockQuality,heartRockReward,trailEventDescription} from '../src/events.ts';
+import {ROUTE,newRun,enterNode,castHeartRock,castTrailEvent,camp,leaveNode,battleForRun,type Run} from '../src/run.ts';
+import {SPELLS,recognize,shape} from '../src/magic.ts';
 import {snapshotDrawing} from '../src/drawings.ts';
 const eventNode=ROUTE.findIndex(n=>n.kind==='event');
-const visit=():Run=>enterNode({...newRun(),screen:'map',node:eventNode,health:20,combats:5,campUsed:true},()=>.99);
+const visit=(roll=0):Run=>enterNode({...newRun(),screen:'map',node:eventNode,health:20,combats:5,campUsed:true},()=>roll);
 
-test('Forgotten Campsite is the only Act 1 event, immediately after Rocky clearing; both existing camps remain',()=>{
- assert.deepEqual(ACT_ONE_EVENTS,['forgottenCampsite']);assert.equal(ROUTE[eventNode].icon,'?');assert.equal(ROUTE[eventNode].name,'Forgotten Campsite');assert.equal(ROUTE[eventNode-1].name,'Rocky clearing');assert.equal(ROUTE[eventNode+1].name,'Woodland barricade');assert.deepEqual(ROUTE.filter(n=>n.kind==='camp').map(n=>n.name),['Firefly campsite','Mossy grove campsite']);
+test('the random event slot equally splits Heart Rock and Forgotten Campsite after Rocky clearing',()=>{
+ assert.deepEqual(ACT_ONE_EVENTS,['forgottenCampsite','heartRock']);assert.equal(ROUTE[eventNode].icon,'?');assert.equal(ROUTE[eventNode].name,'Random event');assert.equal(ROUTE[eventNode-1].name,'Rocky clearing');assert.equal(ROUTE[eventNode+1].name,'Woodland barricade');assert.deepEqual(ROUTE.filter(n=>n.kind==='camp').map(n=>n.name),['Firefly campsite','Mossy grove campsite']);
  const r=visit();assert.equal(r.screen,'event');assert.deepEqual(r.event,{id:'forgottenCampsite',outcome:'pending'});assert.equal(r.campUsed,false);assert.equal(enterNode(r),r);
+ assert.equal(visit(.49999).event?.id,'forgottenCampsite');
+ for(const roll of [.5,.99,1])assert.deepEqual(visit(roll).event,{id:'heartRock',outcome:'pending'});
 });
 test('fire quality boundaries, non-fire spells and fizzles resolve to the specified outcomes',()=>{
  for(const id of ['fire','bolt'] as const)for(const [q,outcome] of [[45,'spark'],[59,'spark'],[60,'fleeting'],[64,'fleeting'],[65,'lit'],[70,'lit'],[100,'lit']] as const)assert.equal(forgottenCampsiteOutcome(id,q),outcome);
@@ -50,4 +52,47 @@ test('event uses normal recognition and preserves the actual successful drawing 
 test('the event retains quality for successful, weak, non-fire and fizzled attempts',()=>{
  for(const [id,quality] of [['fire',65],['fire',64],['fire',59],['water',93],[null,37],[null,0]] as const){const r=castTrailEvent(visit(),id,quality);assert.equal(r.event?.quality,quality);assert.equal(castTrailEvent(r,'fire',100).event?.quality,quality);}
  assert.equal(castTrailEvent(visit(),null,NaN).event?.quality,0);
+});
+
+test('Heart Rock rewards each score tier and gives no HP below 50%',()=>{
+ const boundaries=[[0,0],[49,0],[50,5],[59,5],[60,10],[69,10],[70,15],[79,15],[80,20],[89,20],[90,25],[100,25],[NaN,0],[Infinity,0]];
+ for(const [quality,reward] of boundaries){
+  assert.equal(heartRockReward(quality),reward);
+  const initial={...visit(.5),health:60};
+  const cast=castHeartRock(initial,quality);
+  assert.equal(cast.event?.outcome,reward?'blessed':'noEffect');
+  assert.equal(cast.health,60+reward);
+  assert.equal(cast.maxHealth,reward?100+reward:undefined);
+  assert.equal(castHeartRock(cast,100),cast);
+  assert.equal(camp(cast),cast);
+ }
+});
+
+test('Heart Rock can be skipped and a cast adds to any existing cap for the rest of the run',()=>{
+ const heart={...visit(.99),health:96,maxHealth:135,relics:['perfectedSphere'] as Run['relics']};
+ assert.equal(leaveNode(heart).health,96);
+ assert.equal(castTrailEvent(heart,'fire',100),heart);
+ assert.equal(castHeartRock({...heart,pendingBottle:true},95).event?.outcome,'pending');
+ assert.equal(castHeartRock(visit(),95).event?.outcome,'pending');
+ assert.deepEqual(castHeartRock(heart,25).relics,['perfectedSphere']);
+ const next=enterNode(leaveNode(castHeartRock(heart,95)));
+ const battle=battleForRun(next);
+ assert.equal(next.event,null);
+ assert.equal(battle.playerHP,121);
+ assert.equal(battle.maxHealth,160);
+ assert.deepEqual(next.relics,['perfectedSphere']);
+});
+
+test('Heart Rock scores the heart by geometry, independent of starting point, size and draw direction',()=>{
+ const outline=[[50,29],[44,22],[36,18],[28,18],[21,21],[15,28],[13,36],[16,46],[22,53],[34,67],[50,82],[67,67],[78,53],[84,46],[87,36],[85,28],[79,21],[72,18],[64,18],[56,22],[50,29]].map(([x,y])=>({x,y}));
+ const [start,...curves]=HEART_TRACE_PATH.slice(1).split(' C').map(segment=>segment.split(' ').map(Number));
+ assert.equal(heartRockQuality([shape(start,curves)]),100);
+ const shifted=[...outline.slice(9),...outline.slice(1,10)];
+ assert.ok(Math.abs(heartRockQuality([shifted])-heartRockQuality([outline]))<=1);
+ const scaled=outline.map(p=>({x:1.4*p.x+17,y:1.4*p.y+29}));
+ assert.ok(heartRockQuality([outline])>=70);
+ assert.equal(heartRockQuality([scaled]),heartRockQuality([outline]));
+ assert.equal(heartRockQuality([outline.toReversed()]),heartRockQuality([outline]));
+ assert.equal(heartRockQuality([]),0);
+ for(const id of ['fire','water','nature','snowman'])assert.ok(heartRockQuality(SPELLS.find(spell=>spell.id===id)!.strokes)<50);
 });

@@ -487,3 +487,12 @@
 
 .paper canvas.ink-hidden{visibility:hidden}
 .canvas-trace-controls button+button{margin-top:4px}
+
+.heart-rock-scene{width:100%;height:108px;display:block;flex-shrink:0}
+.heart-rock-paper.event-paper{background:#dce4ec;border-color:#8b9dae;box-shadow:inset 0 0 25px #7c97ad29}
+.heart-rock-paper canvas{z-index:1}
+.heart-rock-paper .event-clear{background:#cbd8e4;color:#436179}
+.heart-rock-trace{position:absolute;inset:0;width:min(74%,155px);height:78%;max-height:155px;margin:auto;pointer-events:none;animation:heartRockTrace 1250ms linear both}
+@keyframes heartRockTrace{0%,80%{opacity:.52}100%{opacity:0;visibility:hidden}}
+@media(prefers-reduced-motion:reduce){.heart-rock-trace{animation-timing-function:steps(1,end)}}
+.event-panel .heart-rock-reward{margin:0;color:#f3c7d9;font-size:18px;font-weight:500}

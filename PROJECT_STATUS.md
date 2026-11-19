@@ -13,7 +13,9 @@ Updated: 2026-11-19
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.63): Guardian projectiles render over enemies, Firestorm rain samples battle time at 60 Hz, and the Spells picker hides drawn ink until it closes. Practice uses the same picker with Apprentice traces and offers drawing lessons from a selected trace. Version History displays model and reasoning effort beside release dates. The available Git history had no historical model or effort records. Automated tests and the production build passed. Interactive browser verification remains outstanding.
+Latest update (version 0.3.70): Heart Rock and Forgotten Campsite each have a 50% chance in the Act 1 random event slot. Heart Rock shows a pink heart trace for 1.25 seconds and gives one completed casting attempt. Quality below 50% gives no reward. Each 10-point band from 50% to 100% grants 5, 10, 15, 20, or 25 max HP and the same current HP. Version History now shows confirmed model names only, including GPT-6.2 Sol for 0.3.63.
+
+Guardian projectiles render over enemies. Firestorm rain samples battle time at 60 Hz. Spells hides drawn ink until its picker closes. Practice uses the shared picker, Apprentice traces, and optional drawing lessons.
 
 Constellation's 45–49% and 50–59% tiers grant 3/5 armor, +5/+8% spell damage, and +5/+7% knockback. At 80%, it grants 11 armor, +22% spell damage, and +15% knockback. Constellation+ adds 3 armor, 5 spell damage points, and 3 knockback points. The pixel witch hat settles at 20% opacity four seconds after the burst and stays in the sky. The popup displays damage and knockback.
 

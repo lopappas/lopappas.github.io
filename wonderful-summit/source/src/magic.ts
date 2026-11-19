@@ -7,7 +7,7 @@ export type Element = 'Water'|'Fire'|'Nature'|'Ancient';
 export type SpellId = GuardianSpell|'torrent'|'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize'|'sneakyVine'|'constellation';
 export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;color:string;description:string;path:string;strokes:Strokes;developerOnly?:boolean;upgradable?:boolean};
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
-function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
+export function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
 const snowmanCircles = [[50,25,16],[50,66,25]];
 const snowmanArms:Strokes=[
  [{x:35,y:46},{x:21,y:32}],
@@ -89,10 +89,29 @@ function meanNearest(a:Point[],b:Point[]){
  for(const p of a){let nearest=Infinity;for(const q of b)nearest=Math.min(nearest,distance(p,q));sum+=nearest;}
  return sum/a.length;
 }
+function prepareShape(strokes:Strokes){
+ const normalized=normalize(strokes);
+ return {points:sample(normalized),length:strokeLength(normalized)};
+}
+
+function compareShapes(drawing:ReturnType<typeof prepareShape>,template:ReturnType<typeof prepareShape>,penalty=1){
+ const {points,length}=drawing;
+ const error=(meanNearest(points,template.points)+meanNearest(template.points,points))/2;
+ const ratio=length/template.length;
+ const lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);
+ return {quality:Math.round(100*Math.exp(-error*13)*lengthPenalty*penalty),error};
+}
+
+export function scoreDrawingAgainst(strokes:Strokes,reference:Strokes){
+ const drawing=prepareShape(strokes);
+ return drawing.points.length<5?0:compareShapes(drawing,prepareShape(reference)).quality;
+}
+
 // Catalog geometry is constant. Prepare each reference and variant once per module load.
-const RECOGNITION_TEMPLATES=SPELLS.map(spell=>({spell,variants:[spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])].map(strokes=>{
- const normalized=normalize(strokes);return{points:sample(normalized),length:strokeLength(normalized)};
-})}));
+const RECOGNITION_TEMPLATES=SPELLS.map(spell=>({
+ spell,
+ variants:[spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])].map(prepareShape),
+}));
 export type RecognitionResult={spell:Spell|null;quality:number;candidates:{spell:Spell;quality:number;error:number}[];reason:string};
 const RECOGNITION_MARGIN=7;
 
@@ -104,8 +123,8 @@ export function ambiguousSpells(result:RecognitionResult):Spell[]{
 }
 
 export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),accuracyBonus=0):RecognitionResult{
- const normalized=normalize(strokes),points=sample(normalized);if(points.length<5)return{spell:null,quality:0,candidates:[],reason:'Draw a complete sigil first.'};
- const len=strokeLength(normalized),candidates:RecognitionResult['candidates']=[];
+ const drawing=prepareShape(strokes),{points}=drawing;if(points.length<5)return{spell:null,quality:0,candidates:[],reason:'Draw a complete sigil first.'};
+ const candidates:RecognitionResult['candidates']=[];
  for(const prepared of RECOGNITION_TEMPLATES){
   const {spell}=prepared;if(!known.includes(spell.id))continue;
   let handPenalty=1;
@@ -113,9 +132,7 @@ export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),ac
   let best:RecognitionResult['candidates'][number]|undefined;
   // Collapse variations before ambiguity checks, retaining the original tie order.
   for(const template of prepared.variants){
-   const error=(meanNearest(points,template.points)+meanNearest(template.points,points))/2;
-   const ratio=len/template.length,lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);
-   const quality=Math.round(100*Math.exp(-error*13)*lengthPenalty*handPenalty);
+   const {quality,error}=compareShapes(drawing,template,handPenalty);
    if(!best||quality>best.quality)best={spell,quality,error};
   }
   if(best)candidates.push(best);
