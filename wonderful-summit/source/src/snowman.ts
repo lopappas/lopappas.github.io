@@ -6,6 +6,7 @@ export const SNOWMAN_SPEED = 14;
 export const SNOWMAN_CONTACT_DISTANCE = 8;
 export const SNOWMAN_CONTACT_PUSH = 30;
 export const SNOWMAN_CONTACT_ANIMATION_SECONDS = .18;
+export const SNOWMAN_ATTACK_BREAK_DISTANCE = 30;
 export const SNOWMAN_STRIKE_RANGE = 20;
 export const SNOWMAN_ATTACK_INTERVAL = 2;
 export const SNOWMAN_DAMAGE_TAKEN = 1.5;
@@ -20,6 +21,12 @@ export type Snowball = {
  targetId: number;
  started: number;
 };
+
+export type SnowmanContactAttack = {x:number;started:number};
+
+export function snowmanContactAttackEnd(attack:SnowmanContactAttack|undefined){
+ return attack?attack.started+SNOWMAN_CONTACT_ANIMATION_SECONDS:-Infinity;
+}
 
 export type Snowman = {
  x: number;

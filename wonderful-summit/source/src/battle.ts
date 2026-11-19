@@ -1,8 +1,8 @@
 import {COMBAT_LANE_Y,FILA_FOOT_Y,LANE_FOLLOW_GAP,combatLane,enemyFootOffset,laneQueues,placeLaneArrivals,staggeredWalkX,type CombatLane} from './combatLanes.ts';
 import {
- SNOWBALL_FLIGHT_SECONDS,SNOWMAN_ATTACK_INTERVAL,SNOWMAN_CONTACT_DISTANCE,SNOWMAN_CONTACT_PUSH,SNOWMAN_COOLDOWN,
+ SNOWBALL_FLIGHT_SECONDS,SNOWMAN_ATTACK_BREAK_DISTANCE,SNOWMAN_ATTACK_INTERVAL,SNOWMAN_CONTACT_DISTANCE,SNOWMAN_CONTACT_PUSH,SNOWMAN_COOLDOWN,
  SNOWMAN_DAMAGE_TAKEN,SNOWMAN_FAINT_LIFETIME,SNOWMAN_MAX_DISTANCE,SNOWMAN_SPEED,
- SNOWMAN_STRIKE_RANGE,snowmanBoostMultiplier,snowmanStats,type Snowman,
+ SNOWMAN_STRIKE_RANGE,snowmanBoostMultiplier,snowmanContactAttackEnd,snowmanStats,type Snowman,type SnowmanContactAttack,
 } from './snowman.ts';
 import {playerMaxHealth} from './playerHealth.ts';
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
@@ -42,7 +42,7 @@ export const POTION_FLIGHT_SECONDS=.65,POTION_BREAK_SECONDS=.35;
 export type PotionFlight={spell?:BottledSpell;id:number;potion:Potion;started:number;toX:number;toY:number;applied:boolean};
 export type Burn={quality?:number;damage:number;nextTick:number;ticks:number};
 export type Push={from:number;to:number;started:number;ends:number};
-export type Enemy={lane?:CombatLane;snowmanHitAt?:number;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
+export type Enemy={lane?:CombatLane;snowmanAttack?:SnowmanContactAttack;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
 export type Projectile={knockbackMultiplier?:number;inkUsed:number;damageMultiplier:number;started:number;duration:number;quality:number;color:string;spellId:SpellId;targetId:number};
 export type TidalWave={blackFlashMultiplier?:number;id:number;started:number;duration:number;quality:number;damageMultiplier:number;inkUsed:number;hitIds:number[];bonuses:{damageBonus:number;pushBonus:number;upgrade:number;midnightStone:boolean;moon:boolean}};
 export const TIDAL_TRAVEL_SECONDS=.9,TIDAL_START_X=300;
@@ -359,7 +359,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
  const groupSpeed=live.length>=2?.8:1;
  const queues=laneQueues(live,next.encounter,ENEMY_BACK_X);
  const advanced=queues&&new Map<number,Enemy>();
- const walkers=live.length>1?live.filter(e=>!e.push&&e.attackAt===null&&Math.max(e.spawnAt,e.readyAt,e.rootUntil,e.stunUntil,e.shield?.burnUntil??0)<=state.time):[];
+ const walkers=live.length>1?live.filter(e=>!e.push&&e.attackAt===null&&Math.max(e.spawnAt,e.readyAt,e.rootUntil,e.stunUntil,e.shield?.burnUntil??0,snowmanContactAttackEnd(e.snowmanAttack))<=state.time):[];
  next.chronosFields=(next.chronosFields??[]).filter(f=>f.until>time);
  function advanceEnemy(original:Enemy):Enemy{
   let old=original;
@@ -382,10 +382,25 @@ export function stepBattle(state:Battle,delta:number):Battle{
   const dialogueHold=Math.max(0,Math.min(time,dialogueEnd)-state.time);
   if(e.push&&dialogueHold>0)e.push={...e.push,started:e.push.started+dialogueHold,ends:e.push.ends+dialogueHold};
   if(time<dialogueEnd)return {...e,x:constrainX(e.x)};
+  let snowmanAttackEnd=snowmanContactAttackEnd(e.snowmanAttack);
+  if(e.push&&e.snowmanAttack&&state.time<snowmanAttackEnd){
+   if(constrainX(e.push.to)>e.snowmanAttack.x+SNOWMAN_ATTACK_BREAK_DISTANCE+1e-9){
+    e.snowmanAttack=undefined;
+    snowmanAttackEnd=-Infinity;
+   }else{
+    // Preserve a smaller push and start it when the contact attack finishes.
+    const hold=Math.max(0,Math.min(time,snowmanAttackEnd)-Math.max(state.time,e.push.started,dialogueEnd));
+    if(hold>0)e.push={...e.push,started:e.push.started+hold,ends:e.push.ends+hold};
+   }
+  }
+  if(time<snowmanAttackEnd)return {...e,x:constrainX(e.x)};
+  if(e.snowmanAttack)e.snowmanAttack=undefined;
   if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=constrainX(p.from+(p.to-p.from)*(1-(1-t)**3));e.attackAt=null;if(t>=1)e.push=null;return e;}
   if(frozen||actionDelta<=1e-9)return {...e,x:constrainX(e.x)};
   const rush=eliteRush(e);const speed=e.goblinKing?SLIME_SPEED*.9*(kingHasCrown(e)?1:1.8):e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.kind==='spider'?2:e.rocky?.9:1);
-  const walkX=Math.max(CONTACT_X,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows},state.time))*actionDelta);
+  const walkDelta=Math.min(actionDelta,Math.max(0,time-snowmanAttackEnd));
+  if(walkDelta<=1e-9)return {...e,x:constrainX(e.x)};
+  const walkX=Math.max(CONTACT_X,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows},state.time))*walkDelta);
   e.x=constrainX(staggeredWalkX(e,walkX,CONTACT_X,walkers,next.encounter));
   const guardian=next.snowman;
   // Use the start-of-step contact line for enemies that arrive together.
@@ -396,7 +411,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
     contactIds:[...guardian.contactIds,e.id],
    }:null;
    e.attackAt=null;
-   e.snowmanHitAt=time;
+   e.snowmanAttack={x:e.x,started:time};
    return e;
   }
   if(ahead||e.x>CONTACT_X){e.attackAt=null;return e;}

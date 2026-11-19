@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CONTACT_X,drinkPotion,launchSpell,newBattle,spellDamage,stepBattle,type Battle} from '../src/battle.ts';
+import {CONTACT_X,drinkPotion,hitWithSpell,launchSpell,newBattle,spellDamage,stepBattle,type Battle} from '../src/battle.ts';
 import {recognize} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 import {snowmanStats} from '../src/snowman.ts';
@@ -92,7 +92,7 @@ test('Snowman stops at the range boundary and stays there between throws',()=>{
  assert.ok(battle.snowman!.x>CONTACT_X+5);
 });
 
-test('enemies keep walking while hitting Snowman and push it back 30 units per hit',()=>{
+test('contact hits push Snowman back 30 units per hit and hold attackers in position until their animation ends',()=>{
  const field=newBattle('active','pack',()=>.5);
  field.approachAt=0;
  const guardianX=CONTACT_X+80;
@@ -103,18 +103,45 @@ test('enemies keep walking while hitting Snowman and push it back 30 units per h
  assert.equal(battle.snowman?.hp,64);
  assert.equal(battle.snowman?.x,guardianX-60);
  assert.ok(battle.enemies.every(e=>e.x<guardianX+8&&e.attackAt===null&&e.push===null));
- assert.ok(battle.enemies.every(e=>e.snowmanHitAt===battle.time));
- const walkedTo=battle.enemies[0].x;
+ assert.ok(battle.enemies.every(e=>e.snowmanAttack?.started===battle.time&&e.snowmanAttack.x===e.x));
+ const attackX=battle.enemies[0].x;
  battle=advance(battle,.1);
- assert.ok(Math.abs(walkedTo-battle.enemies[0].x-1.44)<1e-8);
+ assert.ok(battle.enemies.every(e=>e.x===attackX));
+ battle=advance(battle,.1);
+ assert.ok(Math.abs(attackX-battle.enemies[0].x-.288)<1e-8);
  assert.equal(battle.snowman?.hp,64);
  assert.equal(battle.playerHP,100);
  assert.equal(battle.playerHits,0);
 
- battle=advance(battle,4.5);
+ battle=advance(battle,5);
  assert.equal(battle.snowman,null);
  assert.equal(battle.playerHits,0);
  assert.ok(advance(battle,5).playerHits>0);
+});
+
+test('knockback of 30 units waits for the hold to finish while stronger knockback interrupts it',()=>{
+ const field=newBattle('active');
+ field.approachAt=0;
+ field.enemies[0]={...field.enemies[0],x:CONTACT_X+68,element:'Neutral'};
+ const placed=summon(field);
+ placed.snowman!.x=CONTACT_X+60;
+ const strike=advance(placed,.01);
+ const enemy=strike.enemies[0],attackX=enemy.x;
+ assert.equal(enemy.snowmanAttack?.x,attackX);
+ const push={from:attackX,to:attackX+30,started:strike.time,ends:strike.time+.28};
+ const small={...strike,enemies:[{...enemy,push}]};
+ let next=advance(small,.17);
+ assert.equal(next.enemies[0].x,attackX);
+ assert.ok(next.enemies[0].snowmanAttack);
+ next=advance(next,.29);
+ assert.equal(next.enemies[0].x,attackX+30);
+ assert.equal(next.enemies[0].snowmanAttack,undefined);
+
+ const large=hitWithSpell(strike,80,'water',enemy.id);
+ assert.ok(large.enemies[0].push!.to-attackX>30);
+ next=advance(large,.01);
+ assert.ok(next.enemies[0].x>attackX);
+ assert.equal(next.enemies[0].snowmanAttack,undefined);
 });
 
 test('Snowman stays at the player line and continuous overlap only lands one guardian hit',()=>{
