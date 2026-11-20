@@ -64,7 +64,7 @@ export function shroomySporePower(quality: number, upgrade = 0) {
  const base = quality <= 80
   ? 2 + Math.round((quality - MIN_CAST_QUALITY) * 3 / (80 - MIN_CAST_QUALITY))
   : 5 + Math.round((Math.min(100, quality) - 80) / 10);
- return base * (upgrade >= 1 ? 1 + guardianUpgradeDamageBonus('shroomy') : 1);
+ return .8 * base * (upgrade >= 1 ? 1 + guardianUpgradeDamageBonus('shroomy') : 1);
 }
 
 export function shroomySporeSlow(upgrade = 0) {
@@ -76,7 +76,7 @@ export function guardianUpgradeDamageBonus(spell: GuardianSpell) {
 }
 
 export function guardianAttackRange(spell: GuardianSpell, upgrade = 0) {
- if (spell === 'shroomy') return upgrade >= 1 ? 240 : 200;
+ if (spell === 'shroomy') return upgrade >= 1 ? 250 : 220;
  return (spell === 'snowman' ? 50 : 40) + (upgrade >= 1 ? 10 : 0);
 }
 

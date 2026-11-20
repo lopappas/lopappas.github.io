@@ -10,16 +10,17 @@ const BODY_SCALE=1.1;
 const SPORE_COLORS=['#e65a64','#fff4cf'];
 const PARTICLE_ANGLES=Array.from({length:12},(_,index)=>index*Math.PI*(3-Math.sqrt(5)));
 
-const ShroomyBody=memo(function ShroomyBody({puffing}:{puffing:boolean}){
+const ShroomyBody=memo(function ShroomyBody(){
  return <g shapeRendering="crispEdges">
-  <path d="M-8-24H8v11h2v9H8v4H-8v-4h-2v-9h2z" fill="#4a302f"/>
-  <path d="M-6-22H6v10h2v8H6v2H-6v-2h-2v-8h2z" fill="#f2d9ae"/>
-  <path d="M3-19h3v8h2v7H6v2H3z" fill="#c9a47e"/>
-  <path d="M-24-24v-8h4v-8h6v-5h8v-4H6v4h8v5h6v8h4v8h-5v4h-38v-4z" fill="#48252c"/>
-  <path d="M-21-25v-7h4v-7h6v-5h7v-2h8v2h7v5h6v7h4v7h-4v2h-34v-2z" fill="#d9505b"/>
-  <path d="M-20-30h4v4h32v-4h4v5h-4v2h-32v-2h-4z" fill="#9b334b"/>
-  <path d="M-12-40h6v5h-6zm13-4h6v4H1zm10 9h6v4h-6z" fill="#fff0c8"/>
-  <path d={puffing?'M-4-32h3v4h-3zm5 0h3v4H1z':'M-4-33h2v5h-2zm6 0h2v5H2z'} fill="#43262c"/>
+  <path d="M-20 0h4v-2h5v-2h22v2h6v2h4v2h-41zm-6-1h3v2h-3zm49-1h3v2h-3z" fill="#745039"/>
+  <path d="M-9-21H9V0H-9z" fill="#512d27"/>
+  <path d="M-7-20H7v19H-7z" fill="#dab385"/>
+  <path d="M-4-16H3v3h2v12H-5v-12h1z" fill="#ffdfad"/>
+  <path d="M-26-22v-7h2v-4h3v-4h4v-4h5v-2h5v-2H7v2h5v2h5v4h4v4h3v4h2v7h-3v3h-5v3h-36v-3h-5v-3z" fill="#4e2827"/>
+  <path d="M-24-23v-5h2v-4h3v-4h4v-4h5v-2h5v-1H5v1h5v2h5v4h4v4h3v4h2v5h-3v3h-5v2h-32v-2h-5v-3z" fill="#cf392f"/>
+  <path d="M-23-27h4v4h6v2h27v-2h5v-4h4v4h-2v3h-5v2h-32v-2h-5v-3h-2z" fill="#a82e2b"/>
+  <path d="M-19-33h3v-3h4v2h3v6h-3v2h-7v-2h-2v-3h2zm6-6h3v-2h4v4h-2v2h-4v-2h-1zm20-4h4v2h4v4h2v4h-3v2h-6v-2H5v-6h2zm14 11h2v4h1v3h-4v2h-3v-2h-2v-5h3v-2z" fill="#fff0c8"/>
+  <path d="M-6-38h3v10h-3zm9 0h3v10H3z" fill="#43262c"/>
  </g>;
 });
 
@@ -30,8 +31,8 @@ export function ShroomyArt({battle}:{battle:Battle}){
  const puffing=!!shroomy.shot&&battle.time-shroomy.shot.started<.13;
  return <g transform={`translate(${x} ${GROUND_Y}) scale(${BODY_SCALE})`} pointerEvents="none" aria-label="Shroomy guardian">
   <ellipse rx="24" ry="4" fill="#203d32" opacity=".35"/>
-  <g transform={puffing?'translate(0 -2) scale(1.08 .96)':undefined} opacity={shroomy.hurtUntil>battle.time?.75:1}>
-   <ShroomyBody puffing={puffing}/>
+  <g transform={puffing?'scale(1.08 .96)':undefined} opacity={shroomy.hurtUntil>battle.time?.75:1}>
+   <ShroomyBody/>
   </g>
  </g>;
 }
