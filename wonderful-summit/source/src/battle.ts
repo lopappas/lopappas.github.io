@@ -77,7 +77,7 @@ export function elementalMatchup(element:Element,target:Enemy['element']){
 export function rockyDefense(rocky:boolean,quality:number){return !rocky||quality>=70?{damage:1,knockback:1,immuneEffects:false}:quality>=60?{damage:.75,knockback:.75,immuneEffects:false}:{damage:.5,knockback:0,immuneEffects:true};}
 type SpellDamageTarget=Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>;
 function sporeTickDamage(target:SpellDamageTarget,quality:number,damage:number,time:number){
- return Math.round(1e6*damage*elementalMatchup('Nature',target.element).damage*rockyDefense(!!target.rocky,quality).damage
+ return Math.round(1e6*damage*rockyDefense(!!target.rocky,quality).damage
   *shieldProtection(target.shield,time)*kingDamageMultiplier(target,quality))/1e6;
 }
 export function shroomyTickDamage(target:SpellDamageTarget,quality:number,bonus=1,upgrade=0,time=0){
@@ -601,7 +601,7 @@ function beginGuardian(state:Battle,spellId:GuardianSpell,quality:number,damageB
 
 function moveGuardian(state:Battle,spellId:GuardianSpell,delta:number):Guardian|null{
  const guardian=state[spellId];
- if(!guardian)return null;
+ if(!guardian||spellId==='shroomy')return guardian;
  if(state.motherSplit&&!state.motherSplit.spawned)return guardian;
  const range=guardianAttackRange(spellId,guardian.upgrade);
  let limit=CONTACT_X+GUARDIAN_MAX_DISTANCE;

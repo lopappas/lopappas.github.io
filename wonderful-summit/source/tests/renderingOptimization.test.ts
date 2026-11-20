@@ -81,6 +81,8 @@ test('guardian shots paint over enemies while guardian bodies keep their layer',
   guardian.shot={x:guardian.x,targetId:battle.enemies[0].id,started:0};
  }
  const rendered=markup(art('World').World,{battle,color:'#fff',burst:0});
+ assert.doesNotMatch(rendered,/aria-label="Shroomy health"/);
+ assert.match(rendered,/transform="translate\(300 475\) scale\(1\.1\)" pointer-events="none" aria-label="Shroomy guardian"/);
  const enemy=rendered.indexOf('aria-label="Enemy"');
  assert.ok(enemy>=0);
  for(const name of ['Snowman guardian','Scorchy guardian','Shroomy guardian']){

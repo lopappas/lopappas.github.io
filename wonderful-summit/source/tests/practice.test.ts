@@ -17,13 +17,14 @@ test('practice grants every spell and toggles only valid upgrades without alteri
 });
 test('every spell can hit the stationary neutral scarecrow repeatedly without ending practice',()=>{
  for(const spell of SPELLS.filter(s=>!['flameBlade','puddleGuard','thistleBush','constellation'].includes(s.id))){
-  let battle=newPracticeBattle(practiceJourney());let total=0;
+  const close=spell.id==='shroomy';
+  let battle=restoreScarecrow(newPracticeBattle(practiceJourney()),false,close);let total=0;
   for(let casts=0;casts<3;casts++){
-   const released=launchSpell(battle,100,spell.color,spell.id,20);total+=practiceDamage(released);battle=restoreScarecrow(released,false);
+   const released=launchSpell(battle,100,spell.color,spell.id,20);total+=practiceDamage(released);battle=restoreScarecrow(released,false,close);
    for(let frame=0;frame<200;frame++){
-    const next=stepPracticeBattle(battle,.1,false,-1).battle;
-    total+=practiceDamage(next);battle=restoreScarecrow(next,false);
-    assert.equal(battle.phase,'active');assert.equal(battle.playerHP,100);assert.equal(battle.enemies[0].hp,SCARECROW_HEALTH);assert.equal(battle.enemies[0].x,560);assert.equal(battle.enemies[0].element,'Neutral');
+    const next=stepPracticeBattle(battle,.1,false,-1,close).battle;
+    total+=practiceDamage(next);battle=restoreScarecrow(next,false,close);
+    assert.equal(battle.phase,'active');assert.equal(battle.playerHP,100);assert.equal(battle.enemies[0].hp,SCARECROW_HEALTH);assert.equal(battle.enemies[0].x,close?355:560);assert.equal(battle.enemies[0].element,'Neutral');
    }
   }
   assert.ok(spell.id==='alchemize'||spell.id==='chronos'||total>0,spell.name+' deals damage');
