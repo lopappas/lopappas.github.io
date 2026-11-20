@@ -23,6 +23,7 @@ export const SHROOMY_MAX_STACKS = 2;
 export type ShroomySpore = {
  quality: number;
  damage: number;
+ slow?: number;
  nextTick: number;
  ticks: number;
 };
@@ -71,12 +72,16 @@ export function shroomySporePower(quality: number, upgrade = 0) {
  return base * (upgrade >= 1 ? 1 + guardianUpgradeDamageBonus('shroomy') : 1);
 }
 
+export function shroomySporeSlow(upgrade = 0) {
+ return upgrade >= 1 ? .04 : .03;
+}
+
 export function guardianUpgradeDamageBonus(spell: GuardianSpell) {
  return spell === 'scorchy' ? 1 / 9 : .1;
 }
 
 export function guardianAttackRange(spell: GuardianSpell, upgrade = 0) {
- if (spell === 'shroomy') return 160;
+ if (spell === 'shroomy') return 200;
  return (spell === 'snowman' ? 50 : 40) + (upgrade >= 1 ? 10 : 0);
 }
 

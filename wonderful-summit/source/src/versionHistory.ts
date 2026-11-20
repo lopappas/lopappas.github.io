@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.3.81-alpha',publishedAt:'2026-11-20T22:04:21Z',model:'GPT-6.2 Sol',changes:['Shroomy fires from 200 units. Each spore slows the target by 3%, or 4% when upgraded, independently of Snaily.','The Shroomy sigil now uses just the cap and stem.']},
  {version:'0.3.80-alpha',publishedAt:'2026-11-20T21:42:11Z',model:'GPT-6.2 Sol',changes:['Added Shroomy, a Legendary Nature guardian. Draw a wide mushroom with two short eyes to summon it.','Shroomy fires long-range spores that deal damage each second and stack twice.']},
  {version:'0.3.72-alpha',publishedAt:'2026-11-19T21:19:18Z',model:'GPT-6.2 Sol',changes:['Heart Rock puts Ready in the center of the canvas and shows a larger, thicker heart for 1.5 seconds.','Developer trail encounters are grouped by act. The random event button shows the selected event as an emoji.']},
  {version:'0.3.71',publishedAt:'2026-11-19T20:52:55Z',model:'GPT-6.2 Sol',changes:['Heart Rock shows its thicker trace after you tap Ready.','The Developer Panel shows the trail event selected for the current run.']},

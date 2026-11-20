@@ -2,7 +2,7 @@ import {COMBAT_LANE_Y,FILA_FOOT_Y,combatLane,enemyFootOffset,laneContactReach,pl
 import {
  GUARDIAN_SHOT_FLIGHT_SECONDS,GUARDIAN_CONTACT_DISTANCE,GUARDIAN_COOLDOWN,
  GUARDIAN_DAMAGE_TAKEN,GUARDIAN_ENEMY_COOLDOWN,GUARDIAN_MAX_CONTACT_REACH,
- GUARDIAN_MAX_DISTANCE,GUARDIAN_SPEED,GUARDIAN_SPELLS,SHROOMY_MAX_STACKS,SHROOMY_SPORE_TICKS,shroomySporePower,type ShroomySpore,guardianAttackInterval,guardianAttackRange,guardianBoostMultiplier,guardianKnockback,guardianStats,isGuardianSpell,type Guardian,type GuardianSpell,
+ GUARDIAN_MAX_DISTANCE,GUARDIAN_SPEED,GUARDIAN_SPELLS,SHROOMY_MAX_STACKS,SHROOMY_SPORE_TICKS,shroomySporePower,shroomySporeSlow,type ShroomySpore,guardianAttackInterval,guardianAttackRange,guardianBoostMultiplier,guardianKnockback,guardianStats,isGuardianSpell,type Guardian,type GuardianSpell,
 } from './guardian.ts';
 import {constellationBonus,type Constellation} from './constellation.ts';
 import {playerMaxHealth} from './playerHealth.ts';
@@ -100,10 +100,13 @@ export function bogSlow(state:Battle,e:Enemy,time:number){
  const portion=bog.portions.find(p=>p.until>time);if(!portion||elementalMatchup('Nature',e.element).immuneEffects||rockyDefense(e.rocky,portion.quality).immuneEffects)return 0;
  return bogEffect(portion.quality,portion.upgrade).slow;
 }
-// Boost only an existing spell slow, once after choosing the strongest effect.
+// Snaily boosts the strongest regular slow. Spores add their own slow independently.
 export function spellSlow(state:Battle,e:Enemy,time:number){
  const amount=Math.max(bogSlow(state,e,time),time<e.chronosSlowUntil?.55:0,...e.leafSlows.filter(f=>f.until>time).map(f=>f.amount),time<e.slowUntil&&e.leafSlows.length===0?.55:0);
- return resistedSlow(e,amount>0?Math.min(1,amount+(state.snaily?.05:0)):0);
+ const boost=amount>0 && state.snaily ? .05 : 0;
+ const sporeSlow=e.spores?.reduce((total,spore)=>
+  spore.ticks>0&&spore.nextTick+spore.ticks-1>time+1e-9?total+(spore.slow??shroomySporeSlow()):total,0)??0;
+ return resistedSlow(e,Math.min(1,amount+boost+sporeSlow));
 }
 export function bogTickDamage(e:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>,q:number,upgrade=0,bonus=1,multiplier=1,midnight=0,time=0,twilight=false){
  return Math.round(bogEffect(q,upgrade).damage*bonus*multiplier*(1+midnight)*(twilight&&q>=60?1.15:1)*elementalMatchup('Nature',e.element).damage*rockyDefense(!!e.rocky,q).damage*shieldProtection(e.shield,time)*kingDamageMultiplier(e,q)*1e6)/1e6;
@@ -429,7 +432,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
   const furthestX=targetsGuardian?frontX+GUARDIAN_MAX_CONTACT_REACH:Infinity;
   const reach=Math.min(furthestX,laneContactReach(e,marchOrder,next.encounter,frontX,contactX));
   const stopX=Math.max(CONTACT_X,Math.min(e.x,reach));
-  e.x=Math.max(stopX,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows},state.time))*actionDelta);
+  e.x=Math.max(stopX,e.x-speed*groupSpeed*state.difficulty*(1-spellSlow(next,{...e,leafSlows:old.leafSlows,spores:old.spores},state.time))*actionDelta);
   if(guardianSpell&&guardian&&e.x<=reach+1e-9){
    e.attackAt=null;
    if(e.clock+1e-9>=(e.nextGuardianAttackAt??0)){
@@ -627,7 +630,12 @@ function advanceGuardian(state:Battle,spellId:GuardianSpell):Battle{
    if(spellId==='shroomy'){
     if((e.spores?.length??0)>=SHROOMY_MAX_STACKS)return e;
     const nextTick=shot.started+GUARDIAN_SHOT_FLIGHT_SECONDS+1;
-    const spore={quality:guardian.quality,damage:shroomySporePower(guardian.quality,guardian.upgrade)*guardian.damageBonus,nextTick,ticks:SHROOMY_SPORE_TICKS};
+    const spore:ShroomySpore={
+     quality:guardian.quality,
+     damage:shroomySporePower(guardian.quality,guardian.upgrade)*guardian.damageBonus,
+     slow:shroomySporeSlow(guardian.upgrade),
+     nextTick,ticks:SHROOMY_SPORE_TICKS,
+    };
     return {...e,spores:[...(e.spores??[]),spore]};
    }
    const damage=spellDamage(e,guardian.quality,spellId,guardian.damageBonus,guardian.upgrade,time);

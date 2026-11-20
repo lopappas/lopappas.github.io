@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CONTACT_X,launchSpell,newBattle,shroomyTickDamage,spellCooldownRemaining,spellDamage,spellKnockback,stepBattle,type Battle} from '../src/battle.ts';
+import {CONTACT_X,launchSpell,newBattle,shroomyTickDamage,spellCooldownRemaining,spellDamage,spellKnockback,spellSlow,stepBattle,type Battle} from '../src/battle.ts';
 import {GUARDIAN_SPEED,guardianStats} from '../src/guardian.ts';
 import {recognize} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
@@ -24,7 +24,7 @@ test('the mushroom lesson scores against the full catalog and Shroomy scales fro
  const lesson=practiceLesson('shroomy')!;
  assert.equal(lesson.spell.element,'Nature');
  assert.equal(lesson.spell.rarity,'Legendary');
- assert.equal(lesson.paths.length,4);
+ assert.equal(lesson.paths.length,2);
  const drawing=lesson.paths.map(path=>path.map(p=>({x:p.x*1.8+30,y:p.y*1.8-12})));
  const match=recognize(drawing);
  assert.equal(match.spell?.id,'shroomy');
@@ -36,8 +36,8 @@ test('the mushroom lesson scores against the full catalog and Shroomy scales fro
  assert.equal(spellUpgradePreview('shroomy')?.nextDamage,3.3);
 });
 
-test('at 160 units a spore lands without damage or knockback and ticks exactly ten times',()=>{
- const fresh=cast(field(CONTACT_X+160));
+test('at 200 units a spore lands without damage or knockback and ticks exactly ten times',()=>{
+ const fresh=cast(field(CONTACT_X+200));
  assert.equal(fresh.shroomy?.hp,30);
  assert.equal(spellCooldownRemaining(fresh,'shroomy'),30);
  const launched=at(fresh,.05);
@@ -86,7 +86,7 @@ test('Shroomy marches at Scorchy speed, holds at range, and can coexist with bot
   assert.ok(Math.abs(walking[id]!.x-CONTACT_X-GUARDIAN_SPEED)<1e-9);
  }
  const waiting=at(walking,6.25);
- assert.equal(waiting.shroomy?.x,CONTACT_X+90);
+ assert.equal(waiting.shroomy?.x,CONTACT_X+50);
  assert.ok(waiting.enemies[0].spores?.length);
  const alreadyInContact=cast({...field(CONTACT_X+5),approachAt:0},45);
  assert.equal(at(alreadyInContact,.05).shroomy,null);
@@ -102,4 +102,26 @@ test('spores use Nature matchup and snapshot half the player damage boost',()=>{
  assert.equal(shroomyTickDamage({element:'Nature'},80),2.5);
  assert.equal(shroomyTickDamage({element:'Fire'},80),3.75);
  assert.equal(shroomyTickDamage({element:'Neutral'},80,1,1),5.5);
+});
+
+test('spore slows stack on impact, expire independently and stay independent of Snaily',()=>{
+ for(const [upgrade,slow] of [[0,.03],[1,.04]]){
+  const fresh=cast({...field(CONTACT_X+140),snaily:true,upgrades:{shroomy:upgrade}});
+  const first=at(fresh,.33);
+  const both=at(first,3);
+  assert.equal(spellSlow(first,first.enemies[0],first.time),slow);
+  assert.equal(spellSlow(both,both.enemies[0],both.time),2*slow);
+  assert.equal(spellSlow({...both,snaily:false},both.enemies[0],both.time),2*slow);
+  const brambled={...both.enemies[0],leafSlows:[{until:20,amount:.3}]};
+  assert.ok(Math.abs(spellSlow(both,brambled,both.time)-(.35+2*slow))<1e-9);
+  const mobile={...both,shroomy:null,approachAt:0};
+  const moved=stepBattle(mobile,.05);
+  assert.ok(Math.abs(mobile.enemies[0].x-moved.enemies[0].x-18*.05*(1-2*slow))<1e-9);
+  const oneLeft=at({...both,shroomy:null},10.33);
+  assert.equal(spellSlow(oneLeft,oneLeft.enemies[0],oneLeft.time),slow);
+  const lastSpore=oneLeft.enemies[0].spores![0];
+  const expired=at(oneLeft,lastSpore.nextTick+lastSpore.ticks-1);
+  assert.equal(spellSlow(expired,expired.enemies[0],expired.time),0);
+ }
+ assert.deepEqual(spellUpgradePreview('shroomy')?.sporeSlow,{current:3,next:4});
 });
