@@ -29,23 +29,23 @@ test('the mushroom lesson scores against the full catalog and Shroomy has 15 HP 
  const match=recognize(drawing);
  assert.equal(match.spell?.id,'shroomy');
  assert.ok(match.quality>=98);
- for(const [quality,tick] of [[45,1.0368],[60,1.5552],[80,2.592],[100,3.6288]]){
+ for(const [quality,tick] of [[45,1.161216],[60,1.741824],[80,2.90304],[100,4.064256]]){
   assert.equal(guardianStats('shroomy',quality).hp,15);
   assert.equal(guardianStats('shroomy',quality,1).hp,15);
   assert.equal(shroomyTickDamage({element:'Neutral'},quality),tick);
-  assert.ok(Math.abs(shroomyTickDamage({element:'Neutral'},quality,1,1)-tick*1.1)<1e-9);
+  assert.ok(Math.abs(shroomyTickDamage({element:'Neutral'},quality,1,1)-tick*1.1)<1e-6);
  }
- assert.equal(spellUpgradePreview('shroomy')?.nextDamage,1.71072);
- assert.deepEqual(spellUpgradePreview('shroomy')?.guardianRange,{current:220,next:250});
+ assert.equal(spellUpgradePreview('shroomy')?.nextDamage,1.916006);
+ assert.deepEqual(spellUpgradePreview('shroomy')?.guardianRange,{current:240,next:270});
 });
 
-test('at 220 units a spore lands without damage or knockback and ticks exactly ten times',()=>{
- const fresh=cast(field(CONTACT_X+220));
+test('at 240 units a spore lands without damage or knockback and ticks exactly ten times',()=>{
+ const fresh=cast(field(CONTACT_X+240));
  assert.equal(fresh.shroomy?.hp,15);
  assert.equal(spellCooldownRemaining(fresh,'shroomy'),30);
  const launched=at(fresh,.05);
  assert.equal(launched.shroomy?.shot?.targetId,1);
- assert.equal(launched.shroomy!.nextShotAt,2.75);
+ assert.equal(launched.shroomy!.nextShotAt,2.65);
  const planted=at(launched,.33);
  const [enemy]=planted.enemies;
  assert.equal(enemy.hp,200);
@@ -55,9 +55,9 @@ test('at 220 units a spore lands without damage or knockback and ticks exactly t
  assert.equal(enemy.spores?.length,1);
  const alone={...planted,shroomy:null};
  assert.equal(at(alone,1.329).enemies[0].hp,200);
- assert.equal(at(alone,1.33).enemies[0].hp,197.408);
+ assert.equal(at(alone,1.33).enemies[0].hp,197.09696);
  const finished=at(alone,10.33);
- assert.ok(Math.abs(finished.enemies[0].hp-174.08)<1e-9);
+ assert.ok(Math.abs(finished.enemies[0].hp-170.9696)<1e-9);
  assert.deepEqual(finished.enemies[0].spores,[]);
  assert.equal(at(finished,13).enemies[0].hp,finished.enemies[0].hp);
  assert.equal(planted.enemies[0].spores?.[0].ticks,10);
@@ -66,7 +66,7 @@ test('at 220 units a spore lands without damage or knockback and ticks exactly t
 test('Shroomy prefers the nearest unspored enemy and waits at the two-stack cap',()=>{
  let battle=cast(field(CONTACT_X+40,CONTACT_X+110));
  const targets:number[]=[];
- for(const time of [.05,2.75,5.45,8.15]){
+ for(const time of [.05,2.65,5.25,7.85]){
   battle=at(battle,time);
   targets.push(battle.shroomy!.shot!.targetId);
  }
@@ -78,12 +78,12 @@ test('Shroomy prefers the nearest unspored enemy and waits at the two-stack cap'
  battle=at(battle,10.33);
  assert.equal(battle.shroomy?.shot,null);
  assert.deepEqual(battle.enemies[0].spores,[{...secondStack,nextTick:secondStack.nextTick+1,ticks:secondStack.ticks-1}]);
- battle=at(battle,10.85);
+ battle=at(battle,10.45);
  assert.equal(battle.shroomy?.shot?.targetId,1);
- assert.equal(at(battle,11.15).enemies[0].spores?.length,2);
+ assert.equal(at(battle,10.75).enemies[0].spores?.length,2);
 });
 
-test('Shroomy stays planted and coexists with moving guardians, with 250 reach when upgraded',()=>{
+test('Shroomy stays planted and coexists with moving guardians, with 270 reach when upgraded',()=>{
  const state=cast(field(CONTACT_X+250));
  const trio=launchSpell(launchSpell(state,80,'#fff','scorchy'),80,'#fff','snowman');
  const walking=at(trio,1);
@@ -95,9 +95,9 @@ test('Shroomy stays planted and coexists with moving guardians, with 250 reach w
  assert.equal(waiting.shroomy?.shot,null);
  assert.equal(waiting.enemies[0].spores,undefined);
  const upgraded=(distance:number)=>cast({...field(CONTACT_X+distance),upgrades:{shroomy:1}});
- assert.equal(at(upgraded(250),.05).shroomy?.shot?.targetId,1);
- assert.equal(at(upgraded(250.01),.5).shroomy?.shot,null);
- assert.equal(at(cast(field(CONTACT_X+220.01)),.5).shroomy?.shot,null);
+ assert.equal(at(upgraded(270),.05).shroomy?.shot?.targetId,1);
+ assert.equal(at(upgraded(270.01),.5).shroomy?.shot,null);
+ assert.equal(at(cast(field(CONTACT_X+240.01)),.5).shroomy?.shot,null);
  const alreadyInContact=cast({...field(CONTACT_X+5),approachAt:0},45);
  assert.equal(at(alreadyInContact,.05).shroomy,null);
 });
@@ -108,14 +108,14 @@ test('spore ticks ignore elemental matchups and snapshot half the player damage 
   fresh.enemies[0].element=element;
   const battle=at(cast(fresh),1.33);
   assert.equal(battle.shroomy?.damageBonus,1.6);
-  assert.equal(battle.enemies[0].hp,195.8528);
-  assert.equal(shroomyTickDamage({element},80),2.592);
-  assert.equal(shroomyTickDamage({element},80,1,1),2.8512);
+  assert.equal(battle.enemies[0].hp,195.355136);
+  assert.equal(shroomyTickDamage({element},80),2.90304);
+  assert.equal(shroomyTickDamage({element},80,1,1),3.193344);
  }
 });
 
 test('spore slows stack on impact, expire independently and stay independent of Snaily',()=>{
- for(const [upgrade,slow] of [[0,.025],[1,.03]]){
+ for(const [upgrade,slow] of [[0,.03],[1,.04]]){
   const fresh=cast({...field(CONTACT_X+140),snaily:true,upgrades:{shroomy:upgrade}});
   const first=at(fresh,.33);
   const both=at(first,3.1);
@@ -133,5 +133,5 @@ test('spore slows stack on impact, expire independently and stay independent of 
   const expired=at(oneLeft,lastSpore.nextTick+lastSpore.ticks-1);
   assert.equal(spellSlow(expired,expired.enemies[0],expired.time),0);
  }
- assert.deepEqual(spellUpgradePreview('shroomy')?.sporeSlow,{current:2.5,next:3});
+ assert.deepEqual(spellUpgradePreview('shroomy')?.sporeSlow,{current:3,next:4});
 });

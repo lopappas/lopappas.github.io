@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.3.86-alpha',publishedAt:'2026-11-20T23:26:42Z',model:'GPT-6.2 Sol',changes:['Shroomy and Shroomy+ deal 12% more spore damage and fire every 2.6 seconds.','Shroomy fires from 240 units and slows by 3% per spore. Shroomy+ fires from 270 units and slows by 4% per spore.']},
  {version:'0.3.85-alpha',publishedAt:'2026-11-20T23:05:21Z',model:'GPT-6.2 Sol',changes:['Shroomy and Shroomy+ deal 19% less spore damage and fire every 2.7 seconds.','Spores slow by 2.5% per stack, or 3% when upgraded.']},
  {version:'0.3.84-alpha',publishedAt:'2026-11-20T22:43:02Z',model:'GPT-6.2 Sol',changes:['Restored Shroomy’s previous look.','Shroomy and Shroomy+ deal 20% less spore damage at every cast quality.']},
  {version:'0.3.83-alpha',publishedAt:'2026-11-20T22:31:27Z',model:'GPT-6.2 Sol',changes:['Shroomy wears a scarlet cap with large cream spots and taller eyes.','Spore damage is 20% lower at every cast quality. Shroomy attacks from 220 units, or 250 when upgraded.']},
