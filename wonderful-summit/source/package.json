@@ -1,7 +1,7 @@
 {
   "name": "wonderful-summit",
   "private": true,
-  "version": "0.3.72-alpha",
+  "version": "0.3.80-alpha",
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.pages.config.ts",

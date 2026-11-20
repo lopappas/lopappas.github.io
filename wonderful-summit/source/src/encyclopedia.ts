@@ -11,6 +11,7 @@ export const RARITY_ORDER:Rarity[]=['Starter','Common','Uncommon','Rare','Legend
 // Temporary until journey discoveries can be saved between visits.
 export const ENCYCLOPEDIA_PREVIEW=true;
 export const CASTING_TIPS:Record<SpellId,string>={
+ shroomy:'Draw a wide dome with a flat bottom. Add a rounded stem underneath, then two close vertical lines inside the cap.',
  scorchy:'Draw a circle, two upward triangles, and a wide flat-topped grin. Line up the outside corners of the eyes with the ends of the grin.',
  snowman:'Close both circles and let them touch. Draw two short lines up and out from the upper sides of the larger circle.',
  torrent:'Start at the left tip and draw one continuous stroke down to the shared bottom point, then up the matching right arc. Keep the middle open.',

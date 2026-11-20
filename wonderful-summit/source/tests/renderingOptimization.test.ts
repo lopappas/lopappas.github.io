@@ -76,17 +76,25 @@ test('guardian shots paint over enemies while guardian bodies keep their layer',
  let battle=newBattle('active');
  battle=launchSpell(battle,80,'#fff','snowman');
  battle=launchSpell(battle,80,'#fff','scorchy');
- for(const guardian of [battle.snowman!,battle.scorchy!]){
+ battle=launchSpell(battle,80,'#fff','shroomy');
+ for(const guardian of [battle.snowman!,battle.scorchy!,battle.shroomy!]){
   guardian.shot={x:guardian.x,targetId:battle.enemies[0].id,started:0};
  }
  const rendered=markup(art('World').World,{battle,color:'#fff',burst:0});
  const enemy=rendered.indexOf('aria-label="Enemy"');
  assert.ok(enemy>=0);
- for(const name of ['Snowman guardian','Scorchy guardian']){
+ for(const name of ['Snowman guardian','Scorchy guardian','Shroomy guardian']){
   const position=rendered.indexOf(`aria-label="${name}"`);
   assert.ok(position>=0&&position<enemy);
  }
- for(const name of ['Snowball','Scorchy fireball']){
+ for(const name of ['Snowball','Scorchy fireball','Shroomy spore shot']){
   assert.ok(rendered.indexOf(`aria-label="${name}"`)>enemy);
  }
+});
+
+test('two spore stacks double the visible particles around an enemy',()=>{
+ const shroomy=art('ShroomyArt');
+ const enemy=newBattle('active').enemies[0], spore={quality:80,damage:5,nextTick:2,ticks:10};
+ const counts=[0,1,2].map(count=>(markup(shroomy.ShroomySporesArt,{enemy:{...enemy,spores:Array(count).fill(spore)},time:1}).match(/<circle/g)??[]).length);
+ assert.deepEqual(counts,[0,6,12]);
 });

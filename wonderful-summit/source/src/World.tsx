@@ -5,6 +5,7 @@ import {ChronosClock} from './ChronosClockArt';
 import {StaticScenery} from './StaticScenery';
 import {SnowballArt,SnowmanArt} from './SnowmanArt';
 import {ScorchyArt,ScorchyFireballArt} from './ScorchyArt';
+import {ShroomyArt,ShroomyShotArt,ShroomySporesArt} from './ShroomyArt';
 import {GUARDIAN_CONTACT_ANIMATION_SECONDS} from './guardian';
 import {TorrentArt} from './TorrentArt';
 import {GOBLIN_KING_SCALE,kingCrownFrame,kingDialogueVisible,kingHasCrown} from './goblinKing';
@@ -98,6 +99,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
 </g></g>
 <SnowmanArt battle={battle}/>
 <ScorchyArt battle={battle}/>
+<ShroomyArt battle={battle}/>
 {companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
 {enemies.map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=grouped?null:enemyStatusLabel(e,battle),color=colorForEnemy(e),guardianAttackAge=battle.time-(e.guardianHitAt??-Infinity),guardianAttack=guardianAttackAge<GUARDIAN_CONTACT_ANIMATION_SECONDS;return <g key={e.id} transform={`translate(${e.x} ${enemyArtY(e,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':!showSpellDetails?'Enemy':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
@@ -107,6 +109,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
 </g></g>
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>
+<ShroomySporesArt enemy={e} time={battle.time}/>
 {!practice&&!grouped&&<EnemyNameplate showDetails={showSpellDetails} kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={color} kingUIOffset={kingUIOffset} enemyEntrance={enemyEntrance}/>}
 {!grouped&&<EnemyIndicators attacking={e.attackAt!==null} status={status} statusY={e.goblinKing?-195+kingUIOffset:e.kind==='mother'?-145:-97}/>}
 {kingDialogueVisible(e,battle.time)&&<g role="status" aria-label="Goblin King says: My crown! You’ll pay for this!" transform={`translate(${Math.max(134,Math.min(586,e.x))-e.x} -282)`} pointerEvents="none">
@@ -140,6 +143,7 @@ const t=Math.min(1,age/POTION_BREAK_SECONDS);return <g key={f.id} opacity={1-t} 
 {flashBurst&&<g key={flashBurst.serial} transform={`translate(${flashBurst.x} 410) scale(0.75)`} pointerEvents="none" aria-label="Black Flash explosion"><g className="black-flash-explosion"><circle r="78" fill="#09070c"/><path d="M0-112 18-62 62-85 50-38 116-22 66 4 104 63 45 48 22 110 0 65-43 99-39 42-109 52-64 6-112-35-51-37-60-96-18-61Z" fill="#e11c38" stroke="#10070d" strokeWidth="8"/><circle r="39" fill="#08060a"/><path d="m-16-58 28 40-23 9 30 59M-71-14l38 15-10 20 32 7M32-37l-6 25 31 4 22 24" fill="none" stroke="#ff5470" strokeWidth="7"/></g></g>}
 <SnowballArt battle={battle}/>
 <ScorchyFireballArt battle={battle}/>
+<ShroomyShotArt battle={battle}/>
 <ChronosClock frame={chronosClockFrame(battle)} y={BATTLEFIELD_BOTTOM_Y-viewHeight+140}/>
 </svg></div>;
 }

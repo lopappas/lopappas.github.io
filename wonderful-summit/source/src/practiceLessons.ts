@@ -6,6 +6,7 @@ function startAt(path:Point[],x:number,y:number){
  const rotated=[...points.slice(index),...points.slice(0,index)];return [...rotated,{...rotated[0]}];
 }
 export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
+ shroomy:'Start at the lower left of the cap and draw the dome, then close it across the flat base. Draw the stem from left to right beneath the cap. Add two short vertical eyes above the base.',
  scorchy:'Draw the circle, then the two triangles from left to right. Draw the mouth from its left corner across the top, then follow the curve back to where you started.',
  snowman:'Draw a small circle for the head and a larger one touching it below. From each upper side of the larger circle, draw a short line up and out.',
  torrent:'Start at the left tip, follow the arc down to the shared bottom point, then sweep up the right arc in one continuous stroke.',

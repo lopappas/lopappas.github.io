@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.3.80-alpha',publishedAt:'2026-11-20T21:42:11Z',model:'GPT-6.2 Sol',changes:['Added Shroomy, a Legendary Nature guardian. Draw a wide mushroom with two short eyes to summon it.','Shroomy fires long-range spores that deal damage each second and stack twice.']},
  {version:'0.3.72-alpha',publishedAt:'2026-11-19T21:19:18Z',model:'GPT-6.2 Sol',changes:['Heart Rock puts Ready in the center of the canvas and shows a larger, thicker heart for 1.5 seconds.','Developer trail encounters are grouped by act. The random event button shows the selected event as an emoji.']},
  {version:'0.3.71',publishedAt:'2026-11-19T20:52:55Z',model:'GPT-6.2 Sol',changes:['Heart Rock shows its thicker trace after you tap Ready.','The Developer Panel shows the trail event selected for the current run.']},
  {version:'0.3.70',publishedAt:'2026-11-19T20:33:53Z',model:'GPT-6.2 Sol',changes:['Added Heart Rock, a trail event where drawing a heart can increase your maximum and current health.','Version History shows specific model names when recorded.']},

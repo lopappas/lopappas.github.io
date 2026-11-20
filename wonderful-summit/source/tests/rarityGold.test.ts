@@ -33,9 +33,9 @@ test('relic rarities exactly match the approved labeling and keepsakes stay excl
  assert.deepEqual(Object.entries(RELICS).filter(([,r])=>r.rarity==='Keepsake').map(([id])=>id).sort(),[...STARTER_RELICS].sort());
 });
 test('spell rarities exactly match the approved labeling, including the developer-only Legendary Ender',()=>{
- assert.deepEqual(Object.fromEntries(SPELLS.map(s=>[s.id,s.rarity])),{torrent:'Uncommon',sneakyVine:'Uncommon',water:'Common',fire:'Common',nature:'Common',wave:'Uncommon',bolt:'Uncommon',leaf:'Uncommon',chronos:'Legendary',ender:'Legendary',firestorm:'Uncommon',tidalcrest:'Uncommon',bog:'Uncommon',flameBlade:'Uncommon',puddleGuard:'Uncommon',thistleBush:'Uncommon',alchemize:'Legendary',snowman:'Legendary',scorchy:'Legendary',constellation:'Legendary'});
+ assert.deepEqual(Object.fromEntries(SPELLS.map(s=>[s.id,s.rarity])),{torrent:'Uncommon',sneakyVine:'Uncommon',water:'Common',fire:'Common',nature:'Common',wave:'Uncommon',bolt:'Uncommon',leaf:'Uncommon',chronos:'Legendary',ender:'Legendary',firestorm:'Uncommon',tidalcrest:'Uncommon',bog:'Uncommon',flameBlade:'Uncommon',puddleGuard:'Uncommon',thistleBush:'Uncommon',alchemize:'Legendary',snowman:'Legendary',scorchy:'Legendary',shroomy:'Legendary',constellation:'Legendary'});
  assert.equal(SPELLS.find(s=>s.id==='ender')?.developerOnly,true);assert.ok(!PLAYER_SPELLS.some(s=>s.id==='ender'));
- assert.deepEqual(PLAYER_SPELLS.filter(s=>s.rarity==='Legendary').map(s=>s.id),['chronos','alchemize','snowman','scorchy','constellation']);
+ assert.deepEqual(PLAYER_SPELLS.filter(s=>s.rarity==='Legendary').map(s=>s.id),['chronos','alchemize','snowman','scorchy','shroomy','constellation']);
 });
 
 test('legendary spells cost fifty percent more, and relic prices follow their tiers',()=>{
@@ -44,7 +44,7 @@ test('legendary spells cost fifty percent more, and relic prices follow their ti
  for(const id of Object.keys(RELICS) as RelicId[])if(!STARTER_RELICS.includes(id))assert.equal(relicPrice(id),{Common:50,Uncommon:70,Rare:85,Keepsake:45,Starter:0}[RELICS[id].rarity]);
 });
 
-// Sweep the roll for one offering while fixing independent potion/other rolls.
+// Sweep one offering roll. Interleaved tier intervals can shift a midpoint sample at a boundary.
 function rollAt(position:number,value:number){let calls=0;return()=>++calls===position?value:.99;}
 test('both merchants use 90/10 uncommon/legendary spell odds and 50/33/17 relic tier odds',()=>{
  for(const node of [2,9]){
@@ -57,7 +57,7 @@ test('both merchants use 90/10 uncommon/legendary spell odds and 50/33/17 relic 
    const relic=enterNode(run,rollAt(3,roll)).stock.find(s=>s.kind==='relic')!;
    relics[RELICS[relic.item as RelicId].rarity as keyof typeof relics]++;
   }
-  assert.deepEqual(spells,{Uncommon:900,Legendary:100});
+  assert.ok(Math.abs(spells.Uncommon-900)<=1);assert.ok(Math.abs(spells.Legendary-100)<=1);
   // Interleaved item intervals can shift one midpoint sample at a tier boundary.
   assert.ok(Math.abs(relics.Common-500)<=1);assert.ok(Math.abs(relics.Uncommon-330)<=1);assert.ok(Math.abs(relics.Rare-170)<=1);
  }
@@ -72,7 +72,7 @@ test('spell rewards and both elite drops use the same tier odds as merchant offe
   assert.ok(!reward.offers.includes('ender'));
   spells[SPELLS.find(s=>s.id===reward.offers[0])!.rarity as keyof typeof spells]++;
  }
- assert.deepEqual(spells,{Uncommon:900,Legendary:100});
+ assert.ok(Math.abs(spells.Uncommon-900)<=1);assert.ok(Math.abs(spells.Legendary-100)<=1);
  for(const node of [3,6]){
   const relics={Common:0,Uncommon:0,Rare:0};
   for(let i=0;i<1000;i++){

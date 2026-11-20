@@ -1,9 +1,10 @@
 import {MIN_CAST_QUALITY} from './quality.ts';
 
-export type GuardianSpell = 'snowman' | 'scorchy';
+export const GUARDIAN_SPELLS = ['snowman', 'scorchy', 'shroomy'] as const;
+export type GuardianSpell = (typeof GUARDIAN_SPELLS)[number];
 
 export function isGuardianSpell(id:string):id is GuardianSpell {
- return id === 'snowman' || id === 'scorchy';
+ return id === 'snowman' || id === 'scorchy' || id === 'shroomy';
 }
 
 export const GUARDIAN_COOLDOWN = 30;
@@ -16,6 +17,15 @@ export const GUARDIAN_MAX_CONTACT_REACH = 30;
 export const GUARDIAN_DAMAGE_TAKEN = 1.5;
 export const GUARDIAN_SHOT_FLIGHT_SECONDS = .28;
 export const GUARDIAN_UPGRADE_HEALTH_BONUS = .2;
+export const SHROOMY_SPORE_TICKS = 10;
+export const SHROOMY_MAX_STACKS = 2;
+
+export type ShroomySpore = {
+ quality: number;
+ damage: number;
+ nextTick: number;
+ ticks: number;
+};
 
 export type GuardianShot = {
  x: number;
@@ -36,6 +46,12 @@ export type Guardian = {
 
 export function guardianStats(spell: GuardianSpell, quality: number, upgrade = 0) {
  const normalizedQuality = Number.isFinite(quality) && quality >= MIN_CAST_QUALITY ? Math.min(100, quality) : 0;
+ if (spell === 'shroomy') {
+  const hp = normalizedQuality < MIN_CAST_QUALITY ? 0
+   : normalizedQuality <= 80 ? 10 + Math.round((normalizedQuality - MIN_CAST_QUALITY) * 20 / (80 - MIN_CAST_QUALITY))
+   : 30 + Math.round((normalizedQuality - 80) / 2);
+  return {hp, baseDamage: 0};
+ }
  const baseHP = Math.ceil(normalizedQuality * 6 / 25) * 5;
  const hp = spell === 'snowman' ? baseHP * 3 / 2 : baseHP;
  const upgradeHP = upgrade >= 1 ? hp * GUARDIAN_UPGRADE_HEALTH_BONUS : 0;
@@ -47,20 +63,30 @@ export function guardianStats(spell: GuardianSpell, quality: number, upgrade = 0
  };
 }
 
+export function shroomySporePower(quality: number, upgrade = 0) {
+ if (!Number.isFinite(quality) || quality < MIN_CAST_QUALITY) return 0;
+ const base = quality <= 80
+  ? 2 + Math.round((quality - MIN_CAST_QUALITY) * 3 / (80 - MIN_CAST_QUALITY))
+  : 5 + Math.round((Math.min(100, quality) - 80) / 10);
+ return base * (upgrade >= 1 ? 1 + guardianUpgradeDamageBonus('shroomy') : 1);
+}
+
 export function guardianUpgradeDamageBonus(spell: GuardianSpell) {
  return spell === 'scorchy' ? 1 / 9 : .1;
 }
 
 export function guardianAttackRange(spell: GuardianSpell, upgrade = 0) {
+ if (spell === 'shroomy') return 160;
  return (spell === 'snowman' ? 50 : 40) + (upgrade >= 1 ? 10 : 0);
 }
 
 export function guardianAttackInterval(spell: GuardianSpell, upgrade = 0) {
+ if (spell === 'shroomy') return 2.5;
  return spell === 'snowman' ? 2 : upgrade >= 1 ? 1.2 : 1.4;
 }
 
 export function guardianKnockback(spell: GuardianSpell, quality: number, upgrade = 0) {
- if (!Number.isFinite(quality) || quality < MIN_CAST_QUALITY) return 0;
+ if (spell === 'shroomy' || !Number.isFinite(quality) || quality < MIN_CAST_QUALITY) return 0;
  const progress = (Math.min(100, quality) - MIN_CAST_QUALITY) / (100 - MIN_CAST_QUALITY);
  if (spell === 'snowman') return upgrade >= 1 ? 16 + progress * 12 : 13 + progress * 13;
  return 2 + progress;

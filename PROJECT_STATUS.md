@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-19
+Updated: 2026-11-20
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,9 @@ Updated: 2026-11-19
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.72-alpha): Heart Rock centers Ready on its canvas, then shows a 25% larger and 18% thicker heart trace for 1.5 seconds. The Developer Panel defaults to the current act's encounters and supports switching between Acts 1 and 2. The run's event icon appears on the random event button. The alpha suffix is preserved by the release scripts. Versions 0.3.70, 0.3.71 and 0.3.72-alpha are tagged GPT-6.2 Sol. All 709 tests and the production build passed.
+Latest update (version 0.3.80-alpha): Shroomy is a Legendary Nature guardian with a wide mushroom sigil and two short eyes. It walks at Scorchy's speed, has 10–40 HP, and fires at targets within 160 units every 2.5 seconds. It prefers unspored enemies and waits if all targets already have two stacks. Each stack lasts 10 seconds and ticks once per second. At 80% quality it has 30 HP and deals 5 base damage per stack per second. It inherits half of spell damage boosts, has a 30-second cooldown, and upgrades to +10% spore damage. Spore hits have no impact damage or knockback. A second stack doubles the orbiting red and white particles.
+
+Heart Rock centers Ready and shows its trace for 1.5 seconds. The Developer Panel filters encounters by act and identifies the run event on its encounter button. Release scripts preserve the alpha suffix and each new release records its specific model.
 
 Heart Rock and Forgotten Campsite each have a 50% chance in the Act 1 random event slot. Heart Rock gives one completed casting attempt. Quality below 50% gives no reward. Each 10-point band from 50% to 100% grants 5, 10, 15, 20, or 25 max HP and the same current HP. Version History shows confirmed model names, including GPT-6.2 Sol for 0.3.63.
 
