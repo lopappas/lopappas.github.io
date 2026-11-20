@@ -64,7 +64,7 @@ export function shroomySporePower(quality: number, upgrade = 0) {
  const base = quality <= 80
   ? 2 + Math.round((quality - MIN_CAST_QUALITY) * 3 / (80 - MIN_CAST_QUALITY))
   : 5 + Math.round((Math.min(100, quality) - 80) / 10);
- return .8 * base * (upgrade >= 1 ? 1 + guardianUpgradeDamageBonus('shroomy') : 1);
+ return .64 * base * (upgrade >= 1 ? 1 + guardianUpgradeDamageBonus('shroomy') : 1);
 }
 
 export function shroomySporeSlow(upgrade = 0) {

@@ -29,13 +29,13 @@ test('the mushroom lesson scores against the full catalog and Shroomy has 15 HP 
  const match=recognize(drawing);
  assert.equal(match.spell?.id,'shroomy');
  assert.ok(match.quality>=98);
- for(const [quality,tick] of [[45,1.6],[60,2.4],[80,4],[100,5.6]]){
+ for(const [quality,tick] of [[45,1.28],[60,1.92],[80,3.2],[100,4.48]]){
   assert.equal(guardianStats('shroomy',quality).hp,15);
   assert.equal(guardianStats('shroomy',quality,1).hp,15);
   assert.equal(shroomyTickDamage({element:'Neutral'},quality),tick);
   assert.ok(Math.abs(shroomyTickDamage({element:'Neutral'},quality,1,1)-tick*1.1)<1e-9);
  }
- assert.equal(spellUpgradePreview('shroomy')?.nextDamage,2.64);
+ assert.equal(spellUpgradePreview('shroomy')?.nextDamage,2.112);
  assert.deepEqual(spellUpgradePreview('shroomy')?.guardianRange,{current:220,next:250});
 });
 
@@ -55,11 +55,11 @@ test('at 220 units a spore lands without damage or knockback and ticks exactly t
  assert.equal(enemy.spores?.length,1);
  const alone={...planted,shroomy:null};
  assert.equal(at(alone,1.329).enemies[0].hp,200);
- assert.equal(at(alone,1.33).enemies[0].hp,196);
+ assert.equal(at(alone,1.33).enemies[0].hp,196.8);
  const finished=at(alone,10.33);
- assert.equal(finished.enemies[0].hp,160);
+ assert.ok(Math.abs(finished.enemies[0].hp-168)<1e-9);
  assert.deepEqual(finished.enemies[0].spores,[]);
- assert.equal(at(finished,13).enemies[0].hp,160);
+ assert.equal(at(finished,13).enemies[0].hp,finished.enemies[0].hp);
  assert.equal(planted.enemies[0].spores?.[0].ticks,10);
 });
 
@@ -106,9 +106,9 @@ test('spore ticks ignore elemental matchups and snapshot half the player damage 
   fresh.enemies[0].element=element;
   const battle=at(cast(fresh),1.33);
   assert.equal(battle.shroomy?.damageBonus,1.6);
-  assert.equal(battle.enemies[0].hp,193.6);
-  assert.equal(shroomyTickDamage({element},80),4);
-  assert.equal(shroomyTickDamage({element},80,1,1),4.4);
+  assert.equal(battle.enemies[0].hp,194.88);
+  assert.equal(shroomyTickDamage({element},80),3.2);
+  assert.equal(shroomyTickDamage({element},80,1,1),3.52);
  }
 });
 

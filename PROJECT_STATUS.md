@@ -13,9 +13,9 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.83-alpha): Shroomy uses concept A's scarlet dome, large cream spots, straight rooted stem, and eyes extended upward to twice their previous height. Spore damage is 20% lower at every cast quality for both versions. Shroomy fires from 220 units and Shroomy+ from 250. He stays planted ahead of Filadora with 15 HP. Spore damage is independent of Fire, Water, and Nature matchups.
+Latest update (version 0.3.84-alpha): Shroomy uses its 0.3.82-alpha sprite and deals another 20% less spore damage at every cast quality. Shroomy fires from 220 units and Shroomy+ from 250. He stays planted ahead of Filadora with 15 HP. Spore damage is independent of Fire, Water, and Nature matchups.
 
-Shroomy uses a two-stroke mushroom sigil with a wide cap and rounded stem. It fires every 2.5 seconds, prefers unspored enemies, and waits when all targets have two stacks. Each stack ticks once per second for 10 seconds and slows by 3%, or 4% with Shroomy+. Snaily boosts other slows independently. At 80% quality a stack deals 4 base damage per second. Shroomy inherits half of spell damage boosts, has a 30-second cooldown, and gains 10% spore damage when upgraded. A second stack doubles the orbiting particles.
+Shroomy uses a two-stroke mushroom sigil with a wide cap and rounded stem. It fires every 2.5 seconds, prefers unspored enemies, and waits when all targets have two stacks. Each stack ticks once per second for 10 seconds and slows by 3%, or 4% with Shroomy+. Snaily boosts other slows independently. At 80% quality a stack deals 3.2 base damage per second. Shroomy inherits half of spell damage boosts, has a 30-second cooldown, and gains 10% spore damage when upgraded. A second stack doubles the orbiting particles.
 
 Heart Rock centers Ready and shows its trace for 1.5 seconds. The Developer Panel filters encounters by act and identifies the run event on its encounter button. Release scripts preserve the alpha suffix and each new release records its specific model.
 
