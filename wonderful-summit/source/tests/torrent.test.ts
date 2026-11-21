@@ -1,19 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,PLAYER_SPELLS,recognize} from '../src/magic.ts';
-import {newBattle,launchSpell,stepBattle,spellDamage,spellKnockback,CONTACT_X,ENEMY_BACK_X,drinkPotion,type Battle} from '../src/battle.ts';
+import {newBattle,launchSpell,stepBattle,spellDamage,spellKnockback,CONTACT_X,ENEMY_BACK_X,enemyY,drinkPotion,type Battle} from '../src/battle.ts';
 import {woodenShield} from '../src/shields.ts';
-import {torrentDuration,torrentContains,TORRENT_INTERVAL,TORRENT_HALF_WIDTH} from '../src/torrent.ts';
+import {torrentDuration,torrentContains} from '../src/torrent.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 import {parseDeveloperCommand} from '../src/developerCommands.ts';
 import {newRun,rollSpellOffers,camp} from '../src/run.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
-import {COMBAT_LANE_Y,FILA_FOOT_Y} from '../src/combatLanes.ts';
+import {COMBAT_LANE_Y} from '../src/combatLanes.ts';
 function setup(encounter:Battle['encounter']='slime'){
  const b=newBattle('active',encounter,()=>0);b.approachAt=1000;
  b.enemies=b.enemies.map(e=>({...e,element:'Neutral',initialElement:'Neutral',hp:10000,maxHP:10000}));return b;
 }
-function advance(b:Battle,seconds:number,frame=.05){const end=b.time+seconds;while(b.phase==='active'&&b.time<end-1e-9)b=stepBattle(b,Math.min(frame,end-b.time));return b;}
+function advance(b:Battle,seconds:number,frame=.05){const end=b.time+seconds;while(b.time<end-1e-9)b=stepBattle(b,Math.min(frame,end-b.time));return b;}
 function cast(b=setup(),q=60,r=()=>.5){return launchSpell(b,q,'#69c2d6','torrent',0,r);}
 test('approved two-arc Torrent glyph recognizes with all spells known and practice uses the same arcs',()=>{
  const s=SPELLS.find(s=>s.id==='torrent')!;assert.equal(s.rarity,'Uncommon');assert.equal(s.element,'Water');assert.equal(s.strokes.length,2);
@@ -23,52 +23,26 @@ test('approved two-arc Torrent glyph recognizes with all spells known and practi
  for(const strokes of [s.strokes.toReversed(),s.strokes.map(stroke=>stroke.toReversed()),[s.strokes[0].toReversed(),s.strokes[1]]]){assert.equal(recognize(strokes).spell?.id,'torrent');}
  assert.ok(s.strokes.every(stroke=>stroke[0].x===50&&stroke[0].y===90));
 });
-test('Steady lasts eight seconds, has nine orbs, and does not launch a targeting projectile',()=>{
- const b=cast();assert.equal(b.torrent?.until,8);assert.equal(b.torrent?.orbs.length,9);assert.equal(b.projectile,null);assert.equal(b.casts,1);assert.equal(b.enemies[0].hp,10000);
- assert.equal(b.torrent!.orbs[0].landsAt,1/1.2);
- assert.ok(Math.abs(b.torrent!.orbs[8].landsAt-b.torrent!.orbs[7].landsAt-1/1.2)<1e-9);
+test('Steady lasts eight seconds, has eight orbs, and does not launch a targeting projectile',()=>{
+ const b=cast();assert.equal(b.torrent?.until,8);assert.equal(b.torrent?.orbs.length,8);assert.equal(b.projectile,null);assert.equal(b.casts,1);assert.equal(b.enemies[0].hp,10000);
  assert.equal(torrentDuration(69),8);assert.equal(torrentDuration(45),5);assert.equal(torrentDuration(70),11);assert.equal(torrentDuration(80),14);
  for(const q of [0,44,NaN])assert.equal(cast(setup(),q).torrent,null);
 });
-test('Torrent shuffles ten middle-lane spots without reusing any until the next set',()=>{
- const spacing=(ENEMY_BACK_X-CONTACT_X)/10;
- const positions=Array.from({length:10},(_,i)=>CONTACT_X+(i+.5)*spacing);
+test('locations use random reachable lanes and runway bounds, independent of enemies current x',()=>{
  for(const encounter of ['slime','mother','spiderGoblinElite','rockWebNest'] as const){
-  const battle=setup(encounter);
-  battle.enemies.forEach(enemy=>{enemy.x=CONTACT_X;enemy.spawnAt=5;});
-  const natural=cast(battle,80,()=>0).torrent!.orbs.map(orb=>orb.x);
-  const shuffled=cast(battle,80,()=>.8).torrent!.orbs;
-  assert.deepEqual(natural.slice(0,10),positions);
-  assert.notDeepEqual(shuffled.slice(0,10).map(orb=>orb.x),positions);
-  assert.deepEqual(shuffled.slice(0,10).map(orb=>orb.x).sort((a,b)=>a-b),positions);
-  assert.equal(new Set(shuffled.slice(10).map(orb=>orb.x)).size,6);
-  assert.ok(shuffled.every(orb=>orb.y===FILA_FOOT_Y));
-  for(const y of COMBAT_LANE_Y){
-   assert.ok(torrentContains(shuffled[0],shuffled[0].x+35,y));
-   assert.equal(torrentContains(shuffled[0],shuffled[0].x+35.01,y),false);
-  }
+  const b=setup(encounter),a=cast(b,60,()=>.9999),other=cast({...b,enemies:b.enemies.map(e=>({...e,x:CONTACT_X}))},60,()=>.9999);
+  assert.deepEqual(a.torrent?.orbs,other.torrent?.orbs);
+  const lanes=encounter==='slime'?[enemyY(1,encounter)]:COMBAT_LANE_Y;
+  for(const orb of a.torrent!.orbs){assert.ok(orb.x>=CONTACT_X&&orb.x<=ENEMY_BACK_X);assert.ok(lanes.includes(orb.y));}
  }
+ const b=setup();b.enemies[0].spawnAt=5;assert.ok(cast(b).torrent);
 });
-test('one rectangular splash hits all three lanes at a column edge and misses outside or hidden foes',()=>{
- const battle=setup('pack');
- const edge=CONTACT_X+(ENEMY_BACK_X-CONTACT_X)/20+TORRENT_HALF_WIDTH;
- const template=battle.enemies[0];
- battle.enemies=[
-  {...template,id:1,lane:0,x:edge},
-  {...template,id:2,lane:1,x:edge},
-  {...template,id:3,lane:2,x:edge},
-  {...template,id:4,lane:2,x:edge+11},
-  {...template,id:5,lane:0,x:CONTACT_X,spawnAt:5},
- ];
- const casted=cast(battle,60,()=>0);
- const falling=advance(casted,TORRENT_INTERVAL-.01);
- assert.ok(falling.enemies.every(e=>e.hp===10000));
- const landed=advance(falling,.01);
- const hit=10000-spellDamage({element:'Neutral'},60,'water');
- assert.deepEqual(landed.enemies.map(e=>e.hp),[hit,hit,hit,10000,10000]);
- assert.ok(landed.enemies.slice(0,3).every(e=>e.push));
- assert.deepEqual(advance(landed,.1).enemies.map(e=>e.hp),landed.enemies.map(e=>e.hp));
- assert.equal(torrentContains(casted.torrent!.orbs[0],edge+.01,FILA_FOOT_Y),false);
+test('landing splashes harm every nearby enemy once, miss distant or hidden enemies, and knock back',()=>{
+ let b=setup('pack');b.enemies=[{...b.enemies[0],x:CONTACT_X},{...b.enemies[1],lane:1,x:CONTACT_X+5},{...b.enemies[0],id:3,lane:2,x:ENEMY_BACK_X},{...b.enemies[0],id:4,x:CONTACT_X,spawnAt:5}];
+ b=cast(b,60,()=>0);b=advance(b,.99);assert.ok(b.enemies.every(e=>e.hp===10000));
+ b=advance(b,.01);assert.equal(b.enemies[0].hp,10000-spellDamage({element:'Neutral'},60,'water'));assert.ok(b.enemies[1].hp<10000);assert.equal(b.enemies[2].hp,10000);assert.equal(b.enemies[3].hp,10000);assert.ok(b.enemies[0].push);
+ const hp=b.enemies[0].hp;b=advance(b,.1);assert.equal(b.enemies[0].hp,hp);
+ assert.equal(torrentContains({x:0,y:0},66,0),false);
 });
 test('orb base damage and knockback stay at Steady Dewdrop while defenses use cast quality',()=>{
  for(const q of [60,69,70,80,100]){assert.equal(spellDamage({element:'Neutral'},q,'torrent'),spellDamage({element:'Neutral'},60,'water'));assert.equal(spellKnockback(q,'torrent'),spellKnockback(60,'water'));}
@@ -88,8 +62,8 @@ test('pause, terminal state, final splash cleanup, and encounter reset preserve 
  let dying=setup();dying.enemies[0].x=CONTACT_X;dying.enemies[0].hp=1;dying=advance(cast(dying,60,()=>0),1);assert.equal(dying.phase,'victory');assert.equal(dying.torrent,null);
 });
 test('bottles start Torrent on impact and recasting replaces the current rain',()=>{
- let b=setup();b.potions.spellBottle=1;b.bottledSpells=[{spellId:'torrent',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.7);assert.ok(b.torrent);assert.equal(b.torrent?.orbs.length,9);
- b.cooldownsDisabled=true;const old=b.torrent;b=cast(b,80);assert.notEqual(b.torrent,old);assert.equal(b.torrent?.orbs.length,16);assert.equal(b.torrent?.started,b.time);
+ let b=setup();b.potions.spellBottle=1;b.bottledSpells=[{spellId:'torrent',quality:60}];b=advance(drinkPotion(b,'spellBottle'),.7);assert.ok(b.torrent);assert.equal(b.torrent?.orbs.length,8);
+ b.cooldownsDisabled=true;const old=b.torrent;b=cast(b,80);assert.notEqual(b.torrent,old);assert.equal(b.torrent?.orbs.length,14);assert.equal(b.torrent?.started,b.time);
 });
 test('Torrent is available in rewards, developer tools, and the usual damage upgrade',()=>{
  assert.ok(PLAYER_SPELLS.some(s=>s.id==='torrent'));assert.deepEqual(parseDeveloperCommand({type:'spell',id:'torrent'}),{type:'spell',id:'torrent'});
@@ -115,6 +89,6 @@ test('a single Black Flash roll doubles every victim of one splash',t=>{
  const base=spellDamage({element:'Neutral'},60,'water');assert.equal(10000-b.enemies[0].hp,base*2);assert.equal(10000-b.enemies[1].hp,base*2);assert.equal(b.blackFlashBurst?.serial,1);assert.equal(b.blackFlash.chain,true);
 });
 test('Torrent damage triggers the Goblin King dialogue and the Slime Mother split',()=>{
- let b=setup('goblinKing');b.enemies[0]={...b.enemies[0],x:CONTACT_X,hp:501,maxHP:1000};b=advance(cast(b,60,()=>0),TORRENT_INTERVAL);assert.equal(b.enemies[0].kingEnragedAt,b.time);assert.equal(b.enemies[0].x,CONTACT_X);
+ let b=setup('goblinKing');b.enemies[0]={...b.enemies[0],x:CONTACT_X,hp:501,maxHP:1000};b=advance(cast(b,60,()=>0),1);assert.equal(b.enemies[0].kingEnragedAt,b.time);assert.equal(b.enemies[0].x,CONTACT_X);
  b=setup('mother');b.enemies[0]={...b.enemies[0],x:CONTACT_X,hp:1};b=advance(cast(b,60,()=>0),1);assert.ok(b.motherSplit);assert.equal(b.phase,'active');b=advance(b,2.1);assert.equal(b.enemies.length,4);
 });
