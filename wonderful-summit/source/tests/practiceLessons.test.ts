@@ -5,13 +5,15 @@ import {elementTrace} from '../src/tutorial2Elements.ts';
 import {practiceLesson,lessonFrame,lessonTipPages,LESSON_INSTRUCTIONS} from '../src/practiceLessons.ts';
 const area=(p:Point[])=>p.slice(1).reduce((a,b,i)=>a+p[i].x*b.y-b.x*p[i].y,0);
 
-test('all learnable lessons retain their original sigils and recognize as the intended spell',()=>{
+test('every completed Practice demonstration casts its intended spell at 100% against the full roster',()=>{
  const original=structuredClone(SPELLS);
  assert.equal(Object.keys(LESSON_INSTRUCTIONS).length,SPELLS.filter(s=>!s.developerOnly).length);assert.equal(practiceLesson('ender'),null);
- for(const spell of SPELLS.filter(s=>s.id!=='ender')){
+ for(const spell of SPELLS.filter(s=>!s.developerOnly)){
   const lesson=practiceLesson(spell.id)!;assert.ok(lesson);assert.ok(lesson.duration>=4000/1.2&&lesson.duration<=8000/1.2);
-  const match=recognize(lesson.paths,[spell.id]);assert.equal(match.spell?.id,spell.id,spell.name);assert.ok(match.quality>=80,`${spell.name}: ${match.quality}`);
   const end=lessonFrame(lesson.paths,1);assert.deepEqual(end.strokes,lesson.paths);assert.deepEqual(end.tip,lesson.paths.at(-1)!.at(-1));
+  const match=recognize(end.strokes);
+  assert.equal(match.spell?.id,spell.id,spell.name);
+  assert.equal(match.quality,100,spell.name);
   assert.deepEqual(lessonFrame(lesson.paths,0).tip,lesson.paths[0][0]);
  }
  assert.deepEqual(SPELLS,original);

@@ -90,7 +90,7 @@ export const SPELLS:Spell[]=[
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function damageUpgradeBonus(id:SpellId){return isGuardianSpell(id)?guardianUpgradeDamageBonus(id):id==='bolt'||id==='toxicTwig'||id==='eruption'?.2:id==='tidalcrest'||id==='flameBlade'?.15:.25;}
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
-// Recognition-only alternatives; spellbook art and perfect traces use SPELLS unchanged.
+// Alternate scoring strokes. Spellbook art and perfect traces use SPELLS.
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  bog:[SPELLS.find(s=>s.id==='bog')!.strokes.map((stroke,i)=>stroke.map(p=>i===1?{x:50+(p.x-50)*.8,y:50+(p.y-50)*.8}:{...p}))],
  bolt:[[[{x:65,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
@@ -100,6 +100,37 @@ export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]],
  tidalcrest:[.8,1.2].map(width=>SPELLS.find(s=>s.id==='tidalcrest')!.strokes.map(stroke=>stroke.map(p=>({x:50+(p.x-50)*width,y:p.y}))))
 };
+
+function startClosedStrokeAt(stroke:Point[],x:number,y:number){
+ const points=stroke.slice(0,-1);
+ let start=0;
+ for(let i=1;i<points.length;i++){
+  if(Math.hypot(points[i].x-x,points[i].y-y)<Math.hypot(points[start].x-x,points[start].y-y))start=i;
+ }
+ return [...points.slice(start),...points.slice(0,start),{...points[start]}];
+}
+
+function practiceScoringVariant(spell:Spell):Strokes|undefined{
+ const [first,second,third]=spell.strokes;
+ switch(spell.id){
+  case 'torrent': return [[...first.slice().reverse(),...second.slice(1)]];
+  case 'leaf': return [startClosedStrokeAt(first,15,50)];
+  case 'chronos': return [first.slice().reverse(),second.slice().reverse()];
+  case 'bog': return [first.slice().reverse(),startClosedStrokeAt(second,32.5,50)];
+  // The bottle neck and sword guard already draw the closing edges.
+  case 'alchemize': return [first.slice().reverse(),[second[3],...second.slice(0,3)]];
+  case 'flameBlade': return [second,third,[first[2],first[0],first[1]]];
+ }
+}
+
+export const PRACTICE_SCORING_VARIANTS:Partial<Record<SpellId,Strokes>>={};
+for(const spell of SPELLS){
+ const variant=practiceScoringVariant(spell);
+ if(!variant)continue;
+ PRACTICE_SCORING_VARIANTS[spell.id]=variant;
+ (SPELL_VARIATIONS[spell.id]??=[]).push(variant);
+}
+
 export const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function strokeLength(strokes:Strokes){let sum=0;for(const stroke of strokes){let length=0;for(let i=1;i<stroke.length;i++)length+=distance(stroke[i-1],stroke[i]);sum+=length;}return sum;}
 export function inkCost(a:Point,b:Point,shortSide:number){return distance(a,b)/Math.max(1,shortSide)*(22/1.25/1.4);}

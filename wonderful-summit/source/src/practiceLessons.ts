@@ -1,10 +1,6 @@
-import {SPELLS,type SpellId,type Strokes,type Point} from './magic.ts';
+import {PRACTICE_SCORING_VARIANTS,SPELLS,type SpellId,type Strokes} from './magic.ts';
 import {elementTrace} from './tutorial2Elements.ts';
 const clone=(paths:Strokes)=>paths.map(p=>p.map(v=>({...v})));
-function startAt(path:Point[],x:number,y:number){
- const points=path.slice(0,-1);let index=0;points.forEach((p,i)=>{if(Math.hypot(p.x-x,p.y-y)<Math.hypot(points[index].x-x,points[index].y-y))index=i;});
- const rotated=[...points.slice(index),...points.slice(0,index)];return [...rotated,{...rotated[0]}];
-}
 export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
  eruption:'In one stroke, start at the bottom left, curve up to the flat top, curve down the other side, then close the base.',
  shroomy:'Start at the lower left of the cap and draw the dome, then close it across the flat base. Draw the stem from left to right beneath the cap.',
@@ -24,15 +20,9 @@ export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
 };
 export function practiceLesson(id:SpellId){
  const spell=SPELLS.find(s=>s.id===id);if(!spell||!LESSON_INSTRUCTIONS[id])return null;
- let paths=clone(spell.strokes);
+ let paths=clone(PRACTICE_SCORING_VARIANTS[id]??spell.strokes);
  if(['water','fire','nature'].includes(id))paths=clone(elementTrace(id,1).strokes);
- if(id==='torrent')paths=[[...paths[0].reverse(),...paths[1].slice(1)]];
  if(id==='wave')paths=[paths[1].reverse(),paths[0]];
- if(id==='leaf')paths=[startAt(paths[0],15,50)];
- if(id==='chronos')paths=[paths[0].reverse(),paths[1].reverse()];
- if(id==='bog')paths=[paths[0].reverse(),startAt(paths[1],32.5,50)];
- if(id==='alchemize')paths=[paths[0].reverse(),[{x:41,y:14},{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14}]];
- if(id==='flameBlade')paths=[paths[1],paths[2],[paths[0][2],paths[0][0],paths[0][1]]];
  const length=paths.reduce((sum,p)=>sum+p.slice(1).reduce((n,b,i)=>n+Math.hypot(b.x-p[i].x,b.y-p[i].y),0),0);
  return {spell,paths,instruction:LESSON_INSTRUCTIONS[id]!,duration:(id==='water'?4500:['fire','nature'].includes(id)?4000:Math.max(4000,Math.min(8000,length*25)))/1.2};
 }

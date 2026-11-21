@@ -96,7 +96,7 @@ test('approved Flame Blade variant retains the blade and expands only guard and 
  const length=([a,b]:typeof variant[number])=>Math.hypot(b.x-a.x,b.y-a.y);
  assert.deepEqual(variant[0],spell.strokes[0]);
  assert.ok(spell.strokes[0][0].x>spell.strokes[2][1].x&&spell.strokes[0][0].y<spell.strokes[2][1].y);
- assert.equal(SPELL_VARIATIONS.flameBlade!.length,1);
+ assert.equal(SPELL_VARIATIONS.flameBlade!.length,2);
  for(const width of [1,1.2]){
   const upright=[
    [{x:50,y:10},{x:57,y:62},{x:43,y:62},{x:50,y:10}],
