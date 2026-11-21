@@ -41,19 +41,14 @@ const eruptionSlope=shape([8,68],[[25,57,36,46,43,32]]);
 const eruptionStrokes:Strokes=[[...eruptionSlope,...eruptionSlope.slice().reverse().map(({x,y})=>({x:100-x,y})),{x:8,y:68}]];
 const eruptionPath='M8 68 C25 57 36 46 43 32 H57 C64 46 75 57 92 68 Z';
 
-const uprightFlameBlade:Strokes=[
+const flameBladeStrokes:Strokes=[
  [{x:50,y:10},{x:57,y:62},{x:43,y:62},{x:50,y:10}],
  [{x:28,y:62},{x:72,y:62}],
  [{x:50,y:62},{x:50,y:88}],
 ];
-const expandedFlameBlade=uprightFlameBlade.map((stroke,i)=>stroke.map(p=>({
+const expandedFlameBlade=flameBladeStrokes.map((stroke,i)=>stroke.map(p=>({
  x:i===1?50+(p.x-50)*1.2:p.x,y:i===2?62+(p.y-62)*1.2:p.y,
 })));
-const rotateFlameBlade=(strokes:Strokes):Strokes=>strokes.map(stroke=>stroke.map(({x,y})=>({
- x:50+((x-50)-(y-49))*Math.SQRT1_2,
- y:49+((x-50)+(y-49))*Math.SQRT1_2,
-})));
-const flameBladeStrokes=rotateFlameBlade(uprightFlameBlade);
 const flameBladePath=flameBladeStrokes.map((stroke,i)=>{
  const points=i===0?stroke.slice(0,-1):stroke;
  return points.map(({x,y},j)=>`${j?'L':'M'}${x} ${y}`).join(' ')+(i===0?' Z':'');
@@ -95,7 +90,7 @@ export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  bog:[SPELLS.find(s=>s.id==='bog')!.strokes.map((stroke,i)=>stroke.map(p=>i===1?{x:50+(p.x-50)*.8,y:50+(p.y-50)*.8}:{...p}))],
  bolt:[[[{x:65,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
- flameBlade:[rotateFlameBlade(expandedFlameBlade)],
+ flameBlade:[expandedFlameBlade],
  fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]],
  firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]],
  nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]],

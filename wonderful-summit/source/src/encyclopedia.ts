@@ -30,7 +30,7 @@ export const CASTING_TIPS:Record<SpellId,string>={
  eruption:'Draw a wide, closed volcano outline with a flat top and two matching curved slopes.',
  firestorm:'Draw a level line above two downward-pointing triangles. Close both triangles and leave a gap below the line.',
  tidalcrest:'Sweep upward from the lower left to the pointed crest. Curve inward on the right, then close along the flat base.',
- flameBlade:'Draw the narrow triangular blade pointing up and right, a diagonal guard, and a short handle pointing down and left.',
+ flameBlade:'Draw an upright, narrow triangular blade, a horizontal guard, and a short handle pointing straight down.',
  puddleGuard:'Draw one long, shallow wavy M with two equal rounded humps and a rounded dip in the center. Keep both halves mirrored and finish with sloping ends.',
  thistleBush:'Draw three equal peaks in one zigzag. Keep the center peak centered and both sides mirrored.',
  bog:'Draw a round circle with a closed Bramble Leaf diamond centered inside. Leave space between the leaf and the circle.'

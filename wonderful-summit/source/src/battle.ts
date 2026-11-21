@@ -218,10 +218,11 @@ function advanceMagma(state:Battle,time:number):Battle{
    enemies=enemies.map(enemy=>{
     if(enemy.hp<=0||enemy.spawnAt>tick+1e-9||!magmaContains(pool,enemy.x,enemyY(enemy.id,state.encounter,enemy.lane)))return enemy;
     const element=enemy.kind==='mother'?ELEMENTS[(ELEMENTS.indexOf(enemy.initialElement as Element)+Math.floor((tick+1e-9)/15))%3]:enemy.element;
+    const shield=updateShield(enemy.shield,tick);
     const damage=pool.damage*elementalMatchup('Fire',element).damage*rockyDefense(enemy.rocky,pool.quality).damage
-     *shieldProtection(updateShield(enemy.shield,tick),tick)*kingDamageMultiplier(enemy,pool.quality);
+     *shieldProtection(shield,tick)*kingDamageMultiplier(enemy,pool.quality);
     const hp=Math.max(0,Math.round((enemy.hp-damage)*1e6)/1e6);
-    return {...enemy,hp,hurtUntil:time+.15,push:hp===0?null:enemy.push,attackAt:hp===0?null:enemy.attackAt};
+    return {...enemy,hp,shield:igniteShield(shield,'Fire',pool.quality,tick),hurtUntil:time+.15,push:hp===0?null:enemy.push,attackAt:hp===0?null:enemy.attackAt};
    });
    nextTick+=MAGMA_TICK_SECONDS;
   }

@@ -33,7 +33,9 @@ test('leaf, triangles, blade and line spells follow approved starting points, or
  const blade=practiceLesson('flameBlade')!.paths;
  const canonical=SPELLS.find(s=>s.id==='flameBlade')!.strokes;
  assert.deepEqual(blade.slice(0,2),canonical.slice(1));
- assert.equal(blade[0][1].x-blade[0][0].x,blade[0][1].y-blade[0][0].y);
+ assert.ok(blade[0][1].x>blade[0][0].x);
+ assert.equal(blade[0][1].y,blade[0][0].y);
+ assert.equal(blade[1][0].x,blade[1][1].x);
  assert.ok(area([...blade[2],blade[2][0]])>0);
  for(const id of ['puddleGuard','thistleBush'] as const){const p=practiceLesson(id)!.paths[0];assert.ok(p[0].x<p.at(-1)!.x);}
  const bolt=practiceLesson('bolt')!.paths[0];assert.ok(bolt[0].y<bolt.at(-1)!.y);

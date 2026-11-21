@@ -91,11 +91,11 @@ test('near-distance practice makes melee and placed spells reachable without cha
  }
 });
 
-test('approved Flame Blade variant retains the blade and expands only guard and hilt',()=>{
+test('Flame Blade trace and scoring references are upright, including the wider guard and longer hilt variant',()=>{
  const spell=SPELLS.find(s=>s.id==='flameBlade')!,variant=SPELL_VARIATIONS.flameBlade![0];
  const length=([a,b]:typeof variant[number])=>Math.hypot(b.x-a.x,b.y-a.y);
  assert.deepEqual(variant[0],spell.strokes[0]);
- assert.ok(spell.strokes[0][0].x>spell.strokes[2][1].x&&spell.strokes[0][0].y<spell.strokes[2][1].y);
+ assert.equal(spell.path,'M50 10 L57 62 L43 62 Z M28 62 L72 62 M50 62 L50 88');
  assert.equal(SPELL_VARIATIONS.flameBlade!.length,2);
  for(const width of [1,1.2]){
   const upright=[
@@ -103,8 +103,14 @@ test('approved Flame Blade variant retains the blade and expands only guard and 
    [{x:50-22*width,y:62},{x:50+22*width,y:62}],
    [{x:50,y:62},{x:50,y:62+26*width}],
   ];
-  assert.equal(recognize(upright,['flameBlade']).spell,null);
-  assert.notEqual(recognize(upright).spell?.id,'flameBlade');
+  const match=recognize(upright);
+  assert.equal(match.spell,spell);
+  assert.equal(match.quality,100);
+  const previous=upright.map(stroke=>stroke.map(({x,y})=>({
+   x:50+((x-50)-(y-49))*Math.SQRT1_2,
+   y:49+((x-50)+(y-49))*Math.SQRT1_2,
+  })));
+  assert.notEqual(recognize(previous).spell,spell);
  }
  assert.ok(Math.abs(length(variant[1])-44*1.2)<1e-8);
  assert.ok(Math.abs(length(variant[2])-26*1.2)<1e-8);

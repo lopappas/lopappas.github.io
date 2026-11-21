@@ -1,6 +1,6 @@
 # Wonderful Summit — Project Status
 
-Updated: 2026-11-21
+Updated: 2026-11-22
 
 ## Start here
 - Repository: https://github.com/lopappas/lopappas.github.io — branch master.
@@ -13,7 +13,7 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.12-alpha) records the pointer-up location in combat and Practice using the usual ink budget. Cursed Twig uses its three-stroke reference with added tolerance for slight placement and straightness errors.
+Latest update (version 0.4.13-alpha) makes Eruption magma ignite wooden shields on a damage tick and returns Flame Blade's trace, Practice demonstration and scoring variants to an upright orientation. Combat and Practice record the pointer-up location using the usual ink budget.
 
 The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
 

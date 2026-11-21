@@ -36,6 +36,7 @@ These instructions apply to Wonderful Summit in this repository.
 - The current tutorial is the main tutorial. Milestone 7 removed the old tutorial and its exclusive tests; retain shared game coverage.
 - The user has explicitly approved the unrestricted developer panel for the live game.
 - Preserve existing spell balance and behavior outside the requested change.
+- Keep each spell trace aligned with its scoring reference. When a trace changes, update its scoring variants and Practice demonstration and verify the exact demonstration scores 100% against the full spell catalog.
 - Use the approved spell descriptions in `src/magic.ts` verbatim throughout the game. Ask the user for permission before changing this wording. Update separate upgrade descriptions to reflect changed upgrade values without asking.
 
 ## Release versions

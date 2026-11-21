@@ -7,6 +7,7 @@ import {recognize,SPELLS} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 import {combatTraceScale} from '../src/combatTracePresentation.ts';
 import {MIN_CAST_QUALITY} from '../src/quality.ts';
+import {SHIELD_BURN_SECONDS,woodenShield} from '../src/shields.ts';
 
 function field(){
  const battle=newBattle('active','slime',()=>0);
@@ -61,6 +62,26 @@ test('Eruption warns the nearest enemy for 0.8 seconds, then knocks it back and 
  assert.deepEqual(cooled.enemies.map(e=>e.hp),[0,44,44,100]);
  assert.deepEqual(cooled.magma,[]);
  assert.deepEqual(at(cooled,8).enemies.map(e=>e.hp),cooled.enemies.map(e=>e.hp));
+});
+
+test('magma ignites wooden shields inside the pool, and they protect until they burn away',()=>{
+ const battle=field();
+ battle.enemies=battle.enemies.map(enemy=>({...enemy,shield:woodenShield()}));
+ const impact=at(cast(battle),.8);
+ assert.equal(impact.enemies[0].shield?.burnUntil,.8+SHIELD_BURN_SECONDS);
+ assert.equal(impact.enemies[1].shield?.burnUntil,null);
+ const firstTick=at(impact,1.3);
+ assert.equal(firstTick.enemies[0].shield?.burnUntil,.8+SHIELD_BURN_SECONDS);
+ assert.equal(firstTick.enemies[1].shield?.burnUntil,1.3+SHIELD_BURN_SECONDS);
+ assert.equal(firstTick.enemies[1].hp,98);
+ const stillBurning=at(firstTick,3.299);
+ assert.equal(stillBurning.enemies[1].shield?.burnUntil,1.3+SHIELD_BURN_SECONDS);
+ assert.equal(stillBurning.enemies[1].hp,92);
+ const noShield=at(stillBurning,3.3);
+ assert.equal(noShield.enemies[1].shield,null);
+ assert.equal(noShield.enemies[1].hp,88);
+ assert.deepEqual(noShield.enemies[3].shield,woodenShield());
+ assert.equal(noShield.enemies[3].hp,100);
 });
 
 test('smoke tracks its target, and the stun runs concurrently with knockback',()=>{
