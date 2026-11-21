@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,SPELL_VARIATIONS,recognize,type Strokes} from '../src/magic.ts';
+import {practiceLesson} from '../src/practiceLessons.ts';
 import {newRun,enterNode,castTrailEvent,ROUTE,sealBottle} from '../src/run.ts';
 import {snapshotDrawing} from '../src/drawings.ts';
 const fire=SPELLS.find(s=>s.id==='fire')!;
@@ -32,7 +33,7 @@ test('variations do not unlock unlearned spells or accept incomplete and flatten
  for(const shape of [[[{x:50,y:12},{x:85,y:82}]],[[{x:50,y:12},{x:85,y:32},{x:15,y:32},{x:50,y:12}]],[[{x:10,y:10}]]] as Strokes[])assert.equal(recognize(shape).spell,null);
 });
 test('recognition-only variation keeps all canonical spellbook and perfect-trace shapes intact',()=>{
- assert.deepEqual(Object.keys(SPELL_VARIATIONS),['snowman','bog','bolt','flameBlade','fire','firestorm','nature','tidalcrest']);assert.equal(SPELL_VARIATIONS.fire?.length,1);assert.equal(fire.path,'M50 12 L85 82 L15 82 Z');assert.deepEqual(fire.strokes,[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]);
+ assert.deepEqual(Object.keys(SPELL_VARIATIONS),['bog','bolt','flameBlade','fire','firestorm','nature','tidalcrest']);assert.equal(SPELL_VARIATIONS.fire?.length,1);assert.equal(fire.path,'M50 12 L85 82 L15 82 Z');assert.deepEqual(fire.strokes,[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]);
  for(const spell of SPELLS){const result=recognize(spell.strokes);assert.equal(result.spell,spell);assert.equal(result.quality,100);}
 });
 test('recognized variation works in the campsite and bottle without replacing the player drawing',()=>{
@@ -65,12 +66,14 @@ test('Puddle Guard wavy M replaces all previous variations and recognizes in eit
  }
 });
 
-test('approved smaller Bog leaf and wider Flare Bolt bend preserve originals and recognize across transformations',()=>{
+test('both Bog and Flare Bolt shapes recognize across transformations, with the wider Flare Bolt in Practice',()=>{
  const bog=SPELLS.find(s=>s.id==='bog')!,bolt=SPELLS.find(s=>s.id==='bolt')!;
  assert.deepEqual(SPELL_VARIATIONS.bog![0][0],bog.strokes[0]);
  assert.deepEqual(SPELL_VARIATIONS.bog![0][1],[{x:50,y:34},{x:64,y:50},{x:50,y:66},{x:36,y:50},{x:50,y:34}]);
- assert.deepEqual(SPELL_VARIATIONS.bolt![0][0],[{x:53,y:10},...bolt.strokes[0].slice(1)]);
- assert.deepEqual(bolt.strokes[0][0],{x:65,y:10});
+ assert.deepEqual(SPELL_VARIATIONS.bolt,[[[{x:65,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]]);
+ assert.deepEqual(bolt.strokes,[[{x:53,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]);
+ assert.equal(bolt.path,'M53 10 L25 50 L55 50 L35 90');
+ assert.deepEqual(practiceLesson('bolt')?.paths,bolt.strokes);
  for(const id of ['bog','bolt'] as const)for(const paths of [SPELLS.find(s=>s.id===id)!.strokes,...SPELL_VARIATIONS[id]!])for(const scale of [.2,1,4])for(const reverse of [false,true]){
   const ordered=reverse?paths.slice().reverse().map(s=>s.slice().reverse()):paths;
   const drawing=ordered.map(s=>s.map(p=>({x:123+p.x*scale,y:-30+p.y*scale})));

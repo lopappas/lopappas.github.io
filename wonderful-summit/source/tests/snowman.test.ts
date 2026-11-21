@@ -24,8 +24,10 @@ test('the Snowman lesson casts the new spell against the full recognition roster
   [{x:65,y:46},{x:83.2,y:27.8}],
  ]);
  assert.equal(match.spell?.id,'snowman');
- assert.ok(match.quality>=80);
- assert.equal(recognize(SPELL_VARIATIONS.snowman![0]).spell?.id,'snowman');
+ assert.equal(match.quality,100);
+ assert.equal(SPELL_VARIATIONS.snowman,undefined);
+ const shortArms=[...lesson.paths.slice(0,2),[{x:35,y:46},{x:21,y:32}],[{x:65,y:46},{x:79,y:32}]];
+ assert.ok(recognize(shortArms).quality<100);
 });
 
 test('Snowman advances at 15.5 units per second and stops 250 units ahead',()=>{

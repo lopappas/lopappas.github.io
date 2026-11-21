@@ -9,13 +9,10 @@ export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;c
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 export function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
 const snowmanCircles = [[50,25,16],[50,66,25]];
-const originalSnowmanArms:Strokes=[
- [{x:35,y:46},{x:21,y:32}],
- [{x:65,y:46},{x:79,y:32}],
+const snowmanArms:Strokes=[
+ [{x:35,y:46},{x:16.8,y:27.8}],
+ [{x:65,y:46},{x:83.2,y:27.8}],
 ];
-const snowmanArms=originalSnowmanArms.map(([base,tip])=>[
- base,{x:Number((base.x+1.3*(tip.x-base.x)).toFixed(1)),y:Number((base.y+1.3*(tip.y-base.y)).toFixed(1))},
-]);
 const snowmanPath = [
  ...snowmanCircles.map(([x,y,r])=>`M${x} ${y-r} A${r} ${r} 0 1 1 ${x} ${y+r} A${r} ${r} 0 1 1 ${x} ${y-r} Z`),
  ...snowmanArms.map(([a,b])=>`M${a.x} ${a.y} L${b.x} ${b.y}`),
@@ -70,7 +67,7 @@ export const SPELLS:Spell[]=[
  {id:'fire',rarity:'Common',name:'Hearthspark',element:'Fire',color:'#f0a068',description:'An eager spark of fire magic',path:'M50 12 L85 82 L15 82 Z',strokes:[[{x:50,y:12},{x:85,y:82},{x:15,y:82},{x:50,y:12}]]},
  {id:'nature',rarity:'Common',name:'Little Sprout',element:'Nature',color:'#9bbe72',description:'A resilient ball of nature magic.',path:'M20 20 L50 50 L80 20 M50 50 L50 88',strokes:[[{x:20,y:20},{x:50,y:50},{x:80,y:20}],[{x:50,y:50},{x:50,y:88}]]},
  {id:'wave',rarity:'Uncommon',name:'Aquaspout',element:'Water',color:'#69c2d6',description:'A fast spurt of water, excellent for clearing space.',path:'M36 18 L50 6 L64 18 M50 32 C53.04 43.4 74.32 63.16 72.8 74.56 C71.28 97.36 28.72 97.36 27.2 74.56 C25.68 63.16 46.96 43.4 50 32 Z',strokes:[[{x:36,y:18},{x:50,y:6},{x:64,y:18}],shape([50,32],[[53.04,43.4,74.32,63.16,72.8,74.56],[71.28,97.36,28.72,97.36,27.2,74.56],[25.68,63.16,46.96,43.4,50,32]])]},
- {id:'bolt',rarity:'Uncommon',name:'Flare Bolt',element:'Fire',color:'#f0a068',description:'A scorching hot ray of fire. High damage and burning, but with low knocking force.',path:'M65 10 L25 50 L55 50 L35 90',strokes:[[{x:65,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]},
+ {id:'bolt',rarity:'Uncommon',name:'Flare Bolt',element:'Fire',color:'#f0a068',description:'A scorching hot ray of fire. High damage and burning, but with low knocking force.',path:'M53 10 L25 50 L55 50 L35 90',strokes:[[{x:53,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]},
  {id:'leaf',rarity:'Uncommon',name:'Bramble Leaf',element:'Nature',color:'#9bbe72',description:'A burst of lush leaves that slows enemy encroachment. Deals lower damage.',path:'M50 10 L85 50 L50 90 L15 50 Z',strokes:[[{x:50,y:10},{x:85,y:50},{x:50,y:90},{x:15,y:50},{x:50,y:10}]]},
  {id:'chronos',rarity:'Legendary',name:'Chronos Denalis',element:'Ancient',color:'#8b9099',description:'A lost spell that makes time stand still. Higher quality freezes enemies longer. 30s cooldown.',path:'M50 10 C72.091 10 90 27.909 90 50 C90 72.091 72.091 90 50 90 C27.909 90 10 72.091 10 50 C10 27.909 27.909 10 50 10 Z M50 50 L50 10',strokes:[shape([50,10],[[72.091,10,90,27.909,90,50],[90,72.091,72.091,90,50,90],[27.909,90,10,72.091,10,50],[10,27.909,27.909,10,50,10]]),[{x:50,y:50},{x:50,y:10}]]},
  {id:'ender',rarity:'Legendary',name:'Ender',element:'Ancient',color:'#8b9099',description:'Draw a capital K. Deals 1,000 base damage to the nearest enemy. No knockback.',path:'M20 10 L20 90 M80 10 L20 50 L80 90',strokes:[[{x:20,y:10},{x:20,y:90}],[{x:80,y:10},{x:20,y:50},{x:80,y:90}]],developerOnly:true,upgradable:false},
@@ -95,9 +92,8 @@ export function damageUpgradeBonus(id:SpellId){return isGuardianSpell(id)?guardi
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
 // Recognition-only alternatives; spellbook art and perfect traces use SPELLS unchanged.
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
- snowman:[[...snowmanBodyStrokes,...originalSnowmanArms]],
  bog:[SPELLS.find(s=>s.id==='bog')!.strokes.map((stroke,i)=>stroke.map(p=>i===1?{x:50+(p.x-50)*.8,y:50+(p.y-50)*.8}:{...p}))],
- bolt:[[[{x:53,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
+ bolt:[[[{x:65,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
  flameBlade:[rotateFlameBlade(expandedFlameBlade)],
  fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]],
  firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]],
