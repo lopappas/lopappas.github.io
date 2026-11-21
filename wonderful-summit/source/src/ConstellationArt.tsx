@@ -5,7 +5,7 @@ import {CONSTELLATION_FLIGHT_SECONDS,constellationHatFrame} from './constellatio
 const GOLD='#ffd884',PURPLE='#a869ed';
 const SKY_X=360,BRUSH_X=282,BRUSH_Y=390;
 
-const HAT_SCALE=10,HAT_CENTER_X=11,HAT_CENTER_Y=6;
+const HAT_SCALE=8,HAT_CENTER_X=11,HAT_CENTER_Y=6;
 const stars=[
  [9,1],[11,1],[12,1],[8,3],[10,3],[12,3],[14,3],
  [6,5],[8,5],[10,5],[12,5],[14,5],[16,5],

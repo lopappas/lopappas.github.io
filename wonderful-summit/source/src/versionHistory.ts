@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.4.00-alpha',publishedAt:'2026-11-21T13:58:06Z',model:'GPT-6.2 Sol',changes:['Torrent drops pick from six middle-lane spots. Each splash hits across all three lanes in its column.','Constellation’s hat is 20% smaller and its popup disappears when the hat finishes dimming. Alchemize uses its original cast sound.']},
  {version:'0.3.99-alpha',publishedAt:'2026-11-21T13:24:18Z',model:'GPT-6.2 Sol',changes:['Puddle Guard bubbles rapidly and deals a small hit on contact. Thistle Bush slows foes inside by 10%.','Eruption has a heavier blast, Snowman uses its original cast sound, and Alchemize chimes when collecting a potion.','Constellation pops like confetti, forms Filadora’s hat, and begins fading its popup with the hat.']},
  {version:'0.3.98-alpha',publishedAt:'2026-11-21T12:58:33Z',model:'GPT-6.2 Sol',changes:['Cursed Twig bypasses wooden shields. Spell Details ranks ambiguous matches from most to least likely.','Shroomy spores make a soft sand shake. Snowman’s summon jingles, and Eruption sizzles before its blast.','Snowman’s trace has 30% longer twig arms and Eruption’s trace is 30% thinner.']},
  {version:'0.3.97-alpha',publishedAt:'2026-11-21T12:37:05Z',model:'GPT-6.2 Sol',changes:['Shroomy deals 8% more spore damage and slows by 4% per stack, or 5% when upgraded.','Added attack sounds for Shroomy, Scorchy, and Snowman. Belladora sits lower and behind Filadora in combat.']},

@@ -38,25 +38,25 @@ test('Constellation scales between the selected anchors and the upgrade adds fix
  });
 });
 
-test('the boost notice begins its two-second fade on the same beat as the hat',()=>{
- const fadeAt=CONSTELLATION_FLIGHT_SECONDS+.85;
- assert.equal(constellationNoticeOpacity(fadeAt),1);
- assert.equal(constellationHatFrame(fadeAt-CONSTELLATION_FLIGHT_SECONDS).opacity,1);
- assert.ok(constellationHatFrame(fadeAt+.5-CONSTELLATION_FLIGHT_SECONDS).opacity<1);
- assert.ok(Math.abs(constellationNoticeOpacity(fadeAt+.5)-.75)<1e-12);
- assert.equal(constellationNoticeOpacity(fadeAt+2),0);
+test('the boost notice fades with the hat and disappears when the hat reaches 20%',()=>{
+ for(const age of [0,.85,1.35,2,3.99,4,5]){
+  const popup=constellationNoticeOpacity(CONSTELLATION_FLIGHT_SECONDS+age);
+  const hat=constellationHatFrame(age).opacity;
+  assert.ok(Math.abs(hat-(.2+.8*popup))<1e-12);
+ }
+ assert.ok(constellationNoticeOpacity(CONSTELLATION_FLIGHT_SECONDS+3.99)>0);
+ assert.equal(constellationNoticeOpacity(CONSTELLATION_FLIGHT_SECONDS+4),0);
 });
-
-test('Constellation pops on the firework burst, Alchemize collects, and Snowman uses its water cast sound',()=>{
+test('Constellation pops on the firework burst, Alchemize uses its original cast sound, and Snowman uses its water cast sound',()=>{
  const battle=summon(newBattle('active'),80);
  const justBefore={...battle,time:CONSTELLATION_FLIGHT_SECONDS-.01};
  const burst={...battle,time:CONSTELLATION_FLIGHT_SECONDS};
  assert.equal(constellationJustBurst(battle,justBefore),false);
  assert.equal(constellationJustBurst(justBefore,burst),true);
  assert.equal(constellationJustBurst(burst,{...burst,time:2}),false);
- assert.equal(spellCastSound({id:'alchemize',element:'Ancient'}),'potionCollect');
+ assert.equal(spellCastSound({id:'alchemize',element:'Ancient'}),'ancient');
  assert.equal(spellCastSound({id:'snowman',element:'Water'}),'water');
- for(const cue of ['confettiPop','potionCollect'] as const){
+ for(const cue of ['confettiPop'] as const){
   assert.ok(soundSamples(cue).some(sample=>Math.abs(sample)>.1));
  }
 });

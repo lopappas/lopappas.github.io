@@ -13,7 +13,9 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.99-alpha): Puddle Guard bubbles rapidly and deals 1–5 base damage on its first contact. Thistle Bush slows enemies within reach by 10%. Eruption has a heavier blast, Snowman uses its original Water cast sound, and Alchemize has a potion collection chime. Constellation plays a confetti pop at burst and forms Filadora’s hat. The stat popup begins fading when the hat starts dimming.
+Latest update (version 0.4.00-alpha): Torrent drops choose independently among six evenly spaced middle-lane spots. Each splash hits one rectangular column spanning all three lanes, with adjacent columns meeting at the edges. Constellation’s sky hat is 20% smaller and its popup finishes fading when the hat reaches 20% opacity. Alchemize uses its original Ancient cast sound.
+
+Puddle Guard bubbles rapidly and deals 1–5 base damage on its first contact. Thistle Bush slows enemies within reach by 10%. Eruption has a heavier blast. Snowman uses its original Water cast sound. Constellation plays a confetti pop at burst and forms Filadora’s hat.
 
 Cursed Twig bypasses wooden shields. Spell Details ranks ambiguous matches from most to least likely. Snowman’s trace has 30% longer arms, and Eruption’s trace is 30% thinner. Eruption sizzles while smoke rises and rumbles on impact. Shroomy’s spores make a soft sand shake on impact.
 

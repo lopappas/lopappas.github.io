@@ -1,4 +1,4 @@
-import {COMBAT_LANE_Y,FILA_FOOT_Y,combatLane,enemyFootOffset,laneContactReach,placeLaneArrivals,spaceLaneEnemies,type CombatLane} from './combatLanes.ts';
+import {CONTACT_X,ENEMY_BACK_X,COMBAT_LANE_Y,FILA_FOOT_Y,combatLane,enemyFootOffset,laneContactReach,placeLaneArrivals,spaceLaneEnemies,type CombatLane} from './combatLanes.ts';
 import {
  GUARDIAN_SHOT_FLIGHT_SECONDS,GUARDIAN_CONTACT_DISTANCE,GUARDIAN_COOLDOWN,
  GUARDIAN_DAMAGE_TAKEN,GUARDIAN_ENEMY_COOLDOWN,GUARDIAN_MAX_CONTACT_REACH,
@@ -7,7 +7,7 @@ import {
 import {constellationBonus,type Constellation} from './constellation.ts';
 import {playerMaxHealth} from './playerHealth.ts';
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
-import {torrentDuration,torrentContains,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,type Torrent} from './torrent.ts';
+import {torrentDuration,torrentContains,torrentDropSpot,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,type Torrent} from './torrent.ts';
 import {GOBLIN_KING_DIALOGUE_MS,kingHasCrown,kingSpellMultiplier,type KingState} from './goblinKing.ts';
 import {damageUpgradeBonus} from './magic.ts';
 import {isNearSpell,nearDamage,nearKnockback,thistleStats,THISTLE_SLOW,type NearSpell} from './nearSpells.ts';
@@ -18,9 +18,9 @@ import type {PlayerDrawing} from './drawings.ts';
 import {spellPower,power,knockback,SPELLS,isUpgradableSpell,type SpellId,type Element} from './magic.ts';
 import {woodenShield,shieldProtection,igniteShield,updateShield,type EnemyShield} from './shields.ts';
 export const PLAYER_MAX_HP=100,SLIME_MAX_HP=100;
-export const CONTACT_X=325,SLIME_START_X=580,SLIME_SPEED=18;
+export {CONTACT_X,ENEMY_BACK_X} from './combatLanes.ts';
+export const SLIME_START_X=580,SLIME_SPEED=18;
 export const CONTACT_DAMAGE=12,ATTACK_COOLDOWN=1.5,ATTACK_WINDUP=.45,PUSH_DURATION=.28;
-export const ENEMY_BACK_X=640;
 export const MOTHER_SPLIT_SECONDS=2;
 export const ENEMY_RUNWAY_SIZE=ENEMY_BACK_X-CONTACT_X;
 export const PLAYER_HIT_PUSH=ENEMY_RUNWAY_SIZE/3;
@@ -626,13 +626,12 @@ export function rollAlchemizePotion(quality:number,random:()=>number=Math.random
 }
 
 
-// Locations are sampled at cast time from the encounter's walkable lanes, never enemy positions.
+// Each drop picks independently from the same six battlefield columns.
 function beginTorrent(state:Battle,quality:number,multiplier:number,inkUsed:number,knockbackMultiplier:number,random:()=>number):Battle{
  const duration=torrentDuration(quality);if(state.phase!=='active'||!duration)return state;
- const allLanes=state.encounter==='mother'||state.encounter==='rockWebNest'||state.encounter==='spiderGoblinElite';
- const lanes=allLanes?COMBAT_LANE_Y:[...new Set(state.enemies.map(e=>enemyY(e.id,state.encounter,e.lane)))];
- const unit=()=>Math.max(0,Math.min(1-Number.EPSILON,random()));
- const orbs=Array.from({length:duration/TORRENT_INTERVAL},(_,i)=>({x:CONTACT_X+unit()*(ENEMY_BACK_X-CONTACT_X),y:lanes[Math.floor(unit()*lanes.length)],landsAt:state.time+(i+1)*TORRENT_INTERVAL,applied:false}));
+ const orbs=Array.from({length:duration/TORRENT_INTERVAL},(_,i)=>({
+  ...torrentDropSpot(random()),landsAt:state.time+(i+1)*TORRENT_INTERVAL,applied:false,
+ }));
  return{...state,casts:state.casts+1,torrent:{started:state.time,until:state.time+duration,quality,damageBonus:state.damageBonus*amuletDamageMultiplier(quality,'torrent',state.amulets),pushBonus:state.pushBonus*knockbackMultiplier,upgrade:state.upgrades.torrent??0,multiplier,midnight:state.midnightStone?midnightBonus(inkUsed):0,orbs}};
 }
 function advanceTorrent(state:Battle):Battle{

@@ -1,6 +1,7 @@
 import type {Encounter,Enemy} from './battle.ts';
 import {GOBLIN_KING_SCALE} from './goblinKing.ts';
 
+export const CONTACT_X=325,ENEMY_BACK_X=640;
 export const FILA_ART_Y=320,FILA_ART_SCALE=5,FILA_SPRITE_HEIGHT=31;
 export const FILA_FOOT_Y=FILA_ART_Y+FILA_ART_SCALE*FILA_SPRITE_HEIGHT;
 export const COMBAT_LANE_Y=[FILA_FOOT_Y-28,FILA_FOOT_Y,FILA_FOOT_Y+28] as const;

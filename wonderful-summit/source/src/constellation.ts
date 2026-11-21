@@ -3,8 +3,12 @@ import {MIN_CAST_QUALITY} from './quality.ts';
 export const CONSTELLATION_FLIGHT_SECONDS=1.25;
 const HAT_ASSEMBLY_SECONDS=.85,HAT_SETTLED_SECONDS=4,HAT_REST_OPACITY=.2;
 
+function hatFadeProgress(burstAge:number){
+ return Math.max(0,Math.min(1,(burstAge-HAT_ASSEMBLY_SECONDS)/(HAT_SETTLED_SECONDS-HAT_ASSEMBLY_SECONDS)));
+}
+
 export function constellationHatFrame(burstAge:number){
- const fade=Math.max(0,Math.min(1,(burstAge-HAT_ASSEMBLY_SECONDS)/(HAT_SETTLED_SECONDS-HAT_ASSEMBLY_SECONDS)));
+ const fade=hatFadeProgress(burstAge);
  return{
   assembly:Math.min(1,burstAge/HAT_ASSEMBLY_SECONDS),
   opacity:HAT_REST_OPACITY+(1-HAT_REST_OPACITY)*(1-fade),
@@ -12,9 +16,7 @@ export function constellationHatFrame(burstAge:number){
 }
 
 export function constellationNoticeOpacity(age:number){
- const fadeStartsAt=CONSTELLATION_FLIGHT_SECONDS+HAT_ASSEMBLY_SECONDS;
- if(age<=fadeStartsAt)return 1;
- return Math.max(0,Math.min(1,(fadeStartsAt+2-age)/2));
+ return 1-hatFadeProgress(age-CONSTELLATION_FLIGHT_SECONDS);
 }
 
 export type ConstellationBonus={armor:number;damage:number;knockback:number};
