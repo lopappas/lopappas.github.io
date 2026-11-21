@@ -21,10 +21,9 @@ test('direct spells respect the complete elemental damage and knockback matrix, 
   if(spell.id==='eruption')for(let i=0;i<8;i++)hit=stepBattle(hit,.1);
   const enemy=hit.enemies[0];
   assert.ok(Math.abs(1000-enemy.hp-expected)<1e-8);
-  const push=spellKnockback(100,spell.id,1.25)*(own?.7:weak?.85:1);
+  const push=spell.id==='eruption'?10:spellKnockback(100,spell.id,1.25)*(own?.7:weak?.85:1);
   assert.equal(spellKnockback(100,spell.id,1.25,element),push);
-  if(spell.id==='eruption')assert.equal(enemy.push,null);
-  else assert.ok(Math.abs(enemy.push!.to-Math.min(640,330+push))<1e-8);
+  assert.ok(Math.abs(enemy.push!.to-Math.min(640,330+push))<1e-8);
   assert.ok(base>0);
  }
 });
@@ -58,8 +57,7 @@ test('goblin elites are neutral and receive full damage, knockback, burn and slo
    if(spell.id==='eruption')for(let i=0;i<8;i++)hit=stepBattle(hit,.1);
    const enemy=hit.enemies[0];
    assert.equal(goblin.hp-enemy.hp,spellDamage({element:'Neutral'},60,spell.id));
-   if(spell.id==='eruption')assert.equal(enemy.push,null);
-   else assert.ok(Math.abs(enemy.push!.to-330-spellKnockback(60,spell.id))<1e-8);
+   assert.ok(Math.abs(enemy.push!.to-330-spellKnockback(60,spell.id))<1e-8);
    if(spell.id==='bolt')assert.equal(enemy.burn!.damage,burnDamage(60,'Neutral'));
    if(spell.id==='leaf')assert.equal(enemy.slowUntil,4.1);
   }

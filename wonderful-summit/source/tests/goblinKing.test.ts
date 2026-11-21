@@ -26,7 +26,7 @@ test('Goblin King has 1000 health, is neutral, moves at rock-slime speed and nev
  const rock=newBattle('active','rock',()=>0);b.approachAt=rock.approachAt=0;b.enemies[0].x=rock.enemies[0].x=600;
  assert.ok(Math.abs(advance(b,2).enemies[0].x-advance(rock,2).enemies[0].x)<1e-8);
 });
-test('crowned defenses reduce Faint damage/push by 25 percent, Steady by 10 percent and higher grades by zero',()=>{
+test('crowned defenses reduce damage and variable knockback according to cast quality',()=>{
  const b=field(),king=b.enemies[0];
  for(const q of [45,46,47,48,55,59,60,69,70,79,80,100]){
   const multiplier=q<60?.75:q<70?.9:1;
@@ -34,7 +34,8 @@ test('crowned defenses reduce Faint damage/push by 25 percent, Steady by 10 perc
   for(const spell of SPELLS){
    const damage=spellDamage(king,q,spell.id),normal=spellDamage({element:'Neutral'},q,spell.id);
    assert.ok(Math.abs(damage-normal*multiplier)<=1,`${spell.id} damage at ${q}`); // Per-spell rounding remains in effect.
-   assert.ok(Math.abs(spellKnockback(q,spell.id,1,'Neutral',false,null,0,0,true)-spellKnockback(q,spell.id)*multiplier)<1e-8,`${spell.id} push at ${q}`);
+   const pushMultiplier=spell.id==='eruption'?1:multiplier;
+   assert.ok(Math.abs(spellKnockback(q,spell.id,1,'Neutral',false,null,0,0,true)-spellKnockback(q,spell.id)*pushMultiplier)<1e-8,`${spell.id} push at ${q}`);
   }
   for(const id of ['water','fire','nature'] as const)assert.equal(spellDamage(king,q,id),Math.round(spellDamage({element:'Neutral'},q,id)*multiplier*1e6)/1e6);
   assert.equal(firestormTickDamage(king,q),Math.round(firestormTickDamage({element:'Neutral'},q)*multiplier*1e6)/1e6);

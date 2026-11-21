@@ -11,7 +11,7 @@ import {torrentDuration,torrentContains,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,
 import {GOBLIN_KING_DIALOGUE_MS,kingHasCrown,kingSpellMultiplier,type KingState} from './goblinKing.ts';
 import {damageUpgradeBonus} from './magic.ts';
 import {isNearSpell,nearDamage,nearKnockback,thistleStats,type NearSpell} from './nearSpells.ts';
-import {ERUPTION_WARNING_SECONDS,ERUPTION_STUN_SECONDS,MAGMA_SLOW,MAGMA_TICK_SECONDS,magmaContains,magmaSize,type EruptionWarning,type Magma} from './eruption.ts';
+import {ERUPTION_KNOCKBACK,ERUPTION_WARNING_SECONDS,ERUPTION_STUN_SECONDS,MAGMA_SLOW,MAGMA_TICK_SECONDS,magmaContains,magmaSize,type EruptionWarning,type Magma} from './eruption.ts';
 import {bogEffect,extendBog,type Bog} from './bog.ts';
 import {extendFirestorm,firestormBaseDamage,FIRESTORM_TICK_SECONDS,type Firestorm} from './firestorm.ts';
 import type {PlayerDrawing} from './drawings.ts';
@@ -47,7 +47,7 @@ export type Burn={quality?:number;damage:number;nextTick:number;ticks:number};
 export type Push={from:number;to:number;started:number;ends:number};
 type ToxicTwigPoison={started:number;ticks:number;quality:number;scale:number};
 const TOXIC_TWIG_INTERVAL=1.5,TOXIC_TWIG_TICKS=10;
-export type Enemy={eruptionStunUntil?:number;toxicTwig?:ToxicTwigPoison[];spores?:ShroomySpore[];lane?:CombatLane;guardianHitAt?:number;nextGuardianAttackAt?:number;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
+export type Enemy={eruptionStunUntil?:number;eruptionStunPending?:boolean;toxicTwig?:ToxicTwigPoison[];spores?:ShroomySpore[];lane?:CombatLane;guardianHitAt?:number;nextGuardianAttackAt?:number;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
 export type Projectile={knockbackMultiplier?:number;inkUsed:number;damageMultiplier:number;started:number;duration:number;quality:number;color:string;spellId:SpellId;targetId:number};
 export type TidalWave={blackFlashMultiplier?:number;id:number;started:number;duration:number;quality:number;damageMultiplier:number;inkUsed:number;hitIds:number[];bonuses:{damageBonus:number;pushBonus:number;upgrade:number;midnightStone:boolean;moon:boolean}};
 export const TIDAL_TRAVEL_SECONDS=.9,TIDAL_START_X=300;
@@ -91,7 +91,7 @@ export function shroomyTickDamage(target:SpellDamageTarget,quality:number,bonus=
  return sporeTickDamage(target,quality,shroomySporePower(quality,upgrade)*bonus,time);
 }
 export function spellDamage(target:SpellDamageTarget,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellDamage({...target,rocky:false,shield:null,goblinKing:false},60,'water',damageBonus,upgrade,time)*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time)*kingDamageMultiplier(target,quality);}if(spellId==='toxicTwig'||spellId==='shroomy'||spellId==='constellation'||spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?(1.265*.95):spellId==='wave'?.9:spellId==='leaf'?.75:1;const precision=isGuardianSpell(spellId)||['thistleBush','water','fire','nature','eruption'].includes(spellId)?1e6:1;return Math.round(precision*(isNearSpell(spellId)?nearDamage(spellId,quality,upgrade):spellId==='ender'?(Number.isFinite(quality)&&quality>=MIN_CAST_QUALITY?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)&&spellId!=='thistleBush'?Math.max(0,Math.min(1,upgrade)):0)*damageUpgradeBonus(spellId))*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*(spellId==='sneakyVine'?1:shieldProtection(target.shield,time))*kingDamageMultiplier(target,quality))/precision;}
-export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,false)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time)*(goblinKing?kingSpellMultiplier(quality):1);}if(spellId==='toxicTwig'||spellId==='constellation'||spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm'||spellId==='eruption')return 0;const base=isGuardianSpell(spellId)?guardianKnockback(spellId,quality,upgrade):isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=MIN_CAST_QUALITY&&quality<60?40+14*(quality-45)/14:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?kingSpellMultiplier(quality):1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
+export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,false)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time)*(goblinKing?kingSpellMultiplier(quality):1);}if(spellId==='eruption')return Number.isFinite(quality)&&quality>=MIN_CAST_QUALITY?ERUPTION_KNOCKBACK:0;if(spellId==='toxicTwig'||spellId==='constellation'||spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm')return 0;const base=isGuardianSpell(spellId)?guardianKnockback(spellId,quality,upgrade):isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=MIN_CAST_QUALITY&&quality<60?40+14*(quality-45)/14:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?kingSpellMultiplier(quality):1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 // Rain retains fractional damage so small elemental/rock/shield reductions remain meaningful.
 export function amuletDamageMultiplier(quality:number,id:SpellId,amulets:Battle['amulets']){
  if(!Number.isFinite(quality)||quality<60)return 1;
@@ -180,6 +180,10 @@ function stormRain(state:Battle,time:number):Battle{
  }
  return{...state,enemies,firestorm:time+1e-9>=end?null:{...storm,nextTick}};
 }
+function startEruptionStun(enemy:Enemy,time:number):Enemy{
+ return {...enemy,eruptionStunPending:false,eruptionStunUntil:Math.max(enemy.eruptionStunUntil??0,time+ERUPTION_STUN_SECONDS)};
+}
+
 function advanceEruptions(state:Battle):Battle{
  if(!state.eruptionWarnings.length)return state;
  let enemies=state.enemies;
@@ -195,11 +199,11 @@ function advanceEruptions(state:Battle):Battle{
   if(target){
    const shield=updateShield(target.shield,started);
    const damage=spellDamage({...target,shield},quality,'eruption',damageBonus,upgrade,started);
-   enemies=enemies.map(e=>e.id!==target.id?e:{
-    ...e,hp:Math.max(0,e.hp-damage),hurtUntil:started+.25,attackAt:null,
-    shield:igniteShield(shield,'Fire',quality,started),
-    eruptionStunUntil:Math.max(e.eruptionStunUntil??0,started+ERUPTION_STUN_SECONDS),
-   });
+   const hp=Math.max(0,target.hp-damage);
+   const push=hp>0?extendEnemyKnockback(state,target,spellKnockback(quality,'eruption')):null;
+   const hit={...target,hp,push,hurtUntil:started+.25,attackAt:null,shield:igniteShield(shield,'Fire',quality,started)};
+   const knocked=hp===0?hit:push?{...hit,eruptionStunPending:true}:startEruptionStun(hit,state.time);
+   enemies=enemies.map(e=>e.id===target.id?knocked:e);
   }
   const {radiusX,radiusY,duration,damage}=magmaSize(quality,upgrade);
   magma.push({x,impactY,started,until:started+duration,nextTick:started+MAGMA_TICK_SECONDS,radiusX,radiusY,quality,damage:damage*damageBonus});
@@ -500,8 +504,9 @@ export function stepBattle(state:Battle,delta:number):Battle{
   if(old.hp<=0){if(old.kind==='mother'&&old.push){const p=old.push,t=Math.max(0,Math.min(1,(time-p.started)/(p.ends-p.started)));return {...old,x:p.from+(p.to-p.from)*(1-(1-t)**3),push:t>=1?null:p};}return old;}
   if(old.spawnAt>time+1e-9)return old;
   if(old.kind==='mother'){const index=ELEMENTS.indexOf(old.initialElement as Element);old={...old,element:ELEMENTS[(index+Math.floor((time+1e-9)/15))%3]};}
+  if(old.eruptionStunPending&&!old.push)old=startEruptionStun(old,state.time);
   // Only advance actions after arrival, status holds and crown-loss dialogue.
-  const actionDelta=Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.readyAt,old.goblinKing&&old.kingEnragedAt!==undefined?old.kingEnragedAt+GOBLIN_KING_DIALOGUE_MS/1000:0,old.rootUntil,old.stunUntil,old.eruptionStunUntil??0,old.shield?.burnUntil??0));
+  const actionDelta=old.eruptionStunPending?0:Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.readyAt,old.goblinKing&&old.kingEnragedAt!==undefined?old.kingEnragedAt+GOBLIN_KING_DIALOGUE_MS/1000:0,old.rootUntil,old.stunUntil,old.eruptionStunUntil??0,old.shield?.burnUntil??0));
   let e:Enemy={...old,leafSlows:old.leafSlows.filter(f=>f.until>time),shield:updateShield(old.shield,time),clock:old.clock+(frozen?0:actionDelta)};
   if(e.potionCurseTick!=null){while(e.potionCurseTick<=Math.min(time,e.potionCurseUntil)+1e-9&&e.hp>0){e.hp=Math.max(0,e.hp-3);e.hurtUntil=time+.15;e.potionCurseTick+=1;}if(time+1e-9>=e.potionCurseUntil)e.potionCurseTick=null;if(e.hp<=0){e.push=null;e.attackAt=null;return e;}}
   if(e.curseTick!==null){while(e.curseTick<=time+1e-9&&e.hp>0){e.hp=Math.max(0,e.hp-5);e.hurtUntil=time+.15;e.curseTick+=1;}if(e.hp<=0){e.push=null;e.attackAt=null;return e;}}
@@ -519,7 +524,16 @@ export function stepBattle(state:Battle,delta:number):Battle{
   const dialogueHold=Math.max(0,Math.min(time,dialogueEnd)-state.time);
   if(e.push&&dialogueHold>0)e.push={...e.push,started:e.push.started+dialogueHold,ends:e.push.ends+dialogueHold};
   if(time<dialogueEnd)return e;
-  if(e.push){const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));e.x=Math.max(e.x,p.from+(p.to-p.from)*(1-(1-t)**3));e.attackAt=null;if(t>=1)e.push=null;return e;}
+  if(e.push){
+   const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));
+   e.x=Math.max(e.x,p.from+(p.to-p.from)*(1-(1-t)**3));
+   e.attackAt=null;
+   if(t>=1){
+    e.push=null;
+    if(e.eruptionStunPending)e=startEruptionStun(e,p.ends);
+   }
+   return e;
+  }
   if(frozen||actionDelta<=1e-9)return e;
   const rush=eliteRush(e);const speed=e.goblinKing?SLIME_SPEED*.9*(kingHasCrown(e)?1:1.8):e.kind==='goblin'?(rush==='warning'?0:rush==='rush'?52:22):SLIME_SPEED*(e.kind==='spider'?2:e.rocky?.9:1);
   // Enemies engage the furthest-forward guardian they have not passed.

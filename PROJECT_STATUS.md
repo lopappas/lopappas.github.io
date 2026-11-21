@@ -13,7 +13,7 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.94-alpha): Eruption's warning follows the targeted enemy for 0.8 seconds. The eruption deals 1.5× Hearthspark’s base damage and stuns the target for one second. Magma covers all three lanes and slows enemies in it by 12%. At 80% quality magma lasts five seconds with four damage per half-second tick. Eruption+ deals 20% more direct damage, six damage per tick, and lasts one second longer across cast qualities. The symmetric volcano trace is 50% larger in combat and Practice. Eruption has a 10-second cooldown.
+Latest update (version 0.3.95-alpha): Eruption's warning follows the target for 0.8 seconds. On impact Eruption deals 1.5× Hearthspark’s base damage and pushes the enemy 10 units at any cast quality, followed by a one-second stun. Magma covers all three lanes, slows enemies by 12%, and lasts seven seconds at 80% quality with four damage per half-second tick. Eruption+ deals 20% more direct damage, six damage per tick, and adds 1.5 seconds to magma duration at every cast quality. The volcano trace is 50% larger in combat and Practice. Eruption has a 10-second cooldown.
 
 Cursed Twig targets the living, uncursed enemy with the most current health. At 80% quality its 15-second poison deals 150 damage, or 180 upgraded, regardless of elemental matchups. The spell has no cooldown and can curse the same enemy again after the poison expires. Both Act 1 bosses now offer a relic through the usual victory rewards.
 
