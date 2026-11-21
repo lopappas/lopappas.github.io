@@ -4,10 +4,14 @@ import type {Battle} from './battle.ts';
 import {GUARDIAN_SHOT_FLIGHT_SECONDS} from './guardian.ts';
 import type {Element,Spell} from './magic';
 
-export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp'|'rustle'|'twigSnap';
+export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp'|'rustle'|'twigSnap'|'snowmanJingle'|'eruptionBlast'|'sizzle';
 export type UISound='blackFlash'|'bottle'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
 export const UI_SOUND_VOLUME:Record<UISound,number>={blackFlash:.62,robes:.3,shatter:.38,bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
-const GUARDIAN_CUE_VOLUME={sporeShake:.21,lighterStrike:.23,snowballServe:.26};
+const LOOP_VOLUME={rain:.05,swamp:.08,sizzle:.065};
+type LoopKind=keyof typeof LOOP_VOLUME;
+const LOOP_KINDS=Object.keys(LOOP_VOLUME) as LoopKind[];
+type SpellAmbienceLevels={rain:number;swamp:number;sizzle?:number};
+const GUARDIAN_CUE_VOLUME={sporeShake:.13,lighterStrike:.23,snowballServe:.26};
 type GuardianCue=keyof typeof GUARDIAN_CUE_VOLUME;
 type SoundKind=CastSound|UISound|GuardianCue;
 
@@ -22,9 +26,12 @@ export function guardianAttackCues(before:Battle,after:Battle):GuardianCue[]{
  }
  return cues;
 }
+export function eruptionJustBurst(before:Battle,after:Battle){
+ return after.magma.some(pool=>!before.magma.some(previous=>previous.started===pool.started));
+}
 export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):CastSound{
  if(!spell)return 'fizzle';
- return ({torrent:'aquaspout',thistleBush:'rustle',toxicTwig:'twigSnap',firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
+ return ({snowman:'snowmanJingle',torrent:'aquaspout',thistleBush:'rustle',toxicTwig:'twigSnap',firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
 }
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}
@@ -33,21 +40,40 @@ export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quali
 export function soundSamples(kind:SoundKind):Float32Array{
  if(kind==='aquaspout')return soundSamples('water');
  if(kind==='bramble')return soundSamples('nature');
- const duration=kind==='sporeShake'?.24:kind==='lighterStrike'?.17:kind==='snowballServe'?.14:kind==='blackFlash'?.85:kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='twigSnap'?.18:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
+ const duration=kind==='sizzle'?2:kind==='snowmanJingle'?.5:kind==='eruptionBlast'?.52:kind==='sporeShake'?.19:kind==='lighterStrike'?.17:kind==='snowballServe'?.14:kind==='blackFlash'?.85:kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='twigSnap'?.18:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
  let samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
  let seed=19,low=0,rumble=0;
  const noise=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2147483648-1;};
  for(let i=0;i<samples.length;i++){
   const t=i/SOUND_RATE,u=t/duration;
-  const attack=Math.min(1,t/(kind==='twigSnap'||kind==='lighterStrike'||kind==='snowballServe'?.001:.012)),end=Math.min(1,(duration-t)/.04);
+  const attack=Math.min(1,t/(kind==='twigSnap'||kind==='lighterStrike'||kind==='snowballServe'||kind==='eruptionBlast'?.001:.012)),end=Math.min(1,(duration-t)/.04);
   const n=noise();low+=.12*(n-low);rumble+=.008*(low-rumble);
   let value=0;
   if(kind==='sporeShake'){
-   // Two quick maraca strokes, with a softer return stroke.
-   for(const [start,gain] of [[0,1],[.095,.65]]){
+   // A quiet sweep of fine grains with a short, softer return.
+   const grains=low*.75+(n-low)*.16;
+   for(const [start,length,gain] of [[0,.115,1],[.072,.09,.32]]){
     const age=t-start;
-    if(age>=0&&age<.1)value+=(n-low)*gain*Math.sin(Math.PI*age/.1)**2*(.7+.3*Math.sin(2*Math.PI*145*age));
+    if(age>=0&&age<length)value+=grains*gain*Math.sin(Math.PI*age/length)**2;
    }
+  }else if(kind==='snowmanJingle'){
+   // Small bells ring in quick succession with bright, inharmonic overtones.
+   for(const [start,pitch,gain] of [[0,1280,.65],[.045,1710,.46],[.10,1460,.58],[.15,1980,.4]]){
+    const age=t-start;
+    if(age>=0)value+=gain*Math.min(1,age/.003)*(
+     Math.sin(2*Math.PI*pitch*age)*Math.exp(-age*22)
+     +.37*Math.sin(2*Math.PI*pitch*1.63*age)*Math.exp(-age*37)
+     +.22*Math.sin(2*Math.PI*pitch*2.41*age)*Math.exp(-age*65));
+   }
+  }else if(kind==='sizzle'){
+   // A thin steam hiss with small, irregular crackles.
+   value=(n-low)*(.32+.09*Math.sin(t*61))+low*.18;
+   if(n>.94)value+=(n-.94)*4;
+  }else if(kind==='eruptionBlast'){
+   const boom=Math.sin(2*Math.PI*(105*t+2.2*(1-Math.exp(-t*30))));
+   value=boom*.68*Math.exp(-t*10)+rumble*3.8*Math.exp(-t*6)+(n-low)*.48*Math.exp(-t*32);
+   const debris=t-.065;
+   if(debris>0)value+=low*.9*Math.exp(-debris*13);
   }else if(kind==='lighterStrike'){
    const spark=t-.036;
    value=(n-low+Math.sin(2*Math.PI*2300*t)*.28)*Math.exp(-t*180);
@@ -153,11 +179,11 @@ export function soundSamples(kind:SoundKind):Float32Array{
   }else{
    value=(n*.45+Math.sin(2*Math.PI*(420*t-320*t*t))*.14)*Math.exp(-t*8);
   }
-  samples[i]=value*(kind==='rain'?1:attack*end);
+  samples[i]=value*(kind==='rain'||kind==='sizzle'?1:attack*end);
  }
  // Overlap the rain's tail and head with equal-power fades. The resulting
  // loop crosses into a contiguous noise sequence, without a silent seam.
- if(kind==='rain'){
+ if(kind==='rain'||kind==='sizzle'){
   const overlap=Math.round(SOUND_RATE*.2),length=samples.length-overlap,loop=new Float32Array(length);
   loop.set(samples.subarray(overlap,samples.length-overlap));
   for(let i=0;i<overlap;i++){
@@ -185,9 +211,9 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  let recycleOnGesture=false,needsWakeCycle=false,waking:AudioContext|null=null;
  const buffers=new Map<SoundKind,AudioBuffer>();
  const activeGains=new Map<GainNode,number>();
- const loops=new Map<'rain'|'swamp',{source:AudioBufferSourceNode;gain:GainNode;expiresAt:number;renewedAt:number;base:number}>();
+ const loops=new Map<LoopKind,{source:AudioBufferSourceNode;gain:GainNode;expiresAt:number;renewedAt:number;base:number}>();
  const ambienceLeaseSeconds=.5;
- function stopLoop(kind:'rain'|'swamp'){
+ function stopLoop(kind:LoopKind){
   const loop=loops.get(kind);if(!loop)return;
   loops.delete(kind);activeGains.delete(loop.gain);
   // Disconnect independently of stop/close promises: an interrupted mobile
@@ -197,12 +223,12 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   try{loop.source.disconnect();}catch{}
   try{loop.gain.disconnect();}catch{}
  }
- function stopAmbience(){for(const kind of ['rain','swamp'] as const)stopLoop(kind);}
+ function stopAmbience(){for(const kind of LOOP_KINDS)stopLoop(kind);}
 
- function setAmbience(levels:{rain:number;swamp:number}){
+ function setAmbience(levels:SpellAmbienceLevels){
   const ctx=context;if(!ctx)return;
-  for(const kind of ['rain','swamp'] as const){
-   const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind])):0)*(kind==='rain'?.05:.08);
+  for(const kind of LOOP_KINDS){
+   const base=(ctx.state==='running'&&visible()?Math.max(0,Math.min(1,levels[kind]??0)):0)*LOOP_VOLUME[kind];
    if(!base){stopLoop(kind);continue;}
    let loop=loops.get(kind);
    if(loop&&ctx.currentTime>=loop.expiresAt){stopLoop(kind);loop=undefined;}
@@ -277,7 +303,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   let buffer=buffers.get(kind);
   if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
   const source=ctx.createBufferSource(),gain=ctx.createGain();
-  source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in GUARDIAN_CUE_VOLUME?GUARDIAN_CUE_VOLUME[kind as GuardianCue]:kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='rustle'?.22:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
+  source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in GUARDIAN_CUE_VOLUME?GUARDIAN_CUE_VOLUME[kind as GuardianCue]:kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='eruptionBlast'?.30:kind==='snowmanJingle'?.26:kind==='rustle'?.22:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
   gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);
   source.connect(gain);gain.connect(ctx.destination);
   source.onended=()=>{activeGains.delete(gain);source.disconnect();gain.disconnect();};source.start();
@@ -297,7 +323,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
 const spellAudio=createSpellAudio();
 audioPreferences.subscribe(spellAudio.refreshVolume);
 export function stopSpellAmbience(){spellAudio.stopAmbience();}
-export function setSpellAmbience(levels:{rain:number;swamp:number}){spellAudio.setAmbience(levels);}
+export function setSpellAmbience(levels:SpellAmbienceLevels){spellAudio.setAmbience(levels);}
 export function unlockSpellAudio(){spellAudio.unlock();primeWritingMedia();}
 export function playSpellSound(kind:SoundKind,quality:number){spellAudio.play(kind,quality);}
 

@@ -45,9 +45,9 @@ test('reusing results applies each bonus from original scores without accumulati
  assert.equal(first.quality,Math.min(100,raw.quality+3));assert.equal(second.quality,Math.min(100,raw.quality+10));assert.equal(first.candidates,raw.candidates);assert.deepEqual(raw,snapshot);
 });
 test('spell details include every contender within the ambiguity margin and skip other results',()=>{
- const candidates=[70,68,64,63,30].map((quality,i)=>({spell:SPELLS[i],quality,error:0}));
+ const candidates=[70,70,64,63,30].map((quality,i)=>({spell:SPELLS[i],quality,error:[.12,.1,.09,.08,.2][i]}));
  const match=(count:number,offset=0)=>applyRecognitionBonus({spell:null,quality:0,reason:'',candidates:candidates.slice(-count).map(candidate=>({...candidate,quality:candidate.quality-offset}))},20);
- assert.deepEqual(ambiguousSpells(match(5)),SPELLS.slice(0,3));
+ assert.deepEqual(ambiguousSpells(match(5)),[SPELLS[1],SPELLS[0],SPELLS[2]]);
  assert.deepEqual(ambiguousSpells(match(2)),[]);
  assert.deepEqual(ambiguousSpells(match(2,55)),[]);
  assert.deepEqual(ambiguousSpells(recognize([])),[]);

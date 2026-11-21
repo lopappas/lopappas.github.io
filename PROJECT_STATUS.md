@@ -13,11 +13,13 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.97-alpha): Shroomy and Shroomy+ deal 8% more spore damage and slow enemies by an extra percentage point per stack. Shroomy has a maraca-style spore impact cue, Scorchy has a lighter click at launch, and Snowman has a tennis hit sound at launch. Belladora sits lower and behind Filadora in combat.
+Latest update (version 0.3.98-alpha): Cursed Twig bypasses wooden shields. Spell Details ranks ambiguous matches from most to least likely. Snowman’s trace has 30% longer arms, and Eruption’s trace is 30% thinner. Eruption sizzles while smoke rises and rumbles on impact. Snowman’s summon jingles, and Shroomy’s spores make a soft sand shake on impact.
+
+Shroomy and Shroomy+ deal 8% more spore damage and slow enemies by an extra percentage point per stack. Scorchy has a lighter click at launch, and Snowman has a tennis hit sound at launch. Belladora sits lower and behind Filadora in combat.
 
 Eruption's warning follows the target for 0.8 seconds. On impact Eruption deals 1.275× Hearthspark’s base damage and simultaneously pushes the enemy 10 units and stuns it. The stun lasts 0.6 seconds at Faint, 0.85 at Steady, and 1.15 at Beautiful or Wonderful. Magma covers all three lanes, slows enemies by 12%, and lasts seven seconds at 80% quality with four damage per half-second tick. Eruption+ deals 20% more direct damage, six damage per tick, and adds 1.5 seconds to magma duration at every cast quality. The volcano trace is 50% larger in combat and Practice. Eruption has a 12-second cooldown.
 
-Cursed Twig targets the living, uncursed enemy with the most current health. At 80% quality its 15-second poison deals 150 damage, or 180 upgraded, regardless of elemental matchups. The spell has no cooldown and can curse the same enemy again after the poison expires. Both Act 1 bosses now offer a relic through the usual victory rewards.
+Cursed Twig targets the living, uncursed enemy with the most current health. At 80% quality its 15-second poison deals 150 damage, or 180 upgraded, regardless of elemental matchups or wooden shields. The spell has no cooldown and can curse the same enemy again after the poison expires. Both Act 1 bosses now offer a relic through the usual victory rewards.
 
 Shroomy and Shroomy+ fire every 2.6 seconds. Shroomy uses its 0.3.82-alpha sprite. Shroomy fires from 240 units and Shroomy+ from 270. He stays planted ahead of Filadora with 15 HP. Spore damage is independent of Fire, Water, and Nature matchups.
 
@@ -49,7 +51,7 @@ Combat uses three fixed lanes with ground anchors at y=447, 475, and 503. Solo e
 
 At 80% cast quality, Snowman has 155 HP and 16 base Water damage per snowball, and Scorchy has 100 HP and 18 base Fire damage per fireball. The upgrades grant 185 HP and 17.6 base damage for Snowman+ and 120 HP and 20 base damage for Scorchy+ at 80% quality. Both summons move at 15.5 units per second, last at every cast quality until defeated, replaced, or combat ends, and inherit half the player's combined damage boost at cast time. Each has a 30-second cooldown and 250-unit travel limit. Both hold position and fire as soon as an enemy comes into their attack range. Snowman shoots every two seconds, and Scorchy shoots every 1.4 seconds, or every 1.2 seconds when upgraded, with 2–3 base knockback. Enemies hit guardians instantly on contact for 1.5× damage with a 1.5-second cooldown. The guardians stay in place when hit, and enemies can still take knockback.
 
-The developer panel's Spell details toggle sits beside Grant all spells. When enabled, an ambiguous fizzle briefly shows every known spell within the seven-point recognition margin. The toggle starts off on page load.
+The developer panel's Spell details toggle sits beside Grant all spells. When enabled, an ambiguous fizzle briefly shows every known spell within the seven-point recognition margin, ordered by score with shape error breaking ties. The toggle starts off on page load.
 
 Version 0.3.5: Cooldowns now appear at the canvas bottom-left in their existing badge style. New starts enter on the left and earlier cooldowns move right; wrapping preserves visibility. Full automated tests and production build pass in GitHub Actions. Phone review remains outstanding.
 

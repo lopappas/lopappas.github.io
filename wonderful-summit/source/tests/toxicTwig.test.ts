@@ -1,3 +1,4 @@
+import {woodenShield} from '../src/shields.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSpider,drinkPotion,launchSpell,newBattle,spellCooldownRemaining,spellDamage,spellKnockback,spellTarget,stepBattle,toxicTwigCastPreview,toxicTwigTotalDamage,type Battle} from '../src/battle.ts';
@@ -102,4 +103,17 @@ test('Cursed Twig ignores elemental matchups and respects rocky defense',()=>{
  const damage=toxicTwigTotalDamage({element:'Neutral'},60)*.75;
  const castAtSteady=launchSpell(battle,60,'#9bbe72','toxicTwig');
  assert.ok(Math.abs(1000-at(castAtSteady,15).enemies[0].hp-damage)<1e-5);
+});
+
+test('Cursed Twig bypasses intact and burning wooden shields in previews and actual ticks',()=>{
+ for(const burning of [false,true]){
+  const battle=field();
+  const shield={...woodenShield(),burnUntil:burning?2:null};
+  battle.enemies[0]={...battle.enemies[0],shield};
+  assert.equal(toxicTwigCastPreview(battle,80,0),150);
+  const cursed=at(cast(battle),1.5);
+  assert.equal(cursed.enemies[0].hp,994);
+  assert.deepEqual(cursed.enemies[0].shield,shield);
+  assert.equal(at(cursed,15).enemies[0].hp,850);
+ }
 });

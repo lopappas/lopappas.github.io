@@ -9,10 +9,13 @@ export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;c
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 export function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
 const snowmanCircles = [[50,25,16],[50,66,25]];
-const snowmanArms:Strokes=[
+const originalSnowmanArms:Strokes=[
  [{x:35,y:46},{x:21,y:32}],
  [{x:65,y:46},{x:79,y:32}],
 ];
+const snowmanArms=originalSnowmanArms.map(([base,tip])=>[
+ base,{x:Number((base.x+1.3*(tip.x-base.x)).toFixed(1)),y:Number((base.y+1.3*(tip.y-base.y)).toFixed(1))},
+]);
 const snowmanPath = [
  ...snowmanCircles.map(([x,y,r])=>`M${x} ${y-r} A${r} ${r} 0 1 1 ${x} ${y+r} A${r} ${r} 0 1 1 ${x} ${y-r} Z`),
  ...snowmanArms.map(([a,b])=>`M${a.x} ${a.y} L${b.x} ${b.y}`),
@@ -21,7 +24,8 @@ const circleStroke = (x:number,y:number,r:number)=>Array.from({length:97},(_,i)=
  const angle=i*Math.PI/48-Math.PI/2;
  return {x:x+r*Math.cos(angle),y:y+r*Math.sin(angle)};
 });
-const snowmanStrokes = [...snowmanCircles.map(([x,y,r])=>circleStroke(x,y,r)),...snowmanArms];
+const snowmanBodyStrokes=snowmanCircles.map(([x,y,r])=>circleStroke(x,y,r));
+const snowmanStrokes=[...snowmanBodyStrokes,...snowmanArms];
 
 const scorchyEye = (x:number):Point[]=>[{x,y:29},{x:x+11,y:45},{x:x-11,y:45},{x,y:29}];
 const scorchyMouth:Point[]=[{x:26,y:57},...Array.from({length:49},(_,i)=>{
@@ -59,7 +63,7 @@ export const SPELLS:Spell[]=[
  {id:'flameBlade',rarity:'Uncommon',name:'Flame Blade',element:'Fire',color:'#f0a068',description:'Swing a fiery sword 110 units ahead of you, damaging and pushing back every enemy in reach. Higher cast quality increases knockback. Cooldown: 8 seconds.',path:'M50 10 L57 62 L43 62 Z M28 62 L72 62 M50 62 L50 88',strokes:[[{x:50,y:10},{x:57,y:62},{x:43,y:62},{x:50,y:10}],[{x:28,y:62},{x:72,y:62}],[{x:50,y:62},{x:50,y:88}]]},
  {id:'puddleGuard',rarity:'Uncommon',name:'Puddle Guard',element:'Water',color:'#69c2d6',description:'Place a puddle 30 units ahead of you. The first enemy to step onto it bursts it, taking no damage and 54.74–273.7 base knockback depending on spell quality. Upgrading adds 20% knockback. Recasting replaces the puddle. Cooldown: 10 seconds.',path:'M6 55 C12 53 14 44 25 44 C37 44 37 56 50 56 C63 56 63 44 75 44 C86 44 88 53 94 55',strokes:[shape([6,55],[[12,53,14,44,25,44],[37,44,37,56,50,56],[63,56,63,44,75,44],[86,44,88,53,94,55]])]},
  {id:'thistleBush',rarity:'Uncommon',name:'Thistle Bush',element:'Nature',color:'#9bbe72',description:'Grow thorns 80–150 units ahead of you. Enemies touching them take low damage every 0.5 seconds. The bush lasts until it deals 40–205 total actual damage. Quality sets its range and damage budget; recasting replaces it. Upgrade: +0.4 damage per tick and +15% damage threshold. Cooldown: 15 seconds.',path:'M10 60 L23.333333 40 L36.666667 60 L50 40 L63.333333 60 L76.666667 40 L90 60',strokes:[[{x:10,y:60},{x:23.333333,y:40},{x:36.666667,y:60},{x:50,y:40},{x:63.333333,y:60},{x:76.666667,y:40},{x:90,y:60}]]},
- {id:'toxicTwig',rarity:'Uncommon',name:'Cursed Twig',element:'Nature',color:'#9bbe72',description:'Poison the uncursed enemy with the most current health. Damage increases every 1.5 seconds for 15 seconds and ignores elemental matchups. At 80% cast quality, Cursed Twig deals 150 total damage, or 180 when upgraded.',path:'M50 10 V90 M30 43 H70 M30 57 H70',strokes:[[{x:50,y:10},{x:50,y:90}],[{x:30,y:43},{x:70,y:43}],[{x:30,y:57},{x:70,y:57}]]},
+ {id:'toxicTwig',rarity:'Uncommon',name:'Cursed Twig',element:'Nature',color:'#9bbe72',description:'Poison the uncursed enemy with the most current health. Damage increases every 1.5 seconds for 15 seconds and ignores elemental matchups and wooden shields. At 80% cast quality, Cursed Twig deals 150 total damage, or 180 when upgraded.',path:'M50 10 V90 M30 43 H70 M30 57 H70',strokes:[[{x:50,y:10},{x:50,y:90}],[{x:30,y:43},{x:70,y:43}],[{x:30,y:57},{x:70,y:57}]]},
  {id:'sneakyVine',rarity:'Uncommon',name:'Sneaky Vine',element:'Nature',color:'#9bbe72',description:'A vine reaches from the right, grabs the furthest enemy from behind and drags them backwards with strong knockback. Ignores shield damage and knockback reductions. Deals 27 base damage at 60% accuracy. Cooldown: 12 seconds.',path:'M70 90 L70 30 C70 18.954 61.046 10 50 10 C38.954 10 30 18.954 30 30 L30 42',strokes:[[{x:70,y:90},{x:70,y:30},...shape([70,30],[[70,18.954,61.046,10,50,10],[38.954,10,30,18.954,30,30]]).slice(1),{x:30,y:42}]]},
  {id:'alchemize',rarity:'Legendary',name:'Alchemize',element:'Ancient',color:'#8b9099',description:'Create a random potion once per battle. Faint: non-healing common. Steady: 90% non-healing common, 10% rare. Beautiful: 75% common (including healing), 25% rare. Wonderful: guaranteed rare. Requires room in your purse. Cannot create Spell in a bottle. Upgrade: roll two potions, keeping only those that fit.',path:'M41 14 L59 14 L59 35.6 C77 41 86 52.7 84.2 66.2 C82.4 82.4 70.7 89.6 50 89.6 C29.3 89.6 17.6 82.4 15.8 66.2 C14 52.7 23 41 41 35.6 L41 14 Z M39.2 5 L60.8 5 L59 14 L41 14 L39.2 5 Z',strokes:[[{x:41,y:14},{x:59,y:14},...shape([59,35.6],[[77,41,86,52.7,84.2,66.2],[82.4,82.4,70.7,89.6,50,89.6],[29.3,89.6,17.6,82.4,15.8,66.2],[14,52.7,23,41,41,35.6]]),{x:41,y:14}],[{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14},{x:41,y:14},{x:39.2,y:5}]]},
  {id:'torrent',rarity:'Uncommon',name:'Torrent',element:'Water',color:'#69c2d6',description:'Rain large water orbs onto random enemy-accessible ground. Each splash deals Steady Dewdrop damage and knockback to nearby foes. Faint: 5 seconds. Steady: 8 seconds. Beautiful: 11 seconds. Wonderful: 14 seconds. One orb per second. Cooldown: 10 seconds.',path:'M50 90 C39 40 23 32 10 48 M50 90 C61 40 77 32 90 48',strokes:[shape([50,90],[[39,40,23,32,10,48]]),shape([50,90],[[61,40,77,32,90,48]])]},
@@ -73,6 +77,7 @@ export function damageUpgradeBonus(id:SpellId){return isGuardianSpell(id)?guardi
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
 // Recognition-only alternatives; spellbook art and perfect traces use SPELLS unchanged.
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
+ snowman:[[...snowmanBodyStrokes,...originalSnowmanArms]],
  bog:[SPELLS.find(s=>s.id==='bog')!.strokes.map((stroke,i)=>stroke.map(p=>i===1?{x:50+(p.x-50)*.8,y:50+(p.y-50)*.8}:{...p}))],
  bolt:[[[{x:53,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
  flameBlade:[SPELLS.find(s=>s.id==='flameBlade')!.strokes.map((stroke,i)=>stroke.map(p=>({x:i===1?50+(p.x-50)*1.2:p.x,y:i===2?62+(p.y-62)*1.2:p.y})))],
@@ -131,7 +136,8 @@ export function ambiguousSpells(result:RecognitionResult):Spell[]{
  const {spell,candidates}=result;
  if(spell||candidates.length<2||candidates[0].quality-candidates[1].quality>=RECOGNITION_MARGIN)return [];
  const topQuality=candidates[0].quality;
- return candidates.filter(candidate=>topQuality-candidate.quality<RECOGNITION_MARGIN).map(candidate=>candidate.spell);
+ return candidates.filter(candidate=>topQuality-candidate.quality<RECOGNITION_MARGIN)
+  .sort((a,b)=>b.quality-a.quality||a.error-b.error).map(candidate=>candidate.spell);
 }
 
 export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),accuracyBonus=0):RecognitionResult{

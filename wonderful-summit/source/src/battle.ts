@@ -101,15 +101,15 @@ export function amuletDamageMultiplier(quality:number,id:SpellId,amulets:Battle[
 function toxicTwigScale(quality:number,upgrade:number){
  return power(quality)/power(80)*(upgrade>=1?1+damageUpgradeBonus('toxicTwig'):1);
 }
-function toxicTwigTickDamage(target:SpellDamageTarget,poison:Pick<ToxicTwigPoison,'quality'|'scale'|'ticks'>,time:number){
+function toxicTwigTickDamage(target:SpellDamageTarget,poison:Pick<ToxicTwigPoison,'quality'|'scale'|'ticks'>){
  const damage=(6+2*poison.ticks)*poison.scale;
  return Math.round(1e6*damage*rockyDefense(!!target.rocky,poison.quality).damage
-  *shieldProtection(target.shield,time)*kingDamageMultiplier(target,poison.quality))/1e6;
+  *kingDamageMultiplier(target,poison.quality))/1e6;
 }
-export function toxicTwigTotalDamage(target:SpellDamageTarget,quality:number,bonus=1,upgrade=0,time=0){
+export function toxicTwigTotalDamage(target:SpellDamageTarget,quality:number,bonus=1,upgrade=0){
  const scale=toxicTwigScale(quality,upgrade)*bonus;
  let total=0;
- for(let ticks=0;ticks<TOXIC_TWIG_TICKS;ticks++)total+=toxicTwigTickDamage(target,{quality,scale,ticks},time);
+ for(let ticks=0;ticks<TOXIC_TWIG_TICKS;ticks++)total+=toxicTwigTickDamage(target,{quality,scale,ticks});
  return Math.round(total*1e6)/1e6;
 }
 function toxicTwigDamageBonus(state:Battle,quality:number,multiplier:number,inkUsed:number){
@@ -119,7 +119,7 @@ function toxicTwigDamageBonus(state:Battle,quality:number,multiplier:number,inkU
 export function toxicTwigCastPreview(state:Battle,quality:number,inkUsed:number){
  const target=spellTarget(state,'toxicTwig')??{element:'Neutral'};
  const bonus=toxicTwigDamageBonus(state,quality,releaseMultiplier(state,'toxicTwig'),inkUsed);
- return toxicTwigTotalDamage(target,quality,bonus,state.upgrades.toxicTwig??0,state.time);
+ return toxicTwigTotalDamage(target,quality,bonus,state.upgrades.toxicTwig??0);
 }
 export function firestormTickDamage(target:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>,quality:number,damageBonus=1,upgrade=0,multiplier=1,time=0){
  if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;
@@ -511,7 +511,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
    if(e.hp===0)return {...e,push:null,attackAt:null};
   }
   if(e.toxicTwig?.length){
-   e=advanceToxicTwig(e,time,old.shield);
+   e=advanceToxicTwig(e,time);
    if(e.hp===0)return {...e,push:null,attackAt:null};
   }
   // Hold knockback in place too; its remaining motion resumes after the line.
@@ -670,7 +670,7 @@ export function guardianCastDamageBonus(state:Battle,spellId:GuardianSpell,quali
 }
 
 function toxicTwigNextTick(poison:ToxicTwigPoison){return poison.started+(poison.ticks+1)*TOXIC_TWIG_INTERVAL;}
-function advanceToxicTwig(enemy:Enemy,time:number,shield:EnemyShield|null):Enemy{
+function advanceToxicTwig(enemy:Enemy,time:number):Enemy{
  const current=enemy.toxicTwig;
  if(!current?.some(poison=>toxicTwigNextTick(poison)<=time+1e-9))return enemy;
  const effects=current.map(poison=>({...poison}));
@@ -679,8 +679,7 @@ function advanceToxicTwig(enemy:Enemy,time:number,shield:EnemyShield|null):Enemy
   const due=effects.filter(poison=>poison.ticks<TOXIC_TWIG_TICKS&&toxicTwigNextTick(poison)<=time+1e-9)
    .sort((a,b)=>toxicTwigNextTick(a)-toxicTwigNextTick(b))[0];
   if(!due)break;
-  const tickAt=toxicTwigNextTick(due);
-  hp=Math.max(0,hp-toxicTwigTickDamage({...enemy,hp,shield},due,tickAt));
+  hp=Math.max(0,hp-toxicTwigTickDamage({...enemy,hp},due));
   due.ticks++;
  }
  return {...enemy,hp,hurtUntil:time+.15,toxicTwig:hp>0?effects.filter(poison=>poison.ticks<TOXIC_TWIG_TICKS):[]};

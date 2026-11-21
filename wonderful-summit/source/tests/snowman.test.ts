@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {CONTACT_X,drinkPotion,enemyY,fizzleSpell,hitWithSpell,launchSpell,newBattle,spellDamage,spellKnockback,stepBattle,ENEMY_BACK_X,type Battle} from '../src/battle.ts';
-import {recognize} from '../src/magic.ts';
+import {recognize,SPELL_VARIATIONS} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 import {guardianStats} from '../src/guardian.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
@@ -20,11 +20,12 @@ test('the Snowman lesson casts the new spell against the full recognition roster
  const match=recognize(lesson.paths);
  assert.equal(lesson.paths.length,4);
  assert.deepEqual(lesson.paths.slice(2),[
-  [{x:35,y:46},{x:21,y:32}],
-  [{x:65,y:46},{x:79,y:32}],
+  [{x:35,y:46},{x:16.8,y:27.8}],
+  [{x:65,y:46},{x:83.2,y:27.8}],
  ]);
  assert.equal(match.spell?.id,'snowman');
  assert.ok(match.quality>=80);
+ assert.equal(recognize(SPELL_VARIATIONS.snowman![0]).spell?.id,'snowman');
 });
 
 test('Snowman advances at 15.5 units per second and stops 250 units ahead',()=>{

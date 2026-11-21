@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.3.98-alpha',publishedAt:'2026-11-21T12:58:33Z',model:'GPT-6.2 Sol',changes:['Cursed Twig bypasses wooden shields. Spell Details ranks ambiguous matches from most to least likely.','Shroomy spores make a soft sand shake. Snowman’s summon jingles, and Eruption sizzles before its blast.','Snowman’s trace has 30% longer twig arms and Eruption’s trace is 30% thinner.']},
  {version:'0.3.97-alpha',publishedAt:'2026-11-21T12:37:05Z',model:'GPT-6.2 Sol',changes:['Shroomy deals 8% more spore damage and slows by 4% per stack, or 5% when upgraded.','Added attack sounds for Shroomy, Scorchy, and Snowman. Belladora sits lower and behind Filadora in combat.']},
  {version:'0.3.96-alpha',publishedAt:'2026-11-21T11:21:56Z',model:'GPT-6.2 Sol',changes:['Eruption has a 12-second cooldown and deals 15% less direct damage.','The stun starts with knockback and lasts 0.6 seconds at Faint, 0.85 at Steady, and 1.15 at Beautiful or Wonderful.']},
  {version:'0.3.95-alpha',publishedAt:'2026-11-21T10:51:24Z',model:'GPT-6.2 Sol',changes:['Eruption pushes its target 10 units at any cast quality before the one-second stun.','At 80% quality, magma lasts 7 seconds with Eruption and 8.5 seconds with Eruption+. Other cast qualities also gain duration.']},
