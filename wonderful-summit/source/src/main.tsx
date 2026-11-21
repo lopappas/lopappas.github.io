@@ -205,8 +205,36 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
  useEffect(()=>{if(practice?.infiniteInk||battle.unlimitedUntil>battle.time){inkRef.current=100;setInk(100);if(reloadTimer.current)clearTimeout(reloadTimer.current);reloadTimer.current=null;refillSession.current=null;setReload(false);}},[battle.unlimitedUntil,practice?.infiniteInk]);
  function pos(e:React.PointerEvent):Point{const r=canvasLayout.get();return{x:Math.max(0,Math.min(r.width,e.clientX-r.left)),y:Math.max(0,Math.min(r.height,e.clientY-r.top))};}
  function drawStart(e:React.PointerEvent<HTMLCanvasElement>){if(pausedRef.current||!canAct('draw')||battleRef.current.phase!=='active')return;if(!e.isPrimary||e.button!==0||statusRef.current.reload||statusRef.current.launch||statusRef.current.book||statusRef.current.help||hold.current||active.current!==null)return;e.preventDefault();if(inkRef.current<=0&&!unlimitedInk()){return;}canvasLayout.refresh();canvas.current!.setPointerCapture(e.pointerId);active.current=e.pointerId;strokes.current.push([pos(e)]);setHasDrawing(true);}
- function drawMove(e:React.PointerEvent<HTMLCanvasElement>){if(pausedRef.current||!canAct('draw')||active.current!==e.pointerId)return;e.preventDefault();const s=strokes.current.at(-1)!;const p=pos(e),last=s.at(-1)!;const r=canvasLayout.get();const rawCost=inkCost(last,p,Math.min(r.width,r.height))*(journey.relics.includes('feather')?.8:1);if(rawCost<.015)return;const cost=unlimitedInk()?0:rawCost;if(cost>inkRef.current){inkSpent.current+=inkRef.current;const f=inkRef.current/cost;s.push({x:last.x+(p.x-last.x)*f,y:last.y+(p.y-last.y)*f});inkRef.current=0;active.current=null;}else{inkSpent.current+=cost;s.push(p);inkRef.current-=cost;}drawingBatch.schedule(()=>{setInk(inkRef.current);paint();});const t2=tutorial2Ref.current;if(t2&&active.current===null&&inkRef.current<=0&&canAct('draw'))t2.onAction('draw',t2.token);}
- function drawEnd(e:React.PointerEvent<HTMLCanvasElement>,completed=false){if(active.current===e.pointerId){active.current=null;const t2=tutorial2Ref.current;if(completed&&canAct('draw')&&strokes.current.some(st=>st.length>1))t2?.onAction('draw',t2.token);}}
+ function drawMove(e:React.PointerEvent<HTMLCanvasElement>,completed=false){
+  if(pausedRef.current||!canAct('draw')||active.current!==e.pointerId)return;
+  e.preventDefault();
+  const stroke=strokes.current.at(-1)!;
+  const point=pos(e),last=stroke.at(-1)!,r=canvasLayout.get();
+  const rawCost=inkCost(last,point,Math.min(r.width,r.height))*(journey.relics.includes('feather')?.8:1);
+  if(rawCost===0||(!completed&&rawCost<.015))return;
+  const cost=unlimitedInk()?0:rawCost;
+  if(cost>inkRef.current){
+   inkSpent.current+=inkRef.current;
+   const fraction=inkRef.current/cost;
+   stroke.push({x:last.x+(point.x-last.x)*fraction,y:last.y+(point.y-last.y)*fraction});
+   inkRef.current=0;
+   active.current=null;
+  }else{
+   inkSpent.current+=cost;
+   stroke.push(point);
+   inkRef.current-=cost;
+  }
+  drawingBatch.schedule(()=>{setInk(inkRef.current);paint();});
+  const t2=tutorial2Ref.current;
+  if(!completed&&t2&&active.current===null&&inkRef.current<=0&&canAct('draw'))t2.onAction('draw',t2.token);
+ }
+ function drawEnd(e:React.PointerEvent<HTMLCanvasElement>,completed=false){
+  if(active.current!==e.pointerId)return;
+  if(completed)drawMove(e,true);
+  active.current=null;
+  const t2=tutorial2Ref.current;
+  if(completed&&canAct('draw')&&strokes.current.some(st=>st.length>1))t2?.onAction('draw',t2.token);
+ }
  function cast(){if(pausedRef.current||!canAct('cast')||battleRef.current.phase!=='active'){cancelCharge();return;}hold.current=null;setCharge(0);const t2=tutorial2Ref.current;const castToken=t2?.token;const rawMatch=recognize(strokes.current,journey.spells);const rawQuality=rawMatch.quality;const recognized=applyRecognitionBonus(rawMatch,relicAccuracyBonus(battleRef.current,rawQuality));
  const match=t2?.scriptedDrawing?recognized:gradeDrawnCast(recognized);
  const block=spellCastBlockReason(battleRef.current,match.spell?.id);if(block){if(block==='Your purse is full')notifyPotionsFull();setCastBlockMessage(block);setCooldownNotice(n=>n+1);return;}if(match.spell&&spellCooldownRemaining(battleRef.current,match.spell.id)>0){const spellId=match.spell.id;const serial=++cooldownFeedbackSerial.current;setCooldownFeedback({spellId,serial});setCastBlockMessage('The spell is on cooldown');setCooldownNotice(n=>n+1);return;}setCooldownFeedback(null);setCooldownNotice(0);setStaleCast(false);setStaleNotice(0);

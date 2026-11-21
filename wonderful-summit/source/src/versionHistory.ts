@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.4.12-alpha',publishedAt:'2026-11-21T21:51:52Z',model:'GPT-6.2 Sol',changes:['The spell canvas records the end of each stroke when you lift your finger or release the mouse.']},
  {version:'0.4.11-alpha',publishedAt:'2026-11-21T21:41:19Z',model:'GPT-6.2 Sol',changes:['Cursed Twig uses its original three-stroke scoring shape.']},
  {version:'0.4.10-alpha',publishedAt:'2026-11-21T21:31:20Z',model:'GPT-6.2 Sol',changes:['Cursed Twig is more forgiving of slightly crooked or misplaced lines. You can draw its two bars in one stroke by connecting them at either end.']},
  {version:'0.4.09-alpha',publishedAt:'2026-11-21T21:18:30Z',model:'GPT-6.2 Sol',changes:['Successful drawn spells recover 15% of missed quality points, up to 5 points. The boost affects grade and spell power.']},
