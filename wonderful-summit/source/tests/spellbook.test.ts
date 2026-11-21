@@ -33,6 +33,7 @@ test('upgrade previews preserve the campsite choice until confirmation and match
     const frames=spell.id==='shroomy'?130:30;
     for(let i=0;i<frames;i++)hit=stepBattle(hit,.01);
    }
+   if(spell.id==='toxicTwig')for(let i=0;i<150;i++)hit=stepBattle(hit,.1);
    assert.ok(Math.abs(battle.enemies[0].hp-hit.enemies[0].hp-expected)<1e-8);
   }
   assert.ok(preview.knockback?preview.nextKnockback>preview.currentKnockback:preview.nextDamage>preview.currentDamage);

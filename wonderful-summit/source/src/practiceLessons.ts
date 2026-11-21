@@ -18,6 +18,7 @@ export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
  constellation:'Draw one continuous stroke from the top down. Loop left, cross the stem, then sweep out to the right.',
  alchemize:'Draw the bottle from the top left counterclockwise. For the cork, start at the bottom left, draw up the left side, across the top, then down the right side. Do not draw the bottom.',
  puddleGuard:'Draw it from left to right.',flameBlade:'Draw the horizontal line, then the vertical. Finally, draw the blade from the bottom left corner, going clockwise, stopping at the bottom right. Do not redraw the horizontal blade base.',
+ toxicTwig:'Draw the long line from top to bottom. Cross the middle with two short horizontal strokes, one above the other.',
  thistleBush:'Draw it from left to right.',sneakyVine:'Start at the bottom right of the shape and finish drawing it.',
 };
 export function practiceLesson(id:SpellId){

@@ -24,7 +24,7 @@ test('Black Flash uses strict 1/10 odds then chains at strict 1/3 odds until a m
 });
 test('only direct damage plus knockback spells roll; other spells and fizzles preserve a chain',()=>{
  const b={...field(),blackFlash:{enabled:true,chain:true}};
- for(const id of ['bog','firestorm','thistleBush','puddleGuard','chronos','alchemize','ender','snowman','scorchy','shroomy'] as const){const result=rollBlackFlash(b,id,80,()=>{throw Error('ineligible spell rolled');});assert.equal(result.state,b);assert.equal(result.multiplier,1);}
+ for(const id of ['bog','firestorm','thistleBush','puddleGuard','chronos','alchemize','ender','snowman','scorchy','shroomy','toxicTwig'] as const){const result=rollBlackFlash(b,id,80,()=>{throw Error('ineligible spell rolled');});assert.equal(result.state,b);assert.equal(result.multiplier,1);}
  assert.equal(rollBlackFlash(b,'water',47,()=>{throw Error('fizzle rolled');}).state,b);
  assert.equal(fizzleSpell(b).blackFlash.chain,true);
  const disabled={...b,blackFlash:{enabled:false,chain:false}};assert.equal(rollBlackFlash(disabled,'water',80,()=>{throw Error('unowned relic rolled');}).state,disabled);

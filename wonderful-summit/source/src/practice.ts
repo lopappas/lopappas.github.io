@@ -25,6 +25,7 @@ export function stepPracticeBattle(battle:Battle,delta:number,mobile:boolean,dir
 export function practiceEffects(battle:Battle){
  const e=battle.enemies[0],now=battle.time,out:string[]=[];
  if(e.potionCurseTick!=null)out.push('Cursed · 3 damage / second');
+ if(e.toxicTwig?.length)out.push(`Toxic Twig · ${e.toxicTwig.length} active`);
  if(e.spores?.length)out.push(`Spores · ${e.spores.length}/2 stacks`);
  if(e.burn)out.push(`Burning · ${e.burn.ticks} ticks`);
  const slow=spellSlow(battle,e,now);

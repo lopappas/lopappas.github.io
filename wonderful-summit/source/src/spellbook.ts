@@ -4,7 +4,7 @@ import {constellationBonus} from './constellation.ts';
 import {MIN_CAST_QUALITY} from './quality.ts';
 import {guardianAttackInterval,guardianAttackRange,guardianBoostMultiplier,guardianKnockback,guardianStats,isGuardianSpell,shroomySporeSlow} from './guardian.ts';
 import {thistleStats} from './nearSpells.ts';
-import {shroomyTickDamage,spellDamage,spellKnockback} from './battle.ts';
+import {toxicTwigTotalDamage,shroomyTickDamage,spellDamage,spellKnockback} from './battle.ts';
 
 const ELEMENT_ORDER:Element[]=['Water','Fire','Nature','Ancient'];
 const BEGINNERS=new Set<SpellId>(['water','fire','nature']);
@@ -26,6 +26,9 @@ export function spellUpgradePreview(spellId:SpellId,level=0,damageBonus=1){
  const sporeSlow=spellId==='shroomy'?{current:shroomySporeSlow(level)*100,next:shroomySporeSlow(level+1)*100}:null;
  const damageBonusPercent=Math.round(damageUpgradeBonus(spellId)*1000)/10;
  const previewDamageBonus=isGuardianSpell(spellId)?guardianBoostMultiplier(damageBonus):damageBonus;
+ const previewDamage=(upgrade:number)=>spellId==='toxicTwig'?toxicTwigTotalDamage({element:'Neutral'},60,previewDamageBonus,upgrade)
+  :spellId==='shroomy'?shroomyTickDamage({element:'Neutral'},60,previewDamageBonus,upgrade)
+  :spellDamage({element:'Neutral'},60,spellId,previewDamageBonus,upgrade);
  const constellation=spellId==='constellation'?{current:constellationBonus(60,level),next:constellationBonus(60,level+1)}:null;
- return{constellation,sporeSlow,guardianHealth,guardianRange,guardianKnockback:guardianPush,shotInterval,alchemy:spellId==='alchemize',leaf:spellId==='leaf',currentThreshold:thistleStats(60,level).budget,nextThreshold:thistleStats(60,level+1).budget,knockback,currentKnockback:spellKnockback(60,spellId,1,'Neutral',false,null,0,level),nextKnockback:spellKnockback(60,spellId,1,'Neutral',false,null,0,level+1),thistle:spellId==='thistleBush',bog:spellId==='bog',firestorm:spellId==='firestorm',currentTick:firestormBaseDamage(level),nextTick:firestormBaseDamage(level+1),duration,currentName:spellName(spellId,level),nextName:spellName(spellId,level+1),currentBonus:level*(knockback?20:duration?12:damageBonusPercent),nextBonus:(level+1)*(knockback?20:duration?12:damageBonusPercent),currentDamage:spellId==='shroomy'?shroomyTickDamage({element:'Neutral'},60,previewDamageBonus,level):spellDamage({element:'Neutral'},60,spellId,previewDamageBonus,level),nextDamage:spellId==='shroomy'?shroomyTickDamage({element:'Neutral'},60,previewDamageBonus,level+1):spellDamage({element:'Neutral'},60,spellId,previewDamageBonus,level+1)};
+ return{constellation,sporeSlow,guardianHealth,guardianRange,guardianKnockback:guardianPush,shotInterval,alchemy:spellId==='alchemize',leaf:spellId==='leaf',currentThreshold:thistleStats(60,level).budget,nextThreshold:thistleStats(60,level+1).budget,knockback,currentKnockback:spellKnockback(60,spellId,1,'Neutral',false,null,0,level),nextKnockback:spellKnockback(60,spellId,1,'Neutral',false,null,0,level+1),thistle:spellId==='thistleBush',bog:spellId==='bog',firestorm:spellId==='firestorm',currentTick:firestormBaseDamage(level),nextTick:firestormBaseDamage(level+1),duration,currentName:spellName(spellId,level),nextName:spellName(spellId,level+1),currentBonus:level*(knockback?20:duration?12:damageBonusPercent),nextBonus:(level+1)*(knockback?20:duration?12:damageBonusPercent),currentDamage:previewDamage(level),nextDamage:previewDamage(level+1)};
 }

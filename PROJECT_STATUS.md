@@ -13,7 +13,9 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.86-alpha): Shroomy and Shroomy+ deal 12% more spore damage at every cast quality and fire every 2.6 seconds. Shroomy uses its 0.3.82-alpha sprite. Shroomy fires from 240 units and Shroomy+ from 270. He stays planted ahead of Filadora with 15 HP. Spore damage is independent of Fire, Water, and Nature matchups.
+Latest update (version 0.3.90-alpha): Toxic Twig is an Uncommon Nature spell with a vertical line crossed by an equal sign. It poisons the living enemy with the most current health. The poison ticks every 1.5 seconds for 15 seconds with rising damage. At 80% quality it deals 150 total damage to a neutral target, or 180 with the upgrade. It has an eight-second cooldown, and overlapping casts run independently.
+
+Shroomy and Shroomy+ deal 12% more spore damage at every cast quality and fire every 2.6 seconds. Shroomy uses its 0.3.82-alpha sprite. Shroomy fires from 240 units and Shroomy+ from 270. He stays planted ahead of Filadora with 15 HP. Spore damage is independent of Fire, Water, and Nature matchups.
 
 Shroomy uses a two-stroke mushroom sigil with a wide cap and rounded stem. It prefers unspored enemies and waits when all targets have two stacks. Each stack ticks once per second for 10 seconds and slows by 3%, or 4% with Shroomy+. Snaily boosts other slows independently. At 80% quality a stack deals 2.90304 base damage per second. Shroomy inherits half of spell damage boosts, has a 30-second cooldown, and gains 10% spore damage when upgraded. A second stack doubles the orbiting particles.
 
