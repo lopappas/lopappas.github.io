@@ -95,6 +95,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
  const angle=i*Math.PI*2/24,reach=35+(i%4)*12;
  return <g key={i} className="robes-glitter" style={{'--glitter-x':`${Math.cos(angle)*reach}px`,'--glitter-y':`${Math.sin(angle)*reach*.85}px`,'--glitter-delay':`${i%4*25}ms`} as React.CSSProperties}><path d="M0-4 1-1 4 0 1 1 0 4-1 1-4 0-1-1Z" fill="#fff" transform={`translate(${Math.cos(angle)*12} ${Math.sin(angle)*18}) scale(${.65+i%3*.22})`}/></g>;
 })}</g>}
+{companion&&<g className="purse" transform="translate(173 419) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
 <g key={battle.playerHits} className={battle.playerHits?'fila-recoil':''}><g className="fila" data-tutorial2-speaker="fila" shapeRendering="crispEdges" transform={`translate(190 ${FILA_ART_Y}) scale(${FILA_ART_SCALE})`} aria-label="Fila, a little pixel witch holding a paintbrush">
 {battle.rejectionUntil>battle.time&&<path d="M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z" fill="#fff" stroke="#fff" strokeWidth="3" opacity=".65" className="rejection-aura"/>}
 <FilaBody/>
@@ -102,7 +103,6 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
 <SnowmanArt battle={battle}/>
 <ScorchyArt battle={battle}/>
 <ShroomyArt battle={battle}/>
-{companion&&<g className="purse" transform="translate(152 395) scale(1.18)"><g className={enemyEntrance&&battle.enemies[0].kind==='goblin'?undefined:'t2-companion-arrival'} style={{animationPlayState:companionPaused?'paused':'running'}}><PetPurse expanded={purseExpanded} sad={sad||battle.phase==='defeat'}/></g></g>}
 {enemies.map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=grouped?null:enemyStatusLabel(e,battle),color=colorForEnemy(e),guardianAttackAge=battle.time-(e.guardianHitAt??-Infinity),guardianAttack=guardianAttackAge<GUARDIAN_CONTACT_ANIMATION_SECONDS;return <g key={e.id} transform={`translate(${e.x} ${enemyArtY(e,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':!showSpellDetails?'Enemy':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
 <ellipse cy={enemyFootOffset(e)} rx={e.kind==='mother'?72:e.goblinKing?59.8:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<g transform={e.goblinKing?`translate(0 ${-24+kingUIOffset})`:undefined}><TargetCaret element={e.element} mother={e.kind==='mother'||!!e.goblinKing}/></g>}

@@ -4,6 +4,7 @@ import {CONTACT_X,launchSpell,newBattle,shroomyTickDamage,spellCooldownRemaining
 import {GUARDIAN_SPEED,guardianStats} from '../src/guardian.ts';
 import {recognize} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
+import {guardianAttackCues,soundSamples} from '../src/sound.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
 
 function field(...positions:number[]){
@@ -29,13 +30,13 @@ test('the mushroom lesson scores against the full catalog and Shroomy has 15 HP 
  const match=recognize(drawing);
  assert.equal(match.spell?.id,'shroomy');
  assert.ok(match.quality>=98);
- for(const [quality,tick] of [[45,1.161216],[60,1.741824],[80,2.90304],[100,4.064256]]){
+ for(const [quality,tick] of [[45,1.254113],[60,1.881170],[80,3.135283],[100,4.389396]]){
   assert.equal(guardianStats('shroomy',quality).hp,15);
   assert.equal(guardianStats('shroomy',quality,1).hp,15);
   assert.equal(shroomyTickDamage({element:'Neutral'},quality),tick);
   assert.ok(Math.abs(shroomyTickDamage({element:'Neutral'},quality,1,1)-tick*1.1)<1e-6);
  }
- assert.equal(spellUpgradePreview('shroomy')?.nextDamage,1.916006);
+ assert.equal(spellUpgradePreview('shroomy')?.nextDamage,2.069287);
  assert.deepEqual(spellUpgradePreview('shroomy')?.guardianRange,{current:240,next:270});
 });
 
@@ -55,9 +56,9 @@ test('at 240 units a spore lands without damage or knockback and ticks exactly t
  assert.equal(enemy.spores?.length,1);
  const alone={...planted,shroomy:null};
  assert.equal(at(alone,1.329).enemies[0].hp,200);
- assert.equal(at(alone,1.33).enemies[0].hp,197.09696);
+ assert.equal(at(alone,1.33).enemies[0].hp,196.864717);
  const finished=at(alone,10.33);
- assert.ok(Math.abs(finished.enemies[0].hp-170.9696)<1e-9);
+ assert.ok(Math.abs(finished.enemies[0].hp-168.64717)<1e-9);
  assert.deepEqual(finished.enemies[0].spores,[]);
  assert.equal(at(finished,13).enemies[0].hp,finished.enemies[0].hp);
  assert.equal(planted.enemies[0].spores?.[0].ticks,10);
@@ -108,14 +109,14 @@ test('spore ticks ignore elemental matchups and snapshot half the player damage 
   fresh.enemies[0].element=element;
   const battle=at(cast(fresh),1.33);
   assert.equal(battle.shroomy?.damageBonus,1.6);
-  assert.equal(battle.enemies[0].hp,195.355136);
-  assert.equal(shroomyTickDamage({element},80),2.90304);
-  assert.equal(shroomyTickDamage({element},80,1,1),3.193344);
+  assert.equal(battle.enemies[0].hp,194.983547);
+  assert.equal(shroomyTickDamage({element},80),3.135283);
+  assert.equal(shroomyTickDamage({element},80,1,1),3.448812);
  }
 });
 
 test('spore slows stack on impact, expire independently and stay independent of Snaily',()=>{
- for(const [upgrade,slow] of [[0,.03],[1,.04]]){
+ for(const [upgrade,slow] of [[0,.04],[1,.05]]){
   const fresh=cast({...field(CONTACT_X+140),snaily:true,upgrades:{shroomy:upgrade}});
   const first=at(fresh,.33);
   const both=at(first,3.1);
@@ -133,5 +134,20 @@ test('spore slows stack on impact, expire independently and stay independent of 
   const expired=at(oneLeft,lastSpore.nextTick+lastSpore.ticks-1);
   assert.equal(spellSlow(expired,expired.enemies[0],expired.time),0);
  }
- assert.deepEqual(spellUpgradePreview('shroomy')?.sporeSlow,{current:3,next:4});
+ assert.deepEqual(spellUpgradePreview('shroomy')?.sporeSlow,{current:4,next:5});
+});
+
+test('guardian audio plays once at launch for Scorchy and Snowman and on spore impact for Shroomy',()=>{
+ const fresh=cast(launchSpell(launchSpell(field(CONTACT_X+22),80,'#fff','scorchy'),80,'#fff','snowman'));
+ const launched=at(fresh,.05);
+ assert.deepEqual(guardianAttackCues(fresh,launched),['lighterStrike','snowballServe']);
+ const airborne=at(launched,.2);
+ assert.deepEqual(guardianAttackCues(launched,airborne),[]);
+ const impact=at(airborne,.33);
+ assert.deepEqual(guardianAttackCues(airborne,impact),['sporeShake']);
+ assert.deepEqual(guardianAttackCues(impact,at(impact,.4)),[]);
+ for(const cue of ['lighterStrike','snowballServe','sporeShake'] as const){
+  const samples=soundSamples(cue);
+  assert.ok(samples.every(Number.isFinite)&&samples.some(value=>Math.abs(value)>.1));
+ }
 });
