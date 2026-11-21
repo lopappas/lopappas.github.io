@@ -13,7 +13,9 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.98-alpha): Cursed Twig bypasses wooden shields. Spell Details ranks ambiguous matches from most to least likely. Snowman’s trace has 30% longer arms, and Eruption’s trace is 30% thinner. Eruption sizzles while smoke rises and rumbles on impact. Snowman’s summon jingles, and Shroomy’s spores make a soft sand shake on impact.
+Latest update (version 0.3.99-alpha): Puddle Guard bubbles rapidly and deals 1–5 base damage on its first contact. Thistle Bush slows enemies within reach by 10%. Eruption has a heavier blast, Snowman uses its original Water cast sound, and Alchemize has a potion collection chime. Constellation plays a confetti pop at burst and forms Filadora’s hat. The stat popup begins fading when the hat starts dimming.
+
+Cursed Twig bypasses wooden shields. Spell Details ranks ambiguous matches from most to least likely. Snowman’s trace has 30% longer arms, and Eruption’s trace is 30% thinner. Eruption sizzles while smoke rises and rumbles on impact. Shroomy’s spores make a soft sand shake on impact.
 
 Shroomy and Shroomy+ deal 8% more spore damage and slow enemies by an extra percentage point per stack. Scorchy has a lighter click at launch, and Snowman has a tennis hit sound at launch. Belladora sits lower and behind Filadora in combat.
 

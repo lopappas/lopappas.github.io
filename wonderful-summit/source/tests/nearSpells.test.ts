@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,SPELL_VARIATIONS,recognize,knockback,type SpellId} from '../src/magic.ts';
 import {nearDamage,nearKnockback,thistleStats} from '../src/nearSpells.ts';
-import {newBattle,launchSpell,stepBattle,spellDamage,spellKnockback,hitWithSpell,drinkPotion,CONTACT_X,ENEMY_BACK_X,type Battle} from '../src/battle.ts';
+import {newBattle,launchSpell,stepBattle,spellDamage,spellKnockback,spellSlow,hitWithSpell,drinkPotion,CONTACT_X,ENEMY_BACK_X,type Battle} from '../src/battle.ts';
 import {rollSpellOffers,newRun,enterNode,finishBattle,battleForRun,camp,spellPrice} from '../src/run.ts';
 import {newPracticeBattle,practiceJourney,restoreScarecrow,stepPracticeBattle,practiceDamage} from '../src/practice.ts';
 import {spellbookColumns,spellUpgradePreview} from '../src/spellbook.ts';
@@ -33,7 +33,7 @@ test('Flame Blade hits every present enemy within 110 units exactly once, withou
 test('Puddle Guard persists, triggers only the first walking enemy, launches it, and then disappears',()=>{
  let b=launchSpell(field([400,400]),100,'#fff','puddleGuard');assert.equal(b.puddle!.x,CONTACT_X+30);assert.equal(advance(b,20).enemies[0].hp,10000);
  b={...b,approachAt:0,enemies:b.enemies.map(e=>({...e,x:365.1}))};b=advance(b,.1);
- assert.equal(b.puddle,null);assert.ok(b.puddleBurst);assert.equal(b.enemies[0].hp,10000);assert.equal(b.enemies[1].hp,10000);assert.ok(Math.abs(b.enemies[0].push!.to-b.enemies[0].push!.from-273.7)<1e-8);
+ assert.equal(b.puddle,null);assert.ok(b.puddleBurst);assert.equal(b.enemies[0].hp,9995);assert.equal(b.enemies[1].hp,10000);assert.ok(Math.abs(b.enemies[0].push!.to-b.enemies[0].push!.from-273.7)<1e-8);
  assert.equal(b.casts,1);assert.equal(advance(b,.5).enemies[1].hp,10000);
 });
 test('Thistle Bush ticks every half second, counts actual damage across enemies, and has no knockback',()=>{
@@ -59,8 +59,8 @@ test('ground spells snapshot upgrades/relic multipliers and stale casts, and pau
 });
 test('all new spells retain elemental, rocky and shield defenses and upgrade damage scaling',()=>{
  for(const id of ids)for(const q of [45,60,70,100]){
-  const base=nearDamage(id,q),precision=id==='thistleBush'?1e6:1;
-  assert.equal(spellDamage({element:'Neutral'},q,id,1,1),Math.round((id==='thistleBush'?base+.4:base*1.15)*precision)/precision);
+  const base=nearDamage(id,q),precision=id==='flameBlade'?1:1e6;
+  assert.equal(spellDamage({element:'Neutral'},q,id,1,1),Math.round((id==='thistleBush'?base+.4:id==='puddleGuard'?base:base*1.15)*precision)/precision);
   const rock=q<60?.5:q<70?.75:1;
   assert.equal(spellDamage({element:'Neutral',rocky:true},q,id),Math.round(base*rock*precision)/precision);
   assert.equal(spellKnockback(q,id,1,'Neutral',true),nearKnockback(id,q)*(q<60?0:rock));
@@ -87,7 +87,7 @@ test('new spells are learnable, sold, upgraded and grouped by element in book or
 test('near-distance practice makes melee and placed spells reachable without changing the journey',()=>{
  for(const id of ids){let b=restoreScarecrow(newPracticeBattle(practiceJourney()),false,true);b=launchSpell(b,100,'#fff',id);let damage=practiceDamage(b);b=restoreScarecrow(b,false,true);
   for(let i=0;i<60;i++){b=stepPracticeBattle(b,.01,false,-1,true).battle;damage+=practiceDamage(b);b=restoreScarecrow(b,false,true);}
-  assert.ok(id==='puddleGuard'?damage===0&&b.puddle===null:damage>0,id);assert.equal(b.enemies[0].x,355);assert.equal(b.playerHP,100);
+  assert.ok(damage>0,id);if(id==='puddleGuard')assert.equal(b.puddle,null);assert.equal(b.enemies[0].x,355);assert.equal(b.playerHP,100);
  }
 });
 
@@ -128,19 +128,33 @@ test('Flame Blade and Thistle Bush balance applies before upgrades and resistanc
  }
 });
 
-test('Puddle Guard deals zero damage even with upgrades and offensive relic bonuses',()=>{
- for(const q of [45,59,60,69,70,79,80,100]){
-  let b=field([355]);b.damageBonus=99;b.furyReady=true;b.lotus=true;b.lotusReady=true;b.midnightStone=true;b.amulets={sun:true,moon:true,twilight:true};b.upgrades.puddleGuard=1;
-  b=launchSpell(b,q,'#fff','puddleGuard',100);assert.equal(b.lotusReady,true);
-  b=advance(b,.01);assert.equal(b.enemies[0].hp,10000);assert.equal(b.enemies[0].burn,null);assert.ok(b.enemies[0].push);
+test('Puddle Guard deals low damage that rises with quality, and its upgrade adds only knockback',()=>{
+ for(const [quality,damage] of [[45,1],[59,1.5],[60,2],[69,2.5],[70,3],[79,3.5],[80,4],[100,5]]){
+  for(const upgrade of [0,1]){
+   let b=field([355]);b.upgrades.puddleGuard=upgrade;
+   b=advance(launchSpell(b,quality,'#fff','puddleGuard'),.01);
+   assert.equal(b.enemies[0].hp,10000-damage);
+   assert.equal(b.enemies[0].burn,null);
+   assert.ok(b.enemies[0].push);
+  }
  }
 });
+
+test('Thistle Bush slows enemies within its range by 10% at every grade and never slows outside',()=>{
+ for(const q of [45,60,70,80,100]){
+  const battle=launchSpell(field([370,570]),q,'#fff','thistleBush');
+  assert.equal(spellSlow(battle,battle.enemies[0],battle.time),.1);
+  assert.equal(spellSlow(battle,battle.enemies[1],battle.time),0);
+  assert.equal(spellSlow({...battle,thistle:null},battle.enemies[0],battle.time),0);
+ }
+});
+
 test('Puddle upgrade snapshots a 20 percent knockback bonus and Flame Blade reaches only 110 units',()=>{
  for(const q of [45,60,70,100]){
   let b=field([355]);b.upgrades.puddleGuard=1;b=launchSpell(b,q,'#fff','puddleGuard');b.upgrades={};b=advance(b,.01);
   assert.ok(Math.abs(b.enemies[0].push!.to-Math.min(ENEMY_BACK_X,355+nearKnockback('puddleGuard',q)*1.2))<1e-8);
  }
- const preview=spellUpgradePreview('puddleGuard')!;assert.equal(preview.knockback,true);assert.equal(preview.nextBonus,20);assert.equal(preview.currentDamage,0);assert.equal(preview.nextDamage,0);assert.ok(Math.abs(preview.nextKnockback-preview.currentKnockback*1.2)<1e-8);
+ const preview=spellUpgradePreview('puddleGuard')!;assert.equal(preview.knockback,true);assert.equal(preview.nextBonus,20);assert.equal(preview.currentDamage,2);assert.equal(preview.nextDamage,2);assert.ok(Math.abs(preview.nextKnockback-preview.currentKnockback*1.2)<1e-8);
  const blade=launchSpell(field([435,435.01,600]),100,'#fff','flameBlade');assert.ok(blade.enemies[0].hp<10000);assert.equal(blade.enemies[1].hp,10000);
 });
 

@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {newBattle,launchSpell,projectilePosition,stepBattle} from '../src/battle.ts';
-import {eruptionJustBurst,soundSamples,spellCastSound} from '../src/sound.ts';
+import {eruptionJustBurst,soundSamples} from '../src/sound.ts';
 import {spellAmbience,shouldPlaySpellArrival} from '../src/spellAmbience.ts';
 test('rain starts at rainfall, swamp starts on arrival, fades match the visual endings and combat pauses stop both',()=>{
  let b=launchSpell(newBattle('active'),60,'#fff','firestorm');b=launchSpell(b,60,'#fff','bog');
@@ -36,8 +36,7 @@ test('Eruption sizzles during smoke and emits one blast when the magma appears',
  assert.equal(spellAmbience(impact).sizzle,0);
  assert.equal(eruptionJustBurst(before,impact),true);
  assert.equal(eruptionJustBurst(impact,stepBattle(impact,.1)),false);
- assert.equal(spellCastSound({id:'snowman',element:'Water'}),'snowmanJingle');
- for(const cue of ['sizzle','eruptionBlast','snowmanJingle'] as const){
+ for(const cue of ['sizzle','eruptionBlast'] as const){
   const samples=soundSamples(cue);
   assert.ok(samples.every(Number.isFinite)&&samples.some(value=>Math.abs(value)>.1));
  }

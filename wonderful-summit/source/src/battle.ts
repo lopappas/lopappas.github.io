@@ -10,7 +10,7 @@ import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
 import {torrentDuration,torrentContains,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,type Torrent} from './torrent.ts';
 import {GOBLIN_KING_DIALOGUE_MS,kingHasCrown,kingSpellMultiplier,type KingState} from './goblinKing.ts';
 import {damageUpgradeBonus} from './magic.ts';
-import {isNearSpell,nearDamage,nearKnockback,thistleStats,type NearSpell} from './nearSpells.ts';
+import {isNearSpell,nearDamage,nearKnockback,thistleStats,THISTLE_SLOW,type NearSpell} from './nearSpells.ts';
 import {ERUPTION_KNOCKBACK,ERUPTION_WARNING_SECONDS,eruptionStunSeconds,MAGMA_SLOW,MAGMA_TICK_SECONDS,magmaContains,magmaSize,type EruptionWarning,type Magma} from './eruption.ts';
 import {bogEffect,extendBog,type Bog} from './bog.ts';
 import {extendFirestorm,firestormBaseDamage,FIRESTORM_TICK_SECONDS,type Firestorm} from './firestorm.ts';
@@ -90,7 +90,7 @@ function sporeTickDamage(target:SpellDamageTarget,quality:number,damage:number,t
 export function shroomyTickDamage(target:SpellDamageTarget,quality:number,bonus=1,upgrade=0,time=0){
  return sporeTickDamage(target,quality,shroomySporePower(quality,upgrade)*bonus,time);
 }
-export function spellDamage(target:SpellDamageTarget,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellDamage({...target,rocky:false,shield:null,goblinKing:false},60,'water',damageBonus,upgrade,time)*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time)*kingDamageMultiplier(target,quality);}if(spellId==='toxicTwig'||spellId==='shroomy'||spellId==='constellation'||spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?(1.265*.95):spellId==='wave'?.9:spellId==='leaf'?.75:1;const precision=isGuardianSpell(spellId)||['thistleBush','water','fire','nature','eruption'].includes(spellId)?1e6:1;return Math.round(precision*(isNearSpell(spellId)?nearDamage(spellId,quality,upgrade):spellId==='ender'?(Number.isFinite(quality)&&quality>=MIN_CAST_QUALITY?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)&&spellId!=='thistleBush'?Math.max(0,Math.min(1,upgrade)):0)*damageUpgradeBonus(spellId))*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*(spellId==='sneakyVine'?1:shieldProtection(target.shield,time))*kingDamageMultiplier(target,quality))/precision;}
+export function spellDamage(target:SpellDamageTarget,quality:number,spellId:SpellId,damageBonus=1,upgrade=0,time=0):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellDamage({...target,rocky:false,shield:null,goblinKing:false},60,'water',damageBonus,upgrade,time)*rockyDefense(!!target.rocky,quality).damage*shieldProtection(target.shield,time)*kingDamageMultiplier(target,quality);}if(spellId==='toxicTwig'||spellId==='shroomy'||spellId==='constellation'||spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='firestorm')return 0;const spell=SPELLS.find(s=>s.id===spellId)!;const factor=spellId==='bolt'?1.3:spellId==='tidalcrest'?(1.265*.95):spellId==='wave'?.9:spellId==='leaf'?.75:1;const precision=isGuardianSpell(spellId)||['thistleBush','puddleGuard','water','fire','nature','eruption'].includes(spellId)?1e6:1;return Math.round(precision*(isNearSpell(spellId)?nearDamage(spellId,quality,upgrade):spellId==='ender'?(Number.isFinite(quality)&&quality>=MIN_CAST_QUALITY?1000:0):spellPower(spellId,quality)*factor)*damageBonus*(1+(isUpgradableSpell(spellId)&&spellId!=='thistleBush'&&spellId!=='puddleGuard'?Math.max(0,Math.min(1,upgrade)):0)*damageUpgradeBonus(spellId))*elementalMatchup(spell.element,target.element).damage*rockyDefense(!!target.rocky,quality).damage*(spellId==='sneakyVine'?1:shieldProtection(target.shield,time))*kingDamageMultiplier(target,quality))/precision;}
 export function spellKnockback(quality:number,spellId:SpellId,pushBonus=1,target:Enemy['element']='Neutral',rocky=false,shield:EnemyShield|null=null,time=0,upgrade=0,goblinKing=false):number{if(spellId==='torrent'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;return spellKnockback(60,'water',pushBonus,target,false,null,time,0,false)*rockyDefense(rocky,quality).knockback*shieldProtection(shield,time)*(goblinKing?kingSpellMultiplier(quality):1);}if(spellId==='eruption')return Number.isFinite(quality)&&quality>=MIN_CAST_QUALITY?ERUPTION_KNOCKBACK:0;if(spellId==='toxicTwig'||spellId==='constellation'||spellId==='alchemize'||spellId==='bog'||spellId==='chronos'||spellId==='ender'||spellId==='firestorm')return 0;const base=isGuardianSpell(spellId)?guardianKnockback(spellId,quality,upgrade):isNearSpell(spellId)?nearKnockback(spellId,quality):spellId==='wave'&&quality>=MIN_CAST_QUALITY&&quality<60?40+14*(quality-45)/14:knockback(quality)*(spellId==='wave'?1.7:spellId==='tidalcrest'?(1.5*.95):spellId==='sneakyVine'?2.5:spellId==='bolt'?.65:1);return (goblinKing?kingSpellMultiplier(quality):1)*(spellId==='sneakyVine'?1:shieldProtection(shield,time))*rockyDefense(rocky,quality).knockback*base*pushBonus*(spellId==='puddleGuard'&&upgrade>=1?1.2:1)*elementalMatchup(SPELLS.find(s=>s.id===spellId)!.element,target).knockback;}
 // Rain retains fractional damage so small elemental/rock/shield reductions remain meaningful.
 export function amuletDamageMultiplier(quality:number,id:SpellId,amulets:Battle['amulets']){
@@ -137,7 +137,8 @@ export function spellSlow(state:Battle,e:Enemy,time:number){
  const sporeSlow=e.spores?.reduce((total,spore)=>
   spore.ticks>0&&spore.nextTick+spore.ticks-1>time+1e-9?total+(spore.slow??shroomySporeSlow()):total,0)??0;
  const inMagma=state.magma.some(pool=>pool.started<=time&&time<pool.until&&magmaContains(pool,e.x,enemyY(e.id,state.encounter,e.lane)));
- return Math.max(inMagma?MAGMA_SLOW:0,resistedSlow(e,Math.min(1,amount+boost+sporeSlow)));
+ const inThistles=state.thistle&&time>=state.thistle.started&&e.x>=CONTACT_X&&e.x<=CONTACT_X+state.thistle.range;
+ return Math.max(inMagma?MAGMA_SLOW:0,inThistles?THISTLE_SLOW:0,resistedSlow(e,Math.min(1,amount+boost+sporeSlow)));
 }
 export function bogTickDamage(e:Pick<Enemy,'element'>&Partial<Pick<Enemy,'rocky'|'shield'|'goblinKing'|'kingEnragedAt'|'hp'|'maxHP'>>,q:number,upgrade=0,bonus=1,multiplier=1,midnight=0,time=0,twilight=false){
  return Math.round(bogEffect(q,upgrade).damage*bonus*multiplier*(1+midnight)*(twilight&&q>=60?1.15:1)*elementalMatchup('Nature',e.element).damage*rockyDefense(!!e.rocky,q).damage*shieldProtection(e.shield,time)*kingDamageMultiplier(e,q)*1e6)/1e6;
@@ -338,13 +339,14 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   if(e.id!==target.id)return e;
   const rockyFaint=e.rocky&&q<60;
   const bonus=casting.damageBonus*amuletDamageMultiplier(q,spellId,{...state.amulets,moon:casting.moon}),level=casting.upgrade;
-  const precision=['thistleBush','water','fire','nature'].includes(spellId)?1e6:1;const damage=Math.round(precision*spellDamage(e,q,spellId,bonus,level,state.time)*damageMultiplier*(1+(casting.midnightStone?midnightBonus(inkUsed):0)))/precision*flash.multiplier;
+  const precision=['thistleBush','puddleGuard','water','fire','nature'].includes(spellId)?1e6:1;const damage=Math.round(precision*spellDamage(e,q,spellId,bonus,level,state.time)*damageMultiplier*(1+(casting.midnightStone?midnightBonus(inkUsed):0)))/precision*flash.multiplier;
   const shield=igniteShield(updateShield(e.shield,state.time),element,q,state.time),shieldBurning=spellId!=='sneakyVine'&&(shield?.burnUntil??0)>state.time;
   // Sun grants Hearthspark its burn; Flare Bolt retains only its intrinsic burn.
   const burnTick=((spellId==='bolt'&&!immuneEffects?burnDamage(q,e.element,e.rocky)*damageMultiplier*amuletDamageMultiplier(q,spellId,state.amulets):0)+(steady&&spellId==='fire'&&state.amulets.sun&&e.element!=='Fire'?Math.round(spellDamage({...e,shield:null,goblinKing:false},q,spellId,bonus,level,state.time)*.3)*damageMultiplier/3:0))*(state.fireFriend?1.5:1);
   const hp=Math.max(0,e.hp-damage);
   let push=e.push;
-  if(spellId!=='ender'&&spellId!=='thistleBush'){
+  if(hp<=0&&spellId==='puddleGuard')push=null;
+  else if(spellId!=='ender'&&spellId!=='thistleBush'){
    if(shieldBurning){
     if(spellId!=='flameBlade')push=null;
    }else if(!rockyFaint){

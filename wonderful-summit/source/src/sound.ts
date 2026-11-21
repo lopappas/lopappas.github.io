@@ -1,10 +1,11 @@
 import {primeWritingMedia} from './dialogueAudio.ts';
 import {audioPreferences,audioChannelVolume,loadAudioPreferences} from './audioPreferences.ts';
 import type {Battle} from './battle.ts';
+import {CONSTELLATION_FLIGHT_SECONDS} from './constellation.ts';
 import {GUARDIAN_SHOT_FLIGHT_SECONDS} from './guardian.ts';
 import type {Element,Spell} from './magic';
 
-export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp'|'rustle'|'twigSnap'|'snowmanJingle'|'eruptionBlast'|'sizzle';
+export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp'|'rustle'|'twigSnap'|'potionCollect'|'confettiPop'|'eruptionBlast'|'sizzle';
 export type UISound='blackFlash'|'bottle'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
 export const UI_SOUND_VOLUME:Record<UISound,number>={blackFlash:.62,robes:.3,shatter:.38,bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
 const LOOP_VOLUME={rain:.05,swamp:.08,sizzle:.065};
@@ -29,9 +30,15 @@ export function guardianAttackCues(before:Battle,after:Battle):GuardianCue[]{
 export function eruptionJustBurst(before:Battle,after:Battle){
  return after.magma.some(pool=>!before.magma.some(previous=>previous.started===pool.started));
 }
+export function constellationJustBurst(before:Battle,after:Battle){
+ const boost=after.constellation;
+ if(!boost)return false;
+ const burstAt=boost.castAt+CONSTELLATION_FLIGHT_SECONDS;
+ return before.time<burstAt&&after.time>=burstAt;
+}
 export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):CastSound{
  if(!spell)return 'fizzle';
- return ({snowman:'snowmanJingle',torrent:'aquaspout',thistleBush:'rustle',toxicTwig:'twigSnap',firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
+ return ({alchemize:'potionCollect',torrent:'aquaspout',thistleBush:'rustle',toxicTwig:'twigSnap',firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
 }
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}
@@ -40,13 +47,13 @@ export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quali
 export function soundSamples(kind:SoundKind):Float32Array{
  if(kind==='aquaspout')return soundSamples('water');
  if(kind==='bramble')return soundSamples('nature');
- const duration=kind==='sizzle'?2:kind==='snowmanJingle'?.5:kind==='eruptionBlast'?.52:kind==='sporeShake'?.19:kind==='lighterStrike'?.17:kind==='snowballServe'?.14:kind==='blackFlash'?.85:kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='twigSnap'?.18:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
+ const duration=kind==='sizzle'?2:kind==='potionCollect'?.42:kind==='confettiPop'?.26:kind==='eruptionBlast'?.78:kind==='sporeShake'?.19:kind==='lighterStrike'?.17:kind==='snowballServe'?.14:kind==='blackFlash'?.85:kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='twigSnap'?.18:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
  let samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
  let seed=19,low=0,rumble=0;
  const noise=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2147483648-1;};
  for(let i=0;i<samples.length;i++){
   const t=i/SOUND_RATE,u=t/duration;
-  const attack=Math.min(1,t/(kind==='twigSnap'||kind==='lighterStrike'||kind==='snowballServe'||kind==='eruptionBlast'?.001:.012)),end=Math.min(1,(duration-t)/.04);
+  const attack=Math.min(1,t/(kind==='twigSnap'||kind==='lighterStrike'||kind==='snowballServe'||(kind==='eruptionBlast'||kind==='confettiPop')?.001:.012)),end=Math.min(1,(duration-t)/.04);
   const n=noise();low+=.12*(n-low);rumble+=.008*(low-rumble);
   let value=0;
   if(kind==='sporeShake'){
@@ -56,24 +63,34 @@ export function soundSamples(kind:SoundKind):Float32Array{
     const age=t-start;
     if(age>=0&&age<length)value+=grains*gain*Math.sin(Math.PI*age/length)**2;
    }
-  }else if(kind==='snowmanJingle'){
-   // Small bells ring in quick succession with bright, inharmonic overtones.
-   for(const [start,pitch,gain] of [[0,1280,.65],[.045,1710,.46],[.10,1460,.58],[.15,1980,.4]]){
+  }else if(kind==='potionCollect'){
+   // Glass clink followed by a bright rising pickup chime.
+   value=(Math.sin(2*Math.PI*1710*t)+.28*Math.sin(2*Math.PI*2780*t))*Math.exp(-t*42)*.34;
+   for(const [start,pitch] of [[.045,740],[.109,988],[.172,1320]]){
     const age=t-start;
-    if(age>=0)value+=gain*Math.min(1,age/.003)*(
-     Math.sin(2*Math.PI*pitch*age)*Math.exp(-age*22)
-     +.37*Math.sin(2*Math.PI*pitch*1.63*age)*Math.exp(-age*37)
-     +.22*Math.sin(2*Math.PI*pitch*2.41*age)*Math.exp(-age*65));
+    if(age>=0)value+=(Math.sin(2*Math.PI*pitch*age)+.2*Math.sin(2*Math.PI*pitch*2.12*age))
+     *Math.min(1,age/.006)*Math.exp(-age*19)*.38;
+   }
+  }else if(kind==='confettiPop'){
+   value=((n-low)*.8+Math.sin(2*Math.PI*(380*t-550*t*t))*.55)*Math.exp(-t*70);
+   for(const [start,pitch] of [[.031,1230],[.071,1570],[.106,1990]]){
+    const age=t-start;
+    if(age>=0)value+=(Math.sin(2*Math.PI*pitch*age)*.19+(n-low)*.06)
+     *Math.min(1,age/.003)*Math.exp(-age*34);
    }
   }else if(kind==='sizzle'){
    // A thin steam hiss with small, irregular crackles.
    value=(n-low)*(.32+.09*Math.sin(t*61))+low*.18;
    if(n>.94)value+=(n-.94)*4;
   }else if(kind==='eruptionBlast'){
-   const boom=Math.sin(2*Math.PI*(105*t+2.2*(1-Math.exp(-t*30))));
-   value=boom*.68*Math.exp(-t*10)+rumble*3.8*Math.exp(-t*6)+(n-low)*.48*Math.exp(-t*32);
-   const debris=t-.065;
-   if(debris>0)value+=low*.9*Math.exp(-debris*13);
+   // A sharp fissure, a heavy falling boom, and gritty debris.
+   const boom=Math.sin(2*Math.PI*(43*t+4.4*(1-Math.exp(-t*24))));
+   const body=Math.tanh(boom*1.65+rumble*9);
+   value=body*.88*Math.exp(-t*4.6)+(n-low)*.86*Math.exp(-t*32);
+   for(const [start,gain] of [[.048,.57],[.108,.42],[.173,.29],[.25,.17]]){
+    const age=t-start;
+    if(age>=0)value+=(low*1.5+(n-low)*.32)*gain*Math.exp(-age*23);
+   }
   }else if(kind==='lighterStrike'){
    const spark=t-.036;
    value=(n-low+Math.sin(2*Math.PI*2300*t)*.28)*Math.exp(-t*180);
@@ -303,7 +320,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
   let buffer=buffers.get(kind);
   if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
   const source=ctx.createBufferSource(),gain=ctx.createGain();
-  source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in GUARDIAN_CUE_VOLUME?GUARDIAN_CUE_VOLUME[kind as GuardianCue]:kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='eruptionBlast'?.30:kind==='snowmanJingle'?.26:kind==='rustle'?.22:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
+  source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in GUARDIAN_CUE_VOLUME?GUARDIAN_CUE_VOLUME[kind as GuardianCue]:kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='eruptionBlast'?.47:kind==='potionCollect'?.28:kind==='confettiPop'?.23:kind==='rustle'?.22:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
   gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);
   source.connect(gain);gain.connect(ctx.destination);
   source.onended=()=>{activeGains.delete(gain);source.disconnect();gain.disconnect();};source.start();

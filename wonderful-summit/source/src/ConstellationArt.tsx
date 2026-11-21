@@ -1,37 +1,17 @@
 import React from 'react';
+import {FILA_HAT_LAYERS} from './CharacterBodies';
 import {CONSTELLATION_FLIGHT_SECONDS,constellationHatFrame} from './constellation';
 
 const GOLD='#ffd884',PURPLE='#a869ed';
 const SKY_X=360,BRUSH_X=282,BRUSH_Y=390;
 
-const PIXEL=7;
-const HAT_ROWS=[
- '.................pppp.....',
- '...............ppvvvp.....',
- '..............plvvpp......',
- '.............plvvp........',
- '.............plvp.........',
- '............plvvp.........',
- '...........plvvvp.........',
- '..........plvvvvvp........',
- '..........plvvwvvpp.......',
- '.........plvvvvvvvpp......',
- '........plvvvvvvvvvpp.....',
- '........pggggggggggp......',
- '.......pagggggggggaap.....',
- '...pppppppppppppppppppp...',
- '..ppvvvvvvvvvvvvvvvvvvpp..',
- '.ppggggggggggggggggggggpp.',
- '...pppppppppppppppppppp...',
+const HAT_SCALE=10,HAT_CENTER_X=11,HAT_CENTER_Y=6;
+const stars=[
+ [9,1],[11,1],[12,1],[8,3],[10,3],[12,3],[14,3],
+ [6,5],[8,5],[10,5],[12,5],[14,5],[16,5],
+ [6,7],[8,7],[10,7],[12,7],[14,7],[16,7],
+ [3,10],[5,10],[7,10],[9,10],[11,10],[13,10],[15,10],[17,10],[19,10],
 ];
-const HAT_COLORS={p:'#51317a',v:'#9060dc',l:'#c498ff',g:GOLD,a:'#bb874b',w:'#fff3bb'};
-const pixels=HAT_ROWS.flatMap((row,y)=>Array.from(row,(mark,x)=>({
- mark,x:(x-13)*PIXEL,y:(y-8)*PIXEL,
-})).filter(pixel=>pixel.mark!=='.'));
-const hatPaths=Object.entries(HAT_COLORS).map(([mark,fill])=>({
- fill,d:pixels.filter(pixel=>pixel.mark===mark).map(({x,y})=>`M${x} ${y}h${PIXEL}v${PIXEL}h-${PIXEL}Z`).join(''),
-}));
-const stars=Array.from({length:32},(_,index)=>pixels[Math.floor(index*pixels.length/32)]);
 const starColors=[GOLD,'#be97ff','#ffa9db','#92efe8','#fff3bb'];
 const STAR='M0-6H2V-2H6V2H2V6H-2V2H-6V-2H-2V-6Z';
 
@@ -65,19 +45,19 @@ export function ConstellationArt({castAt,time,skyY}:{castAt:number;time:number;s
  const explosion=Math.min(1,assembly/.36);
  const gather=Math.max(0,(assembly-.28)/.72);
  const settle=gather*gather*(3-2*gather);
- return <g pointerEvents="none" aria-label="Purple and gold pixel witch hat firework"
+ return <g pointerEvents="none" aria-label="Filadora’s hat formed from fireworks"
   transform={`translate(${SKY_X} ${skyY})`} opacity={opacity} shapeRendering="crispEdges">
   {assembling&&<g aria-hidden="true" opacity={Math.min(1,(1-assembly)/.2)}>
-   {stars.map((pixel,index)=>{
+   {stars.map(([hatX,hatY],index)=>{
     const angle=index*2.39996;
     const spread=(65+index%6*12)*explosion*(2-explosion);
-    const x=Math.cos(angle)*spread*(1-settle)+(pixel.x+PIXEL/2)*settle;
-    const y=Math.sin(angle)*spread*.64*(1-settle)+(pixel.y+PIXEL/2)*settle;
+    const x=Math.cos(angle)*spread*(1-settle)+(hatX-HAT_CENTER_X)*HAT_SCALE*settle;
+    const y=Math.sin(angle)*spread*.64*(1-settle)+(hatY-HAT_CENTER_Y)*HAT_SCALE*settle;
     return <path key={index} d={STAR} transform={`translate(${x} ${y})`} fill={starColors[index%starColors.length]}/>;
    })}
   </g>}
-  <g opacity={Math.max(0,(assembly-.47)/.53)}>
-   {hatPaths.map(({fill,d})=><path key={fill} fill={fill} d={d}/>)}
+  <g transform={`scale(${HAT_SCALE}) translate(${-HAT_CENTER_X} ${-HAT_CENTER_Y})`} opacity={Math.max(0,(assembly-.47)/.53)}>
+   {FILA_HAT_LAYERS.map(path=><path key={path.fill} {...path}/>)}
   </g>
  </g>;
 }

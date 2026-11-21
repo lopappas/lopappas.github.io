@@ -12,7 +12,9 @@ export function constellationHatFrame(burstAge:number){
 }
 
 export function constellationNoticeOpacity(age:number){
- return Math.max(0,Math.min(1,1-(age-8)/2));
+ const fadeStartsAt=CONSTELLATION_FLIGHT_SECONDS+HAT_ASSEMBLY_SECONDS;
+ if(age<=fadeStartsAt)return 1;
+ return Math.max(0,Math.min(1,(fadeStartsAt+2-age)/2));
 }
 
 export type ConstellationBonus={armor:number;damage:number;knockback:number};

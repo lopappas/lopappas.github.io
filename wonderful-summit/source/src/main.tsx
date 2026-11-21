@@ -45,7 +45,7 @@ import {BattlePresentation} from './battlePresentation';
 import {isGuardianSpell,type GuardianSpell} from './guardian';
 import {SPELL_COOLDOWNS,spellCastBlockReason,amuletDamageMultiplier,guardianCastDamageBonus,cloverAccuracyBonus,staleMultiplier,spellCooldownRemaining,robesBonus,cloverReady,relicAccuracyBonus,effectiveAccuracy,prepareRelicCast,releaseMultiplier,bogTickDamage,midnightBonus,fizzleSpell,newBattle,stepBattle,potionImpactIds,launchSpell,spellTarget,nearestEnemy,spellDamage,shroomyTickDamage,toxicTwigCastPreview,toxicTwigTotalDamage,firestormTickDamage,drinkPotion,ENCOUNTERS,potionRarity,potionName,POTIONS,type Potion,type Encounter,type Battle} from './battle';
 import {spellAmbience,shouldPlaySpellArrival} from './spellAmbience';
-import {stopSpellAmbience,setSpellAmbience,unlockSpellAudio,playSpellSound,playUISound,spellCastSound,guardianAttackCues,eruptionJustBurst} from './sound';
+import {stopSpellAmbience,setSpellAmbience,unlockSpellAudio,playSpellSound,playUISound,spellCastSound,guardianAttackCues,eruptionJustBurst,constellationJustBurst} from './sound';
 import {LessonText} from './LessonText';
 import {SpellGrade} from './SpellGrade';
 import {useDeveloperHold,useDeveloperTarget,useSpellDetailsEnabled} from './Developer';
@@ -190,6 +190,7 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
     for(const cue of guardianAttackCues(previous,next))playSpellSound(cue,0);
     updateBattle(next);
     if(eruptionJustBurst(previous,next))playSpellSound('eruptionBlast',0);
+    if(constellationJustBurst(previous,next))playSpellSound('confettiPop',0);
     finishTutorial2Cast(next);
     for(const _id of potionImpactIds(previous,next)){playUISound('bottle');const f=next.potionFlights.find(f=>f.id===_id);if(f?.potion==='spellBottle'){const spell=SPELLS.find(s=>s.id===f.spell?.spellId);if(shouldPlaySpellArrival(spell?.id,previous))playSpellSound(spellCastSound(spell),f.spell?.quality??0);}}
    }

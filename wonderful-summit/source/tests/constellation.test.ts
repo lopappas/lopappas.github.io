@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {CONTACT_X,drinkPotion,hitWithSpell,launchSpell,newBattle,spellCastBlockReason,spellDamage,spellKnockback,stepBattle,type Battle} from '../src/battle.ts';
-import {constellationBonus,constellationHatFrame,constellationNoticeOpacity} from '../src/constellation.ts';
+import {constellationJustBurst,soundSamples,spellCastSound} from '../src/sound.ts';
+import {CONSTELLATION_FLIGHT_SECONDS,constellationBonus,constellationHatFrame,constellationNoticeOpacity} from '../src/constellation.ts';
 import {PLAYER_SPELLS,recognize} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
@@ -37,9 +38,26 @@ test('Constellation scales between the selected anchors and the upgrade adds fix
  });
 });
 
-test('the boost notice holds for eight seconds, then fades over two',()=>{
- for(const [age,opacity] of [[0,1],[7.9,1],[8,1],[8.5,.75],[9,.5],[10,0],[16,0]]){
-  assert.equal(constellationNoticeOpacity(age),opacity);
+test('the boost notice begins its two-second fade on the same beat as the hat',()=>{
+ const fadeAt=CONSTELLATION_FLIGHT_SECONDS+.85;
+ assert.equal(constellationNoticeOpacity(fadeAt),1);
+ assert.equal(constellationHatFrame(fadeAt-CONSTELLATION_FLIGHT_SECONDS).opacity,1);
+ assert.ok(constellationHatFrame(fadeAt+.5-CONSTELLATION_FLIGHT_SECONDS).opacity<1);
+ assert.ok(Math.abs(constellationNoticeOpacity(fadeAt+.5)-.75)<1e-12);
+ assert.equal(constellationNoticeOpacity(fadeAt+2),0);
+});
+
+test('Constellation pops on the firework burst, Alchemize collects, and Snowman uses its water cast sound',()=>{
+ const battle=summon(newBattle('active'),80);
+ const justBefore={...battle,time:CONSTELLATION_FLIGHT_SECONDS-.01};
+ const burst={...battle,time:CONSTELLATION_FLIGHT_SECONDS};
+ assert.equal(constellationJustBurst(battle,justBefore),false);
+ assert.equal(constellationJustBurst(justBefore,burst),true);
+ assert.equal(constellationJustBurst(burst,{...burst,time:2}),false);
+ assert.equal(spellCastSound({id:'alchemize',element:'Ancient'}),'potionCollect');
+ assert.equal(spellCastSound({id:'snowman',element:'Water'}),'water');
+ for(const cue of ['confettiPop','potionCollect'] as const){
+  assert.ok(soundSamples(cue).some(sample=>Math.abs(sample)>.1));
  }
 });
 

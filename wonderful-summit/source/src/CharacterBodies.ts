@@ -1,12 +1,16 @@
 import React,{memo,useLayoutEffect} from 'react';
 import {performanceMetrics} from './performanceMetrics.ts';
 type SlimeProps={color:string;attacking:boolean;practice:boolean;rocky:boolean};
+export const FILA_HAT_LAYERS=[
+    {d:"M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2z",fill:"#352e46"},
+    {d:"M9 2h4v3h2v4H6V5h3zM4 9h14v2H4z",fill:"#9c83bc"},
+    {d:"M6 7h10v2H6z",fill:"#e5bb7e"},
+] as const;
 export const FilaBody=memo(function FilaBody({}) {
     useLayoutEffect(()=>performanceMetrics.recordArtCommit());
     return React.createElement(React.Fragment, null,
-        React.createElement("path", { d: "M9 0h4v2h2v3h2v4h3v3H2V9h3V5h2V2h2zM5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z", fill: "#352e46" }),
-        React.createElement("path", { d: "M9 2h4v3h2v4H6V5h3zM4 9h14v2H4z", fill: "#9c83bc" }),
-        React.createElement("path", { d: "M6 7h10v2H6z", fill: "#e5bb7e" }),
+        React.createElement("path", { d: FILA_HAT_LAYERS[0].d+"M5 12h12v8h-2v2h3v3h2v5h-3v2h-5v-2H9v2H4v-4H2v-5h2v-3H3v-6h2z", fill: FILA_HAT_LAYERS[0].fill }),
+        ...FILA_HAT_LAYERS.slice(1).map(path=>React.createElement("path",{key:path.fill,...path})),
         React.createElement("path", { d: "M5 12h12v3H5zM4 15h3v6H4zM15 14h2v7h-2z", fill: "#6c4951" }),
         React.createElement("path", { d: "M7 14h8v6H7zM9 20h4v2H9z", fill: "#f2cea6" }),
         React.createElement("path", { d: "M9 16h1v2H9zM13 16h1v2h-1z", fill: "#352e46" }),
