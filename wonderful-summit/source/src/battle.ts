@@ -11,7 +11,7 @@ import {torrentDuration,torrentContains,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,
 import {GOBLIN_KING_DIALOGUE_MS,kingHasCrown,kingSpellMultiplier,type KingState} from './goblinKing.ts';
 import {damageUpgradeBonus} from './magic.ts';
 import {isNearSpell,nearDamage,nearKnockback,thistleStats,type NearSpell} from './nearSpells.ts';
-import {ERUPTION_KNOCKBACK,ERUPTION_WARNING_SECONDS,ERUPTION_STUN_SECONDS,MAGMA_SLOW,MAGMA_TICK_SECONDS,magmaContains,magmaSize,type EruptionWarning,type Magma} from './eruption.ts';
+import {ERUPTION_KNOCKBACK,ERUPTION_WARNING_SECONDS,eruptionStunSeconds,MAGMA_SLOW,MAGMA_TICK_SECONDS,magmaContains,magmaSize,type EruptionWarning,type Magma} from './eruption.ts';
 import {bogEffect,extendBog,type Bog} from './bog.ts';
 import {extendFirestorm,firestormBaseDamage,FIRESTORM_TICK_SECONDS,type Firestorm} from './firestorm.ts';
 import type {PlayerDrawing} from './drawings.ts';
@@ -47,7 +47,7 @@ export type Burn={quality?:number;damage:number;nextTick:number;ticks:number};
 export type Push={from:number;to:number;started:number;ends:number};
 type ToxicTwigPoison={started:number;ticks:number;quality:number;scale:number};
 const TOXIC_TWIG_INTERVAL=1.5,TOXIC_TWIG_TICKS=10;
-export type Enemy={eruptionStunUntil?:number;eruptionStunPending?:boolean;toxicTwig?:ToxicTwigPoison[];spores?:ShroomySpore[];lane?:CombatLane;guardianHitAt?:number;nextGuardianAttackAt?:number;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
+export type Enemy={eruptionStunUntil?:number;toxicTwig?:ToxicTwigPoison[];spores?:ShroomySpore[];lane?:CombatLane;guardianHitAt?:number;nextGuardianAttackAt?:number;goblinKing?:boolean;kingEnragedAt?:number;offspring:boolean;potionCurseTick:number|null;potionCurseUntil:number;curseTick:number|null;id:number;rocky:boolean;shield:EnemyShield|null;chronosStartedAt:number;stunStartedAt:number;kind:'slime'|'goblin'|'mother'|'spider';initialElement:Element|'Neutral';readyAt:number;spawnAt:number;element:Element|'Neutral';hp:number;maxHP:number;x:number;clock:number;attackAt:number|null;nextAttackAt:number;hurtUntil:number;push:Push|null;leafSlows:{until:number;amount:number}[];slowUntil:number;rootUntil:number;chronosSlowUntil:number;stunUntil:number;burn:Burn|null};
 export type Projectile={knockbackMultiplier?:number;inkUsed:number;damageMultiplier:number;started:number;duration:number;quality:number;color:string;spellId:SpellId;targetId:number};
 export type TidalWave={blackFlashMultiplier?:number;id:number;started:number;duration:number;quality:number;damageMultiplier:number;inkUsed:number;hitIds:number[];bonuses:{damageBonus:number;pushBonus:number;upgrade:number;midnightStone:boolean;moon:boolean}};
 export const TIDAL_TRAVEL_SECONDS=.9,TIDAL_START_X=300;
@@ -180,10 +180,6 @@ function stormRain(state:Battle,time:number):Battle{
  }
  return{...state,enemies,firestorm:time+1e-9>=end?null:{...storm,nextTick}};
 }
-function startEruptionStun(enemy:Enemy,time:number):Enemy{
- return {...enemy,eruptionStunPending:false,eruptionStunUntil:Math.max(enemy.eruptionStunUntil??0,time+ERUPTION_STUN_SECONDS)};
-}
-
 function advanceEruptions(state:Battle):Battle{
  if(!state.eruptionWarnings.length)return state;
  let enemies=state.enemies;
@@ -202,7 +198,7 @@ function advanceEruptions(state:Battle):Battle{
    const hp=Math.max(0,target.hp-damage);
    const push=hp>0?extendEnemyKnockback(state,target,spellKnockback(quality,'eruption')):null;
    const hit={...target,hp,push,hurtUntil:started+.25,attackAt:null,shield:igniteShield(shield,'Fire',quality,started)};
-   const knocked=hp===0?hit:push?{...hit,eruptionStunPending:true}:startEruptionStun(hit,state.time);
+   const knocked=hp===0?hit:{...hit,eruptionStunUntil:Math.max(target.eruptionStunUntil??0,state.time+eruptionStunSeconds(quality))};
    enemies=enemies.map(e=>e.id===target.id?knocked:e);
   }
   const {radiusX,radiusY,duration,damage}=magmaSize(quality,upgrade);
@@ -381,7 +377,7 @@ function resolveMother(state:Battle):Battle{
  if(next.enemies.every(e=>e.hp<=0)&&(!next.motherSplit||next.motherSplit.spawned))return{...next,phase:'victory',projectile:null,tidalWaves:[],torrent:null,snowman:null,scorchy:null,shroomy:null};
  return next;
 }
-export const SPELL_COOLDOWNS:Partial<Record<SpellId,number>>={snowman:GUARDIAN_COOLDOWN,scorchy:GUARDIAN_COOLDOWN,shroomy:GUARDIAN_COOLDOWN,torrent:10,sneakyVine:12,chronos:30,firestorm:10,eruption:10,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:15,flameBlade:8};
+export const SPELL_COOLDOWNS:Partial<Record<SpellId,number>>={snowman:GUARDIAN_COOLDOWN,scorchy:GUARDIAN_COOLDOWN,shroomy:GUARDIAN_COOLDOWN,torrent:10,sneakyVine:12,chronos:30,firestorm:10,eruption:12,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:15,flameBlade:8};
 export function spellCooldownRemaining(state:Battle,id:SpellId){if(state.cooldownsDisabled)return 0;const remaining=(state.cooldowns[id]??0)-state.time;return remaining>1e-9?remaining:0;}
 export function staleMultiplier(state:Battle,id:SpellId){return state.stale.spellId===id&&state.stale.count>=3?.75:1;}
 export function releaseMultiplier(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){const element=SPELLS.find(s=>s.id===spellId)!.element;return(source==='cast'?staleMultiplier(state,spellId):1)*(state.castingRelics.sphere?1.15:1)*(1+robesBonus(state)/100)*(source==='cast'&&state.furyReady?2:1)*(state.lotus&&state.lotusReady&&!['chronos','puddleGuard','alchemize','constellation'].includes(spellId)?1.25:1)*(state.colorful&&state.lastElement!==null&&element!==state.lastElement?1.15:1);}
@@ -504,9 +500,8 @@ export function stepBattle(state:Battle,delta:number):Battle{
   if(old.hp<=0){if(old.kind==='mother'&&old.push){const p=old.push,t=Math.max(0,Math.min(1,(time-p.started)/(p.ends-p.started)));return {...old,x:p.from+(p.to-p.from)*(1-(1-t)**3),push:t>=1?null:p};}return old;}
   if(old.spawnAt>time+1e-9)return old;
   if(old.kind==='mother'){const index=ELEMENTS.indexOf(old.initialElement as Element);old={...old,element:ELEMENTS[(index+Math.floor((time+1e-9)/15))%3]};}
-  if(old.eruptionStunPending&&!old.push)old=startEruptionStun(old,state.time);
   // Only advance actions after arrival, status holds and crown-loss dialogue.
-  const actionDelta=old.eruptionStunPending?0:Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.readyAt,old.goblinKing&&old.kingEnragedAt!==undefined?old.kingEnragedAt+GOBLIN_KING_DIALOGUE_MS/1000:0,old.rootUntil,old.stunUntil,old.eruptionStunUntil??0,old.shield?.burnUntil??0));
+  const actionDelta=Math.max(0,time-Math.max(state.time,state.approachAt,old.spawnAt,old.readyAt,old.goblinKing&&old.kingEnragedAt!==undefined?old.kingEnragedAt+GOBLIN_KING_DIALOGUE_MS/1000:0,old.rootUntil,old.stunUntil,old.eruptionStunUntil??0,old.shield?.burnUntil??0));
   let e:Enemy={...old,leafSlows:old.leafSlows.filter(f=>f.until>time),shield:updateShield(old.shield,time),clock:old.clock+(frozen?0:actionDelta)};
   if(e.potionCurseTick!=null){while(e.potionCurseTick<=Math.min(time,e.potionCurseUntil)+1e-9&&e.hp>0){e.hp=Math.max(0,e.hp-3);e.hurtUntil=time+.15;e.potionCurseTick+=1;}if(time+1e-9>=e.potionCurseUntil)e.potionCurseTick=null;if(e.hp<=0){e.push=null;e.attackAt=null;return e;}}
   if(e.curseTick!==null){while(e.curseTick<=time+1e-9&&e.hp>0){e.hp=Math.max(0,e.hp-5);e.hurtUntil=time+.15;e.curseTick+=1;}if(e.hp<=0){e.push=null;e.attackAt=null;return e;}}
@@ -528,10 +523,7 @@ export function stepBattle(state:Battle,delta:number):Battle{
    const p=e.push,t=Math.min(1,(time-p.started)/(p.ends-p.started));
    e.x=Math.max(e.x,p.from+(p.to-p.from)*(1-(1-t)**3));
    e.attackAt=null;
-   if(t>=1){
-    e.push=null;
-    if(e.eruptionStunPending)e=startEruptionStun(e,p.ends);
-   }
+   if(t>=1)e.push=null;
    return e;
   }
   if(frozen||actionDelta<=1e-9)return e;

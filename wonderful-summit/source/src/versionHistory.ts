@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.3.96-alpha',publishedAt:'2026-11-21T11:21:56Z',model:'GPT-6.2 Sol',changes:['Eruption has a 12-second cooldown and deals 15% less direct damage.','The stun starts with knockback and lasts 0.6 seconds at Faint, 0.85 at Steady, and 1.15 at Beautiful or Wonderful.']},
  {version:'0.3.95-alpha',publishedAt:'2026-11-21T10:51:24Z',model:'GPT-6.2 Sol',changes:['Eruption pushes its target 10 units at any cast quality before the one-second stun.','At 80% quality, magma lasts 7 seconds with Eruption and 8.5 seconds with Eruption+. Other cast qualities also gain duration.']},
  {version:'0.3.94-alpha',publishedAt:'2026-11-21T10:33:21Z',model:'GPT-6.2 Sol',changes:['Eruption warns its target with 0.8 seconds of smoke, then hits and stuns for one second. Magma slows enemies by 12%.','Eruption+ deals 20% more direct damage and 6 damage per magma tick. At 80% quality its magma lasts 6 seconds.','The Eruption trace is 50% larger.']},
  {version:'0.3.93-alpha',publishedAt:'2026-11-21T10:20:01Z',model:'GPT-6.2 Sol',changes:['Added Eruption, an Uncommon Fire spell. Draw a wide volcano with a flat top and matching curved slopes.','Eruption strikes beneath the nearest enemy and leaves magma across all three lanes. Better casts enlarge the pool and make it last longer.']},

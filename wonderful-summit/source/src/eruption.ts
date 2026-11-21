@@ -3,7 +3,9 @@ import {MIN_CAST_QUALITY} from './quality.ts';
 
 export const MAGMA_TICK_SECONDS=.5;
 export const ERUPTION_WARNING_SECONDS=.8;
-export const ERUPTION_STUN_SECONDS=1;
+export function eruptionStunSeconds(quality:number){
+ return quality>=70?1.15:quality>=60?.85:.6;
+}
 export const ERUPTION_KNOCKBACK=10;
 export const MAGMA_SLOW=.12;
 const MIN_MAGMA_RADIUS_Y=Math.max(...COMBAT_LANE_Y.map(y=>Math.abs(y-FILA_FOOT_Y)))+8;

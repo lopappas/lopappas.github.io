@@ -13,7 +13,7 @@ test('direct spells respect the complete elemental damage and knockback matrix, 
   // Use a value with the game's full damage modifiers before its single rounding.
   const spellFactor=spell.id==='tidalcrest'?(1.265*.95):spell.id==='wave'?.9:spell.id==='bolt'?1.3:spell.id==='leaf'?.75:1;
   const precision=['water','fire','nature','eruption'].includes(spell.id)?1e6:1;
-  const expected=Math.round(precision*(spell.id==='sneakyVine'?95:spell.id==='eruption'?51.5*1.5:['water','fire','nature'].includes(spell.id)?51.5:64)*spellFactor*1.15*(spell.id==='bolt'||spell.id==='eruption'?1.2:spell.id==='tidalcrest'?1.15:1.25)*factor)/precision;
+  const expected=Math.round(precision*(spell.id==='sneakyVine'?95:spell.id==='eruption'?51.5*1.275:['water','fire','nature'].includes(spell.id)?51.5:64)*spellFactor*1.15*(spell.id==='bolt'||spell.id==='eruption'?1.2:spell.id==='tidalcrest'?1.15:1.25)*factor)/precision;
   assert.equal(spellDamage({element},100,spell.id,1.15,2),expected);
   const battle=newBattle('active');battle.damageBonus=1.15;battle.pushBonus=1.25;battle.upgrades[spell.id]=2;
   battle.enemies[0]={...battle.enemies[0],element,x:330,hp:1000,maxHP:1000};
@@ -56,7 +56,7 @@ test('goblin elites are neutral and receive full damage, knockback, burn and slo
    let hit=hitWithSpell(b,60,spell.id);
    if(spell.id==='eruption')for(let i=0;i<8;i++)hit=stepBattle(hit,.1);
    const enemy=hit.enemies[0];
-   assert.equal(goblin.hp-enemy.hp,spellDamage({element:'Neutral'},60,spell.id));
+   assert.ok(Math.abs(goblin.hp-enemy.hp-spellDamage({element:'Neutral'},60,spell.id))<1e-8);
    assert.ok(Math.abs(enemy.push!.to-330-spellKnockback(60,spell.id))<1e-8);
    if(spell.id==='bolt')assert.equal(enemy.burn!.damage,burnDamage(60,'Neutral'));
    if(spell.id==='leaf')assert.equal(enemy.slowUntil,4.1);

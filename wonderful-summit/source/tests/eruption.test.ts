@@ -41,18 +41,18 @@ test('Eruption warns the nearest enemy for 0.8 seconds, then knocks it back and 
  assert.deepEqual(warned.enemies.map(e=>e.hp),[100,100,100,100]);
  assert.equal(warned.eruptionWarnings[0].targetId,1);
  assert.deepEqual(warned.magma,[]);
- assert.equal(spellCooldownRemaining(state,'eruption'),10);
- assert.equal(cast(at(state,9.99)).casts,1);
- assert.equal(cast(at(state,10)).casts,2);
+ assert.equal(spellCooldownRemaining(state,'eruption'),12);
+ assert.equal(cast(at(state,11.99)).casts,1);
+ assert.equal(cast(at(state,12)).casts,2);
 
  const impact=at(warned,.8);
- const hit=spellDamage({element:'Neutral'},80,'fire')*1.5;
+ const hit=45.2625;
  assert.deepEqual(impact.enemies.map(e=>e.hp),[100-hit,100,100,100]);
  assert.deepEqual(impact.eruptionWarnings,[]);
  assert.equal(impact.magma[0].impactY,COMBAT_LANE_Y[0]);
  assert.equal(impact.magma[0].x,550);
  assert.equal(impact.enemies[0].push?.to,560);
- assert.equal(impact.enemies[0].eruptionStunUntil,undefined);
+ assert.equal(impact.enemies[0].eruptionStunUntil,.8+1.15);
  assert.equal(impact.enemies[1].eruptionStunUntil,undefined);
  assert.deepEqual(impact.enemies.map(e=>spellSlow(impact,e,.8)),[.12,.12,.12,0]);
  assert.deepEqual(at(impact,1.299).enemies.map(e=>e.hp),[100-hit,100,100,100]);
@@ -63,7 +63,7 @@ test('Eruption warns the nearest enemy for 0.8 seconds, then knocks it back and 
  assert.deepEqual(at(cooled,8).enemies.map(e=>e.hp),cooled.enemies.map(e=>e.hp));
 });
 
-test('smoke tracks its target, then knockback completes before the full second of stun',()=>{
+test('smoke tracks its target, and the stun runs concurrently with knockback',()=>{
  const battle=field();
  battle.enemies=battle.enemies.slice(0,1);
  battle.approachAt=0;
@@ -77,12 +77,13 @@ test('smoke tracks its target, then knockback completes before the full second o
  const push=impact.enemies[0].push!;
  const moving=at(impact,push.ends-.01).enemies[0];
  assert.ok(moving.x>x&&moving.x<x+10);
- assert.equal(moving.eruptionStunUntil,undefined);
+ assert.equal(moving.eruptionStunUntil,impact.time+1.15);
  const afterPush=at(impact,push.ends+.01).enemies[0];
  assert.equal(afterPush.x,x+10);
- assert.equal(afterPush.eruptionStunUntil,push.ends+1);
- assert.equal(at(impact,push.ends+1).enemies[0].x,x+10);
- assert.ok(Math.abs(x+10-at(impact,push.ends+1.1).enemies[0].x-36*.88*.1)<1e-7);
+ const stunEnds=impact.time+1.15;
+ assert.equal(afterPush.eruptionStunUntil,stunEnds);
+ assert.equal(at(impact,stunEnds).enemies[0].x,x+10);
+ assert.ok(Math.abs(x+10-at(impact,stunEnds+.1).enemies[0].x-36*.88*.1)<1e-7);
  const outside={...impact.enemies[0],x:x-impact.magma[0].radiusX-1};
  assert.equal(spellSlow(impact,outside,1.8),0);
 });
@@ -92,7 +93,7 @@ test('Eruption+ deals 20% more direct damage and seventeen 6-damage ticks at 80%
  battle.enemies[1].hp=150;
  const state=cast({...battle,upgrades:{eruption:1}});
  const impact=at(state,.8);
- assert.equal(impact.enemies[0].hp,36.1);
+ assert.equal(impact.enemies[0].hp,45.685);
  assert.equal(impact.magma[0].damage,6);
  assert.equal(impact.magma[0].until,9.3);
  assert.equal(at(impact,1.3).enemies[1].hp,144);
@@ -100,12 +101,13 @@ test('Eruption+ deals 20% more direct damage and seventeen 6-damage ticks at 80%
  assert.equal(at(impact,9.3).enemies[1].hp,48);
 });
 
-test('Eruption knockback is 10 units at every successful quality and both upgrade levels',()=>{
- for(const upgrade of [0,1])for(const quality of [45,60,70,80,90,100]){
+test('Eruption knockback stays at 10 units while stun duration follows the cast grade',()=>{
+ for(const upgrade of [0,1])for(const [quality,stun] of [[45,.6],[59,.6],[60,.85],[69,.85],[70,1.15],[79,1.15],[80,1.15],[100,1.15]]){
   const battle={...field(),upgrades:{eruption:upgrade}};
   const enemy=at(cast(battle,quality),.8).enemies[0];
   assert.equal(spellKnockback(quality,'eruption',1.5,'Fire',true,null,0,upgrade),10);
   assert.equal(enemy.push?.to,enemy.x+10);
+  assert.ok(Math.abs((enemy.eruptionStunUntil??0)-enemy.push!.started-stun)<1e-9);
  }
 });
 
