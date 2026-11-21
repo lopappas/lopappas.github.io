@@ -14,9 +14,10 @@ function at(battle:Battle,time:number){
 }
 const cast=(battle:Battle)=>launchSpell(battle,80,'#9bbe72','toxicTwig');
 
-test('Toxic Twig is an Uncommon Nature spell recognized as a stem crossed by two short lines',()=>{
+test('Cursed Twig is an Uncommon Nature spell recognized as a stem crossed by two short lines',()=>{
  const spell=SPELLS.find(s=>s.id==='toxicTwig')!;
  const lesson=practiceLesson(spell.id)!;
+ assert.equal(spell.name,'Cursed Twig');
  assert.equal(spell.element,'Nature');
  assert.equal(spell.rarity,'Uncommon');
  assert.equal(lesson.paths.length,3);
@@ -25,7 +26,7 @@ test('Toxic Twig is an Uncommon Nature spell recognized as a stem crossed by two
  assert.ok(result.quality>=98);
 });
 
-test('Toxic Twig targets the most current HP among living enemies already on the field',()=>{
+test('Cursed Twig targets the most current HP among living enemies already on the field',()=>{
  const battle=field();
  battle.enemies=[
   {...createSpider(1,410),hp:200,maxHP:900},
@@ -63,22 +64,21 @@ test('an 80% cast waits 1.5 seconds, then ramps over ten ticks for 150 or 180 da
  }
 });
 
-test('a second cast can overlap after the eight-second cooldown and each poison expires on its own',()=>{
+test('Cursed Twig can be recast immediately and each poison expires on its own',()=>{
  let battle=cast(field());
- assert.equal(spellCooldownRemaining(battle,'toxicTwig'),8);
- battle=at(battle,7.999);
- assert.equal(cast(battle),battle);
- battle=cast(at(battle,8));
+ assert.equal(spellCooldownRemaining(battle,'toxicTwig'),0);
+ assert.equal(cast(battle).enemies[0].toxicTwig?.length,2);
+ battle=cast(at(battle,3));
  assert.equal(battle.enemies[0].toxicTwig?.length,2);
  battle=at(battle,15);
- assert.equal(battle.enemies[0].hp,814);
+ assert.equal(battle.enemies[0].hp,746);
  assert.equal(battle.enemies[0].toxicTwig?.length,1);
- battle=at(battle,23);
+ battle=at(battle,18);
  assert.equal(battle.enemies[0].hp,700);
  assert.deepEqual(battle.enemies[0].toxicTwig,[]);
 });
 
-test('a bottled Toxic Twig applies its poison on impact without starting a cooldown',()=>{
+test('a bottled Cursed Twig applies its poison on impact without starting a cooldown',()=>{
  const battle=field();
  battle.potions.spellBottle=1;
  battle.bottledSpells=[{spellId:'toxicTwig',quality:80}];
@@ -89,7 +89,7 @@ test('a bottled Toxic Twig applies its poison on impact without starting a coold
  assert.equal(at(impact,poison.started+1.5).enemies[0].hp,994);
 });
 
-test('Toxic Twig damage follows elemental and rocky defenses on its ticks',()=>{
+test('Cursed Twig damage follows elemental and rocky defenses on its ticks',()=>{
  for(const [element,damage] of [['Neutral',150],['Fire',112.5],['Water',225],['Nature',75]] as const){
   const battle=field();
   battle.enemies[0]={...battle.enemies[0],element};

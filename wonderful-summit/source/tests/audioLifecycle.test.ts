@@ -26,6 +26,16 @@ function device(){
 }
 const flush=async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
 
+test('Cursed Twig uses a short, dry snap on the cast sound path',()=>{
+ assert.equal(spellCastSound({id:'toxicTwig',element:'Nature'}),'twigSnap');
+ const samples=soundSamples('twigSnap');
+ assert.equal(samples.length,Math.ceil(.18*SOUND_RATE));
+ assert.equal(Math.abs(samples[0]),0);
+ assert.ok(samples.every(sample=>Number.isFinite(sample)&&Math.abs(sample)<=.901));
+ assert.ok(samples.slice(0,.05*SOUND_RATE).some(sample=>Math.abs(sample)>.5));
+ assert.ok(samples.slice(.12*SOUND_RATE).every(sample=>Math.abs(sample)<.005));
+});
+
 test('Thistle appearance uses a brief soft rustle that never loops and disconnects after playback',async()=>{
  assert.equal(spellCastSound({id:'thistleBush',element:'Nature'}),'rustle');
  const samples=soundSamples('rustle');assert.equal(samples.length,Math.ceil(SOUND_RATE*.55));

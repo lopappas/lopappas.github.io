@@ -21,11 +21,11 @@ export const EnemyEffectsFrame=memo(function EnemyEffectsFrame({cursed,burning,r
     {shape}
    </g>;
   })}</g>}
-  {poisoned&&<g aria-label="Toxic Twig poison">
+  {poisoned&&<g aria-label="Cursed Twig poison">
    {[0,1,2,3,4,5].map(i=>{
     const rise=(time*.7+i/6)%1;
     const x=-34+i*13+Math.sin(rise*Math.PI*2+i)*5,y=16-66*rise;
-    return <path key={i} d="M0-4 3 0 0 4-3 0Z" transform={`translate(${x} ${y})`} fill={i%2?'#bca3de':'#b1d77f'} stroke="#50325c" strokeWidth="1" opacity={Math.sin(rise*Math.PI)*.9}/>;
+    return <path key={i} d="M0-4 3 0 0 4-3 0Z" transform={`translate(${x} ${y})`} fill={i%2?'#693578':'#4d245e'} stroke="#301540" strokeWidth="1" opacity={Math.sin(rise*Math.PI)*.9}/>;
    })}
   </g>}
   {rooted&&<g aria-label="Trapped in roots" transform={`translate(0 20) scale(1 ${growth})`}>

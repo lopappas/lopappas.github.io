@@ -2,13 +2,13 @@ import {primeWritingMedia} from './dialogueAudio.ts';
 import {audioPreferences,audioChannelVolume,loadAudioPreferences} from './audioPreferences.ts';
 import type {Element,Spell} from './magic';
 
-export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp'|'rustle';
+export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp'|'rustle'|'twigSnap';
 export type UISound='blackFlash'|'bottle'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
 export const UI_SOUND_VOLUME:Record<UISound,number>={blackFlash:.62,robes:.3,shatter:.38,bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
 type SoundKind=CastSound|UISound;
 export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):CastSound{
  if(!spell)return 'fizzle';
- return ({torrent:'aquaspout',thistleBush:'rustle',firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
+ return ({torrent:'aquaspout',thistleBush:'rustle',toxicTwig:'twigSnap',firestorm:'cloud',bog:'mud',wave:'aquaspout',tidalcrest:'tidalcrest',leaf:'bramble',bolt:'flareBolt'} as Partial<Record<Spell['id'],CastSound>>)[spell.id]??spell.element.toLowerCase() as CastSound;
 }
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}
@@ -17,19 +17,27 @@ export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quali
 export function soundSamples(kind:SoundKind):Float32Array{
  if(kind==='aquaspout')return soundSamples('water');
  if(kind==='bramble')return soundSamples('nature');
- const duration=kind==='blackFlash'?.85:kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
+ const duration=kind==='blackFlash'?.85:kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='twigSnap'?.18:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
  let samples=new Float32Array(Math.ceil(duration*SOUND_RATE));
  let seed=19,low=0,rumble=0;
  const noise=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2147483648-1;};
  for(let i=0;i<samples.length;i++){
   const t=i/SOUND_RATE,u=t/duration;
-  const attack=Math.min(1,t/.012),end=Math.min(1,(duration-t)/.04);
+  const attack=Math.min(1,t/(kind==='twigSnap'?.001:.012)),end=Math.min(1,(duration-t)/.04);
   const n=noise();low+=.12*(n-low);rumble+=.008*(low-rumble);
   let value=0;
   if(kind==='rustle'){
    // Four soft leaf brushes and a tiny rounded sprout pop, with no loop.
    for(const start of [0,.09,.21,.34]){const age=t-start;if(age>=0&&age<.18)value+=(low*.9+(n-low)*.12)*Math.sin(Math.PI*age/.18)**2;}
    value+=Math.sin(2*Math.PI*(260*t-90*t*t))*.11*Math.min(1,t/.018)*Math.exp(-t*22);
+  }else if(kind==='twigSnap'){
+   // A dry crack with a brief woody resonance and two quieter splinters.
+   const wood=Math.sin(2*Math.PI*670*t)*.35+Math.sin(2*Math.PI*1110*t)*.16;
+   value=((n-low)*.88+wood)*Math.exp(-t*85);
+   for(const [start,gain] of [[.018,.44],[.041,.23]]){
+    const age=t-start;
+    if(age>=0)value+=(n-low)*gain*Math.exp(-age*125);
+   }
   }else if(kind==='rain'){
    value=low*1.8+n*.16;
   }else if(kind==='swamp'){
