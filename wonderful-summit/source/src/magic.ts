@@ -91,13 +91,8 @@ export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function damageUpgradeBonus(id:SpellId){return isGuardianSpell(id)?guardianUpgradeDamageBonus(id):id==='bolt'||id==='toxicTwig'||id==='eruption'?.2:id==='tidalcrest'||id==='flameBlade'?.15:.25;}
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
 
-const [twigStem,twigUpperBar,twigLowerBar]=SPELLS.find(s=>s.id==='toxicTwig')!.strokes;
 // Alternate scoring strokes. Spellbook art and perfect traces use SPELLS.
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
- toxicTwig:[
-  [twigStem,[...twigUpperBar,...twigLowerBar.slice().reverse()]],
-  [twigStem,[...twigUpperBar.slice().reverse(),...twigLowerBar]],
- ],
  bog:[SPELLS.find(s=>s.id==='bog')!.strokes.map((stroke,i)=>stroke.map(p=>i===1?{x:50+(p.x-50)*.8,y:50+(p.y-50)*.8}:{...p}))],
  bolt:[[[{x:65,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
  flameBlade:[rotateFlameBlade(expandedFlameBlade)],

@@ -43,7 +43,7 @@ test('slightly misplaced and wobbly Cursed Twig drawings still earn Wonderful',(
  }
 });
 
-test('Cursed Twig accepts bars joined on either side and still requires both bars',()=>{
+test('Cursed Twig uses the separate-bar reference and penalizes a connecting line',()=>{
  const twig=SPELLS.find(spell=>spell.id==='toxicTwig')!;
  const [stem,upper,lower]=twig.strokes;
  const right=[upper[0],upper[1],lower[1],lower[0]];
@@ -51,7 +51,7 @@ test('Cursed Twig accepts bars joined on either side and still requires both bar
  for(const bars of [left,right]){
   const match=recognize([bars,stem]);
   assert.equal(match.spell,twig);
-  assert.equal(match.quality,100);
+  assert.ok(match.quality<100);
  }
  assert.equal(recognize([stem,upper]).spell,null);
 });
