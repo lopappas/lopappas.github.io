@@ -4,7 +4,7 @@ import type {SpellRarity} from './rarity.ts';
 export type Point = {x:number;y:number};
 export type Strokes = Point[][];
 export type Element = 'Water'|'Fire'|'Nature'|'Ancient';
-export type SpellId = GuardianSpell|'torrent'|'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize'|'sneakyVine'|'toxicTwig'|'constellation';
+export type SpellId = GuardianSpell|'torrent'|'water'|'fire'|'nature'|'wave'|'bolt'|'leaf'|'chronos'|'ender'|'firestorm'|'eruption'|'tidalcrest'|'bog'|'flameBlade'|'puddleGuard'|'thistleBush'|'alchemize'|'sneakyVine'|'toxicTwig'|'constellation';
 export type Spell = {id:SpellId;rarity:SpellRarity;name:string;element:Element;color:string;description:string;path:string;strokes:Strokes;developerOnly?:boolean;upgradable?:boolean};
 const curve = (start:Point, a:Point,b:Point,end:Point):Point[] => Array.from({length:25},(_,i)=>{const t=i/24,u=1-t;return{x:u*u*u*start.x+3*u*u*t*a.x+3*u*t*t*b.x+t*t*t*end.x,y:u*u*u*start.y+3*u*u*t*a.y+3*u*t*t*b.y+t*t*t*end.y}});
 export function shape(start:number[],segments:number[][]):Point[]{let p={x:start[0],y:start[1]};const out=[p];for(const s of segments){const end={x:s[4],y:s[5]};out.push(...curve(p,{x:s[0],y:s[1]},{x:s[2],y:s[3]},end).slice(1));p=end;}return out;}
@@ -36,6 +36,10 @@ const shroomyStem=shape([39,53],[[38,62,34,69,34,77],[34,86,41,91,50,91],[59,91,
 const shroomyStrokes:Strokes=[[...shroomyCap,{x:15,y:53}],shroomyStem];
 const shroomyPath='M15 53 C10 53 8 50 9 45 C13 24 30 12 50 12 C70 12 87 24 91 45 C92 50 90 53 85 53 Z M39 53 C38 62 34 69 34 77 C34 86 41 91 50 91 C59 91 66 86 66 77 C66 69 62 62 61 53';
 
+const eruptionSlope=shape([8,68],[[25,57,36,46,43,32]]);
+const eruptionStrokes:Strokes=[[...eruptionSlope,...eruptionSlope.slice().reverse().map(({x,y})=>({x:100-x,y})),{x:8,y:68}]];
+const eruptionPath='M8 68 C25 57 36 46 43 32 H57 C64 46 75 57 92 68 Z';
+
 const constellationSegments=[[47,29,50,56,43,74],[39,84,30,90,23,86],[16,82,17,71,25,72],[32,71,40,77,49,82],[62,90,76,91,84,82]];
 
 export const SPELLS:Spell[]=[
@@ -48,6 +52,7 @@ export const SPELLS:Spell[]=[
  {id:'leaf',rarity:'Uncommon',name:'Bramble Leaf',element:'Nature',color:'#9bbe72',description:'A burst of lush leaves slowing enemy encroachment. Deals lower damage.',path:'M50 10 L85 50 L50 90 L15 50 Z',strokes:[[{x:50,y:10},{x:85,y:50},{x:50,y:90},{x:15,y:50},{x:50,y:10}]]},
  {id:'chronos',rarity:'Legendary',name:'Chronos Denalis',element:'Ancient',color:'#8b9099',description:'A lost spell that makes time stand still at every cast quality. Higher quality freezes enemies longer. Cooldown: 30 seconds. Upgrade: +12% freeze duration.',path:'M50 10 C72.091 10 90 27.909 90 50 C90 72.091 72.091 90 50 90 C27.909 90 10 72.091 10 50 C10 27.909 27.909 10 50 10 Z M50 50 L50 10',strokes:[shape([50,10],[[72.091,10,90,27.909,90,50],[90,72.091,72.091,90,50,90],[27.909,90,10,72.091,10,50],[10,27.909,27.909,10,50,10]]),[{x:50,y:50},{x:50,y:10}]]},
  {id:'ender',rarity:'Legendary',name:'Ender',element:'Ancient',color:'#8b9099',description:'Draw a capital K. Deals 1,000 base damage to the nearest enemy. No knockback.',path:'M20 10 L20 90 M80 10 L20 50 L80 90',strokes:[[{x:20,y:10},{x:20,y:90}],[{x:80,y:10},{x:20,y:50},{x:80,y:90}]],developerOnly:true,upgradable:false},
+ {id:'eruption',rarity:'Uncommon',name:'Eruption',element:'Fire',color:'#f0a068',description:'Strike beneath the nearest enemy for 1.5× Hearthspark’s base damage. Magma covers all three lanes and deals 4 Fire damage every half second to enemies on it. Better casts make the pool wider and longer-lasting. At 80% quality it lasts 5 seconds. Cooldown: 10 seconds.',path:eruptionPath,strokes:eruptionStrokes},
  {id:'firestorm',rarity:'Uncommon',name:'Firestorm',element:'Fire',color:'#f0a068',description:'Bring about a relentless rain of fire. Damages all foes caught in its rain, with no knockback. Cooldown: 10 seconds.',path:'M10 18 L90 18 M12 38 L44 38 L28 70 Z M56 38 L88 38 L72 70 Z',strokes:[[{x:10,y:18},{x:90,y:18}],[{x:12,y:38},{x:44,y:38},{x:28,y:70},{x:12,y:38}],[{x:56,y:38},{x:88,y:38},{x:72,y:70},{x:56,y:38}]]},
  {id:'tidalcrest',rarity:'Uncommon',name:'Tidalcrest',element:'Water',color:'#69c2d6',description:'Channel a mighty wave to washout all opponents. Cooldown: 8 seconds.',path:'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z',strokes:[shape([15,85],[[15,47,50,15,85,12],[61,36,61,60,88,85],[64,85,39,85,15,85]])]},
  {id:'bog',rarity:'Uncommon',name:'Drudge Bog',element:'Nature',color:'#9bbe72',description:'Raise a shallow, murky swamp that damages and slows all foes. Recasting extends its duration. Cooldown: 15 seconds.',path:'M50 12 C70.98682 12 88 29.01318 88 50 C88 70.98682 70.98682 88 50 88 C29.01318 88 12 70.98682 12 50 C12 29.01318 29.01318 12 50 12 Z M50 30 L67.5 50 L50 70 L32.5 50 Z',strokes:[shape([50,12],[[70.98682,12,88,29.01318,88,50],[88,70.98682,70.98682,88,50,88],[29.01318,88,12,70.98682,12,50],[12,29.01318,29.01318,12,50,12]]),[{x:50,y:30},{x:67.5,y:50},{x:50,y:70},{x:32.5,y:50},{x:50,y:30}]]},
@@ -167,7 +172,8 @@ function accuracyStrength(quality:number){
  return{damage:Math.round(8+40*growth+[0,7,10,16][tier]),knockback:Math.round(18+82*growth+[0,32,44,60][tier])};
 }
 export function power(quality:number){return accuracyStrength(quality).damage;}
-export function spellPower(id:SpellId,quality:number){
+export function spellPower(id:SpellId,quality:number):number{
+ if(id==='eruption')return 1.5*spellPower('fire',quality);
  if(id==='constellation'||id==='toxicTwig')return 0;
  if(isGuardianSpell(id))return guardianStats(id,quality).baseDamage;
  if(id==='sneakyVine'){if(!Number.isFinite(quality)||quality<MIN_CAST_QUALITY)return 0;const q=balanceQuality(quality),[lo,hi,min,max]=q<60?[48,59,12,20]:q<70?[60,69,27,36]:q<80?[70,79,43,58]:[80,100,67,95];return min+(max-min)*(q-lo)/(hi-lo);}

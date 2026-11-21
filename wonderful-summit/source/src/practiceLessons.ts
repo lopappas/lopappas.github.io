@@ -6,6 +6,7 @@ function startAt(path:Point[],x:number,y:number){
  const rotated=[...points.slice(index),...points.slice(0,index)];return [...rotated,{...rotated[0]}];
 }
 export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
+ eruption:'In one stroke, start at the bottom left, curve up to the flat top, curve down the other side, then close the base.',
  shroomy:'Start at the lower left of the cap and draw the dome, then close it across the flat base. Draw the stem from left to right beneath the cap.',
  scorchy:'Draw the circle, then the two triangles from left to right. Draw the mouth from its left corner across the top, then follow the curve back to where you started.',
  snowman:'Draw a small circle for the head and a larger one touching it below. From each upper side of the larger circle, draw a short line up and out.',

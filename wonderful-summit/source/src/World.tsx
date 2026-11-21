@@ -14,6 +14,7 @@ import {NearSpellArt} from './NearSpellArt';
 import {playUISound} from './sound';
 import {BogArt} from './BogArt';
 import {TidalcrestArt} from './TidalcrestArt';
+import {MagmaArt} from './MagmaArt';
 import {FirestormArt} from './FirestormArt';
 import {ConstellationArt} from './ConstellationArt';
 import React,{useEffect,useRef,useState} from 'react';
@@ -87,6 +88,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
 {battle.constellation&&<ConstellationArt castAt={battle.constellation.castAt} time={battle.time} skyY={BATTLEFIELD_BOTTOM_Y-viewHeight+106}/>}
 <TorrentArt torrent={battle.torrent} time={battle.time} gray={0}/>
 <FirestormArt storm={battle.firestorm} time={battle.time} gray={0} cloudY={cloudY}/>
+<MagmaArt pools={battle.magma} time={battle.time}/>
 <BogArt bog={battle.bog} time={battle.time} gray={0}/><TidalcrestArt battle={battle} gray={0}/>
 {battle.playerHits>0&&<g key={`ward-${battle.playerHits}`} transform="translate(295 410)" aria-label="Light blue magic flashes when Fila is hit"><g className="magic-hit-flash"><circle r="22" fill="#a9e7ff" opacity=".28"/><circle r="16" fill="none" stroke="#b4eeff" strokeWidth="3"/><path d="M0-29V-21M0 21v8M-29 0h8M21 0h8M-19-19l5 5M14 14l5 5M19-19l-5 5M-14 14l-5 5" fill="none" stroke="#d7f6ff" strokeWidth="3" strokeLinecap="round"/></g></g>}
 {robesBurst>0&&<g key={`robes-${robesBurst}`} transform="translate(260 390)" aria-hidden="true" pointerEvents="none">{Array.from({length:24},(_,i)=>{

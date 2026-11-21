@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.3.93-alpha',publishedAt:'2026-11-21T10:20:01Z',model:'GPT-6.2 Sol',changes:['Added Eruption, an Uncommon Fire spell. Draw a wide volcano with a flat top and matching curved slopes.','Eruption strikes beneath the nearest enemy and leaves magma across all three lanes. Better casts enlarge the pool and make it last longer.']},
  {version:'0.3.92-alpha',publishedAt:'2026-11-21T08:55:19Z',model:'GPT-6.2 Sol',changes:['Cursed Twig targets the uncursed enemy with the most current health and ignores elemental matchups.','Defeating Slime Mother or Goblin King adds a relic to the victory rewards.']},
  {version:'0.3.91-alpha',publishedAt:'2026-11-21T08:41:20Z',model:'GPT-6.2 Sol',changes:['Toxic Twig is now Cursed Twig. Cast it without a cooldown.','Cursed Twig snaps when cast and marks poisoned enemies with dark purple particles.']},
  {version:'0.3.90-alpha',publishedAt:'2026-11-21T08:02:33Z',model:'GPT-6.2 Sol',changes:['Added Toxic Twig, an Uncommon Nature spell. Draw a long vertical line crossed by an equal sign.','Toxic Twig poisons the enemy with the most health for 15 seconds. Each tick gets stronger.']},

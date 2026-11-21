@@ -13,7 +13,9 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.92-alpha): Cursed Twig targets the living, uncursed enemy with the most current health. At 80% quality its 15-second poison deals 150 damage, or 180 upgraded, regardless of elemental matchups. The spell has no cooldown and can curse the same enemy again after the poison expires. Both Act 1 bosses now offer a relic through the usual victory rewards.
+Latest update (version 0.3.93-alpha): Eruption is an Uncommon Fire spell with a symmetric one-stroke volcano sigil and a 10-second cooldown. It hits the nearest enemy for 1.5× Hearthspark’s base hit and leaves magma across the three lanes. Magma ticks for 4 base Fire damage every half second and lasts 5 seconds at 80% quality. Better casts increase its size and duration.
+
+Cursed Twig targets the living, uncursed enemy with the most current health. At 80% quality its 15-second poison deals 150 damage, or 180 upgraded, regardless of elemental matchups. The spell has no cooldown and can curse the same enemy again after the poison expires. Both Act 1 bosses now offer a relic through the usual victory rewards.
 
 Shroomy and Shroomy+ deal 12% more spore damage at every cast quality and fire every 2.6 seconds. Shroomy uses its 0.3.82-alpha sprite. Shroomy fires from 240 units and Shroomy+ from 270. He stays planted ahead of Filadora with 15 HP. Spore damage is independent of Fire, Water, and Nature matchups.
 

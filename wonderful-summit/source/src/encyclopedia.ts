@@ -27,6 +27,7 @@ export const CASTING_TIPS:Record<SpellId,string>={
  leaf:'Close a tall diamond. Keep its left and right corners balanced.',
  chronos:'Draw a circle, then a straight hand from its center to the top edge.',
  ender:'Draw a capital K with a straight stem and two arms meeting at its midpoint.',
+ eruption:'Draw a wide, closed volcano outline with a flat top and two matching curved slopes.',
  firestorm:'Draw a level line above two downward-pointing triangles. Close both triangles and leave a gap below the line.',
  tidalcrest:'Sweep upward from the lower left to the pointed crest. Curve inward on the right, then close along the flat base.',
  flameBlade:'Draw the narrow triangular blade, a straight horizontal guard, and a short handle below it.',
