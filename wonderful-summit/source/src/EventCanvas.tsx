@@ -3,7 +3,7 @@ import {resizeInkCanvas} from './inkCanvas';
 import {INK_FADE_MS} from './inkVisuals';
 import {useSpellInk} from './useSpellInk';
 import React,{useEffect,useRef,useState} from 'react';
-import {HOLD_MS,chargeColor,recognize,type SpellId,type Strokes} from './magic';
+import {HOLD_MS,chargeColor,recognize,gradeDrawnCast,type SpellId,type Strokes} from './magic';
 import {snapshotDrawing,type PlayerDrawing} from './drawings';
 import {playSpellSound,unlockSpellAudio,spellCastSound} from './sound';
 
@@ -28,7 +28,8 @@ export function EventCanvas(props:EventCanvasProps){
   if(!ready||committed.current||hold.current||pointer.current!==null||!hasDrawing)return;
   unlockSpellAudio();
   const match=heart?null:recognize(strokes.current,props.known);
-  const quality=match?.quality??heartRockQuality(strokes.current);
+  const rawQuality=match?.quality??heartRockQuality(strokes.current);
+  const quality=match?gradeDrawnCast(match).quality:rawQuality;
   setColor(heart?HEART_INK:match?.spell?.color);
   const started=performance.now();
   hold.current={frame:0};
@@ -48,7 +49,7 @@ export function EventCanvas(props:EventCanvasProps){
    let finish:()=>void;
    if(heart)finish=()=>props.onHeartCast(quality);
    else{
-    const drawing=snapshotDrawing(spell?.id??null,quality,strokes.current,width,height);
+    const drawing=snapshotDrawing(spell?.id??null,rawQuality,strokes.current,width,height);
     finish=()=>props.onCast(spell?.id??null,quality,drawing);
    }
    setReleased(true);

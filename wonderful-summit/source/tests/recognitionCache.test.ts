@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SPELLS,SPELL_VARIATIONS,recognize,applyRecognitionBonus,type Strokes} from '../src/magic.ts';
+import {SPELLS,SPELL_VARIATIONS,recognize,applyRecognitionBonus,gradeDrawnCast,type Strokes} from '../src/magic.ts';
+import {launchGradedSpell,launchSpell,newBattle,relicAccuracyBonus,spellDamage,stepBattle} from '../src/battle.ts';
 import {legacyRecognize} from './fixtures/recognition-0.2.91.ts';
 
 test('all scoring references are perfect regardless of stroke order, direction or scale',()=>{
@@ -72,4 +73,41 @@ test('recognition handles empty ink, learned spell limits and accuracy bonuses',
 test('cache reuse does not mutate input or leak mutable candidate results into later attempts',()=>{
  const shapes=structuredClone(SPELLS),input=structuredClone(SPELLS[0].strokes),before=structuredClone(input),expected=recognize(input);
  const first=recognize(input);first.candidates[0].quality=0;first.candidates.reverse();assert.deepEqual(recognize(input),expected);assert.deepEqual(input,before);assert.deepEqual(SPELLS,shapes);
+});
+
+test('all successful spells earn the same tapered grade boost and fizzles keep their recognition score',()=>{
+ for(const spell of SPELLS){
+  for(const [raw,expected] of [[45,50],[55,60],[65,70],[77,80],[90,92],[99,99],[100,100]]){
+   const rawMatch={spell:null,quality:0,candidates:[{spell,quality:raw,error:0}],reason:''};
+   const recognized=applyRecognitionBonus(rawMatch);
+   assert.deepEqual(gradeDrawnCast(recognized),{...recognized,spell,quality:expected});
+  }
+ }
+ const [spell,other]=SPELLS;
+ for(const [score,runnerUp] of [[44,0],[77,71]]){
+  const rawMatch={spell:null,quality:0,candidates:[{spell,quality:score,error:0},{spell:other,quality:runnerUp,error:0}],reason:''};
+  const recognized=applyRecognitionBonus(rawMatch);
+  assert.equal(recognized.spell,null);
+  assert.strictEqual(gradeDrawnCast(recognized),recognized);
+ }
+});
+
+test('drawn combat uses the displayed grade for damage and counts the accuracy relic only once',()=>{
+ const base=newBattle('active');
+ const state={...base,castingRelics:{...base.castingRelics,calculus:true},robes:{...base.robes,enabled:true}};
+ const spell=SPELLS.find(s=>s.id==='fire')!;
+ const rawQuality=77;
+ const rawMatch={spell,quality:rawQuality,candidates:[{spell,quality:rawQuality,error:0}],reason:''};
+ const recognized=applyRecognitionBonus(rawMatch,relicAccuracyBonus(state,rawQuality));
+ const match=gradeDrawnCast(recognized);
+ assert.equal(match.quality,83);
+ const cast=launchGradedSpell(state,{rawQuality,quality:match.quality},spell.color,spell.id);
+ assert.equal(cast.projectile?.quality,83);
+ assert.deepEqual(cast.robes.spells,[]);
+ const initial=state.enemies[0];
+ let hit=cast;
+ for(let i=0;i<4;i++)hit=stepBattle(hit,.1);
+ assert.equal(hit.projectile,null);
+ assert.equal(hit.enemies[0].hp,Math.max(0,initial.hp-spellDamage(initial,83,spell.id)));
+ assert.equal(launchSpell(state,rawQuality,spell.color,spell.id).projectile?.quality,80);
 });
