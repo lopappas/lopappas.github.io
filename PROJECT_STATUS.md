@@ -13,7 +13,9 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.00-alpha): Torrent drops choose independently among six evenly spaced middle-lane spots. Each splash hits one rectangular column spanning all three lanes, with adjacent columns meeting at the edges. Constellation’s sky hat is 20% smaller and its popup finishes fading when the hat reaches 20% opacity. Alchemize uses its original Ancient cast sound.
+Latest update (version 0.4.01-alpha): Torrent shuffles ten fixed middle-lane spots before repeating. Drops land every 0.83 seconds and each splash hits a 70-unit-wide rectangle spanning all three lanes. Orb and splash artwork are visible during the cast.
+
+Constellation’s sky hat is 20% smaller and its popup finishes fading when the hat reaches 20% opacity. Alchemize uses its original Ancient cast sound.
 
 Puddle Guard bubbles rapidly and deals 1–5 base damage on its first contact. Thistle Bush slows enemies within reach by 10%. Eruption has a heavier blast. Snowman uses its original Water cast sound. Constellation plays a confetti pop at burst and forms Filadora’s hat.
 

@@ -7,7 +7,7 @@ import {
 import {constellationBonus,type Constellation} from './constellation.ts';
 import {playerMaxHealth} from './playerHealth.ts';
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
-import {torrentDuration,torrentContains,torrentDropSpot,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,type Torrent} from './torrent.ts';
+import {torrentDuration,torrentContains,torrentOrbs,TORRENT_SPLASH_SECONDS,type Torrent} from './torrent.ts';
 import {GOBLIN_KING_DIALOGUE_MS,kingHasCrown,kingSpellMultiplier,type KingState} from './goblinKing.ts';
 import {damageUpgradeBonus} from './magic.ts';
 import {isNearSpell,nearDamage,nearKnockback,thistleStats,THISTLE_SLOW,type NearSpell} from './nearSpells.ts';
@@ -626,12 +626,9 @@ export function rollAlchemizePotion(quality:number,random:()=>number=Math.random
 }
 
 
-// Each drop picks independently from the same six battlefield columns.
 function beginTorrent(state:Battle,quality:number,multiplier:number,inkUsed:number,knockbackMultiplier:number,random:()=>number):Battle{
  const duration=torrentDuration(quality);if(state.phase!=='active'||!duration)return state;
- const orbs=Array.from({length:duration/TORRENT_INTERVAL},(_,i)=>({
-  ...torrentDropSpot(random()),landsAt:state.time+(i+1)*TORRENT_INTERVAL,applied:false,
- }));
+ const orbs=torrentOrbs(state.time,duration,random);
  return{...state,casts:state.casts+1,torrent:{started:state.time,until:state.time+duration,quality,damageBonus:state.damageBonus*amuletDamageMultiplier(quality,'torrent',state.amulets),pushBonus:state.pushBonus*knockbackMultiplier,upgrade:state.upgrades.torrent??0,multiplier,midnight:state.midnightStone?midnightBonus(inkUsed):0,orbs}};
 }
 function advanceTorrent(state:Battle):Battle{
