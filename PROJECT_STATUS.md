@@ -13,7 +13,7 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.93-alpha): Eruption is an Uncommon Fire spell with a symmetric one-stroke volcano sigil and a 10-second cooldown. It hits the nearest enemy for 1.5× Hearthspark’s base hit and leaves magma across the three lanes. Magma ticks for 4 base Fire damage every half second and lasts 5 seconds at 80% quality. Better casts increase its size and duration.
+Latest update (version 0.3.94-alpha): Eruption's warning follows the targeted enemy for 0.8 seconds. The eruption deals 1.5× Hearthspark’s base damage and stuns the target for one second. Magma covers all three lanes and slows enemies in it by 12%. At 80% quality magma lasts five seconds with four damage per half-second tick. Eruption+ deals 20% more direct damage, six damage per tick, and lasts one second longer across cast qualities. The symmetric volcano trace is 50% larger in combat and Practice. Eruption has a 10-second cooldown.
 
 Cursed Twig targets the living, uncursed enemy with the most current health. At 80% quality its 15-second poison deals 150 damage, or 180 upgraded, regardless of elemental matchups. The spell has no cooldown and can curse the same enemy again after the poison expires. Both Act 1 bosses now offer a relic through the usual victory rewards.
 

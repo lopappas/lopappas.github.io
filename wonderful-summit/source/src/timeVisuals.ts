@@ -10,6 +10,7 @@ export function chronosVisuals(battle:Battle){
 }
 export function enemyStatusLabel(enemy:Enemy,battle:Battle){
  if(battle.freezeUntil>battle.time)return '❄';
+ if((enemy.eruptionStunUntil??0)>battle.time)return 'Stunned';
  if(enemy.potionCurseTick!=null||enemy.curseTick!==null)return 'Cursed';
  if(enemy.burn)return 'Burn';
  if(enemy.slowUntil>battle.time&&!chronosAffected(enemy,battle.time))return 'Slow';

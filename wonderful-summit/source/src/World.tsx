@@ -14,7 +14,7 @@ import {NearSpellArt} from './NearSpellArt';
 import {playUISound} from './sound';
 import {BogArt} from './BogArt';
 import {TidalcrestArt} from './TidalcrestArt';
-import {MagmaArt} from './MagmaArt';
+import {EruptionArt,MagmaArt} from './MagmaArt';
 import {FirestormArt} from './FirestormArt';
 import {ConstellationArt} from './ConstellationArt';
 import React,{useEffect,useRef,useState} from 'react';
@@ -106,8 +106,8 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
 {enemies.map(e=>{const crown=kingCrownFrame(e,battle.time),kingUIOffset=e.goblinKing&&!kingHasCrown(e)?48:0,frozen=battle.freezeUntil>battle.time,status=grouped?null:enemyStatusLabel(e,battle),color=colorForEnemy(e),guardianAttackAge=battle.time-(e.guardianHitAt??-Infinity),guardianAttack=guardianAttackAge<GUARDIAN_CONTACT_ANIMATION_SECONDS;return <g key={e.id} transform={`translate(${e.x} ${enemyArtY(e,battle.encounter)})`} aria-label={practice?'A non-elemental golden practice slime':!showSpellDetails?'Enemy':e.goblinKing?`Goblin King: ${e.hp} of ${e.maxHP} health`:`${e.rocky?'Rock':e.element} ${e.kind}: ${e.hp} of ${e.maxHP} health`}>
 <g className={enemyEntrance?`t2-enemy-${enemyEntrance}`:undefined} style={{animationPlayState:companionPaused?'paused':'running'}}>
 <ellipse cy={enemyFootOffset(e)} rx={e.kind==='mother'?72:e.goblinKing?59.8:38} ry="7" fill="#203d32" opacity=".35"/>{battle.phase==='active'&&target?.id===e.id&&<g transform={e.goblinKing?`translate(0 ${-24+kingUIOffset})`:undefined}><TargetCaret element={e.element} mother={e.kind==='mother'||!!e.goblinKing}/></g>}
-<g transform={e.kind==='mother'?`scale(${MOTHER_ART_SCALE})`:e.goblinKing?`scale(${GOBLIN_KING_SCALE})`:undefined}><g className={`${e.kind==='spider'?'spider':e.kind==='goblin'?'goblin':'slime'}${e.stunUntil>battle.time?' stunned':''}${(e.shield?.burnUntil??0)>battle.time?' shield-burning':''}${e.hurtUntil>battle.time?' slime-hit':''}${e.attackAt!==null?' slime-attacking':''}${guardianAttack?' guardian-contact-attack':''}`} style={{filter:frozen?'hue-rotate(100deg) brightness(1.2)':undefined,animationDuration:guardianAttack?`${GUARDIAN_CONTACT_ANIMATION_SECONDS/2}s`:undefined,animationDelay:guardianAttack?`-${guardianAttackAge}s`:undefined}}>
-{e.kind==='spider'?<SpiderArt color={color} clock={e.clock} moving={!frozen&&!guardianAttack&&e.attackAt===null&&!e.push&&e.rootUntil<=battle.time&&e.stunUntil<=battle.time}/>:e.kind!=='goblin'?<SlimeBody color={color} attacking={e.attackAt!==null||guardianAttack} practice={practice} rocky={e.rocky}/>:<g shapeRendering="crispEdges"><GoblinBody/>{e.goblinKing?crown.visible&&<g aria-label="Gold crown" transform={`translate(${crown.x} ${crown.y}) rotate(${crown.rotation})`} opacity={crown.opacity}><CrownBody/></g>:<GoblinHelmet/>}</g>}
+<g transform={e.kind==='mother'?`scale(${MOTHER_ART_SCALE})`:e.goblinKing?`scale(${GOBLIN_KING_SCALE})`:undefined}><g className={`${e.kind==='spider'?'spider':e.kind==='goblin'?'goblin':'slime'}${Math.max(e.stunUntil,e.eruptionStunUntil??0)>battle.time?' stunned':''}${(e.shield?.burnUntil??0)>battle.time?' shield-burning':''}${e.hurtUntil>battle.time?' slime-hit':''}${e.attackAt!==null?' slime-attacking':''}${guardianAttack?' guardian-contact-attack':''}`} style={{filter:frozen?'hue-rotate(100deg) brightness(1.2)':undefined,animationDuration:guardianAttack?`${GUARDIAN_CONTACT_ANIMATION_SECONDS/2}s`:undefined,animationDelay:guardianAttack?`-${guardianAttackAge}s`:undefined}}>
+{e.kind==='spider'?<SpiderArt color={color} clock={e.clock} moving={!frozen&&!guardianAttack&&e.attackAt===null&&!e.push&&e.rootUntil<=battle.time&&Math.max(e.stunUntil,e.eruptionStunUntil??0)<=battle.time}/>:e.kind!=='goblin'?<SlimeBody color={color} attacking={e.attackAt!==null||guardianAttack} practice={practice} rocky={e.rocky}/>:<g shapeRendering="crispEdges"><GoblinBody/>{e.goblinKing?crown.visible&&<g aria-label="Gold crown" transform={`translate(${crown.x} ${crown.y}) rotate(${crown.rotation})`} opacity={crown.opacity}><CrownBody/></g>:<GoblinHelmet/>}</g>}
 </g></g>
 {e.shield&&<WoodenShieldArt shield={e.shield} time={battle.time}/>}
 <EnemyEffects enemy={e} time={battle.time}/>
@@ -120,6 +120,7 @@ return <div className="world" ref={worldRef}><svg viewBox={`0 ${BATTLEFIELD_BOTT
  <text textAnchor="middle" fontFamily="Fredoka" fontSize="21" fontWeight="500" fill="#ffd700" stroke="#283519" strokeWidth="1.4" paintOrder="stroke" aria-hidden="true"><tspan x="0" y="30">My crown!</tspan><tspan x="0" y="58">You’ll pay for this!</tspan></text>
 </g>}
 </g></g>;})}
+<EruptionArt warnings={battle.eruptionWarnings} pools={battle.magma} time={battle.time}/>
 {grouped&&enemies.map(e=><g key={e.id} transform={`translate(${e.x} ${enemyY(e.id,battle.encounter,e.lane)-SLIME_FOOT_OFFSET-(barOffsets.get(e.id)??0)})`}>
  <EnemyNameplate showDetails={showSpellDetails} kind={e.kind} element={e.element} goblinKing={e.goblinKing} rocky={e.rocky} hp={e.hp} maxHP={e.maxHP} color={colorForEnemy(e)} kingUIOffset={0} enemyEntrance={enemyEntrance} grouped attacking={e.attackAt!==null} status={enemyStatusLabel(e,battle)}/>
 </g>)}

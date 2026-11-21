@@ -30,6 +30,7 @@ export function practiceEffects(battle:Battle){
  if(e.burn)out.push(`Burning · ${e.burn.ticks} ticks`);
  const slow=spellSlow(battle,e,now);
  if(slow>0)out.push(`Slowed ${Math.round(slow*100)}%`);
+ if((e.eruptionStunUntil??0)>now)out.push(`Stunned ${((e.eruptionStunUntil??0)-now).toFixed(1)}s`);
  if(e.stunUntil>now)out.push(`Time stopped ${(e.stunUntil-now).toFixed(1)}s`);
  if(e.rootUntil>now)out.push(`Rooted ${(e.rootUntil-now).toFixed(1)}s`);
  if(e.push)out.push('Knockback');

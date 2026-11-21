@@ -35,7 +35,9 @@ test('new trail encounter spawns one neutral rocky slime with 150 HP and opening
 test('rocky trait halves Faint direct damage and removes all Faint knockback, even with bonuses',()=>{
  for(const spell of PLAYER_SPELLS.filter(s=>!isGuardianSpell(s.id)&&s.id!=='torrent'&&s.id!=='alchemize'&&s.id!=='constellation'&&s.id!=='chronos'&&s.id!=='firestorm'&&s.id!=='bog'&&s.id!=='toxicTwig'&&!['flameBlade','puddleGuard','thistleBush'].includes(s.id)))for(const quality of [48,59,60,69,70,79,80,100]){
   const b=newBattle('active','rock');b.enemies[0].x=350;
-  const hit=hitWithSpell(b,quality,spell.id),rock=hit.enemies[0];const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?(1.265*.95):spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
+  let hit=hitWithSpell(b,quality,spell.id);
+  if(spell.id==='eruption')for(let i=0;i<8;i++)hit=stepBattle(hit,.1);
+  const rock=hit.enemies[0];const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?(1.265*.95):spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
   const precision=['water','fire','nature','eruption'].includes(spell.id)?1e6:1;assert.ok(Math.abs(b.enemies[0].hp-rock.hp-Math.round(precision*spellPower(spell.id,quality)*factor*(quality<60?.5:quality<70?.75:1))/precision)<1e-8);
   if(quality<60||spell.id==='eruption'){assert.equal(rock.push,null);assert.equal(spellKnockback(quality,spell.id,9,'Neutral',true),0);}else assert.ok(rock.push&&rock.push.to>350);
  }
@@ -56,12 +58,14 @@ test('any rocky enemy ignores Faint spell effects but still accepts potions',()=
 test('Steady rocky defense reduces damage and knockback by exactly 25 percent before rounding',()=>{
  for(const spell of PLAYER_SPELLS.filter(s=>!isGuardianSpell(s.id)&&s.id!=='torrent'&&s.id!=='alchemize'&&s.id!=='constellation'&&s.id!=='chronos'&&s.id!=='firestorm'&&s.id!=='bog'&&s.id!=='toxicTwig'&&!['flameBlade','puddleGuard','thistleBush'].includes(s.id)))for(const q of [60,69,70,79,80,100]){
   const b=newBattle('active','rock'),e=b.enemies[0];e.x=350;
-  const hit=hitWithSpell(b,q,spell.id),mult=q<70?.75:1;
+  let hit=hitWithSpell(b,q,spell.id);
+  if(spell.id==='eruption')for(let i=0;i<8;i++)hit=stepBattle(hit,.1);
+  const mult=q<70?.75:1;
   const expected=spellKnockback(q,spell.id,1,'Neutral')*mult;
   if(spell.id==='eruption')assert.equal(hit.enemies[0].push,null);
   else assert.ok(Math.abs(hit.enemies[0].push!.to-Math.min(ENEMY_BACK_X,e.x+expected))<1e-8);
   const factor=spell.id==='bolt'?1.3:spell.id==='tidalcrest'?(1.265*.95):spell.id==='wave'?.9:spell.id==='leaf'?.75:1;
-  const precision=['water','fire','nature','eruption'].includes(spell.id)?1e6:1;assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(precision*spellPower(spell.id,q)*factor*1.15*(spell.id==='bolt'?1.2:spell.id==='tidalcrest'?1.15:1.25)*mult)/precision);
+  const precision=['water','fire','nature','eruption'].includes(spell.id)?1e6:1;assert.equal(spellDamage(e,q,spell.id,1.15,2),Math.round(precision*spellPower(spell.id,q)*factor*1.15*(spell.id==='bolt'||spell.id==='eruption'?1.2:spell.id==='tidalcrest'?1.15:1.25)*mult)/precision);
  }
 });
 test('rocky Faint immunity never applies or refreshes statuses, and does not cleanse earlier good casts',()=>{
