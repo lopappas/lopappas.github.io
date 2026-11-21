@@ -98,7 +98,7 @@ export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  snowman:[[...snowmanBodyStrokes,...originalSnowmanArms]],
  bog:[SPELLS.find(s=>s.id==='bog')!.strokes.map((stroke,i)=>stroke.map(p=>i===1?{x:50+(p.x-50)*.8,y:50+(p.y-50)*.8}:{...p}))],
  bolt:[[[{x:53,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
- flameBlade:[rotateFlameBlade(expandedFlameBlade),uprightFlameBlade,expandedFlameBlade],
+ flameBlade:[rotateFlameBlade(expandedFlameBlade)],
  fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]],
  firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]],
  nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]],

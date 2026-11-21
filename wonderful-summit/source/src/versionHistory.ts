@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.4.05-alpha',publishedAt:'2026-11-21T17:21:14Z',model:'GPT-6.2 Sol',changes:['Flame Blade casting now uses the 45-degree trace and its rotated variant.']},
  {version:'0.4.04-alpha',publishedAt:'2026-11-21T17:14:25Z',model:'GPT-6.2 Sol',changes:['Rotated Flame Blade’s trace 45 degrees clockwise.']},
  {version:'0.4.03-alpha',publishedAt:'2026-11-21T16:49:28Z',model:'GPT-6.2 Sol',changes:['Updated the in-game spell descriptions.']},
  {version:'0.4.02-alpha',publishedAt:'2026-11-21T14:40:21Z',model:'GPT-6.2 Sol',changes:['Restored Torrent’s 0.3.99-alpha drops and splash visuals.']},

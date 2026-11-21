@@ -13,7 +13,7 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.04-alpha): The Flame Blade trace and Practice demonstration are rotated 45 degrees clockwise. Recognition still accepts the upright drawing.
+Latest update (version 0.4.05-alpha): Flame Blade’s trace, Practice demonstration, and recognition templates all use the 45-degree clockwise orientation.
 
 The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
 

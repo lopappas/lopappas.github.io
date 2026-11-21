@@ -96,7 +96,16 @@ test('approved Flame Blade variant retains the blade and expands only guard and 
  const length=([a,b]:typeof variant[number])=>Math.hypot(b.x-a.x,b.y-a.y);
  assert.deepEqual(variant[0],spell.strokes[0]);
  assert.ok(spell.strokes[0][0].x>spell.strokes[2][1].x&&spell.strokes[0][0].y<spell.strokes[2][1].y);
- for(const old of SPELL_VARIATIONS.flameBlade!.slice(1))assert.equal(recognize(old).spell?.id,'flameBlade');
+ assert.equal(SPELL_VARIATIONS.flameBlade!.length,1);
+ for(const width of [1,1.2]){
+  const upright=[
+   [{x:50,y:10},{x:57,y:62},{x:43,y:62},{x:50,y:10}],
+   [{x:50-22*width,y:62},{x:50+22*width,y:62}],
+   [{x:50,y:62},{x:50,y:62+26*width}],
+  ];
+  assert.equal(recognize(upright,['flameBlade']).spell,null);
+  assert.notEqual(recognize(upright).spell?.id,'flameBlade');
+ }
  assert.ok(Math.abs(length(variant[1])-44*1.2)<1e-8);
  assert.ok(Math.abs(length(variant[2])-26*1.2)<1e-8);
  for(const scale of [.2,1,4]){const strokes=variant.slice().reverse().map(s=>s.slice().reverse().map(p=>({x:90+p.x*scale,y:-15+p.y*scale})));const match=recognize(strokes);assert.equal(match.spell?.id,'flameBlade');assert.equal(match.quality,100);}
