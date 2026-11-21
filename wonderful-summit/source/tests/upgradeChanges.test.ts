@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {power,SPELLS} from '../src/magic.ts';
+import {power} from '../src/magic.ts';
 import {newBattle,launchSpell,spellDamage,brambleEffect,hitWithSpell} from '../src/battle.ts';
 import {spellUpgradePreview} from '../src/spellbook.ts';
 test('revised damage upgrades apply before rounding and match the campsite preview',()=>{
@@ -32,5 +32,4 @@ test('upgraded Alchemize rolls twice, keeps first roll when only one slot fits, 
   assert.equal(launchSpell(result,80,'#fff','alchemize'),result);
  }
  assert.equal(spellUpgradePreview('alchemize')?.alchemy,true);
- assert.ok(SPELLS.find(s=>s.id==='alchemize')!.description.includes('two potions'));
 });

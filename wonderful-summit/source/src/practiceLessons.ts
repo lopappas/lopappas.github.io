@@ -18,7 +18,7 @@ export const LESSON_INSTRUCTIONS:Partial<Record<SpellId,string>>={
  bog:'From the top, draw a circle counterclockwise. Draw a bramble leaf in the center from the left corner clockwise.',
  constellation:'Draw one continuous stroke from the top down. Loop left, cross the stem, then sweep out to the right.',
  alchemize:'Draw the bottle from the top left counterclockwise. For the cork, start at the bottom left, draw up the left side, across the top, then down the right side. Do not draw the bottom.',
- puddleGuard:'Draw it from left to right.',flameBlade:'Draw the horizontal line, then the vertical. Finally, draw the blade from the bottom left corner, going clockwise, stopping at the bottom right. Do not redraw the horizontal blade base.',
+ puddleGuard:'Draw it from left to right.',flameBlade:'Draw the guard from upper left to lower right. Draw the handle from the center of the guard down to the left. Start at the upper-left end of the blade’s base, draw up to the tip, then down to the other end.',
  toxicTwig:'Draw the long line from top to bottom. Cross the middle with two short horizontal strokes, one above the other.',
  thistleBush:'Draw it from left to right.',sneakyVine:'Start at the bottom right of the shape and finish drawing it.',
 };
@@ -32,7 +32,7 @@ export function practiceLesson(id:SpellId){
  if(id==='chronos')paths=[paths[0].reverse(),paths[1].reverse()];
  if(id==='bog')paths=[paths[0].reverse(),startAt(paths[1],32.5,50)];
  if(id==='alchemize')paths=[paths[0].reverse(),[{x:41,y:14},{x:39.2,y:5},{x:60.8,y:5},{x:59,y:14}]];
- if(id==='flameBlade')paths=[paths[1],paths[2],startAt(paths[0],43,62).slice(0,-1)];
+ if(id==='flameBlade')paths=[paths[1],paths[2],[paths[0][2],paths[0][0],paths[0][1]]];
  const length=paths.reduce((sum,p)=>sum+p.slice(1).reduce((n,b,i)=>n+Math.hypot(b.x-p[i].x,b.y-p[i].y),0),0);
  return {spell,paths,instruction:LESSON_INSTRUCTIONS[id]!,duration:(id==='water'?4500:['fire','nature'].includes(id)?4000:Math.max(4000,Math.min(8000,length*25)))/1.2};
 }

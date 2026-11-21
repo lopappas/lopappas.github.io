@@ -13,7 +13,9 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.03-alpha): The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
+Latest update (version 0.4.04-alpha): The Flame Blade trace and Practice demonstration are rotated 45 degrees clockwise. Recognition still accepts the upright drawing.
+
+The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
 
 Torrent uses its 0.3.99-alpha behavior and visuals. One orb per second lands at a random point on a walkable enemy lane. Its elliptical splash damages and knocks back nearby foes.
 

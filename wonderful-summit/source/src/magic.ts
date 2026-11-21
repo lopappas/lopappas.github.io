@@ -44,6 +44,24 @@ const eruptionSlope=shape([8,68],[[25,57,36,46,43,32]]);
 const eruptionStrokes:Strokes=[[...eruptionSlope,...eruptionSlope.slice().reverse().map(({x,y})=>({x:100-x,y})),{x:8,y:68}]];
 const eruptionPath='M8 68 C25 57 36 46 43 32 H57 C64 46 75 57 92 68 Z';
 
+const uprightFlameBlade:Strokes=[
+ [{x:50,y:10},{x:57,y:62},{x:43,y:62},{x:50,y:10}],
+ [{x:28,y:62},{x:72,y:62}],
+ [{x:50,y:62},{x:50,y:88}],
+];
+const expandedFlameBlade=uprightFlameBlade.map((stroke,i)=>stroke.map(p=>({
+ x:i===1?50+(p.x-50)*1.2:p.x,y:i===2?62+(p.y-62)*1.2:p.y,
+})));
+const rotateFlameBlade=(strokes:Strokes):Strokes=>strokes.map(stroke=>stroke.map(({x,y})=>({
+ x:50+((x-50)-(y-49))*Math.SQRT1_2,
+ y:49+((x-50)+(y-49))*Math.SQRT1_2,
+})));
+const flameBladeStrokes=rotateFlameBlade(uprightFlameBlade);
+const flameBladePath=flameBladeStrokes.map((stroke,i)=>{
+ const points=i===0?stroke.slice(0,-1):stroke;
+ return points.map(({x,y},j)=>`${j?'L':'M'}${x} ${y}`).join(' ')+(i===0?' Z':'');
+}).join(' ');
+
 const constellationSegments=[[47,29,50,56,43,74],[39,84,30,90,23,86],[16,82,17,71,25,72],[32,71,40,77,49,82],[62,90,76,91,84,82]];
 
 export const SPELLS:Spell[]=[
@@ -60,7 +78,7 @@ export const SPELLS:Spell[]=[
  {id:'firestorm',rarity:'Uncommon',name:'Firestorm',element:'Fire',color:'#f0a068',description:'Bring about a relentless rain of fire. Damages all foes caught in its rain, with no knockback. Cooldown: 10 seconds.',path:'M10 18 L90 18 M12 38 L44 38 L28 70 Z M56 38 L88 38 L72 70 Z',strokes:[[{x:10,y:18},{x:90,y:18}],[{x:12,y:38},{x:44,y:38},{x:28,y:70},{x:12,y:38}],[{x:56,y:38},{x:88,y:38},{x:72,y:70},{x:56,y:38}]]},
  {id:'tidalcrest',rarity:'Uncommon',name:'Tidalcrest',element:'Water',color:'#69c2d6',description:'Channel a mighty wave to washout all opponents. Cooldown: 8 seconds.',path:'M15 85 C15 47 50 15 85 12 C61 36 61 60 88 85 L15 85 Z',strokes:[shape([15,85],[[15,47,50,15,85,12],[61,36,61,60,88,85],[64,85,39,85,15,85]])]},
  {id:'bog',rarity:'Uncommon',name:'Drudge Bog',element:'Nature',color:'#9bbe72',description:'Raise a shallow, murky swamp that damages and slows all foes. Recasting extends its duration. 15s cooldown.',path:'M50 12 C70.98682 12 88 29.01318 88 50 C88 70.98682 70.98682 88 50 88 C29.01318 88 12 70.98682 12 50 C12 29.01318 29.01318 12 50 12 Z M50 30 L67.5 50 L50 70 L32.5 50 Z',strokes:[shape([50,12],[[70.98682,12,88,29.01318,88,50],[88,70.98682,70.98682,88,50,88],[29.01318,88,12,70.98682,12,50],[12,29.01318,29.01318,12,50,12]]),[{x:50,y:30},{x:67.5,y:50},{x:50,y:70},{x:32.5,y:50},{x:50,y:30}]]},
- {id:'flameBlade',rarity:'Uncommon',name:'Flame Blade',element:'Fire',color:'#f0a068',description:'Swing a fierce fiery blade that deals strong damage to all enemies in melee range. 8s cooldown.',path:'M50 10 L57 62 L43 62 Z M28 62 L72 62 M50 62 L50 88',strokes:[[{x:50,y:10},{x:57,y:62},{x:43,y:62},{x:50,y:10}],[{x:28,y:62},{x:72,y:62}],[{x:50,y:62},{x:50,y:88}]]},
+ {id:'flameBlade',rarity:'Uncommon',name:'Flame Blade',element:'Fire',color:'#f0a068',description:'Swing a fierce fiery blade that deals strong damage to all enemies in melee range. 8s cooldown.',path:flameBladePath,strokes:flameBladeStrokes},
  {id:'puddleGuard',rarity:'Uncommon',name:'Puddle Guard',element:'Water',color:'#69c2d6',description:'Place a bubbling puddle trap. The first enemy to step on it takes low damage and is launched back. 10s cooldown.',path:'M6 55 C12 53 14 44 25 44 C37 44 37 56 50 56 C63 56 63 44 75 44 C86 44 88 53 94 55',strokes:[shape([6,55],[[12,53,14,44,25,44],[37,44,37,56,50,56],[63,56,63,44,75,44],[86,44,88,53,94,55]])]},
  {id:'thistleBush',rarity:'Uncommon',name:'Thistle Bush',element:'Nature',color:'#9bbe72',description:'Grow a thicket of thorns that damage and slow all enemies. The bush lasts indefinitely, but disappears when it deals enough damage. 15s cooldown.',path:'M10 60 L23.333333 40 L36.666667 60 L50 40 L63.333333 60 L76.666667 40 L90 60',strokes:[[{x:10,y:60},{x:23.333333,y:40},{x:36.666667,y:60},{x:50,y:40},{x:63.333333,y:60},{x:76.666667,y:40},{x:90,y:60}]]},
  {id:'toxicTwig',rarity:'Uncommon',name:'Cursed Twig',element:'Nature',color:'#9bbe72',description:'Place a powerful curse on the enemy with the highest HP. Subsequent casts curse the next uncursed enemy. Curse damage increases overtime for 15s total. Ignores elemental matchups.',path:'M50 10 V90 M30 43 H70 M30 57 H70',strokes:[[{x:50,y:10},{x:50,y:90}],[{x:30,y:43},{x:70,y:43}],[{x:30,y:57},{x:70,y:57}]]},
@@ -80,7 +98,7 @@ export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  snowman:[[...snowmanBodyStrokes,...originalSnowmanArms]],
  bog:[SPELLS.find(s=>s.id==='bog')!.strokes.map((stroke,i)=>stroke.map(p=>i===1?{x:50+(p.x-50)*.8,y:50+(p.y-50)*.8}:{...p}))],
  bolt:[[[{x:53,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
- flameBlade:[SPELLS.find(s=>s.id==='flameBlade')!.strokes.map((stroke,i)=>stroke.map(p=>({x:i===1?50+(p.x-50)*1.2:p.x,y:i===2?62+(p.y-62)*1.2:p.y})))],
+ flameBlade:[rotateFlameBlade(expandedFlameBlade),uprightFlameBlade,expandedFlameBlade],
  fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]],
  firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]],
  nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]],

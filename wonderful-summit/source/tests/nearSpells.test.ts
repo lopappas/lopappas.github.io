@@ -93,9 +93,12 @@ test('near-distance practice makes melee and placed spells reachable without cha
 
 test('approved Flame Blade variant retains the blade and expands only guard and hilt',()=>{
  const spell=SPELLS.find(s=>s.id==='flameBlade')!,variant=SPELL_VARIATIONS.flameBlade![0];
+ const length=([a,b]:typeof variant[number])=>Math.hypot(b.x-a.x,b.y-a.y);
  assert.deepEqual(variant[0],spell.strokes[0]);
- assert.ok(Math.abs(variant[1][1].x-variant[1][0].x-44*1.2)<1e-8);
- assert.ok(Math.abs(variant[2][1].y-variant[2][0].y-26*1.2)<1e-8);
+ assert.ok(spell.strokes[0][0].x>spell.strokes[2][1].x&&spell.strokes[0][0].y<spell.strokes[2][1].y);
+ for(const old of SPELL_VARIATIONS.flameBlade!.slice(1))assert.equal(recognize(old).spell?.id,'flameBlade');
+ assert.ok(Math.abs(length(variant[1])-44*1.2)<1e-8);
+ assert.ok(Math.abs(length(variant[2])-26*1.2)<1e-8);
  for(const scale of [.2,1,4]){const strokes=variant.slice().reverse().map(s=>s.slice().reverse().map(p=>({x:90+p.x*scale,y:-15+p.y*scale})));const match=recognize(strokes);assert.equal(match.spell?.id,'flameBlade');assert.equal(match.quality,100);}
 });
 test('Puddle Guard uses the approved symmetric one-stroke wave while its reduced push respects the far edge',()=>{
