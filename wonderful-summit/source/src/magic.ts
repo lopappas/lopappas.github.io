@@ -90,8 +90,14 @@ export const SPELLS:Spell[]=[
 export const PLAYER_SPELLS=SPELLS.filter(spell=>!spell.developerOnly);
 export function damageUpgradeBonus(id:SpellId){return isGuardianSpell(id)?guardianUpgradeDamageBonus(id):id==='bolt'||id==='toxicTwig'||id==='eruption'?.2:id==='tidalcrest'||id==='flameBlade'?.15:.25;}
 export function isUpgradableSpell(id:SpellId){const spell=SPELLS.find(s=>s.id===id);return !!spell&&spell.upgradable!==false;}
+
+const [twigStem,twigUpperBar,twigLowerBar]=SPELLS.find(s=>s.id==='toxicTwig')!.strokes;
 // Alternate scoring strokes. Spellbook art and perfect traces use SPELLS.
 export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
+ toxicTwig:[
+  [twigStem,[...twigUpperBar,...twigLowerBar.slice().reverse()]],
+  [twigStem,[...twigUpperBar.slice().reverse(),...twigLowerBar]],
+ ],
  bog:[SPELLS.find(s=>s.id==='bog')!.strokes.map((stroke,i)=>stroke.map(p=>i===1?{x:50+(p.x-50)*.8,y:50+(p.y-50)*.8}:{...p}))],
  bolt:[[[{x:65,y:10},{x:25,y:50},{x:55,y:50},{x:35,y:90}]]],
  flameBlade:[rotateFlameBlade(expandedFlameBlade)],
@@ -211,12 +217,15 @@ function prepareEventDrawing(strokes:Strokes){
  return {points:sampleEventDrawing(normalized),length:strokeLength(normalized)};
 }
 
-function compareShapes(drawing:ReturnType<typeof prepareShape>,template:ReturnType<typeof prepareShape>,penalty=1){
+function compareShapes(drawing:ReturnType<typeof prepareShape>,template:ReturnType<typeof prepareShape>,penalty=1,placementTolerance=0){
  const {points,length}=drawing;
  const error=(meanNearest(points,template.points)+meanNearest(template.points,points))/2;
  const ratio=length/template.length;
  const lengthPenalty=Math.exp(-Math.abs(Math.log(Math.max(.001,ratio)))*1.8);
- return {quality:Math.round(100*Math.exp(-error*13)*lengthPenalty*penalty),error};
+ const quality=100*Math.exp(-error*13)*lengthPenalty*penalty;
+ // Ease placement and curvature errors on close matches while preserving the ink-length penalty.
+ const closeMatch=Math.min(1,Math.max(0,(quality-55)/10));
+ return {quality:Math.round(quality*Math.exp(error*placementTolerance*closeMatch)),error};
 }
 
 export function scoreDrawingAgainst(strokes:Strokes,reference:Strokes){
@@ -228,6 +237,7 @@ export function scoreDrawingAgainst(strokes:Strokes,reference:Strokes){
 const RECOGNITION_TEMPLATES=SPELLS.map(spell=>({
  spell,
  variants:[spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])].map(prepareShape),
+ placementTolerance:spell.id==='toxicTwig'?4:0,
 }));
 export type RecognitionResult={spell:Spell|null;quality:number;candidates:{spell:Spell;quality:number;error:number}[];reason:string};
 const RECOGNITION_MARGIN=7;
@@ -250,7 +260,7 @@ export function recognize(strokes:Strokes,known:SpellId[]=SPELLS.map(s=>s.id),ac
   let best:RecognitionResult['candidates'][number]|undefined;
   // Collapse variations before ambiguity checks, retaining the original tie order.
   for(const template of prepared.variants){
-   const {quality,error}=compareShapes(drawing,template,handPenalty);
+   const {quality,error}=compareShapes(drawing,template,handPenalty,prepared.placementTolerance);
    if(!best||quality>best.quality)best={spell,quality,error};
   }
   if(best)candidates.push(best);

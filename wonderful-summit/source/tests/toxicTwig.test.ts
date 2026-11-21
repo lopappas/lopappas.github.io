@@ -2,7 +2,7 @@ import {woodenShield} from '../src/shields.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSpider,drinkPotion,launchSpell,newBattle,spellCooldownRemaining,spellDamage,spellKnockback,spellTarget,stepBattle,toxicTwigCastPreview,toxicTwigTotalDamage,type Battle} from '../src/battle.ts';
-import {recognize,SPELLS} from '../src/magic.ts';
+import {gradeDrawnCast,recognize,SPELLS,type Strokes} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 
 function field(upgrade=0){
@@ -25,6 +25,35 @@ test('Cursed Twig is an Uncommon Nature spell recognized as a stem crossed by tw
  const result=recognize(lesson.paths.map(path=>path.map(({x,y})=>({x:x*1.4+7,y:y*1.4+9}))));
  assert.equal(result.spell?.id,spell.id);
  assert.ok(result.quality>=98);
+});
+
+test('slightly misplaced and wobbly Cursed Twig drawings still earn Wonderful',()=>{
+ const twig=SPELLS.find(spell=>spell.id==='toxicTwig')!;
+ const [stem,...bars]=twig.strokes;
+ const highBars=[stem,...bars.map(stroke=>stroke.map(p=>({...p,y:p.y-5})))];
+ const rough:Strokes=[
+  [{x:50,y:10},{x:52,y:32},{x:49,y:50},{x:52,y:70},{x:53,y:90}],
+  [{x:31,y:38},{x:47,y:40},{x:68,y:41}],
+  [{x:32,y:55},{x:48,y:54},{x:69,y:56}],
+ ];
+ for(const strokes of [highBars,rough]){
+  const match=gradeDrawnCast(recognize(strokes));
+  assert.equal(match.spell,twig);
+  assert.ok(match.quality>=80&&match.quality<100);
+ }
+});
+
+test('Cursed Twig accepts bars joined on either side and still requires both bars',()=>{
+ const twig=SPELLS.find(spell=>spell.id==='toxicTwig')!;
+ const [stem,upper,lower]=twig.strokes;
+ const right=[upper[0],upper[1],lower[1],lower[0]];
+ const left=[upper[1],upper[0],lower[0],lower[1]];
+ for(const bars of [left,right]){
+  const match=recognize([bars,stem]);
+  assert.equal(match.spell,twig);
+  assert.equal(match.quality,100);
+ }
+ assert.equal(recognize([stem,upper]).spell,null);
 });
 
 test('Cursed Twig targets the most current HP among living enemies already on the field',()=>{

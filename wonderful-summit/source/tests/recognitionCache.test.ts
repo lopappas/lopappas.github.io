@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,SPELL_VARIATIONS,recognize,applyRecognitionBonus,gradeDrawnCast,type Strokes} from '../src/magic.ts';
 import {launchGradedSpell,launchSpell,newBattle,relicAccuracyBonus,spellDamage,stepBattle} from '../src/battle.ts';
-import {legacyRecognize} from './fixtures/recognition-0.2.91.ts';
 
 test('all scoring references are perfect regardless of stroke order, direction or scale',()=>{
  for(const spell of SPELLS)for(const shape of [spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])]){
@@ -50,9 +49,6 @@ test('Cursed Twig accepts every stroke sequence and penalizes gaps and extra con
  const connected=recognize([[...stem,...upper,...lower]]);
  assert.equal(connected.spell,null);
  assert.ok(connected.quality<45);
- const offCenter=[stem,...[upper,lower].map(stroke=>stroke.map(p=>({...p,y:p.y-5})))];
- const oldQuality=legacyRecognize(offCenter).quality;
- assert.ok(Math.abs(recognize(offCenter).quality-oldQuality)<=2);
 });
 
 test('recognition handles empty ink, learned spell limits and accuracy bonuses',()=>{

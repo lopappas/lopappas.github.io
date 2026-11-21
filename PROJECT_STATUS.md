@@ -13,7 +13,7 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.09-alpha) gives successful drawn spells back 15% of missed quality points, rounded to the nearest point and capped at 5. Recognition still uses the original casting cutoff and ambiguity margin. Scripted Tutorial casts keep their authored quality. Heart Rock uses separate event scoring.
+Latest update (version 0.4.10-alpha) makes Cursed Twig more forgiving of slight line placement and straightness errors. Its original form and both two-stroke variants score 100%. Successful drawn spells recover 15% of missed quality points, rounded to the nearest point and capped at 5.
 
 The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
 
