@@ -140,20 +140,75 @@ function normalize(strokes:Strokes):Strokes{
  if(!count)return[];const w=maxX-minX,h=maxY-minY,s=Math.max(w,h,0.001);
  return strokes.map(st=>st.map(p=>({x:(p.x-minX-w/2)/s,y:(p.y-minY-h/2)/s})));
 }
-function sample(strokes:Strokes,count=140):Point[]{
+// A multiple of three keeps the sampling grid aligned when a triangle is drawn edge by edge.
+const SAMPLE_COUNT=141;
+
+function comparePoints(a:Point,b:Point){return a.x-b.x||a.y-b.y;}
+
+function canonicalStroke(stroke:Point[]){
+ for(let i=0,j=stroke.length-1;i<j;i++,j--){
+  const order=comparePoints(stroke[i],stroke[j]);
+  if(order)return order>0?stroke.slice().reverse():stroke;
+ }
+ return stroke;
+}
+
+function compareStrokes(a:Point[],b:Point[]){
+ for(let i=0;i<Math.min(a.length,b.length);i++){
+  const order=comparePoints(a[i],b[i]);
+  if(order)return order;
+ }
+ return a.length-b.length;
+}
+
+function sampleStroke(points:Point[],stroke:Point[],length:number,count:number){
+ if(!count)return;
+ const step=length/count;
+ let end=1,travel=0,segmentLength=distance(stroke[0],stroke[1]);
+ for(let i=0;i<count;i++){
+  const offset=(i+.5)*step;
+  while(offset>travel+segmentLength&&end<stroke.length-1){
+   travel+=segmentLength;
+   end++;
+   segmentLength=distance(stroke[end-1],stroke[end]);
+  }
+  const a=stroke[end-1],b=stroke[end],t=(offset-travel)/segmentLength;
+  points.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
+ }
+}
+
+function prepareShape(strokes:Strokes){
+ // Canonical order and direction make both the sample allocation and sums deterministic.
+ const ordered=normalize(strokes).filter(stroke=>stroke.length>=2).map(canonicalStroke).sort(compareStrokes);
+ const lengths=ordered.map(stroke=>strokeLength([stroke]));
+ const length=lengths.reduce((sum,value)=>sum+value,0);
+ const points:Point[]=[];
+ if(length<.001)return {points,length};
+
+ let travel=0;
+ for(let i=0;i<ordered.length;i++){
+  travel+=lengths[i];
+  // Round cumulative quotas to keep the total fixed and weight strokes by their ink length.
+  const quota=Math.round(SAMPLE_COUNT*travel/length)-points.length;
+  sampleStroke(points,ordered[i],lengths[i],quota);
+ }
+ return {points,length};
+}
+
+// Heart Rock uses its original scoring so the event's reward cutoffs keep their meaning.
+function sampleEventDrawing(strokes:Strokes,count=140):Point[]{
  const total=strokeLength(strokes);if(total<0.001)return[];const step=total/(count-1);const result:Point[]=[];let next=0,travel=0;
  for(const stroke of strokes)for(let i=1;i<stroke.length;i++){const a=stroke[i-1],b=stroke[i],len=distance(a,b);if(len===0)continue;while(next<=travel+len&&result.length<count){const t=(next-travel)/len;result.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});next+=step;}travel+=len;}
  return result;
 }
 function meanNearest(a:Point[],b:Point[]){
  let sum=0;
- // Keep Math.hypot and summation order so raw scores remain bit-for-bit compatible.
  for(const p of a){let nearest=Infinity;for(const q of b)nearest=Math.min(nearest,distance(p,q));sum+=nearest;}
  return sum/a.length;
 }
-function prepareShape(strokes:Strokes){
+function prepareEventDrawing(strokes:Strokes){
  const normalized=normalize(strokes);
- return {points:sample(normalized),length:strokeLength(normalized)};
+ return {points:sampleEventDrawing(normalized),length:strokeLength(normalized)};
 }
 
 function compareShapes(drawing:ReturnType<typeof prepareShape>,template:ReturnType<typeof prepareShape>,penalty=1){
@@ -165,8 +220,8 @@ function compareShapes(drawing:ReturnType<typeof prepareShape>,template:ReturnTy
 }
 
 export function scoreDrawingAgainst(strokes:Strokes,reference:Strokes){
- const drawing=prepareShape(strokes);
- return drawing.points.length<5?0:compareShapes(drawing,prepareShape(reference)).quality;
+ const drawing=prepareEventDrawing(strokes);
+ return drawing.points.length<5?0:compareShapes(drawing,prepareEventDrawing(reference)).quality;
 }
 
 // Catalog geometry is constant. Prepare each reference and variant once per module load.

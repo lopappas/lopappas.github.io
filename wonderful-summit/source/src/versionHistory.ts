@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.4.08-alpha',publishedAt:'2026-11-21T21:04:46Z',model:'GPT-6.2 Sol',changes:['Draw spell strokes in any order and in either direction. Casting quality still depends on the shape of the ink.']},
  {version:'0.4.07-alpha',publishedAt:'2026-11-21T20:49:21Z',model:'GPT-6.2 Sol',changes:['Every exact Practice demonstration now scores 100% in Practice and combat.']},
  {version:'0.4.06-alpha',publishedAt:'2026-11-21T17:36:35Z',model:'GPT-6.2 Sol',changes:['Snowman now has a single scoring trace with longer twig arms.','Flare Bolt shows the wider bend in its main trace and Practice lesson. The previous shape still casts at full accuracy.']},
  {version:'0.4.05-alpha',publishedAt:'2026-11-21T17:21:14Z',model:'GPT-6.2 Sol',changes:['Flame Blade casting now uses the 45-degree trace and its rotated variant.']},

@@ -13,7 +13,7 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.07-alpha) adds six Practice demonstrations as scoring variants in Practice and combat. Tests require every completed Practice demonstration to identify the correct spell at 100% against the full catalog.
+Latest update (version 0.4.08-alpha) makes spell scoring independent of stroke order and direction. Each stroke receives sample points in proportion to its length. Tests cover the full spell catalog, exact Practice demonstrations, and the effects of gaps and extra ink. Heart Rock keeps its original event scoring.
 
 The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
 
