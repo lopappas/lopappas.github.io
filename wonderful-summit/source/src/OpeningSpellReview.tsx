@@ -49,7 +49,7 @@ export function OpeningSpellReview({known,reviewed,upgrades,onReady}:{known:Spel
     <button ref={close} className="review-inspect-close" aria-label="Close spell description" onClick={()=>setSelected(null)}>×</button>
     <ReviewSigil spell={selected}/>
     <h3 id="review-inspect-title"><LessonText text={spellName(selected.id,upgrades[selected.id]??0)}/></h3>
-    <p id="review-inspect-description"><LessonText text={selected.id==='firestorm'&&(upgrades.firestorm??0)>0?selected.description.replace('2 damage every','3 damage every'):selected.description}/></p>
+    <p id="review-inspect-description"><LessonText text={selected.description}/></p>
    </section>
   </div>}
  </section>,document.body);

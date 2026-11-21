@@ -36,6 +36,7 @@ These instructions apply to Wonderful Summit in this repository.
 - The current tutorial is the main tutorial. Milestone 7 removed the old tutorial and its exclusive tests; retain shared game coverage.
 - The user has explicitly approved the unrestricted developer panel for the live game.
 - Preserve existing spell balance and behavior outside the requested change.
+- Use the approved spell descriptions in `src/magic.ts` verbatim throughout the game. Ask the user for permission before changing this wording. Update separate upgrade descriptions to reflect changed upgrade values without asking.
 
 ## Release versions
 - Current scheme: 0.3.72-alpha, displaying the last numeric segment with two digits and preserving the suffix. Older release labels keep their original format. package.json remains the source for the home label.
