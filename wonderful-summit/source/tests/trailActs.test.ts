@@ -22,7 +22,12 @@ test('each trail view receives only the current act, including boss and final sc
 test('both first-boss variants stay in Act 1 through rewards and Continue enters Act 2 without resetting resources',()=>{
  for(const bossEncounter of ['mother','goblinKing'] as const){
   const run={...newRun(),screen:'battle' as const,node:ACT_ONE_BOSS,combats:6,bossEncounter,gold:87,health:73};
-  const rewards=claimRelic(claimGold(finishBattle(run,{...battleForRun(run),phase:'victory',playerHP:61},()=>.99)));
+  const victory=claimGold(finishBattle(run,{...battleForRun(run),phase:'victory',playerHP:61},()=>.99));
+  const relic=victory.reward?.relic;
+  assert.ok(relic);
+  assert.equal(leaveNode(victory).screen,'rewards');
+  const rewards=claimRelic(victory);
+  assert.ok(rewards.relics.includes(relic));
   assert.equal(trailAct(rewards.node).number,1);
   const next=leaveNode(rewards);assert.equal(next.screen,'map');assert.equal(next.node,12);assert.equal(trailAct(next.node).number,2);
   assert.equal(next.health,61);assert.equal(next.gold,141);assert.deepEqual(next.spells,rewards.spells);assert.deepEqual(next.relics,rewards.relics);

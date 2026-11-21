@@ -13,7 +13,7 @@ Updated: 2026-11-21
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.3.91-alpha): Cursed Twig is an Uncommon Nature spell with a vertical line crossed by an equal sign. It poisons the living enemy with the most current health. The poison ticks every 1.5 seconds for 15 seconds with rising damage. At 80% quality it deals 150 total damage to a neutral target, or 180 with the upgrade. The spell makes a dry twig snap on cast and marks poisoned enemies with dark purple particles. It has no cooldown, and overlapping casts run independently.
+Latest update (version 0.3.92-alpha): Cursed Twig targets the living, uncursed enemy with the most current health. At 80% quality its 15-second poison deals 150 damage, or 180 upgraded, regardless of elemental matchups. The spell has no cooldown and can curse the same enemy again after the poison expires. Both Act 1 bosses now offer a relic through the usual victory rewards.
 
 Shroomy and Shroomy+ deal 12% more spore damage at every cast quality and fire every 2.6 seconds. Shroomy uses its 0.3.82-alpha sprite. Shroomy fires from 240 units and Shroomy+ from 270. He stays planted ahead of Filadora with 15 HP. Spore damage is independent of Fire, Water, and Nature matchups.
 

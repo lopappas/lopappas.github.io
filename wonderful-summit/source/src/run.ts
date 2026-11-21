@@ -75,7 +75,9 @@ export function finishBattle(run:Run,battle:Battle,random:()=>number=Math.random
  const combats=run.combats+1;
  const potion=(run.relics.includes('twillyScarf')||random()<.35)?rollRewardPotion(random):null;
  const offers:SpellId[]=(combats-1)%4===0?rollSpellOffers(run,random):[];
- const available=(Object.keys(RELICS) as RelicId[]).filter(id=>relicCanDrop(carried,id)&&!carried.relics.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));const relic=isEliteNode(run.node)&&available.length?pickRelic(available,random):null;
+ const available=(Object.keys(RELICS) as RelicId[]).filter(id=>relicCanDrop(carried,id)&&!carried.relics.includes(id)&&!(id==='impossibleShale'&&run.shaleContacts>=3));
+ const boss=battle.encounter==='mother'||battle.encounter==='goblinKing';
+ const relic=(boss||isEliteNode(run.node))&&available.length?pickRelic(available,random):null;
  const gold=encounterGold(run.node,random);
  return{...carried,screen:'rewards',combats,health:Math.min(playerMaxHealth(run),battle.playerHP+(run.relics.includes('moss')?10:0)),reward:{gold,potion,offers,relic,goldClaimed:false,potionStatus:potion?'pending':'skipped',relicClaimed:!relic,learned:null}};
 }

@@ -46,7 +46,7 @@ test('an 80% cast waits 1.5 seconds, then ramps over ten ticks for 150 or 180 da
   const battle=field(upgrade);
   const total=upgrade?180:150;
   assert.equal(toxicTwigCastPreview(battle,80,0),total);
-  assert.equal(toxicTwigTotalDamage({element:'Water'},80,1,upgrade),total*1.5);
+  assert.equal(toxicTwigTotalDamage({element:'Water'},80,1,upgrade),total);
   let state=cast(battle);
   assert.equal(spellDamage(state.enemies[0],80,'toxicTwig'),0);
   assert.equal(spellKnockback(80,'toxicTwig'),0);
@@ -64,18 +64,19 @@ test('an 80% cast waits 1.5 seconds, then ramps over ten ticks for 150 or 180 da
  }
 });
 
-test('Cursed Twig can be recast immediately and each poison expires on its own',()=>{
- let battle=cast(field());
- assert.equal(spellCooldownRemaining(battle,'toxicTwig'),0);
- assert.equal(cast(battle).enemies[0].toxicTwig?.length,2);
- battle=cast(at(battle,3));
- assert.equal(battle.enemies[0].toxicTwig?.length,2);
- battle=at(battle,15);
- assert.equal(battle.enemies[0].hp,746);
- assert.equal(battle.enemies[0].toxicTwig?.length,1);
- battle=at(battle,18);
- assert.equal(battle.enemies[0].hp,700);
- assert.deepEqual(battle.enemies[0].toxicTwig,[]);
+test('recasts skip cursed enemies until the curse expires',()=>{
+ const base=field();
+ base.enemies.push({...createSpider(2,530),hp:500,maxHP:500});
+ const first=cast(base);
+ assert.equal(spellCooldownRemaining(first,'toxicTwig'),0);
+ const second=cast(at(first,3));
+ assert.deepEqual(second.enemies.map(e=>e.toxicTwig?.length),[1,1]);
+ assert.equal(spellTarget(second,'toxicTwig'),undefined);
+ assert.equal(cast(second),second);
+ const expired=at(second,15);
+ assert.deepEqual(expired.enemies.map(e=>e.hp),[850,396]);
+ assert.equal(spellTarget(expired,'toxicTwig')?.id,1);
+ assert.deepEqual(cast(expired).enemies.map(e=>e.toxicTwig?.length),[1,1]);
 });
 
 test('a bottled Cursed Twig applies its poison on impact without starting a cooldown',()=>{
@@ -89,11 +90,11 @@ test('a bottled Cursed Twig applies its poison on impact without starting a cool
  assert.equal(at(impact,poison.started+1.5).enemies[0].hp,994);
 });
 
-test('Cursed Twig damage follows elemental and rocky defenses on its ticks',()=>{
- for(const [element,damage] of [['Neutral',150],['Fire',112.5],['Water',225],['Nature',75]] as const){
+test('Cursed Twig ignores elemental matchups and respects rocky defense',()=>{
+ for(const element of ['Neutral','Fire','Water','Nature'] as const){
   const battle=field();
   battle.enemies[0]={...battle.enemies[0],element};
-  assert.equal(1000-at(cast(battle),15).enemies[0].hp,damage);
+  assert.equal(1000-at(cast(battle),15).enemies[0].hp,150);
  }
  const battle=field();
  const enemy={...battle.enemies[0],rocky:true};

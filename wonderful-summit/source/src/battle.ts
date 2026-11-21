@@ -68,7 +68,7 @@ export function newBattle(phase:BattlePhase='ready',encounter:Encounter='slime',
 export function presentEnemies(state:Battle){return state.enemies.filter(e=>e.hp>0&&e.spawnAt<=state.time+1e-9);}
 export function nearestEnemy(state:Battle){return presentEnemies(state).sort((a,b)=>a.x-b.x||a.id-b.id)[0];}
 export function spellTarget(state:Battle,id?:SpellId){
- if(id==='toxicTwig')return presentEnemies(state).sort((a,b)=>b.hp-a.hp||a.x-b.x||a.id-b.id)[0];
+ if(id==='toxicTwig')return presentEnemies(state).filter(e=>!e.toxicTwig?.length).sort((a,b)=>b.hp-a.hp||a.x-b.x||a.id-b.id)[0];
  if(id==='sneakyVine')return presentEnemies(state).sort((a,b)=>b.x-a.x||a.id-b.id)[0];
  return nearestEnemy(state);
 }
@@ -102,7 +102,7 @@ function toxicTwigScale(quality:number,upgrade:number){
 }
 function toxicTwigTickDamage(target:SpellDamageTarget,poison:Pick<ToxicTwigPoison,'quality'|'scale'|'ticks'>,time:number){
  const damage=(6+2*poison.ticks)*poison.scale;
- return Math.round(1e6*damage*elementalMatchup('Nature',target.element).damage*rockyDefense(!!target.rocky,poison.quality).damage
+ return Math.round(1e6*damage*rockyDefense(!!target.rocky,poison.quality).damage
   *shieldProtection(target.shield,time)*kingDamageMultiplier(target,poison.quality))/1e6;
 }
 export function toxicTwigTotalDamage(target:SpellDamageTarget,quality:number,bonus=1,upgrade=0,time=0){
@@ -261,13 +261,15 @@ export function hitWithSpell(state:Battle,quality:number,spellId:SpellId='water'
   const enemies=state.enemies.map(e=>live.has(e.id)?applyChronos(e,field,state.time):e);
   return resolveMother({...state,enemies,chronosFields:[...(state.chronosFields??[]).filter(f=>f.until>state.time),field],casts:state.casts+1,chronosPulse:{started:state.time,strong:quality>=70}});
  }
- const target=presentEnemies(state).find(e=>e.id===targetId)??spellTarget(state,spellId);if(!target)return state;
  if(spellId==='toxicTwig'){
+  const target=spellTarget(state,spellId);
+  if(!target)return state;
   const scale=toxicTwigScale(quality,state.upgrades.toxicTwig??0);
   if(!scale)return state;
   const poison={started:state.time,ticks:0,quality,scale:scale*toxicTwigDamageBonus(state,quality,damageMultiplier,inkUsed)};
-  return {...state,casts:state.casts+1,enemies:state.enemies.map(e=>e.id===target.id?{...e,toxicTwig:[...(e.toxicTwig??[]),poison]}:e)};
+  return {...state,casts:state.casts+1,enemies:state.enemies.map(e=>e.id===target.id?{...e,toxicTwig:[poison]}:e)};
  }
+ const target=presentEnemies(state).find(e=>e.id===targetId)??spellTarget(state,spellId);if(!target)return state;
  const flash=blackFlashMultiplier===undefined?rollBlackFlash(state,spellId,quality,random,target.x):{state,multiplier:blackFlashMultiplier};state=flash.state;
  const q=Math.max(0,Math.min(100,quality)),element=SPELLS.find(s=>s.id===spellId)!.element;
  const immuneEffects=elementalMatchup(element,target.element).immuneEffects||rockyDefense(target.rocky,q).immuneEffects;
@@ -536,6 +538,7 @@ export function potionName(id:Potion){return id==='miasma'||id==='spellBottle'?P
 
 export function spellCastBlockReason(state:Battle,id?:SpellId|null,fromBottle=false):string|null{
  if(id==='alchemize')return alchemizeBlockReason(state,fromBottle);
+ if(id==='toxicTwig'&&!spellTarget(state,id))return 'No uncursed enemy to target';
  if(id!=='constellation')return null;
  if(state.constellation)return 'Constellation has already been used this battle';
  if(state.potionFlights.some(f=>!f.applied&&f.spell?.spellId==='constellation'))return 'Constellation is already being cast';
@@ -612,10 +615,7 @@ function advanceToxicTwig(enemy:Enemy,time:number,shield:EnemyShield|null):Enemy
    .sort((a,b)=>toxicTwigNextTick(a)-toxicTwigNextTick(b))[0];
   if(!due)break;
   const tickAt=toxicTwigNextTick(due);
-  const element=enemy.kind==='mother'
-   ?ELEMENTS[(ELEMENTS.indexOf(enemy.initialElement as Element)+Math.floor((tickAt+1e-9)/15))%3]
-   :enemy.element;
-  hp=Math.max(0,hp-toxicTwigTickDamage({...enemy,hp,element,shield},due,tickAt));
+  hp=Math.max(0,hp-toxicTwigTickDamage({...enemy,hp,shield},due,tickAt));
   due.ticks++;
  }
  return {...enemy,hp,hurtUntil:time+.15,toxicTwig:hp>0?effects.filter(poison=>poison.ticks<TOXIC_TWIG_TICKS):[]};

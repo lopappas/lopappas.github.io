@@ -21,7 +21,7 @@ test('complete route has ten combats, merchant, camp and final victory',()=>{
   r=enterNode(r,rng);screens.push(r.screen);
   if(r.screen==='battle')r=collect(won(r));else if(r.screen==='shop'||r.screen==='event')r=leaveNode(r);else r=leaveNode(camp(r));
  }
- assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle','battle','battle','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,10);assert.equal(r.gold,297);assert.equal(r.relics.length,5);assert.equal(r.spells.length,6);
+ assert.deepEqual(screens,['battle','battle','shop','battle','camp','battle','battle','event','battle','shop','camp','battle','battle','battle','battle']);assert.equal(r.screen,'complete');assert.equal(r.combats,10);assert.equal(r.gold,297);assert.equal(r.relics.length,6);assert.equal(r.spells.length,6);
 });
 test('rewards are rolled once, claim only once, and spell choice waits for learning or skipping',()=>{
  let r=won(enterNode(start(),rng));assert.equal(r.reward?.potion,'heal');const first=skipRewardSpell(claimPotion(claimGold(r)));assert.equal(first.gold,24);assert.deepEqual(claimGold(first),first);assert.deepEqual(finishBattle(first,{...battleForRun(first),phase:'victory'}),first);
