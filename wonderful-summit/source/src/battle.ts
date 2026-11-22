@@ -7,7 +7,7 @@ import {
 import {constellationBonus,type Constellation} from './constellation.ts';
 import {playerMaxHealth} from './playerHealth.ts';
 import {balanceQuality,MIN_CAST_QUALITY} from './quality.ts';
-import {torrentDuration,torrentContains,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,type Torrent} from './torrent.ts';
+import {torrentDuration,torrentContains,TORRENT_FALL_SECONDS,TORRENT_INTERVAL,TORRENT_SPLASH_SECONDS,type Torrent,type TorrentOrb} from './torrent.ts';
 import {GOBLIN_KING_DIALOGUE_MS,kingHasCrown,kingSpellMultiplier,type KingState} from './goblinKing.ts';
 import {damageUpgradeBonus} from './magic.ts';
 import {isNearSpell,nearDamage,nearKnockback,thistleStats,THISTLE_SLOW,type NearSpell} from './nearSpells.ts';
@@ -630,20 +630,36 @@ export function rollAlchemizePotion(quality:number,random:()=>number=Math.random
 }
 
 
-// Locations are sampled at cast time from the encounter's walkable lanes, never enemy positions.
 function beginTorrent(state:Battle,quality:number,multiplier:number,inkUsed:number,knockbackMultiplier:number,random:()=>number):Battle{
  const duration=torrentDuration(quality);if(state.phase!=='active'||!duration)return state;
  const allLanes=state.encounter==='mother'||state.encounter==='rockWebNest'||state.encounter==='spiderGoblinElite';
  const lanes=allLanes?COMBAT_LANE_Y:[...new Set(state.enemies.map(e=>enemyY(e.id,state.encounter,e.lane)))];
  const unit=()=>Math.max(0,Math.min(1-Number.EPSILON,random()));
- const orbs=Array.from({length:duration/TORRENT_INTERVAL},(_,i)=>({x:CONTACT_X+unit()*(ENEMY_BACK_X-CONTACT_X),y:lanes[Math.floor(unit()*lanes.length)],landsAt:state.time+(i+1)*TORRENT_INTERVAL,applied:false}));
+ const count=duration/TORRENT_INTERVAL;
+ // Pick one slot per group of four. In a partial group, the selected slot can fall outside the cast.
+ const aimedSlots=new Set(Array.from({length:Math.ceil(count/4)},(_,i)=>i*4+Math.floor(unit()*4)));
+ const orbs=Array.from({length:count},(_,i):TorrentOrb=>{
+  const x=CONTACT_X+unit()*(ENEMY_BACK_X-CONTACT_X);
+  const y=lanes[Math.floor(unit()*lanes.length)]??FILA_FOOT_Y;
+  return {x,y,landsAt:state.time+(i+1)*TORRENT_INTERVAL,applied:false,...(aimedSlots.has(i)?{targetRoll:unit()}:{})};
+ });
  return{...state,casts:state.casts+1,torrent:{started:state.time,until:state.time+duration,quality,damageBonus:state.damageBonus*amuletDamageMultiplier(quality,'torrent',state.amulets),pushBonus:state.pushBonus*knockbackMultiplier,upgrade:state.upgrades.torrent??0,multiplier,midnight:state.midnightStone?midnightBonus(inkUsed):0,orbs}};
+}
+function aimTorrentOrb(orb:TorrentOrb,state:Battle):TorrentOrb{
+ if(orb.targetRoll===undefined||state.time+1e-9<orb.landsAt-TORRENT_FALL_SECONDS)return orb;
+ const enemies=presentEnemies(state);
+ const target=enemies.find(enemy=>enemy.id===orb.targetId)??enemies[Math.floor(orb.targetRoll*enemies.length)];
+ if(!target)return orb;
+ const y=enemyY(target.id,state.encounter,target.lane);
+ return orb.targetId===target.id&&orb.x===target.x&&orb.y===y?orb:{...orb,targetId:target.id,x:target.x,y};
 }
 function advanceTorrent(state:Battle):Battle{
  const torrent=state.torrent;if(!torrent||state.phase!=='active')return state;
  let next=state;
- const orbs=torrent.orbs.map(orb=>{
-  if(orb.applied||orb.landsAt>state.time+1e-9)return orb;
+ const orbs=torrent.orbs.map(scheduled=>{
+  if(scheduled.applied)return scheduled;
+  const orb=aimTorrentOrb(scheduled,next);
+  if(orb.landsAt>state.time+1e-9)return orb;
   const targets=presentEnemies(next).filter(e=>torrentContains(orb,e.x,enemyY(e.id,state.encounter,e.lane)));
   if(targets.length){
    const flash=rollBlackFlash(next,'torrent',torrent.quality,Math.random,orb.x);next=flash.state;

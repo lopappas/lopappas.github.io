@@ -9,12 +9,12 @@ test('coinpurse grants exactly 60 gold once, both at the start and through colle
  const richer=acquireRelic({...newRun(),gold:37},'coinpurse');assert.equal(richer.gold,97);assert.equal(applyDeveloperCommand(richer,{type:'relic',id:'coinpurse'}),richer);
  assert.equal(start.gold,0);
 });
-test('Unopened Box grants two unowned normal relics once and retains its own keepsake entry',()=>{
+test('Unopened Box grants one unowned normal relic once and retains its own keepsake entry',()=>{
  const tiers=new Set<string>();
  for(let i=0;i<300;i++){
   const r=startRun({...newRun(),keepsakeOffers:['untouchedBox','amber','moss'],screen:'sister'},'untouchedBox',()=>i/300);
-  assert.equal(r.relics.length,r.relics.includes('artisanRobes')?3:4);assert.equal(new Set(r.relics).size,r.relics.length);assert.ok(r.relics.includes('untouchedBox'));
-  const gifts=r.relics.filter(id=>id!=='filadoraRobes'&&id!=='untouchedBox');assert.equal(gifts.length,2);
+  assert.equal(r.relics.length,r.relics.includes('artisanRobes')?2:3);assert.equal(new Set(r.relics).size,r.relics.length);assert.ok(r.relics.includes('untouchedBox'));
+  const gifts=r.relics.filter(id=>id!=='filadoraRobes'&&id!=='untouchedBox');assert.equal(gifts.length,1);
   for(const gift of gifts){assert.ok(!STARTER_RELICS.includes(gift));assert.notEqual(RELICS[gift].rarity,'Starter');assert.notEqual(gift,'blackStardust');tiers.add(RELICS[gift].rarity);}
   assert.equal(acquireRelic(r,'untouchedBox',()=>{throw Error('Cannot reroll a collected box');}),r);
  }

@@ -18,7 +18,7 @@ export function magmaSize(quality:number,upgrade=0){
  const q=Math.min(100,Math.max(MIN_CAST_QUALITY,quality));
  const growth=(q-MIN_CAST_QUALITY)/(100-MIN_CAST_QUALITY);
  const duration=q<80?3+4*(q-MIN_CAST_QUALITY)/(80-MIN_CAST_QUALITY):7+1.5*(q-80)/20;
- return{radiusX:44+32*growth,radiusY:MIN_MAGMA_RADIUS_Y+8*growth,duration:Math.round(duration*2)/2+(upgrade>=1?1.5:0),damage:upgrade>=1?6:4};
+ return{radiusX:44+32*growth,radiusY:MIN_MAGMA_RADIUS_Y+8*growth,duration:Math.round(duration*2)/2+(upgrade>=1?1.5:0),damage:upgrade>=1?4:2};
 }
 
 export function magmaContains(magma:Magma,x:number,y:number){

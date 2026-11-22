@@ -57,9 +57,9 @@ test('Eruption warns the nearest enemy for 0.8 seconds, then knocks it back and 
  assert.equal(impact.enemies[1].eruptionStunUntil,undefined);
  assert.deepEqual(impact.enemies.map(e=>spellSlow(impact,e,.8)),[.12,.12,.12,0]);
  assert.deepEqual(at(impact,1.299).enemies.map(e=>e.hp),[100-hit,100,100,100]);
- assert.deepEqual(at(impact,1.3).enemies.map(e=>e.hp),[96-hit,96,96,100]);
+ assert.deepEqual(at(impact,1.3).enemies.map(e=>e.hp),[98-hit,98,98,100]);
  const cooled=at(impact,7.8);
- assert.deepEqual(cooled.enemies.map(e=>e.hp),[0,44,44,100]);
+ assert.deepEqual(cooled.enemies.map(e=>e.hp),[26.7375,72,72,100]);
  assert.deepEqual(cooled.magma,[]);
  assert.deepEqual(at(cooled,8).enemies.map(e=>e.hp),cooled.enemies.map(e=>e.hp));
 });
@@ -73,13 +73,13 @@ test('magma ignites wooden shields inside the pool, and they protect until they 
  const firstTick=at(impact,1.3);
  assert.equal(firstTick.enemies[0].shield?.burnUntil,.8+SHIELD_BURN_SECONDS);
  assert.equal(firstTick.enemies[1].shield?.burnUntil,1.3+SHIELD_BURN_SECONDS);
- assert.equal(firstTick.enemies[1].hp,98);
+ assert.equal(firstTick.enemies[1].hp,99);
  const stillBurning=at(firstTick,3.299);
  assert.equal(stillBurning.enemies[1].shield?.burnUntil,1.3+SHIELD_BURN_SECONDS);
- assert.equal(stillBurning.enemies[1].hp,92);
+ assert.equal(stillBurning.enemies[1].hp,96);
  const noShield=at(stillBurning,3.3);
  assert.equal(noShield.enemies[1].shield,null);
- assert.equal(noShield.enemies[1].hp,88);
+ assert.equal(noShield.enemies[1].hp,94);
  assert.deepEqual(noShield.enemies[3].shield,woodenShield());
  assert.equal(noShield.enemies[3].hp,100);
 });
@@ -109,17 +109,17 @@ test('smoke tracks its target, and the stun runs concurrently with knockback',()
  assert.equal(spellSlow(impact,outside,1.8),0);
 });
 
-test('Eruption+ deals 20% more direct damage and seventeen 6-damage ticks at 80% quality',()=>{
+test('Eruption+ deals 20% more direct damage and seventeen 4-damage ticks at 80% quality',()=>{
  const battle=field();
  battle.enemies[1].hp=150;
  const state=cast({...battle,upgrades:{eruption:1}});
  const impact=at(state,.8);
  assert.equal(impact.enemies[0].hp,45.685);
- assert.equal(impact.magma[0].damage,6);
+ assert.equal(impact.magma[0].damage,4);
  assert.equal(impact.magma[0].until,9.3);
- assert.equal(at(impact,1.3).enemies[1].hp,144);
- assert.equal(at(impact,9.29).enemies[1].hp,54);
- assert.equal(at(impact,9.3).enemies[1].hp,48);
+ assert.equal(at(impact,1.3).enemies[1].hp,146);
+ assert.equal(at(impact,9.29).enemies[1].hp,86);
+ assert.equal(at(impact,9.3).enemies[1].hp,82);
 });
 
 test('Eruption knockback stays at 10 units while stun duration follows the cast grade',()=>{
@@ -138,6 +138,8 @@ test('a Faint magma pool reaches all lanes and better casts increase size and du
  assert.ok(!magmaContains(faint,faint.x+faint.radiusX+1,FILA_FOOT_Y));
  const qualities=[MIN_CAST_QUALITY,60,70,80,90,100];
  const sizes=qualities.map(quality=>magmaSize(quality));
+ assert.ok(sizes.every(size=>size.damage===2));
+ assert.ok(qualities.every(quality=>magmaSize(quality,1).damage===4));
  assert.deepEqual(sizes.map(size=>size.duration),[3,4.5,6,7,8,8.5]);
  assert.deepEqual(qualities.map(quality=>magmaSize(quality,1).duration),[4.5,6,7.5,8.5,9.5,10]);
  for(let i=1;i<sizes.length;i++){

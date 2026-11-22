@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.4.17-alpha',publishedAt:'2026-11-22T22:24:17Z',model:'GPT-6.2 Sol',changes:['One in four Torrent bubbles aims at a random enemy on the field. Other bubbles land at random.','Eruption and Eruption+ magma deal 2 and 4 base damage per tick.','Unopened Box grants one random non-keepsake relic.']},
  {version:'0.4.16-alpha',publishedAt:'2026-11-22T14:18:38Z',model:'GPT-6.2 Sol',changes:['Spell Scoring Boost starts on and applies to Drudge Bog, Firestorm, Constellation, Flame Blade, Cursed Twig, and Snowman. Both robes still count True Wonderful from the drawing’s original score.']},
  {version:'0.4.15-alpha',publishedAt:'2026-11-22T13:05:32Z',model:'GPT-6.2 Sol',changes:['Cursed Twig also accepts a three-stroke shape with both bars 5 units higher.']},
  {version:'0.4.14-alpha',publishedAt:'2026-11-22T12:39:31Z',model:'GPT-6.2 Sol',changes:['You can turn on Spell Scoring Boost in Game Settings. It starts off and remembers your choice.']},

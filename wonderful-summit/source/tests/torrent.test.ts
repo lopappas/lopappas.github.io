@@ -28,14 +28,52 @@ test('Steady lasts eight seconds, has eight orbs, and does not launch a targetin
  assert.equal(torrentDuration(69),8);assert.equal(torrentDuration(45),5);assert.equal(torrentDuration(70),11);assert.equal(torrentDuration(80),14);
  for(const q of [0,44,NaN])assert.equal(cast(setup(),q).torrent,null);
 });
-test('locations use random reachable lanes and runway bounds, independent of enemies current x',()=>{
+test('random orb locations use reachable lanes and runway bounds independently of enemy positions',()=>{
  for(const encounter of ['slime','mother','spiderGoblinElite','rockWebNest'] as const){
   const b=setup(encounter),a=cast(b,60,()=>.9999),other=cast({...b,enemies:b.enemies.map(e=>({...e,x:CONTACT_X}))},60,()=>.9999);
   assert.deepEqual(a.torrent?.orbs,other.torrent?.orbs);
   const lanes=encounter==='slime'?[enemyY(1,encounter)]:COMBAT_LANE_Y;
-  for(const orb of a.torrent!.orbs){assert.ok(orb.x>=CONTACT_X&&orb.x<=ENEMY_BACK_X);assert.ok(lanes.includes(orb.y));}
+  const randomOrbs=a.torrent!.orbs.filter(orb=>orb.targetRoll===undefined);
+  assert.equal(randomOrbs.length,6);
+  for(const orb of randomOrbs){assert.ok(orb.x>=CONTACT_X&&orb.x<=ENEMY_BACK_X);assert.ok(lanes.includes(orb.y));}
  }
  const b=setup();b.enemies[0].spawnAt=5;assert.ok(cast(b).torrent);
+});
+test('each group of four bubbles has one aimed slot, with the same 25% chance in a partial group',()=>{
+ for(const quality of [45,60,70,80]){
+  const count=torrentDuration(quality);
+  const aimedCounts=Array(count).fill(0);
+  for(let slot=0;slot<4;slot++){
+   const orbs=cast(setup(),quality,()=>slot/4).torrent!.orbs;
+   for(const [i,orb] of orbs.entries())if(orb.targetRoll!==undefined)aimedCounts[i]++;
+   assert.equal(orbs.filter(orb=>orb.targetRoll!==undefined).length,Math.floor(count/4)+(slot<count%4?1:0));
+  }
+  assert.deepEqual(aimedCounts,Array(count).fill(1));
+ }
+});
+test('an aimed bubble chooses a present enemy, follows its movement, and lands at its feet',()=>{
+ const b=setup('pack');
+ b.enemies=[{...b.enemies[0],x:450,lane:0},{...b.enemies[1],x:620,lane:2},{...b.enemies[1],id:3,x:630,spawnAt:2}];
+ const rolls=[0,.99,0,0,.75];
+ const falling=advance(cast(b,60,()=>rolls.shift()??.5),.4);
+ assert.equal(falling.torrent?.orbs[0].targetId,2);
+ assert.equal(falling.torrent?.orbs[0].x,620);
+ falling.enemies[1]={...falling.enemies[1],x:600};
+ const hit=advance(falling,.6);
+ const orb=hit.torrent!.orbs[0];
+ assert.equal(orb.x,600);
+ assert.equal(orb.y,enemyY(2,'pack',2));
+ assert.equal(orb.applied,true);
+ assert.equal(hit.enemies[0].hp,10000);
+ assert.ok(hit.enemies[1].hp<10000);
+ assert.equal(hit.enemies[2].hp,10000);
+ assert.deepEqual(advance(hit,.1).torrent!.orbs[0],orb);
+});
+test('an aimed bubble keeps its random landing location if no enemies have arrived',()=>{
+ const b=setup();b.enemies[0].spawnAt=2;
+ const warning=cast(b,60,()=>0),landed=advance(warning,1);
+ assert.deepEqual(landed.torrent?.orbs[0],{...warning.torrent!.orbs[0],applied:true});
+ assert.equal(landed.enemies[0].hp,b.enemies[0].hp);
 });
 test('landing splashes harm every nearby enemy once, miss distant or hidden enemies, and knock back',()=>{
  let b=setup('pack');b.enemies=[{...b.enemies[0],x:CONTACT_X},{...b.enemies[1],lane:1,x:CONTACT_X+5},{...b.enemies[0],id:3,lane:2,x:ENEMY_BACK_X},{...b.enemies[0],id:4,x:CONTACT_X,spawnAt:5}];
