@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.4.20-alpha',publishedAt:'2026-11-23T00:00:00Z',model:'GPT-6.1 Terra',changes:['The home title places Witch, of, and Wonder on separate centered lines.']},
  {version:'0.4.19-alpha',publishedAt:'2026-11-22T23:03:51Z',model:'GPT-6.2 Sol',changes:['The game is now called Witch of Wonder.','Collecting gold after combat plays a coin sound.']},
  {version:'0.4.18-alpha',publishedAt:'2026-11-22T22:55:11Z',model:'GPT-6.2 Sol',changes:['Eruption magma deals 3 base damage per tick, or 4 when upgraded. Eruption has a 15-second cooldown and Thistle Bush has a 12-second cooldown.','The crystal ball above Filadora’s starter relic reveals Theodora. Relic rewards show their rarity followed by “relic.”','Learn drawing sits at the lower left of the Practice canvas. Drudge Bog’s trace is 10% larger and 10% thinner.']},
  {version:'0.4.17-alpha',publishedAt:'2026-11-22T22:24:17Z',model:'GPT-6.2 Sol',changes:['One in four Torrent bubbles aims at a random enemy on the field. Other bubbles land at random.','Eruption and Eruption+ magma deal 2 and 4 base damage per tick.','Unopened Box grants one random non-keepsake relic.']},
