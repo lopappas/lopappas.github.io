@@ -1,9 +1,13 @@
 export const SPELL_SCORING_BOOST_KEY='wonderful-summit.spell-scoring-boost.v1';
+export const DEFAULT_SPELL_SCORING_BOOST=true;
 type StorageAccess=Pick<Storage,'getItem'|'setItem'>;
 
 export function createSpellScoringBoost(storage?:StorageAccess){
- let enabled=false;
- try{enabled=storage?.getItem(SPELL_SCORING_BOOST_KEY)==='true';}catch{}
+ let enabled=DEFAULT_SPELL_SCORING_BOOST;
+ try{
+  const saved=storage?.getItem(SPELL_SCORING_BOOST_KEY);
+  if(saved==='true'||saved==='false')enabled=saved==='true';
+ }catch{}
  const listeners=new Set<()=>void>();
  return {
   getSnapshot:()=>enabled,

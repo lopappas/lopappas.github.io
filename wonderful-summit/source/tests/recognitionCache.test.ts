@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SPELLS,SPELL_VARIATIONS,recognize,applyRecognitionBonus,gradeDrawnCast,type Strokes} from '../src/magic.ts';
-import {launchGradedSpell,launchSpell,newBattle,relicAccuracyBonus,spellDamage,stepBattle} from '../src/battle.ts';
+import {launchGradedSpell,launchSpell,newBattle,relicAccuracyBonus,robesBonus} from '../src/battle.ts';
+import {guardianStats} from '../src/guardian.ts';
 
 test('all scoring references are perfect regardless of stroke order, direction or scale',()=>{
  for(const spell of SPELLS)for(const shape of [spell.strokes,...(SPELL_VARIATIONS[spell.id]??[])]){
@@ -71,16 +72,18 @@ test('cache reuse does not mutate input or leak mutable candidate results into l
  const first=recognize(input);first.candidates[0].quality=0;first.candidates.reverse();assert.deepEqual(recognize(input),expected);assert.deepEqual(input,before);assert.deepEqual(SPELLS,shapes);
 });
 
-test('all successful spells earn the same tapered grade boost and fizzles keep their recognition score',()=>{
+test('only the six selected spells earn the tapered grade boost, and fizzles keep their recognition score',()=>{
+ const eligible=['Drudge Bog','Firestorm','Constellation','Flame Blade','Cursed Twig','Snowman'];
  for(const spell of SPELLS){
   for(const [raw,expected] of [[45,50],[55,60],[65,70],[77,80],[90,92],[99,99],[100,100]]){
    const rawMatch={spell:null,quality:0,candidates:[{spell,quality:raw,error:0}],reason:''};
    const recognized=applyRecognitionBonus(rawMatch);
    assert.strictEqual(gradeDrawnCast(recognized),recognized);
-   assert.deepEqual(gradeDrawnCast(recognized,true),{...recognized,spell,quality:expected});
+   const quality=eligible.includes(spell.name)?expected:raw;
+   assert.deepEqual(gradeDrawnCast(recognized,true),{...recognized,spell,quality});
   }
  }
- const [spell,other]=SPELLS;
+ const spell=SPELLS.find(s=>s.id==='snowman')!,other=SPELLS[0];
  for(const [score,runnerUp] of [[44,0],[77,71]]){
   const rawMatch={spell:null,quality:0,candidates:[{spell,quality:score,error:0},{spell:other,quality:runnerUp,error:0}],reason:''};
   const recognized=applyRecognitionBonus(rawMatch);
@@ -89,22 +92,22 @@ test('all successful spells earn the same tapered grade boost and fizzles keep t
  }
 });
 
-test('drawn combat uses the displayed grade for damage and counts the accuracy relic only once',()=>{
+test('boosted Snowman uses the displayed quality while both robes count True Wonderful from raw accuracy',()=>{
  const base=newBattle('active');
- const state={...base,castingRelics:{...base.castingRelics,calculus:true},robes:{...base.robes,enabled:true}};
- const spell=SPELLS.find(s=>s.id==='fire')!;
- const rawQuality=77;
- const rawMatch={spell,quality:rawQuality,candidates:[{spell,quality:rawQuality,error:0}],reason:''};
- const recognized=applyRecognitionBonus(rawMatch,relicAccuracyBonus(state,rawQuality));
- const match=gradeDrawnCast(recognized,true);
- assert.equal(match.quality,83);
- const cast=launchGradedSpell(state,{rawQuality,quality:match.quality},spell.color,spell.id);
- assert.equal(cast.projectile?.quality,83);
- assert.deepEqual(cast.robes.spells,[]);
- const initial=state.enemies[0];
- let hit=cast;
- for(let i=0;i<4;i++)hit=stepBattle(hit,.1);
- assert.equal(hit.projectile,null);
- assert.equal(hit.enemies[0].hp,Math.max(0,initial.hp-spellDamage(initial,83,spell.id)));
- assert.equal(launchSpell(state,rawQuality,spell.color,spell.id).projectile?.quality,80);
+ const spell=SPELLS.find(s=>s.id==='snowman')!;
+ for(const artisan of [false,true]){
+  const state={...base,castingRelics:{...base.castingRelics,calculus:true},robes:{...base.robes,enabled:true,artisan}};
+  for(const [rawQuality,expected] of [[77,83],[80,86]]){
+   const rawMatch={spell,quality:rawQuality,candidates:[{spell,quality:rawQuality,error:0}],reason:''};
+   const recognized=applyRecognitionBonus(rawMatch,relicAccuracyBonus(state,rawQuality));
+   const match=gradeDrawnCast(recognized,true);
+   assert.equal(match.quality,expected);
+   const cast=launchGradedSpell(state,{rawQuality,quality:match.quality},spell.color,spell.id);
+   assert.equal(cast.snowman?.quality,expected);
+   assert.equal(cast.snowman?.hp,guardianStats('snowman',expected).hp);
+   assert.deepEqual(cast.robes.spells,rawQuality===80?['snowman']:[]);
+   assert.equal(robesBonus(cast),rawQuality===80?(artisan?4:2):0);
+   assert.equal(launchSpell(state,rawQuality,spell.color,spell.id).snowman?.quality,rawQuality+3);
+  }
+ }
 });

@@ -269,8 +269,10 @@ export function applyRecognitionBonus(raw:RecognitionResult,accuracyBonus=0):Rec
  return{spell:accepted?top.spell:null,quality,candidates,reason:accepted?'':margin<RECOGNITION_MARGIN?'The shape is between two sigils. Make its defining details clearer.':'The sigil is incomplete or its shape needs more care.'};
 }
 
+export const BOOSTED_SPELL_IDS:readonly SpellId[]=['bog','firestorm','constellation','flameBlade','toxicTwig','snowman'];
+
 export function gradeDrawnCast(match:RecognitionResult,boostEnabled=false):RecognitionResult{
- if(!boostEnabled||!match.spell)return match;
+ if(!boostEnabled||!match.spell||!BOOSTED_SPELL_IDS.includes(match.spell.id))return match;
  const bonus=Math.min(5,Math.round((100-match.quality)*.15));
  return {...match,quality:match.quality+bonus};
 }

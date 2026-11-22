@@ -3,16 +3,18 @@ import {createPortal} from 'react-dom';
 import {Credits} from './Credits';
 import {VersionHistory} from './VersionHistory';
 import {audioPreferences,DEFAULT_AUDIO_PREFERENCES,loadAudioPreferences,type AudioPreferences} from './audioPreferences';
-import {spellScoringBoost} from './spellScoringBoost';
+import {DEFAULT_SPELL_SCORING_BOOST,spellScoringBoost} from './spellScoringBoost';
+import {BOOSTED_SPELL_IDS,SPELLS} from './magic';
 
 type SettingsPage='settings'|'game'|'audio'|'history'|'credits';
 const pageTitles={settings:'Settings',game:'Game Settings',audio:'Audio'};
+const boostedSpellNames=BOOSTED_SPELL_IDS.map(id=>SPELLS.find(spell=>spell.id===id)!.name).join(', ');
 
 export function SettingsButton({onOpen,onClose,combat=false}:{onOpen?:()=>void;onClose?:()=>void;combat?:boolean}){
  const [open,setOpen]=useState(false),[page,setPage]=useState<SettingsPage>('settings');
  const trigger=useRef<HTMLButtonElement>(null),dialog=useRef<HTMLElement>(null);
  const preferences=useSyncExternalStore(audioPreferences.subscribe,audioPreferences.getSnapshot,()=>DEFAULT_AUDIO_PREFERENCES);
- const boost=useSyncExternalStore(spellScoringBoost.subscribe,spellScoringBoost.getSnapshot,()=>false);
+ const boost=useSyncExternalStore(spellScoringBoost.subscribe,spellScoringBoost.getSnapshot,()=>DEFAULT_SPELL_SCORING_BOOST);
  useEffect(()=>loadAudioPreferences(),[]);
  function close(){setOpen(false);onClose?.();trigger.current?.focus({preventScroll:true});}
  useEffect(()=>{
@@ -40,7 +42,7 @@ export function SettingsButton({onOpen,onClose,combat=false}:{onOpen?:()=>void;o
       <button type="button" className="settings-toggle" role="switch" aria-label="Spell Scoring Boost" aria-checked={boost} aria-describedby="spell-scoring-boost-description" onClick={()=>spellScoringBoost.setEnabled(!boost)}>
        Spell Scoring Boost <span aria-hidden="true">{boost?'On':'Off'}</span>
       </button>
-      <p id="spell-scoring-boost-description" className="settings-toggle-description">Recover 15% of missed quality points on successful casts, up to 5 points.</p>
+      <p id="spell-scoring-boost-description" className="settings-toggle-description">Recover 15% of missed quality points, up to 5, on successful casts of {boostedSpellNames}.</p>
      </>}
      {page==='audio'&&<div className="audio-sliders">{([['master','Master volume'],['music','Music'],['effects','Sound effects']] as [keyof AudioPreferences,string][]).map(([key,label])=><label className="audio-slider" key={key}><span>{label}<output>{Math.round(preferences[key]*100)}%</output></span><input type="range" min="0" max="100" step="1" value={Math.round(preferences[key]*100)} aria-label={label} onChange={e=>audioPreferences.set(key,Number(e.currentTarget.value)/100)}/></label>)}</div>}
      {page==='settings'&&<>
