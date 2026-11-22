@@ -94,6 +94,7 @@ export const SPELL_VARIATIONS:Partial<Record<SpellId,Strokes[]>>={
  fire:[[[{x:50,y:12},{x:85,y:12+35*Math.sqrt(3)},{x:15,y:12+35*Math.sqrt(3)},{x:50,y:12}]]],
  firestorm:[[[{x:10,y:18},{x:90,y:18}],[{x:12,y:30},{x:44,y:30},{x:28,y:62},{x:12,y:30}],[{x:56,y:30},{x:88,y:30},{x:72,y:62},{x:56,y:30}]]],
  nature:[[[{x:25,y:15},{x:50,y:50},{x:75,y:15}],[{x:50,y:50},{x:50,y:88}]]],
+ toxicTwig:[SPELLS.find(s=>s.id==='toxicTwig')!.strokes.map((stroke,i)=>i===0?stroke:stroke.map(({x,y})=>({x,y:y-5})))],
  tidalcrest:[.8,1.2].map(width=>SPELLS.find(s=>s.id==='tidalcrest')!.strokes.map(stroke=>stroke.map(p=>({x:50+(p.x-50)*width,y:p.y}))))
 };
 

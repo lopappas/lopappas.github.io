@@ -2,7 +2,7 @@ import {woodenShield} from '../src/shields.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSpider,drinkPotion,launchSpell,newBattle,spellCooldownRemaining,spellDamage,spellKnockback,spellTarget,stepBattle,toxicTwigCastPreview,toxicTwigTotalDamage,type Battle} from '../src/battle.ts';
-import {gradeDrawnCast,recognize,SPELLS,type Strokes} from '../src/magic.ts';
+import {gradeDrawnCast,recognize,SPELLS,SPELL_VARIATIONS,type Strokes} from '../src/magic.ts';
 import {practiceLesson} from '../src/practiceLessons.ts';
 
 function field(upgrade=0){
@@ -27,20 +27,25 @@ test('Cursed Twig is an Uncommon Nature spell recognized as a stem crossed by tw
  assert.ok(result.quality>=98);
 });
 
-test('slightly misplaced and wobbly Cursed Twig drawings earn Wonderful with the scoring boost',()=>{
+test('Cursed Twig has one scoring variant with both bars shifted 5 units up',()=>{
  const twig=SPELLS.find(spell=>spell.id==='toxicTwig')!;
  const [stem,...bars]=twig.strokes;
  const highBars=[stem,...bars.map(stroke=>stroke.map(p=>({...p,y:p.y-5})))];
+ assert.deepEqual(SPELL_VARIATIONS.toxicTwig,[highBars]);
+ const match=recognize(highBars);
+ assert.equal(match.spell,twig);
+ assert.equal(match.quality,100);
+});
+
+test('a slightly misplaced and wobbly Cursed Twig drawing earns Wonderful with the scoring boost',()=>{
  const rough:Strokes=[
   [{x:50,y:10},{x:52,y:32},{x:49,y:50},{x:52,y:70},{x:53,y:90}],
   [{x:31,y:38},{x:47,y:40},{x:68,y:41}],
   [{x:32,y:55},{x:48,y:54},{x:69,y:56}],
  ];
- for(const strokes of [highBars,rough]){
-  const match=gradeDrawnCast(recognize(strokes),true);
-  assert.equal(match.spell,twig);
-  assert.ok(match.quality>=80&&match.quality<100);
- }
+ const match=gradeDrawnCast(recognize(rough),true);
+ assert.equal(match.spell?.id,'toxicTwig');
+ assert.ok(match.quality>=80&&match.quality<100);
 });
 
 test('Cursed Twig uses the separate-bar reference and penalizes a connecting line',()=>{

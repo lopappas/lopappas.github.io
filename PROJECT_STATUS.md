@@ -13,7 +13,7 @@ Updated: 2026-11-22
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.14-alpha) makes the 0.4.09 spell scoring boost an opt-in preference under Settings → Game Settings. It starts off and persists across reloads on the same browser. When enabled, it applies to successful player-drawn casts in combat, Practice, spell bottle capture and the Forgotten Campsite.
+Latest update (version 0.4.15-alpha) adds one Cursed Twig scoring variant with both bars 5 units higher. The centered shape remains the Practice demonstration and spell trace. Spell Scoring Boost is an opt-in preference under Settings → Game Settings that starts off and persists across reloads.
 
 The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
 
