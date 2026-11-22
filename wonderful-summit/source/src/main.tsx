@@ -39,6 +39,7 @@ import '@fontsource/fredoka/latin-400.css';
 import '@fontsource/fredoka/latin-500.css';
 import '@fontsource/fredoka/latin-600.css';
 import {ambiguousSpells,applyRecognitionBonus,SPELLS,recognize,grade,gradeDrawnCast,power,inkCost,castHoldMs,REFILL_MS,refillDurationMs,refillInk,type Point,type Strokes,type Spell,type SpellId} from './magic';
+import {spellScoringBoost} from './spellScoringBoost';
 import {Tutorial2Trace} from './Tutorial2Trace';
 import {AnimatedWorld} from './AnimatedWorld';
 import {BattlePresentation} from './battlePresentation';
@@ -236,7 +237,7 @@ export function Combat({journey,onFinish,onDeveloperCommand,practice,onReviewRea
   if(completed&&canAct('draw')&&strokes.current.some(st=>st.length>1))t2?.onAction('draw',t2.token);
  }
  function cast(){if(pausedRef.current||!canAct('cast')||battleRef.current.phase!=='active'){cancelCharge();return;}hold.current=null;setCharge(0);const t2=tutorial2Ref.current;const castToken=t2?.token;const rawMatch=recognize(strokes.current,journey.spells);const rawQuality=rawMatch.quality;const recognized=applyRecognitionBonus(rawMatch,relicAccuracyBonus(battleRef.current,rawQuality));
- const match=t2?.scriptedDrawing?recognized:gradeDrawnCast(recognized);
+ const match=gradeDrawnCast(recognized,!t2?.scriptedDrawing&&spellScoringBoost.getSnapshot());
  const block=spellCastBlockReason(battleRef.current,match.spell?.id);if(block){if(block==='Your purse is full')notifyPotionsFull();setCastBlockMessage(block);setCooldownNotice(n=>n+1);return;}if(match.spell&&spellCooldownRemaining(battleRef.current,match.spell.id)>0){const spellId=match.spell.id;const serial=++cooldownFeedbackSerial.current;setCooldownFeedback({spellId,serial});setCastBlockMessage('The spell is on cooldown');setCooldownNotice(n=>n+1);return;}setCooldownFeedback(null);setCooldownNotice(0);setStaleCast(false);setStaleNotice(0);
  if(showSpellDetails){
   const ambiguous=ambiguousSpells(match);

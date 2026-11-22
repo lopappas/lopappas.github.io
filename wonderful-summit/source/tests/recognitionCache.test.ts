@@ -76,7 +76,8 @@ test('all successful spells earn the same tapered grade boost and fizzles keep t
   for(const [raw,expected] of [[45,50],[55,60],[65,70],[77,80],[90,92],[99,99],[100,100]]){
    const rawMatch={spell:null,quality:0,candidates:[{spell,quality:raw,error:0}],reason:''};
    const recognized=applyRecognitionBonus(rawMatch);
-   assert.deepEqual(gradeDrawnCast(recognized),{...recognized,spell,quality:expected});
+   assert.strictEqual(gradeDrawnCast(recognized),recognized);
+   assert.deepEqual(gradeDrawnCast(recognized,true),{...recognized,spell,quality:expected});
   }
  }
  const [spell,other]=SPELLS;
@@ -84,7 +85,7 @@ test('all successful spells earn the same tapered grade boost and fizzles keep t
   const rawMatch={spell:null,quality:0,candidates:[{spell,quality:score,error:0},{spell:other,quality:runnerUp,error:0}],reason:''};
   const recognized=applyRecognitionBonus(rawMatch);
   assert.equal(recognized.spell,null);
-  assert.strictEqual(gradeDrawnCast(recognized),recognized);
+  assert.strictEqual(gradeDrawnCast(recognized,true),recognized);
  }
 });
 
@@ -95,7 +96,7 @@ test('drawn combat uses the displayed grade for damage and counts the accuracy r
  const rawQuality=77;
  const rawMatch={spell,quality:rawQuality,candidates:[{spell,quality:rawQuality,error:0}],reason:''};
  const recognized=applyRecognitionBonus(rawMatch,relicAccuracyBonus(state,rawQuality));
- const match=gradeDrawnCast(recognized);
+ const match=gradeDrawnCast(recognized,true);
  assert.equal(match.quality,83);
  const cast=launchGradedSpell(state,{rawQuality,quality:match.quality},spell.color,spell.id);
  assert.equal(cast.projectile?.quality,83);

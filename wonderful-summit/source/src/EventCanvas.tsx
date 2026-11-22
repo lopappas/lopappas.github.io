@@ -5,6 +5,7 @@ import {useSpellInk} from './useSpellInk';
 import React,{useEffect,useRef,useState} from 'react';
 import {HOLD_MS,chargeColor,recognize,gradeDrawnCast,type SpellId,type Strokes} from './magic';
 import {snapshotDrawing,type PlayerDrawing} from './drawings';
+import {spellScoringBoost} from './spellScoringBoost';
 import {playSpellSound,unlockSpellAudio,spellCastSound} from './sound';
 
 type EventCanvasProps=
@@ -29,7 +30,7 @@ export function EventCanvas(props:EventCanvasProps){
   unlockSpellAudio();
   const match=heart?null:recognize(strokes.current,props.known);
   const rawQuality=match?.quality??heartRockQuality(strokes.current);
-  const quality=match?gradeDrawnCast(match).quality:rawQuality;
+  const quality=match?gradeDrawnCast(match,spellScoringBoost.getSnapshot()).quality:rawQuality;
   setColor(heart?HEART_INK:match?.spell?.color);
   const started=performance.now();
   hold.current={frame:0};

@@ -7,6 +7,7 @@ type Release={
 
 // Keep newest first. Record the specific model when confirmed.
 export const VERSION_HISTORY:Release[]=[
+ {version:'0.4.14-alpha',publishedAt:'2026-11-22T12:39:31Z',model:'GPT-6.2 Sol',changes:['You can turn on Spell Scoring Boost in Game Settings. It starts off and remembers your choice.']},
  {version:'0.4.13-alpha',publishedAt:'2026-11-21T22:24:53Z',model:'GPT-6.2 Sol',changes:['Eruption magma ignites wooden shields.','Flame Blade is upright in its trace, Practice demonstration, and scoring variants.']},
  {version:'0.4.12-alpha',publishedAt:'2026-11-21T21:51:52Z',model:'GPT-6.2 Sol',changes:['The spell canvas records the end of each stroke when you lift your finger or release the mouse.']},
  {version:'0.4.11-alpha',publishedAt:'2026-11-21T21:41:19Z',model:'GPT-6.2 Sol',changes:['Cursed Twig uses its original three-stroke scoring shape.']},

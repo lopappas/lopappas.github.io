@@ -27,7 +27,7 @@ test('Cursed Twig is an Uncommon Nature spell recognized as a stem crossed by tw
  assert.ok(result.quality>=98);
 });
 
-test('slightly misplaced and wobbly Cursed Twig drawings still earn Wonderful',()=>{
+test('slightly misplaced and wobbly Cursed Twig drawings earn Wonderful with the scoring boost',()=>{
  const twig=SPELLS.find(spell=>spell.id==='toxicTwig')!;
  const [stem,...bars]=twig.strokes;
  const highBars=[stem,...bars.map(stroke=>stroke.map(p=>({...p,y:p.y-5})))];
@@ -37,7 +37,7 @@ test('slightly misplaced and wobbly Cursed Twig drawings still earn Wonderful',(
   [{x:32,y:55},{x:48,y:54},{x:69,y:56}],
  ];
  for(const strokes of [highBars,rough]){
-  const match=gradeDrawnCast(recognize(strokes));
+  const match=gradeDrawnCast(recognize(strokes),true);
   assert.equal(match.spell,twig);
   assert.ok(match.quality>=80&&match.quality<100);
  }
