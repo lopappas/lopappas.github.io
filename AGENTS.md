@@ -1,6 +1,6 @@
-# Wonderful Summit — Agent Instructions
+# Witch of Wonder — Agent Instructions
 
-These instructions apply to Wonderful Summit in this repository.
+These instructions apply to Witch of Wonder in this repository.
 
 ## Start here
 - Read PROJECT_STATUS.md before making changes.
@@ -23,7 +23,7 @@ These instructions apply to Wonderful Summit in this repository.
 - Report actual test results; a different test count alone does not prove a newer or older version.
 
 ## Publishing
-- The user has given continuing approval to publish requested Wonderful Summit updates. After validation, publish without asking for separate release approval unless the user changes this instruction or a new approval restriction explicitly blocks the action.
+- The user has given continuing approval to publish requested Witch of Wonder updates. After validation, publish without asking for separate release approval unless the user changes this instruction or a new approval restriction explicitly blocks the action.
 - Keep source changes and their production build consistent in the same commit when updating the game.
 - Use a guarded branch update against the inspected head. Do not overwrite newer remote work.
 - Reduce deployment polling decisively: one status check per update by default. If publishing is still pending, report that clearly and stop polling.

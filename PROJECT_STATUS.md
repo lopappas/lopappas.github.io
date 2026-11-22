@@ -1,4 +1,4 @@
-# Wonderful Summit — Project Status
+# Witch of Wonder — Project Status
 
 Updated: 2026-11-23
 
@@ -13,7 +13,7 @@ Updated: 2026-11-23
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.18-alpha) gives Eruption a 15-second cooldown and makes magma deal 3 base damage per tick, or 4 upgraded. Thistle Bush has a 12-second cooldown. The starter-relic crystal ball reveals Theodora and her dialogue. Victory rewards show the relic rarity followed by “relic.” Practice puts Learn drawing at the lower left of the canvas, and Drudge Bog’s trace is 10% larger and 10% thinner.
+Latest update (version 0.4.19-alpha) names the game Witch of Wonder on the opening screen, home menu, browser tab and site launcher. Claiming gold after combat plays the supplied coin sound through the Sound Effects volume control.
 
 The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
 

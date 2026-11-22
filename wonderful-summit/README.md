@@ -1,4 +1,4 @@
-# Wonderful Summit
+# Witch of Wonder
 
 Play at https://lopappas.github.io/wonderful-summit/
 

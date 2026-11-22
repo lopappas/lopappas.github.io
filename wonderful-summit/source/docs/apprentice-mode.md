@@ -19,7 +19,7 @@ Validation: run mode/reward/reset isolation, trace expiration/cooldown boundarie
 - Consider an optional pause while the quick spell table is open, giving players time to choose without pressure.
 - Consider a tap-to-start/tap-to-release cast alternative for players who struggle with prolonged holds.
 
-Retry/progress preservation and adjustable input/difficulty assistance are consistent with Microsoft’s Xbox Accessibility Guidelines: https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/108 and https://learn.microsoft.com/en-us/windows/uwp/gaming/accessibility-for-games . These are design references, not evidence that the proposed changes have been playtested in Wonderful Summit.
+Retry/progress preservation and adjustable input/difficulty assistance are consistent with Microsoft’s Xbox Accessibility Guidelines: https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/108 and https://learn.microsoft.com/en-us/windows/uwp/gaming/accessibility-for-games . These are design references, not evidence that the proposed changes have been playtested in Witch of Wonder.
 
 
 ## 0.3.1 visual update

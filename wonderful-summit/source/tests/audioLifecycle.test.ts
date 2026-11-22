@@ -1,6 +1,7 @@
 import {audioPreferences,audioChannelVolume} from '../src/audioPreferences.ts';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {createSpellAudio,spellCastSound,installSpellAudio,UI_SOUND_VOLUME,soundSamples,SOUND_RATE} from '../src/sound.ts';
 
 class DeviceAudio{
@@ -49,9 +50,10 @@ test('Thistle appearance uses a brief soft rustle that never loops and disconnec
 });
 
 test('remaining UI effects are distinct, bounded and brief, with silent sample boundaries',()=>{
- assert.deepEqual(Object.keys(UI_SOUND_VOLUME).sort(),['blackFlash','bottle','learn','rest','robes','shatter','stone','upgrade']);
+ assert.deepEqual(Object.keys(UI_SOUND_VOLUME).sort(),['blackFlash','bottle','coin','learn','rest','robes','shatter','stone','upgrade']);
  const signatures=new Set<string>();
  for(const kind of Object.keys(UI_SOUND_VOLUME) as Array<keyof typeof UI_SOUND_VOLUME>){
+  if(kind==='coin')continue;
   const samples=soundSamples(kind);
   assert.ok(samples.every(value=>Number.isFinite(value)&&Math.abs(value)<=.901));
   assert.equal(Math.abs(samples[0]),0);assert.ok(Math.abs(samples.at(-1)!)<.002);
@@ -61,6 +63,29 @@ test('remaining UI effects are distinct, bounded and brief, with silent sample b
  assert.equal(signatures.size,8);
  assert.ok(soundSamples('learn').length>SOUND_RATE*.5);
  assert.equal(soundSamples('upgrade').length,Math.ceil(SOUND_RATE*1.4));
+});
+
+test('coin collection decodes the supplied recording once per context and uses the effects volume',async()=>{
+ const recording=readFileSync(new URL('../src/audio/coin-sound.wav',import.meta.url));
+ const context=new DeviceAudio();
+ let reads=0,decodes=0;
+ const audio=createSpellAudio({
+  createContext:()=>Object.assign(context,{decodeAudioData:async(bytes:ArrayBuffer)=>{
+   decodes++;
+   assert.deepEqual(Buffer.from(bytes),recording);
+   return context.createBuffer(2,3981);
+  }}) as unknown as AudioContext,
+  isVisible:()=>true,
+  now:()=>0,
+  loadCoinSound:async()=>{reads++;return Uint8Array.from(recording).buffer;},
+ });
+ audio.unlock();await flush();
+ audio.play('coin',0);await flush();
+ audio.play('coin',0);await flush();
+ assert.deepEqual(context.starts,[1,3981,3981]);
+ assert.equal(reads,1);assert.equal(decodes,1);
+ assert.equal(context.sources.at(-1)?.loop,false);
+ assert.equal(context.gains.at(-1)?.gain.value,UI_SOUND_VOLUME.coin*audioChannelVolume('effects'));
 });
 
 test('startup chime has finite bounded signals and silent ends',()=>{

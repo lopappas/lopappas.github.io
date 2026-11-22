@@ -6,8 +6,8 @@ import {GUARDIAN_SHOT_FLIGHT_SECONDS} from './guardian.ts';
 import type {Element,Spell} from './magic';
 
 export type CastSound=Lowercase<Element>|'fizzle'|'hurt'|'start'|'aquaspout'|'tidalcrest'|'bramble'|'flareBolt'|'cloud'|'mud'|'rain'|'swamp'|'rustle'|'twigSnap'|'confettiPop'|'eruptionBlast'|'sizzle';
-export type UISound='blackFlash'|'bottle'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
-export const UI_SOUND_VOLUME:Record<UISound,number>={blackFlash:.62,robes:.3,shatter:.38,bottle:.24,learn:.32,stone:.29,upgrade:.36,rest:.3};
+export type UISound='blackFlash'|'bottle'|'coin'|'learn'|'stone'|'upgrade'|'rest'|'shatter'|'robes';
+export const UI_SOUND_VOLUME:Record<UISound,number>={blackFlash:.62,robes:.3,shatter:.38,bottle:.24,coin:.8,learn:.32,stone:.29,upgrade:.36,rest:.3};
 const LOOP_VOLUME={rain:.05,swamp:.08,sizzle:.065};
 type LoopKind=keyof typeof LOOP_VOLUME;
 const LOOP_KINDS=Object.keys(LOOP_VOLUME) as LoopKind[];
@@ -15,6 +15,7 @@ type SpellAmbienceLevels={rain:number;swamp:number;sizzle?:number};
 const GUARDIAN_CUE_VOLUME={sporeShake:.13,lighterStrike:.23,snowballServe:.26};
 type GuardianCue=keyof typeof GUARDIAN_CUE_VOLUME;
 type SoundKind=CastSound|UISound|GuardianCue;
+type SynthSound=Exclude<SoundKind,'coin'>;
 
 export function guardianAttackCues(before:Battle,after:Battle):GuardianCue[]{
  const cues:GuardianCue[]=[];
@@ -43,8 +44,8 @@ export function spellCastSound(spell:Pick<Spell,'id'|'element'>|null|undefined):
 export const SOUND_RATE=22050;
 export function castVolume(quality:number){const q=Math.max(0,Math.min(100,quality))/100;return .18+.32*q*q;}
 
-// Original synthesized effects: no downloads, microphone access, or audio assets.
-export function soundSamples(kind:SoundKind):Float32Array{
+// Generated effects use local synthesis.
+export function soundSamples(kind:SynthSound):Float32Array{
  if(kind==='aquaspout')return soundSamples('water');
  if(kind==='bramble')return soundSamples('nature');
  const duration=kind==='sizzle'?2:kind==='confettiPop'?.26:kind==='eruptionBlast'?.78:kind==='sporeShake'?.19:kind==='lighterStrike'?.17:kind==='snowballServe'?.14:kind==='blackFlash'?.85:kind==='rain'||kind==='swamp'?6:kind==='rustle'?.55:kind==='twigSnap'?.18:kind==='cloud'?2:kind==='mud'?.8:kind==='tidalcrest'?1.15:kind==='robes'?1:kind==='shatter'?.42:kind==='rest'?1.25:kind==='upgrade'?1.4:kind==='bottle'?.24:kind==='learn'?.65:kind==='stone'?.55:kind==='start'?.78:kind==='hurt'?.14:kind==='nature'?.7:kind==='water'?.58:.48;
@@ -207,7 +208,17 @@ export function soundSamples(kind:SoundKind):Float32Array{
  return samples;
 }
 
-type AudioEnvironment={createContext:()=>AudioContext|null;isVisible:()=>boolean;now:()=>number};
+const COIN_SOUND_URL=new URL('./audio/coin-sound.wav',import.meta.url).href;
+let coinSoundBytes:Promise<ArrayBuffer>|undefined;
+function loadCoinSound(){
+ coinSoundBytes??=fetch(COIN_SOUND_URL).then(response=>{
+  if(!response.ok)throw new Error('Coin sound could not load');
+  return response.arrayBuffer();
+ }).catch(error=>{coinSoundBytes=undefined;throw error;});
+ return coinSoundBytes;
+}
+
+type AudioEnvironment={createContext:()=>AudioContext|null;isVisible:()=>boolean;now:()=>number;loadCoinSound?:()=>Promise<ArrayBuffer>};
 function browserAudioContext(){
  // Keep game effects mixable with music and other phone audio. Configure the
  // session before creating Web Audio; unsupported browsers keep their defaults.
@@ -219,6 +230,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
  let context:AudioContext|null=null,primed:AudioContext|null=null;
  let recycleOnGesture=false,needsWakeCycle=false,waking:AudioContext|null=null;
  const buffers=new Map<SoundKind,AudioBuffer>();
+ let coinBuffer:Promise<AudioBuffer>|undefined;
  const activeGains=new Map<GainNode,number>();
  const loops=new Map<LoopKind,{source:AudioBufferSourceNode;gain:GainNode;expiresAt:number;renewedAt:number;base:number}>();
  const ambienceLeaseSeconds=.5;
@@ -293,7 +305,7 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
     const previous=context,next=environment.createContext();
     if(next){
      stopAmbience();
-     context=next;primed=null;buffers.clear();activeGains.clear();loops.clear();recycleOnGesture=false;needsWakeCycle=false;waking=null;
+     context=next;primed=null;buffers.clear();coinBuffer=undefined;activeGains.clear();loops.clear();recycleOnGesture=false;needsWakeCycle=false;waking=null;
      next.onstatechange=()=>{if(next!==context)return;if(String(next.state)==='interrupted')recycleOnGesture=true;wake();};
      if(previous){previous.onstatechange=null;try{if(previous.state!=='closed')void previous.close().catch(()=>{});}catch{}}
     }
@@ -307,24 +319,37 @@ export function createSpellAudio(environment:AudioEnvironment={createContext:bro
    }
   }catch{/* Input and combat keep working if browser/device audio is unavailable. */}
  }
- function playNow(ctx:AudioContext,kind:SoundKind,quality:number){
+ function playBuffer(ctx:AudioContext,kind:SoundKind,quality:number,buffer:AudioBuffer){
   if(ctx!==context||ctx.state!=='running'||!visible())return;
-  let buffer=buffers.get(kind);
-  if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
   const source=ctx.createBufferSource(),gain=ctx.createGain();
   source.buffer=buffer;source.loop=false;source.playbackRate.value=kind==='aquaspout'?1.15:kind==='bramble'?.88:1;const base=kind in GUARDIAN_CUE_VOLUME?GUARDIAN_CUE_VOLUME[kind as GuardianCue]:kind in UI_SOUND_VOLUME?UI_SOUND_VOLUME[kind as UISound]:kind==='eruptionBlast'?.47:kind==='confettiPop'?.23:kind==='rustle'?.22:kind==='start'?.4:kind==='hurt'?.4:kind==='fizzle'?.22:kind==='cloud'?.16:kind==='mud'?.25:castVolume(quality);
   gain.gain.value=base*audioChannelVolume('effects');activeGains.set(gain,base);
   source.connect(gain);gain.connect(ctx.destination);
   source.onended=()=>{activeGains.delete(gain);source.disconnect();gain.disconnect();};source.start();
  }
+ function playNow(ctx:AudioContext,kind:SoundKind,quality:number,requested:number){
+  if(ctx!==context||ctx.state!=='running'||!visible())return;
+  if(kind==='coin'){
+   if(!coinBuffer){
+    const decoding=(environment.loadCoinSound??loadCoinSound)().then(bytes=>ctx.decodeAudioData(bytes.slice(0)));
+    coinBuffer=decoding;
+    void decoding.catch(()=>{if(coinBuffer===decoding)coinBuffer=undefined;});
+   }
+   void coinBuffer.then(buffer=>{if(environment.now()-requested<=250)playBuffer(ctx,kind,quality,buffer);}).catch(()=>{});
+   return;
+  }
+  let buffer=buffers.get(kind);
+  if(!buffer){const samples=soundSamples(kind);buffer=ctx.createBuffer(1,samples.length,SOUND_RATE);buffer.getChannelData(0).set(samples);buffers.set(kind,buffer);}
+  playBuffer(ctx,kind,quality,buffer);
+ }
  function play(kind:SoundKind,quality:number){
   try{
    const ctx=context;if(!ctx||ctx.state==='closed'||!visible())return;
-   if(ctx.state==='running'){playNow(ctx,kind,quality);return;}
+   const requested=environment.now();
+   if(ctx.state==='running'){playNow(ctx,kind,quality,requested);return;}
    // Resume asynchronously before playing; discard old effects rather than
    // replaying a backlog when the player returns from a lock screen or call.
-   const requested=environment.now();
-   void ctx.resume().then(()=>{if(environment.now()-requested<=250)playNow(ctx,kind,quality);}).catch(()=>{});
+   void ctx.resume().then(()=>{if(environment.now()-requested<=250)playNow(ctx,kind,quality,requested);}).catch(()=>{});
   }catch{/* Do not interrupt game state if audio is blocked. */}
  }
  return{unlock,wake,sleep,play,refreshVolume,setAmbience,stopAmbience};
@@ -340,6 +365,7 @@ export function playUISound(kind:UISound){spellAudio.unlock();spellAudio.play(ki
 
 export function installSpellAudio(){
  loadAudioPreferences();
+ void loadCoinSound().catch(()=>{});
  // Native capture listeners run before React handlers and cover the opening
  // checkmark, menu choices, drawing, potions and keyboard activation alike.
  const gestures=['pointerdown','touchend','click','keydown'];

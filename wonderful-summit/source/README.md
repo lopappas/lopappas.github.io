@@ -1,4 +1,4 @@
-# Wonderful Summit
+# Witch of Wonder
 
 Portrait mobile spell-painting roguelite.
 
