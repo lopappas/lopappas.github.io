@@ -42,9 +42,9 @@ test('Eruption warns the nearest enemy for 0.8 seconds, then knocks it back and 
  assert.deepEqual(warned.enemies.map(e=>e.hp),[100,100,100,100]);
  assert.equal(warned.eruptionWarnings[0].targetId,1);
  assert.deepEqual(warned.magma,[]);
- assert.equal(spellCooldownRemaining(state,'eruption'),12);
- assert.equal(cast(at(state,11.99)).casts,1);
- assert.equal(cast(at(state,12)).casts,2);
+ assert.equal(spellCooldownRemaining(state,'eruption'),15);
+ assert.equal(cast(at(state,14.99)).casts,1);
+ assert.equal(cast(at(state,15)).casts,2);
 
  const impact=at(warned,.8);
  const hit=45.2625;
@@ -57,9 +57,9 @@ test('Eruption warns the nearest enemy for 0.8 seconds, then knocks it back and 
  assert.equal(impact.enemies[1].eruptionStunUntil,undefined);
  assert.deepEqual(impact.enemies.map(e=>spellSlow(impact,e,.8)),[.12,.12,.12,0]);
  assert.deepEqual(at(impact,1.299).enemies.map(e=>e.hp),[100-hit,100,100,100]);
- assert.deepEqual(at(impact,1.3).enemies.map(e=>e.hp),[98-hit,98,98,100]);
+ assert.deepEqual(at(impact,1.3).enemies.map(e=>e.hp),[51.7375,97,97,100]);
  const cooled=at(impact,7.8);
- assert.deepEqual(cooled.enemies.map(e=>e.hp),[26.7375,72,72,100]);
+ assert.deepEqual(cooled.enemies.map(e=>e.hp),[12.7375,58,58,100]);
  assert.deepEqual(cooled.magma,[]);
  assert.deepEqual(at(cooled,8).enemies.map(e=>e.hp),cooled.enemies.map(e=>e.hp));
 });
@@ -73,13 +73,13 @@ test('magma ignites wooden shields inside the pool, and they protect until they 
  const firstTick=at(impact,1.3);
  assert.equal(firstTick.enemies[0].shield?.burnUntil,.8+SHIELD_BURN_SECONDS);
  assert.equal(firstTick.enemies[1].shield?.burnUntil,1.3+SHIELD_BURN_SECONDS);
- assert.equal(firstTick.enemies[1].hp,99);
+ assert.equal(firstTick.enemies[1].hp,98.5);
  const stillBurning=at(firstTick,3.299);
  assert.equal(stillBurning.enemies[1].shield?.burnUntil,1.3+SHIELD_BURN_SECONDS);
- assert.equal(stillBurning.enemies[1].hp,96);
+ assert.equal(stillBurning.enemies[1].hp,94);
  const noShield=at(stillBurning,3.3);
  assert.equal(noShield.enemies[1].shield,null);
- assert.equal(noShield.enemies[1].hp,94);
+ assert.equal(noShield.enemies[1].hp,91);
  assert.deepEqual(noShield.enemies[3].shield,woodenShield());
  assert.equal(noShield.enemies[3].hp,100);
 });
@@ -138,7 +138,7 @@ test('a Faint magma pool reaches all lanes and better casts increase size and du
  assert.ok(!magmaContains(faint,faint.x+faint.radiusX+1,FILA_FOOT_Y));
  const qualities=[MIN_CAST_QUALITY,60,70,80,90,100];
  const sizes=qualities.map(quality=>magmaSize(quality));
- assert.ok(sizes.every(size=>size.damage===2));
+ assert.ok(sizes.every(size=>size.damage===3));
  assert.ok(qualities.every(quality=>magmaSize(quality,1).damage===4));
  assert.deepEqual(sizes.map(size=>size.duration),[3,4.5,6,7,8,8.5]);
  assert.deepEqual(qualities.map(quality=>magmaSize(quality,1).duration),[4.5,6,7.5,8.5,9.5,10]);

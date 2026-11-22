@@ -124,6 +124,8 @@
 .sister-portrait{display:flex;flex-direction:column;align-items:center;gap:6px;margin:10px 0 0}
 .sister-name{font-family:Georgia,'Palatino Linotype','Book Antiqua',serif;font-size:23.8px;font-style:italic;font-weight:400;line-height:1.2;letter-spacing:1px;color:#ead4aa;text-shadow:0 2px 8px #14251e66}
 .sister-portrait .sister-art{margin:0 auto}
+.theodora-reveal{display:grid;place-items:center;width:44px;height:36px;margin:0 auto;padding:0;border:1px solid #8b9573;border-radius:999px;background:#2d4538;font-size:18px}
+.theodora-reveal+.starter-robe{margin-top:3px}
 
 .opening-mountain>svg{overflow:visible;opacity:1}
 
@@ -481,7 +483,9 @@
 
 .combat-spells-column{min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:6px}.combat-spells-grid[data-columns="4"]{gap:4px}.combat-spells-grid[data-columns="4"] button{font-size:10.35px}.combat-spells-grid[data-columns="4"] svg{width:32px;height:32px}
 
-.canvas-trace-controls{position:absolute;top:15px;left:17px;z-index:2}.canvas-trace-controls button{display:block;padding:4px 7px;min-height:28px;border:1px solid #b8a47a66;border-radius:4px;background:#ebdfbcdd;color:#6d624b;font-size:11px;line-height:1.2}
+.canvas-trace-controls{position:absolute;inset:0;z-index:2;pointer-events:none}.canvas-trace-controls button{position:absolute;left:17px;pointer-events:auto;display:block;padding:4px 7px;min-height:28px;border:1px solid #b8a47a66;border-radius:4px;background:#ebdfbcdd;color:#6d624b;font-size:11px;line-height:1.2}
+.canvas-trace-controls .hide-trace{top:15px}
+.canvas-trace-controls .learn-drawing{bottom:15px}
 
 /* Keep the existing cooldown badge typography, colors and sizing on the drawing surface. */
 .paper .canvas-spell-cooldowns{top:auto;right:auto;bottom:14px;left:14px;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:3px;width:max-content;max-width:calc(100% - 28px);pointer-events:none}
@@ -492,7 +496,6 @@
 @keyframes cooldownBorderCue{0%,50%{border-color:#fff3af;box-shadow:0 0 0 2px var(--cooldown-color,#d9dce0),0 0 8px var(--cooldown-color,#d9dce0)}100%{border-color:#b8a47a;box-shadow:none}}
 
 .paper canvas.ink-hidden{visibility:hidden}
-.canvas-trace-controls button+button{margin-top:4px}
 
 .heart-rock-scene{width:100%;height:108px;display:block;flex-shrink:0}
 .heart-rock-paper.event-paper{background:#dce4ec;border-color:#8b9dae;box-shadow:inset 0 0 25px #7c97ad29}

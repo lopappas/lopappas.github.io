@@ -21,7 +21,7 @@ import {RainbowLetters} from './SpellGrade';
 import {ForgottenCampsite} from './ForgottenCampsite';
 import {HeartRock} from './HeartRock';
 import {BestDrawing} from './BestDrawing';
-import React,{useEffect,useLayoutEffect,useRef,useState,type ComponentType} from 'react';
+import React,{useEffect,useId,useLayoutEffect,useRef,useState,type ComponentType} from 'react';
 import {SPELLS,isCheckmark,type Spell,type Point} from './magic';
 import {potionName,POTIONS,type Battle,type Potion} from './battle';
 import {runDamageBonus,chooseShopSpell,skipShopSpell,skipRewardSpell,markSpellsReviewed,runRobesBonus,selectTrailNode,unlockDeveloperTrail,castHeartRock,castTrailEvent,sealBottle,merchantDialogue,newRun,finishOpening,selectMode,returnToMenu,startRun,enterNode,finishBattle,claimGold,claimPotion,claimRelic,rewardsComplete,learnReward,leaveNode,buy,discardPotion,drinkTrailHealing,camp,potionCount,potionCapacity,RELICS,ROUTE,type Run,type RelicId,type Stock} from './run';
@@ -42,6 +42,20 @@ function Icon({spell}:{spell:Spell}){return <svg className="run-sigil" viewBox="
 
 function GoldIcon(){return <svg className="reward-coin-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#e9bd50" stroke="#9f732e" strokeWidth="3"/><circle cx="24" cy="24" r="15" fill="none" stroke="#fff0ad" strokeWidth="2"/><path d="m24 13 7 11-7 11-7-11z" fill="#9f732e"/></svg>}
 function Sister(){return <svg className="npc-art sister-art" viewBox="0 0 220 155" role="img" aria-label="Theodora, Filadora's older witch sister"><circle cx="110" cy="78" r="55" fill="#e3d0ac"/><path d="M78 65h63v55H78z" fill="#694b52"/><path d="M88 68h44v41H88z" fill="#e7be9c"/><path d="M79 109h62l16 38H63z" fill="#8ba792"/><path d="M61 60h99v13H61zM76 60l24-47h15l26 47z" fill="#7e6c9a"/><path d="M84 47h51v10H84z" fill="#cfb27a"/><circle cx="101" cy="86" r="2.5" fill="#33333c"/><circle cx="123" cy="86" r="2.5" fill="#33333c"/><path d="M106 97q7 7 13 0" stroke="#a46b75" strokeWidth="2" fill="none"/></svg>}
+function StarterRelic({robesBonus}:{robesBonus:number}){
+ const [showTheodora,setShowTheodora]=useState(false);
+ const dialogueId=useId();
+ return <>
+  <div id={dialogueId} hidden={!showTheodora}>
+   {showTheodora&&<>
+    <figure className="sister-portrait"><figcaption className="sister-name">Theodora</figcaption><Sister/></figure>
+    <SisterDialogue potionIcon={<PotionIcon potion="theodoraHeal"/>}/>
+   </>}
+  </div>
+  <button type="button" className="theodora-reveal" aria-label={showTheodora?'Hide Theodora':'Reveal Theodora'} aria-expanded={showTheodora} aria-controls={dialogueId} onClick={()=>setShowTheodora(show=>!show)}><span aria-hidden="true">🔮</span></button>
+  <section className="starter-robe"><h2>Filadora's starter relic</h2><CombatRelics variant="trail" relics={['filadoraRobes']} robesBonus={robesBonus}/></section>
+ </>;
+}
 function Opening({onStart}:{onStart:()=>void}){
  const canvas=useRef<HTMLCanvasElement>(null),points=useRef<Point[]>([]),pointer=useRef<number|null>(null),timer=useRef<ReturnType<typeof setTimeout>|null>(null),done=useRef(false);
  const [fading,setFading]=useState(false),[retry,setRetry]=useState(false),[ready,setReady]=useState(false);
@@ -101,14 +115,14 @@ export function RunGame({Combat}:{Combat:ComponentType<CombatProps>}){
   :run.screen==='rewards'&&reward?{label:'Continue',disabled:!rewardsComplete(reward),action:()=>update(leaveNode)}:null;
 
  return <main className={`app run-app${run.screen==='map'?` trail-act-${trailAct(run.node).number}`:''}${bottleReturning?' bottle-returned':''}${confirmation?' has-confirmation':''}`}><header className="topbar">{run.screen!=='map'?<MapButton run={run}/>:<span aria-hidden="true"/>}<div className="header-actions"><TravelSpellbook wonderful={run.wonderfulSpells} known={run.spells} upgrades={run.upgrades}/><SettingsButton/><HelpButton/></div></header>{stats}{run.screen==='map'&&<CombatRelics robesBonus={runRobesBonus(run)} relics={run.relics} variant="trail" broken={run.shaleContacts>=3?['impossibleShale']:[]}/>}<div key={`${run.screen}-${run.node}`} ref={contentRef} className={`run-content${run.screen==='event'?' event-content':''}`}>
- {run.screen==='sister'&&<section className="run-panel"><figure className="sister-portrait"><figcaption className="sister-name">Theodora</figcaption><Sister/></figure><SisterDialogue potionIcon={<PotionIcon potion="theodoraHeal"/>}/><section className="starter-robe"><h2>Filadora's starter relic</h2><CombatRelics variant="trail" relics={['filadoraRobes']} robesBonus={runRobesBonus(run)}/></section><h2>Choose a keepsake:</h2><div className="choice-list">{run.keepsakeOffers.map(id=><button key={id} className={`${rarityClass(RELICS[id].rarity)}${selectedRelic===id?' selected':''}`} aria-label={`${RELICS[id].name}, ${RELICS[id].rarity}`} onClick={()=>setRelic(id)}><b><RelicIcon relic={id}/> {RELICS[id].name}</b><em className="rarity-label">{RELICS[id].rarity}</em><small>{RELICS[id].description}</small></button>)}</div></section>}
+ {run.screen==='sister'&&<section className="run-panel"><StarterRelic robesBonus={runRobesBonus(run)}/><h2>Choose a keepsake:</h2><div className="choice-list">{run.keepsakeOffers.map(id=><button key={id} className={`${rarityClass(RELICS[id].rarity)}${selectedRelic===id?' selected':''}`} aria-label={`${RELICS[id].name}, ${RELICS[id].rarity}`} onClick={()=>setRelic(id)}><b><RelicIcon relic={id}/> {RELICS[id].name}</b><em className="rarity-label">{RELICS[id].rarity}</em><small>{RELICS[id].description}</small></button>)}</div></section>}
  {run.screen==='map'&&<ActTrail run={run} highlightFinal={introAct===trailAct(run.node).number} onSelect={i=>update(r=>selectTrailNode(r,i))}/>}
  {run.screen==='rewards'&&reward&&<section className="run-panel">
   <h1>Clearing complete</h1>
   <div className="reward-pickups">
    <button className="reward-pickup gold-pickup" disabled={reward.goldClaimed} onClick={()=>update(claimGold)} aria-label={`${reward.goldClaimed?'Collected':'Collect'} ${reward.gold} gold`}><GoldIcon/><span><strong>{reward.gold} gold</strong><small>{reward.goldClaimed?'Collected ✓':'Collect'}</small></span></button>
    {reward.potion&&<button className={`reward-pickup potion-pickup potion-${reward.potion}`} disabled={reward.potionStatus!=='pending'} onClick={()=>{if(potionCount(run)>=potionCapacity(run)){notifyPotionsFull();setReplacingPotion(true);}else update(r=>claimPotion(r),'bottle');}} aria-label={`${reward.potionStatus==='pending'?'Collect':reward.potionStatus==='collected'?'Collected':'Left'} ${potionName(reward.potion)}`}><PotionIcon potion={reward.potion}/><span><strong>{potionName(reward.potion)}</strong><small>{reward.potionStatus==='collected'?'Collected ✓':reward.potionStatus==='skipped'?'Left behind':POTIONS[reward.potion].detail}</small></span></button>}
-   {reward.relic&&<button className={`reward-pickup relic-pickup ${rarityClass(RELICS[reward.relic].rarity)}`} aria-label={`${RELICS[reward.relic].name}, ${RELICS[reward.relic].rarity}${reward.relicClaimed?', collected':''}`} disabled={reward.relicClaimed} onClick={()=>update(claimRelic,'stone')}><span className="relic-pickup-icon" aria-hidden="true"><RelicIcon relic={reward.relic}/></span><span><strong>{RELICS[reward.relic].name}</strong><em className="rarity-label">{RELICS[reward.relic].rarity}</em><small>{reward.relicClaimed?'Collected ✓':RELICS[reward.relic].description}</small></span></button>}
+   {reward.relic&&<button className={`reward-pickup relic-pickup ${rarityClass(RELICS[reward.relic].rarity)}`} aria-label={`${RELICS[reward.relic].name}, ${RELICS[reward.relic].rarity} relic${reward.relicClaimed?', collected':''}`} disabled={reward.relicClaimed} onClick={()=>update(claimRelic,'stone')}><span className="relic-pickup-icon" aria-hidden="true"><RelicIcon relic={reward.relic}/></span><span><strong>{RELICS[reward.relic].name}</strong><em className="rarity-label">{RELICS[reward.relic].rarity} relic</em><small>{reward.relicClaimed?'Collected ✓':RELICS[reward.relic].description}</small></span></button>}
   </div>
   {reward.potion&&reward.potionStatus==='pending'&&<>
    {replacingPotion&&potionCount(run)>=potionCapacity(run)&&<><p>Your purse is full. Replace a potion.</p><div className="choice-list">{(Object.keys(POTIONS) as Potion[]).filter(id=>(run.potions[id]??0)>0).map(id=><button key={id} onClick={()=>update(r=>claimPotion(r,id),'bottle')}>Replace {POTIONS[id].name}</button>)}</div></>}

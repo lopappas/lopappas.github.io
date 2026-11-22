@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {newBattle,launchSpell,drinkPotion,stepBattle,spellCooldownRemaining,SPELL_COOLDOWNS,type Battle} from '../src/battle.ts';
-const spells=[['firestorm',10],['eruption',12],['bog',15],['tidalcrest',8],['puddleGuard',10],['thistleBush',15],['flameBlade',8],['snowman',30],['scorchy',30],['shroomy',30]] as const;
+const spells=[['firestorm',10],['eruption',15],['bog',15],['tidalcrest',8],['puddleGuard',10],['thistleBush',12],['flameBlade',8],['snowman',30],['scorchy',30],['shroomy',30]] as const;
 function field(){const b=newBattle('active');b.approachAt=1000;b.enemies[0]={...b.enemies[0],element:'Neutral',x:350,hp:1e6,maxHP:1e6};return b;}
 function advance(b:Battle,seconds:number){for(let i=0;i<Math.round(seconds*100);i++)b=stepBattle(b,.01);return b;}
 
 test('each new cooldown starts on launch and blocks all changes until its exact expiry',()=>{
- assert.deepEqual(SPELL_COOLDOWNS,{torrent:10,sneakyVine:12,chronos:30,firestorm:10,eruption:12,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:15,flameBlade:8,snowman:30,scorchy:30,shroomy:30});
+ assert.deepEqual(SPELL_COOLDOWNS,{torrent:10,sneakyVine:12,chronos:30,firestorm:10,eruption:15,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:12,flameBlade:8,snowman:30,scorchy:30,shroomy:30});
  for(const [id,seconds] of spells){
   let b=field();b.time=2;b=launchSpell(b,60,'#fff',id);
   assert.equal(spellCooldownRemaining(b,id),seconds);

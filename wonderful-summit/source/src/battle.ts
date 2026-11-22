@@ -380,7 +380,7 @@ function resolveMother(state:Battle):Battle{
  if(next.enemies.every(e=>e.hp<=0)&&(!next.motherSplit||next.motherSplit.spawned))return{...next,phase:'victory',projectile:null,tidalWaves:[],torrent:null,snowman:null,scorchy:null,shroomy:null};
  return next;
 }
-export const SPELL_COOLDOWNS:Partial<Record<SpellId,number>>={snowman:GUARDIAN_COOLDOWN,scorchy:GUARDIAN_COOLDOWN,shroomy:GUARDIAN_COOLDOWN,torrent:10,sneakyVine:12,chronos:30,firestorm:10,eruption:12,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:15,flameBlade:8};
+export const SPELL_COOLDOWNS:Partial<Record<SpellId,number>>={snowman:GUARDIAN_COOLDOWN,scorchy:GUARDIAN_COOLDOWN,shroomy:GUARDIAN_COOLDOWN,torrent:10,sneakyVine:12,chronos:30,firestorm:10,eruption:15,bog:15,tidalcrest:8,puddleGuard:10,thistleBush:12,flameBlade:8};
 export function spellCooldownRemaining(state:Battle,id:SpellId){if(state.cooldownsDisabled)return 0;const remaining=(state.cooldowns[id]??0)-state.time;return remaining>1e-9?remaining:0;}
 export function staleMultiplier(state:Battle,id:SpellId){return state.stale.spellId===id&&state.stale.count>=3?.75:1;}
 export function releaseMultiplier(state:Battle,spellId:SpellId,source:'cast'|'bottle'='cast'){const element=SPELLS.find(s=>s.id===spellId)!.element;return(source==='cast'?staleMultiplier(state,spellId):1)*(state.castingRelics.sphere?1.15:1)*(1+robesBonus(state)/100)*(source==='cast'&&state.furyReady?2:1)*(state.lotus&&state.lotusReady&&!['chronos','puddleGuard','alchemize','constellation'].includes(spellId)?1.25:1)*(state.colorful&&state.lastElement!==null&&element!==state.lastElement?1.15:1);}

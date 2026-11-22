@@ -10,7 +10,8 @@ test('combat picker puts starters first, then owned spells by Water, Fire, Natur
  assert.deepEqual(orderedCombatSpells(['fire','water','water','bog']).map(s=>s.id),['water','fire','bog']);assert.equal(orderedCombatSpells(['fire']).some(s=>s.element==='Ancient'),false);assert.deepEqual(SPELLS,before);
 });
 test('trace presentation applies requested multipliers without changing source shapes',()=>{
- const before=structuredClone(SPELLS);for(const id of ['bog','chronos','firestorm','flameBlade','snowman'] as SpellId[])assert.equal(combatTraceScale(id),1.15);
+ const before=structuredClone(SPELLS);for(const id of ['chronos','firestorm','flameBlade','snowman'] as SpellId[])assert.equal(combatTraceScale(id),1.15);
+ assert.equal(combatTraceScale('bog'),1.15*1.1);
  assert.equal(combatTraceScale('thistleBush'),1.5);assert.equal(combatTraceScale('torrent'),1.4);assert.equal(combatTraceScale('water'),1);assert.equal(TRACE_STROKE_WIDTH,4*1.1);assert.equal(TRACE_FADE_MS,180);assert.deepEqual(SPELLS,before);
  const trace=new CombatTrace();trace.select('torrent',['torrent'],'expert',0);assert.equal(trace.advance(1.99),false);assert.equal(trace.advance(2),true);assert.equal(trace.canSelect('expert',11.99),false);assert.equal(trace.canSelect('expert',12),true);
 });
@@ -27,6 +28,8 @@ test('requested trace thicknesses scale relative to each guide’s base stroke',
  for(const [id,width] of Object.entries(widths))assert.equal(traceStrokeWidth(id as SpellId),width);
  assert.equal(traceStrokeWidth('water'),4.4);
  assert.equal(traceStrokeWidth('puddleGuard',3.45),2.9325);
+ assert.equal(traceStrokeWidth('bog'),3.96);
+ assert.equal(traceStrokeWidth('bog',undefined,true),3.6);
 });
 
 test('the spellbook fade cannot override persistent combat or tutorial trace opacity',()=>{

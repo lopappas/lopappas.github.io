@@ -13,7 +13,7 @@ Updated: 2026-11-23
 ## Current state
 Tutorial 2.0 milestones 1–7 are complete: Fire/Nature/Water lessons, the goblin quality comparison, guaranteed Colorful Rock inspection and a final independent elemental-slime test. The main menu has one Tutorial entry opening Tutorial 2.0; the old tutorial has been removed.
 
-Latest update (version 0.4.17-alpha) aims 25% of Torrent bubbles at present enemies, reduces each magma tick by 2 base damage, and makes Unopened Box grant one random non-keepsake relic. Spell Scoring Boost defaults to on for its six eligible spells, and both robes use raw drawing quality for True Wonderful.
+Latest update (version 0.4.18-alpha) gives Eruption a 15-second cooldown and makes magma deal 3 base damage per tick, or 4 upgraded. Thistle Bush has a 12-second cooldown. The starter-relic crystal ball reveals Theodora and her dialogue. Victory rewards show the relic rarity followed by “relic.” Practice puts Learn drawing at the lower left of the canvas, and Drudge Bog’s trace is 10% larger and 10% thinner.
 
 The spell catalog uses the user’s approved wording verbatim. Changes to spell descriptions require permission. Separate upgrade descriptions may follow balance changes.
 
@@ -27,7 +27,7 @@ Cursed Twig bypasses wooden shields. Spell Details ranks ambiguous matches from 
 
 Shroomy and Shroomy+ deal 8% more spore damage and slow enemies by an extra percentage point per stack. Scorchy has a lighter click at launch, and Snowman has a tennis hit sound at launch. Belladora sits lower and behind Filadora in combat.
 
-Eruption's warning follows the target for 0.8 seconds. On impact Eruption deals 1.275× Hearthspark’s base damage and simultaneously pushes the enemy 10 units and stuns it. The stun lasts 0.6 seconds at Faint, 0.85 at Steady, and 1.15 at Beautiful or Wonderful. Magma covers all three lanes, slows enemies by 12%, and lasts seven seconds at 80% quality with two base damage per half-second tick. Eruption+ deals 20% more direct damage, four base damage per tick, and adds 1.5 seconds to magma duration at every cast quality. The volcano trace is 50% larger in combat and Practice. Eruption has a 12-second cooldown.
+Eruption's warning follows the target for 0.8 seconds. On impact Eruption deals 1.275× Hearthspark’s base damage and simultaneously pushes the enemy 10 units and stuns it. The stun lasts 0.6 seconds at Faint, 0.85 at Steady, and 1.15 at Beautiful or Wonderful. Magma covers all three lanes, slows enemies by 12%, and lasts seven seconds at 80% quality with three base damage per half-second tick. Eruption+ deals 20% more direct damage, four base damage per tick, and adds 1.5 seconds to magma duration at every cast quality. The volcano trace is 50% larger in combat and Practice. Eruption has a 15-second cooldown.
 
 Cursed Twig targets the living, uncursed enemy with the most current health. At 80% quality its 15-second poison deals 150 damage, or 180 upgraded, regardless of elemental matchups or wooden shields. The spell has no cooldown and can curse the same enemy again after the poison expires. Both Act 1 bosses now offer a relic through the usual victory rewards.
 

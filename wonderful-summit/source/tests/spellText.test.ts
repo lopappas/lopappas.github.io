@@ -18,3 +18,9 @@ test('element matchup text is colored without changing casing or matching unrela
  assert.deepEqual(parts.filter(part=>part.color).map(part=>part.text),['Water','fire','FIRE','Nature']);
  for(const part of parts.filter(part=>part.color))assert.equal(part.color,SPELLS.find(spell=>spell.element.toLowerCase()===part.text.toLowerCase())!.color);
 });
+
+test('Fire Friend keeps its name uncolored alongside elemental text',()=>{
+ const parts=spellTextParts('Fire Friend increases Fire burn damage.');
+ assert.deepEqual(parts.filter(part=>part.color).map(part=>part.text),['Fire']);
+ assert.deepEqual(parts[0],{text:'Fire Friend',color:undefined});
+});
